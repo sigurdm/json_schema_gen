@@ -1,0 +1,7 @@
+# Read about `build.yaml` at https://pub.dev/packages/build_config
+targets:
+  $default:
+    builders:
+      json_schema_gen|json_schema_gen:
+        generate_for:
+          - lib/*.schema.json

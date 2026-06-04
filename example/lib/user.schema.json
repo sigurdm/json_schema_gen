@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "User",
+  "type": "object",
+  "properties": {
+    "id": { "type": "integer" },
+    "name": { "type": "string", "minLength": 2 },
+    "email": { "type": "string" },
+    "role": {
+      "type": "string",
+      "enum": ["admin", "editor", "user"]
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "avatarUrl": { "type": "string" },
+        "bio": { "type": "string" }
+      }
+    }
+  },
+  "required": ["id", "name", "email", "role"]
+}

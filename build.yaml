@@ -1,0 +1,13 @@
+builders:
+  json_schema_gen:
+    import: "package:json_schema_gen/builder.dart"
+    builder_factories: ["jsonSchemaBuilder"]
+    build_extensions: {".schema.json": [".g.dart"]}
+    auto_apply: dependents
+    build_to: source
+
+targets:
+  $default:
+    builders:
+      json_schema_gen|json_schema_gen:
+        enabled: true
