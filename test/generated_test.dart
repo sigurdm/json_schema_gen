@@ -254,6 +254,106 @@ void main() {
       );
     });
 
+    test('Constraint validation - multipleOf success', () {
+      final jsonObject = {
+        'name': 'Sigurd',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'Aarhus'},
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.age, 35);
+    });
+
+    test('Constraint validation - multipleOf throw', () {
+      final jsonObject = {
+        'name': 'Sigurd',
+        'age': 33,
+        'isAwesome': true,
+        'address': {'city': 'Aarhus'},
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having((e) => e.path, 'path', ['age'])
+              .having(
+                (e) => e.message,
+                'message',
+                contains('Property "age" must be a multiple of 5'),
+              ),
+        ),
+      );
+    });
+
+    test('Constraint validation - uniqueItems success', () {
+      final jsonObject = {
+        'name': 'Sigurd',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'Aarhus'},
+        'tags': ['dart', 'json'],
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.tags, ['dart', 'json']);
+    });
+
+    test('Constraint validation - uniqueItems throw', () {
+      final jsonObject = {
+        'name': 'Sigurd',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'Aarhus'},
+        'tags': ['dart', 'dart'],
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having((e) => e.path, 'path', ['tags'])
+              .having(
+                (e) => e.message,
+                'message',
+                contains('Property "tags" items must be unique'),
+              ),
+        ),
+      );
+    });
+
+    test('Constraint validation - format uuid success', () {
+      final jsonObject = {
+        'name': 'Sigurd',
+        'age': 35,
+        'uuid': '123e4567-e89b-12d3-a456-426614174000',
+        'isAwesome': true,
+        'address': {'city': 'Aarhus'},
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.uuid, '123e4567-e89b-12d3-a456-426614174000');
+    });
+
+    test('Constraint validation - format uuid throw', () {
+      final jsonObject = {
+        'name': 'Sigurd',
+        'age': 35,
+        'uuid': 'not-a-uuid',
+        'isAwesome': true,
+        'address': {'city': 'Aarhus'},
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having((e) => e.path, 'path', ['uuid'])
+              .having(
+                (e) => e.message,
+                'message',
+                contains('Property "uuid" must be a valid UUID'),
+              ),
+        ),
+      );
+    });
+
     test('Constraint validation - disable validation on parse', () {
       final jsonObject = {
         'name': 'S', // Invalid (minLength: 2)

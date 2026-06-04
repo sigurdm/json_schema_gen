@@ -47,11 +47,15 @@ final class ArraySchema extends Schema {
   /// Maximum number of items allowed in the array.
   final int? maxItems;
 
+  /// Whether items in the array must be unique.
+  final bool? uniqueItems;
+
   /// Const constructor for array schemas.
   const ArraySchema({
     required this.items,
     this.minItems,
     this.maxItems,
+    this.uniqueItems,
     super.title,
     super.description,
   });
@@ -68,11 +72,15 @@ final class StringSchema extends Schema {
   /// RegEx pattern the string must match.
   final String? pattern;
 
+  /// Format identifier (e.g. `date-time`, `email`, etc.).
+  final String? format;
+
   /// Const constructor for string schemas.
   const StringSchema({
     this.minLength,
     this.maxLength,
     this.pattern,
+    this.format,
     super.title,
     super.description,
   });
@@ -89,11 +97,15 @@ final class NumberSchema extends Schema {
   /// Maximum value allowed.
   final num? maximum;
 
+  /// The value must be a multiple of this number.
+  final num? multipleOf;
+
   /// Const constructor for number schemas.
   const NumberSchema({
     required this.isInteger,
     this.minimum,
     this.maximum,
+    this.multipleOf,
     super.title,
     super.description,
   });
@@ -398,6 +410,7 @@ final class SchemaParser {
               items: items,
               minItems: json['minItems'] as int?,
               maxItems: json['maxItems'] as int?,
+              uniqueItems: json['uniqueItems'] as bool?,
               title: title,
               description: description,
             );
@@ -407,6 +420,7 @@ final class SchemaParser {
               minLength: json['minLength'] as int?,
               maxLength: json['maxLength'] as int?,
               pattern: json['pattern'] as String?,
+              format: json['format'] as String?,
               title: title,
               description: description,
             );
@@ -416,6 +430,7 @@ final class SchemaParser {
               isInteger: false,
               minimum: json['minimum'] as num?,
               maximum: json['maximum'] as num?,
+              multipleOf: json['multipleOf'] as num?,
               title: title,
               description: description,
             );
@@ -425,6 +440,7 @@ final class SchemaParser {
               isInteger: true,
               minimum: json['minimum'] as num?,
               maximum: json['maximum'] as num?,
+              multipleOf: json['multipleOf'] as num?,
               title: title,
               description: description,
             );
@@ -1889,6 +1905,9 @@ String _generateValidationMethod(
         throw JsonValidationException('Property "$name" must match pattern "$msgPatternEscaped"', ['$name']);
       }''');
       }
+      if (real.format != null) {
+        _generateFormatValidation(validations, valueVar, real.format!, name);
+      }
     } else if (real is NumberSchema) {
       if (real.minimum != null) {
         validations.writeln('      if ($valueVar < ${real.minimum}) {');
@@ -1904,6 +1923,21 @@ String _generateValidationMethod(
         );
         validations.writeln('      }');
       }
+      if (real.multipleOf != null) {
+        if (real.isInteger) {
+          validations.writeln(
+            '      if ($valueVar % ${real.multipleOf} != 0) {',
+          );
+        } else {
+          validations.writeln(
+            '      if (($valueVar / ${real.multipleOf} - ($valueVar / ${real.multipleOf}).round()).abs() > 1e-9) {',
+          );
+        }
+        validations.writeln(
+          "        throw JsonValidationException('Property \"$name\" must be a multiple of ${real.multipleOf}', ['$name']);",
+        );
+        validations.writeln('      }');
+      }
     } else if (real is ArraySchema) {
       if (real.minItems != null) {
         validations.writeln('      if ($valueVar.length < ${real.minItems}) {');
@@ -1916,6 +1950,15 @@ String _generateValidationMethod(
         validations.writeln('      if ($valueVar.length > ${real.maxItems}) {');
         validations.writeln(
           "        throw JsonValidationException('Property \"$name\" must have <= ${real.maxItems} items', ['$name']);",
+        );
+        validations.writeln('      }');
+      }
+      if (real.uniqueItems == true) {
+        validations.writeln(
+          '      if ($valueVar.length != $valueVar.toSet().length) {',
+        );
+        validations.writeln(
+          "        throw JsonValidationException('Property \"$name\" items must be unique', ['$name']);",
         );
         validations.writeln('      }');
       }
@@ -1975,6 +2018,69 @@ String _generateValidationMethod(
 
   buffer.writeln('  }');
   return buffer.toString();
+}
+
+void _generateFormatValidation(
+  StringBuffer validations,
+  String valueVar,
+  String format,
+  String name,
+) {
+  switch (format) {
+    case 'date-time':
+      validations.writeln('      if (DateTime.tryParse($valueVar) == null) {');
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid RFC 3339 date-time string', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'date':
+      validations.writeln(
+        "      if (!RegExp(r'^\\d{4}-\\d{2}-\\d{2}\$').hasMatch($valueVar)) {",
+      );
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid date string (YYYY-MM-DD)', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'email':
+      validations.writeln(
+        "      if (!RegExp(r'^[^@]+@[^@]+\$').hasMatch($valueVar)) {",
+      );
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid email address', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'ipv4':
+      validations.writeln(
+        "      if (!RegExp(r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\$').hasMatch($valueVar)) {",
+      );
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid IPv4 address', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'uuid':
+      validations.writeln(
+        "      if (!RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$').hasMatch($valueVar)) {",
+      );
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid UUID', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'uri':
+      validations.writeln('      final parsedUri = Uri.tryParse($valueVar);');
+      validations.writeln(
+        '      if (parsedUri == null || !parsedUri.hasScheme) {',
+      );
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid absolute URI', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+  }
 }
 
 String _generateUnionClass(

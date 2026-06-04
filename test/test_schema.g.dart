@@ -8,6 +8,7 @@ final class TestRoot implements JsonModel {
   final int age;
   final num? height;
   final String? email;
+  final String? uuid;
   final bool isAwesome;
   final String? class_;
   final String? reader;
@@ -26,6 +27,7 @@ final class TestRoot implements JsonModel {
     required this.age,
     this.height,
     this.email,
+    this.uuid,
     required this.isAwesome,
     this.class_,
     this.reader,
@@ -58,6 +60,7 @@ final class TestRoot implements JsonModel {
     int? age,
     num? height,
     String? email,
+    String? uuid,
     bool? isAwesome,
     String? class_,
     String? reader,
@@ -75,6 +78,7 @@ final class TestRoot implements JsonModel {
     age: age ?? this.age,
     height: height ?? this.height,
     email: email ?? this.email,
+    uuid: uuid ?? this.uuid,
     isAwesome: isAwesome ?? this.isAwesome,
     class_: class_ ?? this.class_,
     reader: reader ?? this.reader,
@@ -98,6 +102,11 @@ final class TestRoot implements JsonModel {
     if (age < 0) {
       throw JsonValidationException('Property "age" must be >= 0', ['age']);
     }
+    if (age % 5 != 0) {
+      throw JsonValidationException('Property "age" must be a multiple of 5', [
+        'age',
+      ]);
+    }
     final val_email = email;
     if (val_email != null) {
       if (!RegExp(r'^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$').hasMatch(val_email)) {
@@ -105,6 +114,16 @@ final class TestRoot implements JsonModel {
           'Property "email" must match pattern "^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+\$"',
           ['email'],
         );
+      }
+    }
+    final val_uuid = uuid;
+    if (val_uuid != null) {
+      if (!RegExp(
+        r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+      ).hasMatch(val_uuid)) {
+        throw JsonValidationException('Property "uuid" must be a valid UUID', [
+          'uuid',
+        ]);
       }
     }
     try {
@@ -116,6 +135,11 @@ final class TestRoot implements JsonModel {
     if (val_tags != null) {
       if (val_tags.length < 1) {
         throw JsonValidationException('Property "tags" must have >= 1 items', [
+          'tags',
+        ]);
+      }
+      if (val_tags.length != val_tags.toSet().length) {
+        throw JsonValidationException('Property "tags" items must be unique', [
           'tags',
         ]);
       }
@@ -160,6 +184,7 @@ final class TestRoot implements JsonModel {
       age: fields['age'] as int,
       height: fields['height'] as num?,
       email: fields['email'] as String?,
+      uuid: fields['uuid'] as String?,
       isAwesome: fields['isAwesome'] as bool,
       class_: fields['class'] as String?,
       reader: fields['reader'] as String?,
@@ -178,6 +203,7 @@ final class TestRoot implements JsonModel {
       'age': instance.age,
       'height': instance.height,
       'email': instance.email,
+      'uuid': instance.uuid,
       'isAwesome': instance.isAwesome,
       'class': instance.class_,
       'reader': instance.reader,
@@ -209,6 +235,11 @@ final class TestRoot implements JsonModel {
       ),
       'email': PropertyDescriptor(
         name: 'email',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'uuid': PropertyDescriptor(
+        name: 'uuid',
         isRequired: false,
         schema: const StringDescriptor(),
       ),
@@ -285,6 +316,7 @@ final class TestRoot implements JsonModel {
           age == other.age &&
           height == other.height &&
           email == other.email &&
+          uuid == other.uuid &&
           isAwesome == other.isAwesome &&
           class_ == other.class_ &&
           reader == other.reader &&
@@ -304,6 +336,7 @@ final class TestRoot implements JsonModel {
     age,
     height,
     email,
+    uuid,
     isAwesome,
     class_,
     reader,
@@ -320,7 +353,7 @@ final class TestRoot implements JsonModel {
 
   @override
   String toString() =>
-      'TestRoot(name: ${name}, age: ${age}, height: ${height}, email: ${email}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet})';
+      'TestRoot(name: ${name}, age: ${age}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet})';
 }
 
 final class Address implements JsonModel {
