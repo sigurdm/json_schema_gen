@@ -92,6 +92,18 @@ void main() {
       expect(decoded['result'], 'my-result-value');
     });
 
+    test('TestRoot ignores unknown properties', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'unknownTopLevelProp': 'should_be_ignored',
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.name, 'John');
+    });
+
     test('Required field validation', () {
       final missingName = {
         'age': 35,
@@ -754,10 +766,10 @@ void main() {
         'age': 35,
         'isAwesome': true,
         'address': {'city': 'London'},
-        'restrictedArray': [1, 2, 5],
+        'restrictedArray': [1, 2, 6],
       };
       final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
-      expect(model.restrictedArray, [1, 2, 5]);
+      expect(model.restrictedArray, [1, 2, 6]);
     });
 
     test('contains validation - success (2 matches)', () {
@@ -766,10 +778,10 @@ void main() {
         'age': 35,
         'isAwesome': true,
         'address': {'city': 'London'},
-        'restrictedArray': [5, 6],
+        'restrictedArray': [6, 9],
       };
       final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
-      expect(model.restrictedArray, [5, 6]);
+      expect(model.restrictedArray, [6, 9]);
     });
 
     test('contains validation - failure (too few)', () {
@@ -778,7 +790,7 @@ void main() {
         'age': 35,
         'isAwesome': true,
         'address': {'city': 'London'},
-        'restrictedArray': [1, 2, 3],
+        'restrictedArray': [1, 2, 4],
       };
       expect(
         () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
@@ -800,7 +812,7 @@ void main() {
         'age': 35,
         'isAwesome': true,
         'address': {'city': 'London'},
-        'restrictedArray': [5, 6, 7],
+        'restrictedArray': [6, 9, 12],
       };
       expect(
         () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
@@ -1180,5 +1192,807 @@ void main() {
         );
       },
     );
+    test('not validation - success', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'notObject': {
+          'notPatternString': 'allowed string', // does not contain "forbidden"
+          'notEnumInt': 10, // not 13 or 17
+          'notNullValue': 42, // not null
+        },
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.notObject!.notPatternString, 'allowed string');
+      expect(model.notObject!.notEnumInt, 10);
+      expect(model.notObject!.notNullValue, 42);
+    });
+
+    test('not validation - failure (pattern matches)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'notObject': {
+          'notPatternString': 'this is forbidden text', // matches "forbidden"
+          'notEnumInt': 10,
+          'notNullValue': 42,
+        },
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having(
+                (e) => e.message,
+                'message',
+                contains('must not match the schema'),
+              )
+              .having((e) => e.path, 'path', ['notObject', 'notPatternString']),
+        ),
+      );
+    });
+
+    test('not validation - failure (enum value matches)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'notObject': {
+          'notPatternString': 'allowed string',
+          'notEnumInt': 13, // forbidden value
+          'notNullValue': 42,
+        },
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having(
+                (e) => e.message,
+                'message',
+                contains('must not match the schema'),
+              )
+              .having((e) => e.path, 'path', ['notObject', 'notEnumInt']),
+        ),
+      );
+    });
+
+    test('not validation - failure (value is null)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'notObject': {
+          'notPatternString': 'allowed string',
+          'notEnumInt': 10,
+          'notNullValue': null, // forbidden null
+        },
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having(
+                (e) => e.message,
+                'message',
+                contains('must not match the schema'),
+              )
+              .having((e) => e.path, 'path', ['notObject', 'notNullValue']),
+        ),
+      );
+    });
+    test('anyOfValue - success (string)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'anyOfValue': 'hello',
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.anyOfValue, isA<TestRootAnyOfValueOption0>());
+      expect((model.anyOfValue as TestRootAnyOfValueOption0).value, 'hello');
+    });
+
+    test('anyOfValue - success (integer)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'anyOfValue': 42,
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.anyOfValue, isA<TestRootAnyOfValueOption1>());
+      expect((model.anyOfValue as TestRootAnyOfValueOption1).value, 42);
+    });
+
+    test('anyOfValue - failure (invalid type)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'anyOfValue': true,
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonParseException>().having(
+            (e) => e.message,
+            'message',
+            contains('Failed to parse TestRootAnyOfValue union'),
+          ),
+        ),
+      );
+    });
+
+    group('MergedAllOfObject validation', () {
+      test('success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {
+            'strVal': 'a@b.com', // starts with 'a', length 7, email
+            'numVal': 15, // >= 10, <= 50, multiple of 5
+          },
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.mergedAllOfObject!.strVal, 'a@b.com');
+        expect(model.mergedAllOfObject!.numVal, 15);
+      });
+
+      test('success (empty optional)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': <String, dynamic>{},
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.mergedAllOfObject!.strVal, isNull);
+        expect(model.mergedAllOfObject!.numVal, isNull);
+      });
+
+      test('failure (dependent required missing numVal)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {'strVal': 'a@b.com'},
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>()
+                .having(
+                  (e) => e.message,
+                  'message',
+                  contains('required because "strVal" is present'),
+                )
+                .having((e) => e.path, 'path', ['mergedAllOfObject', 'numVal']),
+          ),
+        );
+      });
+
+      test('failure (strVal minLength)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {
+            'strVal': 'a@b', // length 3 < 5
+            'numVal': 15,
+          },
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>()
+                .having(
+                  (e) => e.message,
+                  'message',
+                  contains('length must be >= 5'),
+                )
+                .having((e) => e.path, 'path', ['mergedAllOfObject', 'strVal']),
+          ),
+        );
+      });
+
+      test('failure (strVal maxLength)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {
+            'strVal': 'aaaa@b.com', // length 10 > 8
+            'numVal': 15,
+          },
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>()
+                .having(
+                  (e) => e.message,
+                  'message',
+                  contains('length must be <= 8'),
+                )
+                .having((e) => e.path, 'path', ['mergedAllOfObject', 'strVal']),
+          ),
+        );
+      });
+
+      test('failure (strVal pattern)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {
+            'strVal': 'x@y.com', // does not start with 'a'
+            'numVal': 15,
+          },
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>()
+                .having(
+                  (e) => e.message,
+                  'message',
+                  contains('must match pattern'),
+                )
+                .having((e) => e.path, 'path', ['mergedAllOfObject', 'strVal']),
+          ),
+        );
+      });
+
+      test('failure (strVal format)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {
+            'strVal': 'a_no_at', // no '@'
+            'numVal': 15,
+          },
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>()
+                .having(
+                  (e) => e.message,
+                  'message',
+                  contains('must be a valid email address'),
+                )
+                .having((e) => e.path, 'path', ['mergedAllOfObject', 'strVal']),
+          ),
+        );
+      });
+
+      test('failure (numVal minimum)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {
+            'strVal': 'a@b.com',
+            'numVal': 5, // < 10
+          },
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>()
+                .having((e) => e.message, 'message', contains('must be >= 10'))
+                .having((e) => e.path, 'path', ['mergedAllOfObject', 'numVal']),
+          ),
+        );
+      });
+
+      test('failure (numVal maximum)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {
+            'strVal': 'a@b.com',
+            'numVal': 55, // > 50
+          },
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>()
+                .having((e) => e.message, 'message', contains('must be <= 50'))
+                .having((e) => e.path, 'path', ['mergedAllOfObject', 'numVal']),
+          ),
+        );
+      });
+
+      test('failure (numVal multipleOf)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'mergedAllOfObject': {
+            'strVal': 'a@b.com',
+            'numVal': 12, // not multiple of 5
+          },
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>()
+                .having(
+                  (e) => e.message,
+                  'message',
+                  contains('must be a multiple of 5'),
+                )
+                .having((e) => e.path, 'path', ['mergedAllOfObject', 'numVal']),
+          ),
+        );
+      });
+    });
+
+    group('StrictObject validation', () {
+      test('success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'strictObject': {'name': 'valueA'},
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.strictObject!.name, 'valueA');
+      });
+
+      test('failure with unknown property (not allowed)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'strictObject': {'name': 'valueA', 'unknownProp': 123},
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonParseException>().having(
+              (e) => e.message,
+              'message',
+              contains('Value is not allowed here'),
+            ),
+          ),
+        );
+      });
+    });
+    group('ComplexMergedObject validation', () {
+      test('success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'complexMerged': {
+            'numVal': 15.0,
+            'additionalProp1': 'val1',
+            'additionalProp2': 'val2',
+          },
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.complexMerged!.numVal, 15.0);
+        expect(
+          model.complexMerged!.additionalProperties['additionalProp1'],
+          'val1',
+        );
+      });
+
+      test('failure (exclusiveMinimum)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'complexMerged': {'numVal': 10.0, 'additionalProp1': 'val1'},
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('must be > 10.0'),
+            ),
+          ),
+        );
+      });
+
+      test('failure (exclusiveMaximum)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'complexMerged': {'numVal': 20.0, 'additionalProp1': 'val1'},
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('must be < 20.0'),
+            ),
+          ),
+        );
+      });
+
+      test('failure (additionalProperties minLength)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'complexMerged': {'numVal': 15.0, 'additionalProp1': 'ab'},
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('length must be >= 3'),
+            ),
+          ),
+        );
+      });
+
+      test('failure (minProperties)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'complexMerged': <String, dynamic>{'numVal': 15.0},
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('Object must have >= 2 properties'),
+            ),
+          ),
+        );
+      });
+
+      test('failure (maxProperties)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'complexMerged': {
+            'numVal': 15.0,
+            'p1': 'val1',
+            'p2': 'val2',
+            'p3': 'val3',
+            'p4': 'val4',
+            'p5': 'val5',
+          },
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('Object must have <= 5 properties'),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('MyEnum validation', () {
+      test('success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'myEnumField': 'beta',
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.myEnumField, MyEnum.beta);
+      });
+
+      test('failure (invalid enum value)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'myEnumField': 'delta',
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonParseException>().having(
+              (e) => e.message,
+              'message',
+              contains('Invalid enum value: delta'),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('Contains validations', () {
+      test('unionContainsArray success (string)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'unionContainsArray': [1, 'a@b.co', true],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.unionContainsArray, isNotNull);
+      });
+
+      test('unionContainsArray success (int)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'unionContainsArray': [1, 6, true],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.unionContainsArray, isNotNull);
+      });
+
+      test('unionContainsArray success (double)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'unionContainsArray': [1, 7.5, true],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.unionContainsArray, isNotNull);
+      });
+
+      test('unionContainsArray failure (no match)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'unionContainsArray': [1, 'ab', 4, 7.3, true],
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains(
+                'must contain at least 1 items matching contains schema',
+              ),
+            ),
+          ),
+        );
+      });
+
+      test('objectContainsArray success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'objectContainsArray': [
+            {'city': 'Paris'},
+          ],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.objectContainsArray, isNotNull);
+      });
+
+      test('enumContainsArray success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'enumContainsArray': ['alpha'],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.enumContainsArray, isNotNull);
+      });
+
+      test('booleanContainsArray success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'booleanContainsArray': [true],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.booleanContainsArray, isNotNull);
+      });
+
+      test('nullContainsArray success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'nullContainsArray': [null],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.nullContainsArray, isNotNull);
+      });
+
+      test('anyContainsArray success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'anyContainsArray': [123],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.anyContainsArray, isNotNull);
+      });
+      test('stringContainsArray success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'stringContainsArray': ['a@b.co'],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.stringContainsArray, isNotNull);
+      });
+
+      test('stringContainsArray failure (no match)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'stringContainsArray': ['ab', 'a@b.corporation', 'b@c.co'],
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains(
+                'must contain at least 1 items matching contains schema',
+              ),
+            ),
+          ),
+        );
+      });
+
+      test('numberContainsArray success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'numberContainsArray': [5.5],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.numberContainsArray, isNotNull);
+      });
+
+      test('numberContainsArray failure (no match)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'numberContainsArray': [4.0, 11.0, 4.5, 10.5, 5.3],
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains(
+                'must contain at least 1 items matching contains schema',
+              ),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('ObjectWithDynamicProps validation', () {
+      test('success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'dynamicProps': {
+            'notInt': 'string is not int',
+            'notNum': 'string is not num',
+          },
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.dynamicProps, isNotNull);
+      });
+
+      test('failure (notInt matches int)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'dynamicProps': {'notInt': 42, 'notNum': 'string'},
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('Property "notInt" must not match the schema'),
+            ),
+          ),
+        );
+      });
+
+      test('failure (notNum matches num)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'dynamicProps': {'notInt': 'string', 'notNum': 3.14},
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('Property "notNum" must not match the schema'),
+            ),
+          ),
+        );
+      });
+    });
   });
 }

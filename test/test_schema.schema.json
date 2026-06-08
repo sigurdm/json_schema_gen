@@ -42,7 +42,7 @@
     "restrictedArray": {
       "type": "array",
       "items": { "type": "integer" },
-      "contains": { "type": "integer", "minimum": 5 },
+      "contains": { "type": "integer", "minimum": 5, "multipleOf": 3 },
       "minContains": 1,
       "maxContains": 2
     },
@@ -117,10 +117,84 @@
     },
     "strictObject": {
       "$ref": "#/$defs/StrictObject"
+    },
+    "notObject": {
+      "$ref": "#/$defs/NotObject"
+    },
+    "anyOfValue": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "integer" }
+      ]
+    },
+    "mergedAllOfObject": {
+      "$ref": "#/$defs/MergedAllOfObject"
+    },
+    "complexMerged": { "$ref": "#/$defs/ComplexMergedObject" },
+    "myEnumField": { "$ref": "#/$defs/MyEnum" },
+    "unionContainsArray": {
+      "type": "array",
+      "contains": {
+        "oneOf": [
+          { "type": "string", "minLength": 3, "maxLength": 10, "pattern": "^a", "format": "email" },
+          { "type": "integer", "minimum": 5, "maximum": 10, "multipleOf": 2 },
+          { "type": "number", "exclusiveMinimum": 5.0, "exclusiveMaximum": 11.0, "multipleOf": 0.5 }
+        ]
+      }
+    },
+    "objectContainsArray": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/Address" }
+    },
+    "enumContainsArray": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/MyEnum" }
+    },
+    "booleanContainsArray": {
+      "type": "array",
+      "contains": { "type": "boolean" }
+    },
+    "nullContainsArray": {
+      "type": "array",
+      "contains": { "type": "null" }
+    },
+    "anyContainsArray": {
+      "type": "array",
+      "contains": {}
+    },
+    "stringContainsArray": {
+      "type": "array",
+      "contains": { "type": "string", "minLength": 3, "maxLength": 10, "pattern": "^a", "format": "email" }
+    },
+    "numberContainsArray": {
+      "type": "array",
+      "contains": {
+        "type": "number",
+        "minimum": 5.0,
+        "maximum": 10.0,
+        "exclusiveMinimum": 4.5,
+        "exclusiveMaximum": 10.5,
+        "multipleOf": 0.5
+      }
+    },
+    "dynamicProps": {
+      "$ref": "#/$defs/ObjectWithDynamicProps"
     }
   },
   "required": ["name", "age", "isAwesome", "address"],
   "$defs": {
+    "ObjectWithDynamicProps": {
+      "title": "ObjectWithDynamicProps",
+      "type": "object",
+      "properties": {
+        "notInt": {
+          "not": { "type": "integer" }
+        },
+        "notNum": {
+          "not": { "type": "number" }
+        }
+      }
+    },
     "MapObject": {
       "title": "MapObject",
       "type": "object",
@@ -136,6 +210,104 @@
         "name": { "type": "string" }
       },
       "additionalProperties": false
+    },
+    "NotObject": {
+      "title": "NotObject",
+      "type": "object",
+      "properties": {
+        "notPatternString": {
+          "type": "string",
+          "not": { "pattern": "forbidden" }
+        },
+        "notEnumInt": {
+          "type": "integer",
+          "not": { "enum": [13, 17] }
+        },
+        "notNullValue": {
+          "not": { "type": "null" }
+        }
+      },
+      "required": ["notPatternString", "notEnumInt", "notNullValue"]
+    },
+    "MergedAllOfObject": {
+      "title": "MergedAllOfObject",
+      "type": "object",
+      "allOf": [
+        {
+          "properties": {
+            "strVal": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 10,
+              "pattern": "^a"
+            },
+            "numVal": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "multipleOf": 5
+            }
+          },
+          "dependentRequired": {
+            "strVal": ["numVal"]
+          }
+        },
+        {
+          "properties": {
+            "strVal": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 8,
+              "format": "email"
+            },
+            "numVal": {
+              "type": "number",
+              "minimum": 10,
+              "maximum": 50
+            }
+          }
+        }
+      ]
+    },
+    "MyEnum": {
+      "title": "MyEnum",
+      "type": "string",
+      "enum": ["alpha", "beta", "gamma"]
+    },
+    "ComplexMergedObject": {
+      "title": "ComplexMergedObject",
+      "type": "object",
+      "allOf": [
+        {
+          "properties": {
+            "numVal": {
+              "type": "number",
+              "exclusiveMinimum": 5.0,
+              "exclusiveMaximum": 25.0
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          },
+          "minProperties": 1,
+          "maxProperties": 10
+        },
+        {
+          "properties": {
+            "numVal": {
+              "type": "number",
+              "exclusiveMinimum": 10.0,
+              "exclusiveMaximum": 20.0
+            }
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 3
+          },
+          "minProperties": 2,
+          "maxProperties": 5
+        }
+      ]
     },
     "Address": {
       "title": "Address",

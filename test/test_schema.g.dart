@@ -1,4 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
 
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
@@ -44,6 +45,20 @@ final class TestRoot implements JsonModel {
   final String? uriReferenceValue;
   final MapObject? additionalPropertiesObject;
   final StrictObject? strictObject;
+  final NotObject? notObject;
+  final TestRootAnyOfValue? anyOfValue;
+  final MergedAllOfObject? mergedAllOfObject;
+  final ComplexMergedObject? complexMerged;
+  final MyEnum? myEnumField;
+  final List<Object?>? unionContainsArray;
+  final List<Object?>? objectContainsArray;
+  final List<Object?>? enumContainsArray;
+  final List<Object?>? booleanContainsArray;
+  final List<Object?>? nullContainsArray;
+  final List<Object?>? anyContainsArray;
+  final List<Object?>? stringContainsArray;
+  final List<Object?>? numberContainsArray;
+  final ObjectWithDynamicProps? dynamicProps;
 
   const TestRoot({
     required this.name,
@@ -85,6 +100,20 @@ final class TestRoot implements JsonModel {
     this.uriReferenceValue,
     this.additionalPropertiesObject,
     this.strictObject,
+    this.notObject,
+    this.anyOfValue,
+    this.mergedAllOfObject,
+    this.complexMerged,
+    this.myEnumField,
+    this.unionContainsArray,
+    this.objectContainsArray,
+    this.enumContainsArray,
+    this.booleanContainsArray,
+    this.nullContainsArray,
+    this.anyContainsArray,
+    this.stringContainsArray,
+    this.numberContainsArray,
+    this.dynamicProps,
   });
 
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -140,6 +169,20 @@ final class TestRoot implements JsonModel {
     String? uriReferenceValue,
     MapObject? additionalPropertiesObject,
     StrictObject? strictObject,
+    NotObject? notObject,
+    TestRootAnyOfValue? anyOfValue,
+    MergedAllOfObject? mergedAllOfObject,
+    ComplexMergedObject? complexMerged,
+    MyEnum? myEnumField,
+    List<Object?>? unionContainsArray,
+    List<Object?>? objectContainsArray,
+    List<Object?>? enumContainsArray,
+    List<Object?>? booleanContainsArray,
+    List<Object?>? nullContainsArray,
+    List<Object?>? anyContainsArray,
+    List<Object?>? stringContainsArray,
+    List<Object?>? numberContainsArray,
+    ObjectWithDynamicProps? dynamicProps,
   }) => TestRoot(
     name: name ?? this.name,
     constValue: constValue ?? this.constValue,
@@ -181,6 +224,20 @@ final class TestRoot implements JsonModel {
     additionalPropertiesObject:
         additionalPropertiesObject ?? this.additionalPropertiesObject,
     strictObject: strictObject ?? this.strictObject,
+    notObject: notObject ?? this.notObject,
+    anyOfValue: anyOfValue ?? this.anyOfValue,
+    mergedAllOfObject: mergedAllOfObject ?? this.mergedAllOfObject,
+    complexMerged: complexMerged ?? this.complexMerged,
+    myEnumField: myEnumField ?? this.myEnumField,
+    unionContainsArray: unionContainsArray ?? this.unionContainsArray,
+    objectContainsArray: objectContainsArray ?? this.objectContainsArray,
+    enumContainsArray: enumContainsArray ?? this.enumContainsArray,
+    booleanContainsArray: booleanContainsArray ?? this.booleanContainsArray,
+    nullContainsArray: nullContainsArray ?? this.nullContainsArray,
+    anyContainsArray: anyContainsArray ?? this.anyContainsArray,
+    stringContainsArray: stringContainsArray ?? this.stringContainsArray,
+    numberContainsArray: numberContainsArray ?? this.numberContainsArray,
+    dynamicProps: dynamicProps ?? this.dynamicProps,
   );
 
   void validate() {
@@ -188,6 +245,17 @@ final class TestRoot implements JsonModel {
       throw JsonValidationException('Property "name" length must be >= 2', [
         'name',
       ]);
+    }
+    final val_constValue = constValue;
+    if (val_constValue != null) {
+      if (!const [
+        TestRootConstValue.alwaysThisValue,
+      ].contains(val_constValue)) {
+        throw JsonValidationException(
+          'Property "constValue" must be one of [always-this-value]',
+          ['constValue'],
+        );
+      }
     }
     if (age < 0) {
       throw JsonValidationException('Property "age" must be >= 0', ['age']);
@@ -210,6 +278,7 @@ final class TestRoot implements JsonModel {
         ]);
       }
     }
+    final val_height = height;
     final val_email = email;
     if (val_email != null) {
       if (!RegExp(r'^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$').hasMatch(val_email)) {
@@ -229,6 +298,11 @@ final class TestRoot implements JsonModel {
         ]);
       }
     }
+    final val_class_ = class_;
+    final val_reader = reader;
+    final val_stack = stack;
+    final val_validate_ = validate_;
+    final val_result = result;
     try {
       address.validate();
     } on JsonValidationException catch (e) {
@@ -269,6 +343,7 @@ final class TestRoot implements JsonModel {
         throw JsonValidationException(e.message, ['unionValue', ...e.path]);
       }
     }
+    final val_nullableString = nullableString;
     final val_pet = pet;
     if (val_pet != null) {
       try {
@@ -307,6 +382,7 @@ final class TestRoot implements JsonModel {
         if (item is int) {
           matches = true;
           if (item < 5) matches = false;
+          if (item % 3 != 0) matches = false;
         }
         if (matches) containsCount++;
       }
@@ -323,6 +399,7 @@ final class TestRoot implements JsonModel {
         );
       }
     }
+    final val_deprecatedField = deprecatedField;
     final val_deprecatedRef = deprecatedRef;
     if (val_deprecatedRef != null) {
       try {
@@ -336,6 +413,7 @@ final class TestRoot implements JsonModel {
     } on JsonValidationException catch (e) {
       throw JsonValidationException(e.message, ['defaultObject', ...e.path]);
     }
+    final val_defaultNullableString = defaultNullableString;
     final val_mergedValue = mergedValue;
     if (val_mergedValue != null) {
       try {
@@ -344,6 +422,7 @@ final class TestRoot implements JsonModel {
         throw JsonValidationException(e.message, ['mergedValue', ...e.path]);
       }
     }
+    final val_tupleArray = tupleArray;
     final val_tupleObjectArray = tupleObjectArray;
     if (val_tupleObjectArray != null) {
       if (val_tupleObjectArray.length > 0) {
@@ -424,6 +503,237 @@ final class TestRoot implements JsonModel {
         throw JsonValidationException(e.message, ['strictObject', ...e.path]);
       }
     }
+    final val_notObject = notObject;
+    if (val_notObject != null) {
+      try {
+        val_notObject.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['notObject', ...e.path]);
+      }
+    }
+    final val_anyOfValue = anyOfValue;
+    if (val_anyOfValue != null) {
+      try {
+        val_anyOfValue.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['anyOfValue', ...e.path]);
+      }
+    }
+    final val_mergedAllOfObject = mergedAllOfObject;
+    if (val_mergedAllOfObject != null) {
+      try {
+        val_mergedAllOfObject.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'mergedAllOfObject',
+          ...e.path,
+        ]);
+      }
+    }
+    final val_complexMerged = complexMerged;
+    if (val_complexMerged != null) {
+      try {
+        val_complexMerged.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['complexMerged', ...e.path]);
+      }
+    }
+    final val_myEnumField = myEnumField;
+    if (val_myEnumField != null) {
+      if (!const [
+        MyEnum.alpha,
+        MyEnum.beta,
+        MyEnum.gamma,
+      ].contains(val_myEnumField)) {
+        throw JsonValidationException(
+          'Property "myEnumField" must be one of [alpha, beta, gamma]',
+          ['myEnumField'],
+        );
+      }
+    }
+    final val_unionContainsArray = unionContainsArray;
+    if (val_unionContainsArray != null) {
+      var containsCount = 0;
+      for (final dynamic item in val_unionContainsArray) {
+        bool matches = false;
+        if (item is TestRootUnionContainsArrayContains) {
+          matches = true;
+          try {
+            item.validate();
+          } on JsonValidationException catch (_) {
+            matches = false;
+          }
+        } else {
+          try {
+            TestRootUnionContainsArrayContains.fromJson(
+              JsonReader.fromObject(item),
+            );
+            matches = true;
+          } catch (_) {}
+        }
+        if (matches) containsCount++;
+      }
+      if (containsCount < 1) {
+        throw JsonValidationException(
+          'Property "unionContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+          ['unionContainsArray'],
+        );
+      }
+    }
+    final val_objectContainsArray = objectContainsArray;
+    if (val_objectContainsArray != null) {
+      var containsCount = 0;
+      for (final dynamic item in val_objectContainsArray) {
+        bool matches = false;
+        if (item is Address) {
+          matches = true;
+          try {
+            item.validate();
+          } on JsonValidationException catch (_) {
+            matches = false;
+          }
+        } else if (item is Map<String, dynamic>) {
+          try {
+            final parsed = Address.fromJson(JsonReader.fromObject(item));
+            matches = true;
+          } catch (_) {}
+        }
+        if (matches) containsCount++;
+      }
+      if (containsCount < 1) {
+        throw JsonValidationException(
+          'Property "objectContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+          ['objectContainsArray'],
+        );
+      }
+    }
+    final val_enumContainsArray = enumContainsArray;
+    if (val_enumContainsArray != null) {
+      var containsCount = 0;
+      for (final dynamic item in val_enumContainsArray) {
+        bool matches = false;
+        if (item is MyEnum) {
+          matches = true;
+        } else {
+          try {
+            MyEnum.fromValue(item);
+            matches = true;
+          } catch (_) {}
+        }
+        if (matches) containsCount++;
+      }
+      if (containsCount < 1) {
+        throw JsonValidationException(
+          'Property "enumContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+          ['enumContainsArray'],
+        );
+      }
+    }
+    final val_booleanContainsArray = booleanContainsArray;
+    if (val_booleanContainsArray != null) {
+      var containsCount = 0;
+      for (final dynamic item in val_booleanContainsArray) {
+        bool matches = false;
+        if (item is bool) matches = true;
+        if (matches) containsCount++;
+      }
+      if (containsCount < 1) {
+        throw JsonValidationException(
+          'Property "booleanContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+          ['booleanContainsArray'],
+        );
+      }
+    }
+    final val_nullContainsArray = nullContainsArray;
+    if (val_nullContainsArray != null) {
+      var containsCount = 0;
+      for (final dynamic item in val_nullContainsArray) {
+        bool matches = false;
+        if (item == null) matches = true;
+        if (matches) containsCount++;
+      }
+      if (containsCount < 1) {
+        throw JsonValidationException(
+          'Property "nullContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+          ['nullContainsArray'],
+        );
+      }
+    }
+    final val_anyContainsArray = anyContainsArray;
+    if (val_anyContainsArray != null) {
+      var containsCount = 0;
+      for (final dynamic item in val_anyContainsArray) {
+        bool matches = false;
+        matches = true;
+        if (matches) containsCount++;
+      }
+      if (containsCount < 1) {
+        throw JsonValidationException(
+          'Property "anyContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+          ['anyContainsArray'],
+        );
+      }
+    }
+    final val_stringContainsArray = stringContainsArray;
+    if (val_stringContainsArray != null) {
+      var containsCount = 0;
+      for (final dynamic item in val_stringContainsArray) {
+        bool matches = false;
+        if (item is String) {
+          matches = true;
+          if (item.length < 3) matches = false;
+          if (item.length > 10) matches = false;
+          if (!RegExp(r'^a').hasMatch(item)) matches = false;
+          try {
+            if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(item)) {
+              throw JsonValidationException(
+                'Property "item" must be a valid email address',
+                ['item'],
+              );
+            }
+          } on JsonValidationException catch (_) {
+            matches = false;
+          }
+        }
+        if (matches) containsCount++;
+      }
+      if (containsCount < 1) {
+        throw JsonValidationException(
+          'Property "stringContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+          ['stringContainsArray'],
+        );
+      }
+    }
+    final val_numberContainsArray = numberContainsArray;
+    if (val_numberContainsArray != null) {
+      var containsCount = 0;
+      for (final dynamic item in val_numberContainsArray) {
+        bool matches = false;
+        if (item is num) {
+          matches = true;
+          if (item < 5.0) matches = false;
+          if (item > 10.0) matches = false;
+          if (item <= 4.5) matches = false;
+          if (item >= 10.5) matches = false;
+          if ((item / 0.5 - (item / 0.5).round()).abs() > 1e-9) matches = false;
+        }
+        if (matches) containsCount++;
+      }
+      if (containsCount < 1) {
+        throw JsonValidationException(
+          'Property "numberContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+          ['numberContainsArray'],
+        );
+      }
+    }
+    final val_dynamicProps = dynamicProps;
+    if (val_dynamicProps != null) {
+      try {
+        val_dynamicProps.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['dynamicProps', ...e.path]);
+      }
+    }
   }
 
   static final descriptor = ObjectDescriptor<TestRoot>(
@@ -482,6 +792,20 @@ final class TestRoot implements JsonModel {
       additionalPropertiesObject:
           fields['additionalPropertiesObject'] as MapObject?,
       strictObject: fields['strictObject'] as StrictObject?,
+      notObject: fields['notObject'] as NotObject?,
+      anyOfValue: fields['anyOfValue'] as TestRootAnyOfValue?,
+      mergedAllOfObject: fields['mergedAllOfObject'] as MergedAllOfObject?,
+      complexMerged: fields['complexMerged'] as ComplexMergedObject?,
+      myEnumField: fields['myEnumField'] as MyEnum?,
+      unionContainsArray: fields['unionContainsArray'] as List<Object?>?,
+      objectContainsArray: fields['objectContainsArray'] as List<Object?>?,
+      enumContainsArray: fields['enumContainsArray'] as List<Object?>?,
+      booleanContainsArray: fields['booleanContainsArray'] as List<Object?>?,
+      nullContainsArray: fields['nullContainsArray'] as List<Object?>?,
+      anyContainsArray: fields['anyContainsArray'] as List<Object?>?,
+      stringContainsArray: fields['stringContainsArray'] as List<Object?>?,
+      numberContainsArray: fields['numberContainsArray'] as List<Object?>?,
+      dynamicProps: fields['dynamicProps'] as ObjectWithDynamicProps?,
     ),
     getFields: (instance) => {
       'name': instance.name,
@@ -523,6 +847,20 @@ final class TestRoot implements JsonModel {
       'uriReferenceValue': instance.uriReferenceValue,
       'additionalPropertiesObject': instance.additionalPropertiesObject,
       'strictObject': instance.strictObject,
+      'notObject': instance.notObject,
+      'anyOfValue': instance.anyOfValue,
+      'mergedAllOfObject': instance.mergedAllOfObject,
+      'complexMerged': instance.complexMerged,
+      'myEnumField': instance.myEnumField,
+      'unionContainsArray': instance.unionContainsArray,
+      'objectContainsArray': instance.objectContainsArray,
+      'enumContainsArray': instance.enumContainsArray,
+      'booleanContainsArray': instance.booleanContainsArray,
+      'nullContainsArray': instance.nullContainsArray,
+      'anyContainsArray': instance.anyContainsArray,
+      'stringContainsArray': instance.stringContainsArray,
+      'numberContainsArray': instance.numberContainsArray,
+      'dynamicProps': instance.dynamicProps,
     },
     properties: {
       'name': PropertyDescriptor(
@@ -726,6 +1064,76 @@ final class TestRoot implements JsonModel {
         isRequired: false,
         schema: StrictObject.descriptor,
       ),
+      'notObject': PropertyDescriptor(
+        name: 'notObject',
+        isRequired: false,
+        schema: NotObject.descriptor,
+      ),
+      'anyOfValue': PropertyDescriptor(
+        name: 'anyOfValue',
+        isRequired: false,
+        schema: TestRootAnyOfValue.descriptor,
+      ),
+      'mergedAllOfObject': PropertyDescriptor(
+        name: 'mergedAllOfObject',
+        isRequired: false,
+        schema: MergedAllOfObject.descriptor,
+      ),
+      'complexMerged': PropertyDescriptor(
+        name: 'complexMerged',
+        isRequired: false,
+        schema: ComplexMergedObject.descriptor,
+      ),
+      'myEnumField': PropertyDescriptor(
+        name: 'myEnumField',
+        isRequired: false,
+        schema: MyEnum.descriptor,
+      ),
+      'unionContainsArray': PropertyDescriptor(
+        name: 'unionContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'objectContainsArray': PropertyDescriptor(
+        name: 'objectContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'enumContainsArray': PropertyDescriptor(
+        name: 'enumContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'booleanContainsArray': PropertyDescriptor(
+        name: 'booleanContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'nullContainsArray': PropertyDescriptor(
+        name: 'nullContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'anyContainsArray': PropertyDescriptor(
+        name: 'anyContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'stringContainsArray': PropertyDescriptor(
+        name: 'stringContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'numberContainsArray': PropertyDescriptor(
+        name: 'numberContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'dynamicProps': PropertyDescriptor(
+        name: 'dynamicProps',
+        isRequired: false,
+        schema: ObjectWithDynamicProps.descriptor,
+      ),
     },
     required: const ['name', 'age', 'isAwesome', 'address'],
   );
@@ -773,7 +1181,21 @@ final class TestRoot implements JsonModel {
           timeValue == other.timeValue &&
           uriReferenceValue == other.uriReferenceValue &&
           additionalPropertiesObject == other.additionalPropertiesObject &&
-          strictObject == other.strictObject;
+          strictObject == other.strictObject &&
+          notObject == other.notObject &&
+          anyOfValue == other.anyOfValue &&
+          mergedAllOfObject == other.mergedAllOfObject &&
+          complexMerged == other.complexMerged &&
+          myEnumField == other.myEnumField &&
+          unionContainsArray == other.unionContainsArray &&
+          objectContainsArray == other.objectContainsArray &&
+          enumContainsArray == other.enumContainsArray &&
+          booleanContainsArray == other.booleanContainsArray &&
+          nullContainsArray == other.nullContainsArray &&
+          anyContainsArray == other.anyContainsArray &&
+          stringContainsArray == other.stringContainsArray &&
+          numberContainsArray == other.numberContainsArray &&
+          dynamicProps == other.dynamicProps;
 
   @override
   int get hashCode => Object.hashAll([
@@ -816,11 +1238,25 @@ final class TestRoot implements JsonModel {
     uriReferenceValue,
     additionalPropertiesObject,
     strictObject,
+    notObject,
+    anyOfValue,
+    mergedAllOfObject,
+    complexMerged,
+    myEnumField,
+    unionContainsArray,
+    objectContainsArray,
+    enumContainsArray,
+    booleanContainsArray,
+    nullContainsArray,
+    anyContainsArray,
+    stringContainsArray,
+    numberContainsArray,
+    dynamicProps,
   ]);
 
   @override
   String toString() =>
-      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject})';
+      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps})';
 }
 
 enum TestRootConstValue {
@@ -866,6 +1302,7 @@ final class Address implements JsonModel {
         'city',
       ]);
     }
+    final val_street = street;
   }
 
   static final descriptor = ObjectDescriptor<Address>(
@@ -1189,7 +1626,9 @@ final class Cat implements JsonModel {
   Cat copyWith({String? kind, num? meowVolume}) =>
       Cat(kind: kind ?? this.kind, meowVolume: meowVolume ?? this.meowVolume);
 
-  void validate() {}
+  void validate() {
+    final val_meowVolume = meowVolume;
+  }
 
   static final descriptor = ObjectDescriptor<Cat>(
     title: 'Cat',
@@ -1254,7 +1693,9 @@ final class Dog implements JsonModel {
   Dog copyWith({String? kind, num? barkVolume}) =>
       Dog(kind: kind ?? this.kind, barkVolume: barkVolume ?? this.barkVolume);
 
-  void validate() {}
+  void validate() {
+    final val_barkVolume = barkVolume;
+  }
 
   static final descriptor = ObjectDescriptor<Dog>(
     title: 'Dog',
@@ -1335,6 +1776,9 @@ final class RestrictedObject implements JsonModel {
     if (count > 2) {
       throw JsonValidationException('Object must have <= 2 properties', []);
     }
+    final val_a = a;
+    final val_b = b;
+    final val_c = c;
   }
 
   static final descriptor = ObjectDescriptor<RestrictedObject>(
@@ -1421,6 +1865,8 @@ final class DependentObject implements JsonModel {
         );
       }
     }
+    final val_creditCard = creditCard;
+    final val_billingAddress = billingAddress;
   }
 
   static final descriptor = ObjectDescriptor<DependentObject>(
@@ -1491,7 +1937,9 @@ final class DeprecatedObject implements JsonModel {
   DeprecatedObject copyWith({String? value}) =>
       DeprecatedObject(value: value ?? this.value);
 
-  void validate() {}
+  void validate() {
+    final val_value = value;
+  }
 
   static final descriptor = ObjectDescriptor<DeprecatedObject>(
     title: 'DeprecatedObject',
@@ -1546,7 +1994,11 @@ final class Merged implements JsonModel {
   Merged copyWith({String? a, int? b, bool? c}) =>
       Merged(a: a ?? this.a, b: b ?? this.b, c: c ?? this.c);
 
-  void validate() {}
+  void validate() {
+    final val_a = a;
+    final val_b = b;
+    final val_c = c;
+  }
 
   static final descriptor = ObjectDescriptor<Merged>(
     title: 'Merged',
@@ -1624,7 +2076,9 @@ final class MapObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {}
+  void validate() {
+    final val_name = name;
+  }
 
   static final descriptor = ObjectDescriptor<MapObject>(
     title: 'MapObject',
@@ -1702,7 +2156,9 @@ final class StrictObject implements JsonModel {
   StrictObject copyWith({String? name}) =>
       StrictObject(name: name ?? this.name);
 
-  void validate() {}
+  void validate() {
+    final val_name = name;
+  }
 
   static final descriptor = ObjectDescriptor<StrictObject>(
     title: 'StrictObject',
@@ -1732,4 +2188,787 @@ final class StrictObject implements JsonModel {
 
   @override
   String toString() => 'StrictObject(name: ${name})';
+}
+
+final class NotObject implements JsonModel {
+  final String notPatternString;
+  final int notEnumInt;
+  final Object? notNullValue;
+
+  const NotObject({
+    required this.notPatternString,
+    required this.notEnumInt,
+    required this.notNullValue,
+  });
+
+  factory NotObject.fromJson(JsonReader reader, {bool validate = true}) =>
+      parseWithDescriptor(reader, descriptor, validate: validate) as NotObject;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  NotObject copyWith({
+    String? notPatternString,
+    int? notEnumInt,
+    Object? notNullValue,
+  }) => NotObject(
+    notPatternString: notPatternString ?? this.notPatternString,
+    notEnumInt: notEnumInt ?? this.notEnumInt,
+    notNullValue: notNullValue ?? this.notNullValue,
+  );
+
+  void validate() {
+    bool notMatches_notPatternString = true;
+    try {
+      if (notPatternString is! String) {
+        throw JsonValidationException(
+          'Property "notPatternString" must be a string',
+          ['notPatternString'],
+        );
+      }
+      if (!RegExp(r'forbidden').hasMatch(notPatternString)) {
+        throw JsonValidationException(
+          'Property "notPatternString" must match pattern "forbidden"',
+          ['notPatternString'],
+        );
+      }
+    } on JsonValidationException {
+      notMatches_notPatternString = false;
+    }
+    if (notMatches_notPatternString) {
+      throw JsonValidationException(
+        'Property "notPatternString" must not match the schema',
+        ['notPatternString'],
+      );
+    }
+    bool notMatches_notEnumInt = true;
+    try {
+      if (!const [13, 17].contains(notEnumInt)) {
+        throw JsonValidationException(
+          'Property "notEnumInt" must be one of [13, 17]',
+          ['notEnumInt'],
+        );
+      }
+    } on JsonValidationException {
+      notMatches_notEnumInt = false;
+    }
+    if (notMatches_notEnumInt) {
+      throw JsonValidationException(
+        'Property "notEnumInt" must not match the schema',
+        ['notEnumInt'],
+      );
+    }
+    final val_notNullValue = notNullValue;
+    bool notMatches_notNullValue = true;
+    try {
+      if (val_notNullValue != null) {
+        throw JsonValidationException('Property "notNullValue" must be null', [
+          'notNullValue',
+        ]);
+      }
+    } on JsonValidationException {
+      notMatches_notNullValue = false;
+    }
+    if (notMatches_notNullValue) {
+      throw JsonValidationException(
+        'Property "notNullValue" must not match the schema',
+        ['notNullValue'],
+      );
+    }
+  }
+
+  static final descriptor = ObjectDescriptor<NotObject>(
+    title: 'NotObject',
+    matches: (instance) => instance is NotObject,
+    instantiate: (fields) => NotObject(
+      notPatternString: fields['notPatternString'] as String,
+      notEnumInt: fields['notEnumInt'] as int,
+      notNullValue: fields['notNullValue'] as Object?,
+    ),
+    getFields: (instance) => {
+      'notPatternString': instance.notPatternString,
+      'notEnumInt': instance.notEnumInt,
+      'notNullValue': instance.notNullValue,
+    },
+    properties: {
+      'notPatternString': PropertyDescriptor(
+        name: 'notPatternString',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'notEnumInt': PropertyDescriptor(
+        name: 'notEnumInt',
+        isRequired: true,
+        schema: const IntDescriptor(),
+      ),
+      'notNullValue': PropertyDescriptor(
+        name: 'notNullValue',
+        isRequired: true,
+        schema: const AnythingDescriptor(),
+      ),
+    },
+    required: const ['notPatternString', 'notEnumInt', 'notNullValue'],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NotObject &&
+          runtimeType == other.runtimeType &&
+          notPatternString == other.notPatternString &&
+          notEnumInt == other.notEnumInt &&
+          notNullValue == other.notNullValue;
+
+  @override
+  int get hashCode =>
+      Object.hashAll([notPatternString, notEnumInt, notNullValue]);
+
+  @override
+  String toString() =>
+      'NotObject(notPatternString: ${notPatternString}, notEnumInt: ${notEnumInt}, notNullValue: ${notNullValue})';
+}
+
+sealed class TestRootAnyOfValue implements JsonModel {
+  const TestRootAnyOfValue();
+
+  factory TestRootAnyOfValue.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootAnyOfValue;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  static final descriptor = UnionDescriptor<TestRootAnyOfValue>(
+    title: 'TestRootAnyOfValue',
+
+    activeOptions: [
+      UnionOptionDescriptor<TestRootAnyOfValue, dynamic>(
+        const StringDescriptor(),
+        (val) => TestRootAnyOfValueOption0(val),
+      ),
+      UnionOptionDescriptor<TestRootAnyOfValue, dynamic>(
+        const IntDescriptor(),
+        (val) => TestRootAnyOfValueOption1(val),
+      ),
+    ],
+  );
+}
+
+final class TestRootAnyOfValueOption0 extends TestRootAnyOfValue {
+  final String value;
+  const TestRootAnyOfValueOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootAnyOfValueOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootAnyOfValueOption0(value: $value)';
+}
+
+final class TestRootAnyOfValueOption1 extends TestRootAnyOfValue {
+  final int value;
+  const TestRootAnyOfValueOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const IntDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootAnyOfValueOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootAnyOfValueOption1(value: $value)';
+}
+
+final class MergedAllOfObject implements JsonModel {
+  final String? strVal;
+  final num? numVal;
+
+  const MergedAllOfObject({this.strVal, this.numVal});
+
+  factory MergedAllOfObject.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as MergedAllOfObject;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  MergedAllOfObject copyWith({String? strVal, num? numVal}) =>
+      MergedAllOfObject(
+        strVal: strVal ?? this.strVal,
+        numVal: numVal ?? this.numVal,
+      );
+
+  void validate() {
+    if (strVal != null) {
+      if (numVal == null) {
+        throw JsonValidationException(
+          'Property "numVal" is required because "strVal" is present',
+          ['numVal'],
+        );
+      }
+    }
+    final val_strVal = strVal;
+    if (val_strVal != null) {
+      if (val_strVal.length < 5) {
+        throw JsonValidationException('Property "strVal" length must be >= 5', [
+          'strVal',
+        ]);
+      }
+      if (val_strVal.length > 8) {
+        throw JsonValidationException('Property "strVal" length must be <= 8', [
+          'strVal',
+        ]);
+      }
+      if (!RegExp(r'^a').hasMatch(val_strVal)) {
+        throw JsonValidationException(
+          'Property "strVal" must match pattern "^a"',
+          ['strVal'],
+        );
+      }
+      if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(val_strVal)) {
+        throw JsonValidationException(
+          'Property "strVal" must be a valid email address',
+          ['strVal'],
+        );
+      }
+    }
+    final val_numVal = numVal;
+    if (val_numVal != null) {
+      if (val_numVal < 10) {
+        throw JsonValidationException('Property "numVal" must be >= 10', [
+          'numVal',
+        ]);
+      }
+      if (val_numVal > 50) {
+        throw JsonValidationException('Property "numVal" must be <= 50', [
+          'numVal',
+        ]);
+      }
+      if ((val_numVal / 5 - (val_numVal / 5).round()).abs() > 1e-9) {
+        throw JsonValidationException(
+          'Property "numVal" must be a multiple of 5',
+          ['numVal'],
+        );
+      }
+    }
+  }
+
+  static final descriptor = ObjectDescriptor<MergedAllOfObject>(
+    title: 'MergedAllOfObject',
+    matches: (instance) => instance is MergedAllOfObject,
+    instantiate: (fields) => MergedAllOfObject(
+      strVal: fields['strVal'] as String?,
+      numVal: fields['numVal'] as num?,
+    ),
+    getFields: (instance) => {
+      'strVal': instance.strVal,
+      'numVal': instance.numVal,
+    },
+    properties: {
+      'strVal': PropertyDescriptor(
+        name: 'strVal',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'numVal': PropertyDescriptor(
+        name: 'numVal',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+    },
+    required: const [],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MergedAllOfObject &&
+          runtimeType == other.runtimeType &&
+          strVal == other.strVal &&
+          numVal == other.numVal;
+
+  @override
+  int get hashCode => Object.hashAll([strVal, numVal]);
+
+  @override
+  String toString() =>
+      'MergedAllOfObject(strVal: ${strVal}, numVal: ${numVal})';
+}
+
+final class ComplexMergedObject implements JsonModel {
+  final num? numVal;
+  final Map<String, String> additionalProperties;
+
+  const ComplexMergedObject({
+    this.numVal,
+    this.additionalProperties = const {},
+  });
+
+  factory ComplexMergedObject.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as ComplexMergedObject;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  ComplexMergedObject copyWith({
+    num? numVal,
+    Map<String, String>? additionalProperties,
+  }) => ComplexMergedObject(
+    numVal: numVal ?? this.numVal,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
+
+  void validate() {
+    var count = 0;
+    if (numVal != null) count++;
+    count += additionalProperties.length;
+    if (count < 2) {
+      throw JsonValidationException('Object must have >= 2 properties', []);
+    }
+    if (count > 5) {
+      throw JsonValidationException('Object must have <= 5 properties', []);
+    }
+    final val_numVal = numVal;
+    if (val_numVal != null) {
+      if (val_numVal <= 10.0) {
+        throw JsonValidationException('Property "numVal" must be > 10.0', [
+          'numVal',
+        ]);
+      }
+      if (val_numVal >= 20.0) {
+        throw JsonValidationException('Property "numVal" must be < 20.0', [
+          'numVal',
+        ]);
+      }
+    }
+    additionalProperties.forEach((key, value) {
+      if (value.length < 3) {
+        throw JsonValidationException('Property "$key" length must be >= 3', [
+          '$key',
+        ]);
+      }
+    });
+  }
+
+  static final descriptor = ObjectDescriptor<ComplexMergedObject>(
+    title: 'ComplexMergedObject',
+    matches: (instance) => instance is ComplexMergedObject,
+    instantiate: (fields) => ComplexMergedObject(
+      numVal: fields['numVal'] as num?,
+      additionalProperties: fields.entries
+          .where((e) => !const {'numVal'}.contains(e.key))
+          .fold<Map<String, String>>(
+            {},
+            (m, e) => m..[e.key] = e.value as String,
+          ),
+    ),
+    getFields: (instance) => {
+      'numVal': instance.numVal,
+      ...instance.additionalProperties,
+    },
+    properties: {
+      'numVal': PropertyDescriptor(
+        name: 'numVal',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+    },
+    required: const [],
+    additionalProperties: const StringDescriptor(),
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ComplexMergedObject &&
+          runtimeType == other.runtimeType &&
+          numVal == other.numVal &&
+          additionalProperties.length == other.additionalProperties.length &&
+          additionalProperties.keys.every(
+            (k) =>
+                other.additionalProperties.containsKey(k) &&
+                other.additionalProperties[k] == additionalProperties[k],
+          );
+
+  @override
+  int get hashCode => Object.hashAll([
+    numVal,
+    additionalProperties.entries.fold<int>(
+      0,
+      (sum, entry) => sum ^ Object.hash(entry.key, entry.value),
+    ),
+  ]);
+
+  @override
+  String toString() =>
+      'ComplexMergedObject(numVal: ${numVal}, additionalProperties: ${additionalProperties})';
+}
+
+enum MyEnum {
+  alpha('alpha'),
+  beta('beta'),
+  gamma('gamma');
+
+  final String value;
+  const MyEnum(this.value);
+  static MyEnum fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
+  static final descriptor = EnumDescriptor<MyEnum>(
+    values: values,
+    fromValue: (val) => fromValue(val as String),
+    toValue: (e) => (e as MyEnum).value,
+    base: const StringDescriptor(),
+  );
+}
+
+sealed class TestRootUnionContainsArrayContains implements JsonModel {
+  const TestRootUnionContainsArrayContains();
+
+  factory TestRootUnionContainsArrayContains.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootUnionContainsArrayContains;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  static final descriptor = UnionDescriptor<TestRootUnionContainsArrayContains>(
+    title: 'TestRootUnionContainsArrayContains',
+
+    activeOptions: [
+      UnionOptionDescriptor<TestRootUnionContainsArrayContains, dynamic>(
+        const StringDescriptor(),
+        (val) => TestRootUnionContainsArrayContainsOption0(val),
+      ),
+      UnionOptionDescriptor<TestRootUnionContainsArrayContains, dynamic>(
+        const IntDescriptor(),
+        (val) => TestRootUnionContainsArrayContainsOption1(val),
+      ),
+      UnionOptionDescriptor<TestRootUnionContainsArrayContains, dynamic>(
+        const NumDescriptor(),
+        (val) => TestRootUnionContainsArrayContainsOption2(val),
+      ),
+    ],
+  );
+}
+
+final class TestRootUnionContainsArrayContainsOption0
+    extends TestRootUnionContainsArrayContains {
+  final String value;
+  const TestRootUnionContainsArrayContainsOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {
+    if (value.length < 3) {
+      throw JsonValidationException('Property "value" length must be >= 3', [
+        'value',
+      ]);
+    }
+    if (value.length > 10) {
+      throw JsonValidationException('Property "value" length must be <= 10', [
+        'value',
+      ]);
+    }
+    if (!RegExp(r'^a').hasMatch(value)) {
+      throw JsonValidationException(
+        'Property "value" must match pattern "^a"',
+        ['value'],
+      );
+    }
+    if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(value)) {
+      throw JsonValidationException(
+        'Property "value" must be a valid email address',
+        ['value'],
+      );
+    }
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootUnionContainsArrayContainsOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() =>
+      'TestRootUnionContainsArrayContainsOption0(value: $value)';
+}
+
+final class TestRootUnionContainsArrayContainsOption1
+    extends TestRootUnionContainsArrayContains {
+  final int value;
+  const TestRootUnionContainsArrayContainsOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const IntDescriptor());
+  }
+
+  @override
+  void validate() {
+    if (value < 5) {
+      throw JsonValidationException('Property "value" must be >= 5', ['value']);
+    }
+    if (value > 10) {
+      throw JsonValidationException('Property "value" must be <= 10', [
+        'value',
+      ]);
+    }
+    if (value % 2 != 0) {
+      throw JsonValidationException(
+        'Property "value" must be a multiple of 2',
+        ['value'],
+      );
+    }
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootUnionContainsArrayContainsOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() =>
+      'TestRootUnionContainsArrayContainsOption1(value: $value)';
+}
+
+final class TestRootUnionContainsArrayContainsOption2
+    extends TestRootUnionContainsArrayContains {
+  final num value;
+  const TestRootUnionContainsArrayContainsOption2(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const NumDescriptor());
+  }
+
+  @override
+  void validate() {
+    if (value <= 5.0) {
+      throw JsonValidationException('Property "value" must be > 5.0', [
+        'value',
+      ]);
+    }
+    if (value >= 11.0) {
+      throw JsonValidationException('Property "value" must be < 11.0', [
+        'value',
+      ]);
+    }
+    if ((value / 0.5 - (value / 0.5).round()).abs() > 1e-9) {
+      throw JsonValidationException(
+        'Property "value" must be a multiple of 0.5',
+        ['value'],
+      );
+    }
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootUnionContainsArrayContainsOption2 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() =>
+      'TestRootUnionContainsArrayContainsOption2(value: $value)';
+}
+
+final class ObjectWithDynamicProps implements JsonModel {
+  final Object? notInt;
+  final Object? notNum;
+
+  const ObjectWithDynamicProps({this.notInt, this.notNum});
+
+  factory ObjectWithDynamicProps.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as ObjectWithDynamicProps;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  ObjectWithDynamicProps copyWith({Object? notInt, Object? notNum}) =>
+      ObjectWithDynamicProps(
+        notInt: notInt ?? this.notInt,
+        notNum: notNum ?? this.notNum,
+      );
+
+  void validate() {
+    final val_notInt = notInt;
+    bool notMatches_notInt = true;
+    try {
+      if (val_notInt is! int) {
+        throw JsonValidationException('Property "notInt" must be an integer', [
+          'notInt',
+        ]);
+      }
+    } on JsonValidationException {
+      notMatches_notInt = false;
+    }
+    if (notMatches_notInt) {
+      throw JsonValidationException(
+        'Property "notInt" must not match the schema',
+        ['notInt'],
+      );
+    }
+    final val_notNum = notNum;
+    bool notMatches_notNum = true;
+    try {
+      if (val_notNum is! num) {
+        throw JsonValidationException('Property "notNum" must be a number', [
+          'notNum',
+        ]);
+      }
+    } on JsonValidationException {
+      notMatches_notNum = false;
+    }
+    if (notMatches_notNum) {
+      throw JsonValidationException(
+        'Property "notNum" must not match the schema',
+        ['notNum'],
+      );
+    }
+  }
+
+  static final descriptor = ObjectDescriptor<ObjectWithDynamicProps>(
+    title: 'ObjectWithDynamicProps',
+    matches: (instance) => instance is ObjectWithDynamicProps,
+    instantiate: (fields) => ObjectWithDynamicProps(
+      notInt: fields['notInt'] as Object?,
+      notNum: fields['notNum'] as Object?,
+    ),
+    getFields: (instance) => {
+      'notInt': instance.notInt,
+      'notNum': instance.notNum,
+    },
+    properties: {
+      'notInt': PropertyDescriptor(
+        name: 'notInt',
+        isRequired: false,
+        schema: const AnythingDescriptor(),
+      ),
+      'notNum': PropertyDescriptor(
+        name: 'notNum',
+        isRequired: false,
+        schema: const AnythingDescriptor(),
+      ),
+    },
+    required: const [],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ObjectWithDynamicProps &&
+          runtimeType == other.runtimeType &&
+          notInt == other.notInt &&
+          notNum == other.notNum;
+
+  @override
+  int get hashCode => Object.hashAll([notInt, notNum]);
+
+  @override
+  String toString() =>
+      'ObjectWithDynamicProps(notInt: ${notInt}, notNum: ${notNum})';
 }

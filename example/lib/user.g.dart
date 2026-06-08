@@ -1,4 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
 
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
@@ -50,6 +51,16 @@ final class User implements JsonModel {
       throw JsonValidationException('Property "name" length must be >= 2', [
         'name',
       ]);
+    }
+    if (!const [
+      UserRole.admin,
+      UserRole.editor,
+      UserRole.user,
+    ].contains(role)) {
+      throw JsonValidationException(
+        'Property "role" must be one of [admin, editor, user]',
+        ['role'],
+      );
     }
     final val_profile = profile;
     if (val_profile != null) {
@@ -167,7 +178,10 @@ final class UserProfile implements JsonModel {
   UserProfile copyWith({String? avatarUrl, String? bio}) =>
       UserProfile(avatarUrl: avatarUrl ?? this.avatarUrl, bio: bio ?? this.bio);
 
-  void validate() {}
+  void validate() {
+    final val_avatarUrl = avatarUrl;
+    final val_bio = bio;
+  }
 
   static final descriptor = ObjectDescriptor<UserProfile>(
     title: 'UserProfile',
