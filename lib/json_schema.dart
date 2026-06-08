@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:jsontool/jsontool.dart';
 
 /// The base class for all parsed JSON Schema representations.
@@ -11,8 +12,23 @@ sealed class Schema {
   /// The description of the schema, if specified.
   final String? description;
 
+  /// Whether this schema is deprecated.
+  final bool isDeprecated;
+
+  /// Whether this schema has a default value.
+  final bool hasDefault;
+
+  /// The default value, if specified.
+  final Object? defaultValue;
+
   /// Const constructor for subclass schemas.
-  const Schema({this.title, this.description});
+  const Schema({
+    this.title,
+    this.description,
+    this.isDeprecated = false,
+    this.hasDefault = false,
+    this.defaultValue,
+  });
 }
 
 /// Represents an object type schema.
@@ -26,13 +42,28 @@ final class ObjectSchema extends Schema {
   /// Schema for additional properties, if specified.
   final Schema? additionalProperties;
 
+  /// Minimum number of properties allowed.
+  final int? minProperties;
+
+  /// Maximum number of properties allowed.
+  final int? maxProperties;
+
+  /// Map of property names to their dependent required properties.
+  final Map<String, Set<String>> dependentRequired;
+
   /// Const constructor for object schemas.
   const ObjectSchema({
     required this.properties,
     required this.required,
     this.additionalProperties,
+    this.minProperties,
+    this.maxProperties,
+    this.dependentRequired = const {},
     super.title,
     super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
   });
 }
 
@@ -40,6 +71,9 @@ final class ObjectSchema extends Schema {
 final class ArraySchema extends Schema {
   /// The schema of items in the array.
   final Schema items;
+
+  /// Positional schemas for tuple-like arrays.
+  final List<Schema>? prefixItems;
 
   /// Minimum number of items allowed in the array.
   final int? minItems;
@@ -50,14 +84,30 @@ final class ArraySchema extends Schema {
   /// Whether items in the array must be unique.
   final bool? uniqueItems;
 
+  /// Schema that at least one item (or minContains items) must match.
+  final Schema? contains;
+
+  /// Minimum number of items that must match contains schema.
+  final int? minContains;
+
+  /// Maximum number of items that can match contains schema.
+  final int? maxContains;
+
   /// Const constructor for array schemas.
   const ArraySchema({
     required this.items,
+    this.prefixItems,
     this.minItems,
     this.maxItems,
     this.uniqueItems,
+    this.contains,
+    this.minContains,
+    this.maxContains,
     super.title,
     super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
   });
 }
 
@@ -83,6 +133,9 @@ final class StringSchema extends Schema {
     this.format,
     super.title,
     super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
   });
 }
 
@@ -97,6 +150,12 @@ final class NumberSchema extends Schema {
   /// Maximum value allowed.
   final num? maximum;
 
+  /// Exclusive minimum value allowed.
+  final num? exclusiveMinimum;
+
+  /// Exclusive maximum value allowed.
+  final num? exclusiveMaximum;
+
   /// The value must be a multiple of this number.
   final num? multipleOf;
 
@@ -105,22 +164,39 @@ final class NumberSchema extends Schema {
     required this.isInteger,
     this.minimum,
     this.maximum,
+    this.exclusiveMinimum,
+    this.exclusiveMaximum,
     this.multipleOf,
     super.title,
     super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
   });
 }
 
 /// Represents a boolean type schema.
 final class BooleanSchema extends Schema {
   /// Const constructor for boolean schemas.
-  const BooleanSchema({super.title, super.description});
+  const BooleanSchema({
+    super.title,
+    super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
+  });
 }
 
 /// Represents a null type schema.
 final class NullSchema extends Schema {
   /// Const constructor for null schemas.
-  const NullSchema({super.title, super.description});
+  const NullSchema({
+    super.title,
+    super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
+  });
 }
 
 /// Represents a reference schema pointing to another definition.
@@ -132,7 +208,14 @@ final class RefSchema extends Schema {
   Schema? resolved;
 
   /// Constructor for reference schemas.
-  RefSchema(this.ref, {super.title, super.description});
+  RefSchema(
+    this.ref, {
+    super.title,
+    super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
+  });
 }
 
 /// Represents a discriminator configuration for union parsing.
@@ -161,13 +244,38 @@ final class UnionSchema extends Schema {
     this.discriminator,
     super.title,
     super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
+  });
+}
+
+/// Represents an allOf schema requiring validation against all subschemas.
+final class AllOfSchema extends Schema {
+  /// The list of subschemas that must all validate.
+  final List<Schema> subschemas;
+
+  /// Const constructor for allOf schemas.
+  const AllOfSchema({
+    required this.subschemas,
+    super.title,
+    super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
   });
 }
 
 /// Fallback schema representing any JSON value.
 final class AnythingSchema extends Schema {
   /// Const constructor for the fallback schema.
-  const AnythingSchema({super.title, super.description});
+  const AnythingSchema({
+    super.title,
+    super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
+  });
 }
 
 /// Represents an enumeration type schema containing a fixed set of allowed values.
@@ -184,13 +292,22 @@ final class EnumSchema extends Schema {
     required this.baseSchema,
     super.title,
     super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
   });
 }
 
 /// Represents a schema that never validates successfully (used for additionalProperties: false).
 final class NeverSchema extends Schema {
   /// Const constructor for NeverSchema.
-  const NeverSchema({super.title, super.description});
+  const NeverSchema({
+    super.title,
+    super.description,
+    super.isDeprecated,
+    super.hasDefault,
+    super.defaultValue,
+  });
 }
 
 /// Utility extension to resolve reference schemas recursively.
@@ -272,7 +389,15 @@ final class SchemaParser {
   Schema parse() {
     final root = _parseSchema(_rootJson, '#');
     _resolveRefs(root);
-    return root;
+    final flattenedRoot = _flatten(root);
+
+    // Update cache
+    final keys = _cache.keys.toList();
+    for (final key in keys) {
+      _cache[key] = _flatten(_cache[key]!);
+    }
+
+    return flattenedRoot;
   }
 
   Schema _parseSchema(dynamic json, String path) {
@@ -284,13 +409,23 @@ final class SchemaParser {
       return const AnythingSchema();
     }
 
-    if (json.containsKey(r'$ref')) {
-      final ref = json[r'$ref'] as String;
-      return RefSchema(ref);
-    }
-
     final title = json['title'] as String?;
     final description = json['description'] as String?;
+    final isDeprecated = json['deprecated'] == true;
+    final hasDefault = json.containsKey('default');
+    final defaultValue = json['default'];
+
+    if (json.containsKey(r'$ref')) {
+      final ref = json[r'$ref'] as String;
+      return RefSchema(
+        ref,
+        title: title,
+        description: description,
+        isDeprecated: isDeprecated,
+        hasDefault: hasDefault,
+        defaultValue: defaultValue,
+      );
+    }
 
     // Parse definitions under local scopes
     if (json[r'$defs'] is Map) {
@@ -304,6 +439,25 @@ final class SchemaParser {
       });
     }
 
+    if (json.containsKey('const')) {
+      final constValue = json['const'];
+      final jsonWithoutConst = Map<String, dynamic>.from(json)..remove('const');
+      final baseSchema = _parseSchema(jsonWithoutConst, '');
+      final schema = EnumSchema(
+        values: [constValue],
+        baseSchema: baseSchema,
+        title: title,
+        description: description,
+        isDeprecated: isDeprecated,
+        hasDefault: hasDefault,
+        defaultValue: defaultValue,
+      );
+      if (path.isNotEmpty) {
+        _cache[path] = schema;
+      }
+      return schema;
+    }
+
     if (json.containsKey('enum')) {
       final enumValues = (json['enum'] as List).toList();
       final jsonWithoutEnum = Map<String, dynamic>.from(json)..remove('enum');
@@ -313,6 +467,9 @@ final class SchemaParser {
         baseSchema: baseSchema,
         title: title,
         description: description,
+        isDeprecated: isDeprecated,
+        hasDefault: hasDefault,
+        defaultValue: defaultValue,
       );
       if (path.isNotEmpty) {
         _cache[path] = schema;
@@ -337,7 +494,35 @@ final class SchemaParser {
       return null;
     }
 
-    if (json.containsKey('oneOf')) {
+    if (json.containsKey('allOf')) {
+      final list = json['allOf'] as List;
+      final subschemas = list.map((item) => _parseSchema(item, '')).toList();
+
+      final copy = Map<String, dynamic>.from(json);
+      copy.remove('allOf');
+      copy.remove('title');
+      copy.remove('description');
+      copy.remove('deprecated');
+      copy.remove('default');
+      copy.remove(r'$defs');
+      copy.remove('definitions');
+
+      if (copy.isNotEmpty) {
+        final restSchema = _parseSchema(copy, '');
+        if (restSchema is! AnythingSchema) {
+          subschemas.add(restSchema);
+        }
+      }
+
+      schema = AllOfSchema(
+        subschemas: subschemas,
+        title: title,
+        description: description,
+        isDeprecated: isDeprecated,
+        hasDefault: hasDefault,
+        defaultValue: defaultValue,
+      );
+    } else if (json.containsKey('oneOf')) {
       final list = json['oneOf'] as List;
       final subschemas = list.map((item) => _parseSchema(item, '')).toList();
       schema = UnionSchema(
@@ -345,6 +530,9 @@ final class SchemaParser {
         discriminator: parseDiscriminator(json),
         title: title,
         description: description,
+        isDeprecated: isDeprecated,
+        hasDefault: hasDefault,
+        defaultValue: defaultValue,
       );
     } else if (json.containsKey('anyOf')) {
       final list = json['anyOf'] as List;
@@ -354,6 +542,9 @@ final class SchemaParser {
         discriminator: parseDiscriminator(json),
         title: title,
         description: description,
+        isDeprecated: isDeprecated,
+        hasDefault: hasDefault,
+        defaultValue: defaultValue,
       );
     } else {
       final typeVal = json['type'];
@@ -366,9 +557,34 @@ final class SchemaParser {
           subschemas: subschemas,
           title: title,
           description: description,
+          isDeprecated: isDeprecated,
+          hasDefault: hasDefault,
+          defaultValue: defaultValue,
         );
       } else {
-        final type = typeVal as String?;
+        var type = typeVal as String?;
+        if (type == null) {
+          if (json.containsKey('properties') ||
+              json.containsKey('required') ||
+              json.containsKey('additionalProperties') ||
+              json.containsKey('dependentRequired')) {
+            type = 'object';
+          } else if (json.containsKey('items') ||
+              json.containsKey('prefixItems')) {
+            type = 'array';
+          } else if (json.containsKey('minLength') ||
+              json.containsKey('maxLength') ||
+              json.containsKey('pattern') ||
+              json.containsKey('format')) {
+            type = 'string';
+          } else if (json.containsKey('minimum') ||
+              json.containsKey('maximum') ||
+              json.containsKey('exclusiveMinimum') ||
+              json.containsKey('exclusiveMaximum') ||
+              json.containsKey('multipleOf')) {
+            type = 'number';
+          }
+        }
         switch (type) {
           case 'object':
             final properties = <String, Schema>{};
@@ -393,12 +609,28 @@ final class SchemaParser {
                 '$path/additionalProperties',
               );
             }
+            final dependentRequired = <String, Set<String>>{};
+            if (json['dependentRequired'] is Map) {
+              (json['dependentRequired'] as Map).forEach((key, value) {
+                if (value is List) {
+                  dependentRequired[key as String] = value
+                      .cast<String>()
+                      .toSet();
+                }
+              });
+            }
             schema = ObjectSchema(
               properties: properties,
               required: required,
               additionalProperties: additionalProperties,
+              minProperties: json['minProperties'] as int?,
+              maxProperties: json['maxProperties'] as int?,
+              dependentRequired: dependentRequired,
               title: title,
               description: description,
+              isDeprecated: isDeprecated,
+              hasDefault: hasDefault,
+              defaultValue: defaultValue,
             );
             break;
           case 'array':
@@ -406,13 +638,36 @@ final class SchemaParser {
             final items = itemsJson != null
                 ? _parseSchema(itemsJson, '$path/items')
                 : const AnythingSchema();
+
+            final prefixItemsJson = json['prefixItems'];
+            List<Schema>? prefixItems;
+            if (prefixItemsJson is List) {
+              prefixItems = [];
+              for (var i = 0; i < prefixItemsJson.length; i++) {
+                prefixItems.add(
+                  _parseSchema(prefixItemsJson[i], '$path/prefixItems/$i'),
+                );
+              }
+            }
+
+            final containsJson = json['contains'];
+            final contains = containsJson != null
+                ? _parseSchema(containsJson, '$path/contains')
+                : null;
             schema = ArraySchema(
               items: items,
+              prefixItems: prefixItems,
               minItems: json['minItems'] as int?,
               maxItems: json['maxItems'] as int?,
               uniqueItems: json['uniqueItems'] as bool?,
+              contains: contains,
+              minContains: json['minContains'] as int?,
+              maxContains: json['maxContains'] as int?,
               title: title,
               description: description,
+              isDeprecated: isDeprecated,
+              hasDefault: hasDefault,
+              defaultValue: defaultValue,
             );
             break;
           case 'string':
@@ -423,6 +678,9 @@ final class SchemaParser {
               format: json['format'] as String?,
               title: title,
               description: description,
+              isDeprecated: isDeprecated,
+              hasDefault: hasDefault,
+              defaultValue: defaultValue,
             );
             break;
           case 'number':
@@ -430,9 +688,14 @@ final class SchemaParser {
               isInteger: false,
               minimum: json['minimum'] as num?,
               maximum: json['maximum'] as num?,
+              exclusiveMinimum: json['exclusiveMinimum'] as num?,
+              exclusiveMaximum: json['exclusiveMaximum'] as num?,
               multipleOf: json['multipleOf'] as num?,
               title: title,
               description: description,
+              isDeprecated: isDeprecated,
+              hasDefault: hasDefault,
+              defaultValue: defaultValue,
             );
             break;
           case 'integer':
@@ -440,19 +703,42 @@ final class SchemaParser {
               isInteger: true,
               minimum: json['minimum'] as num?,
               maximum: json['maximum'] as num?,
+              exclusiveMinimum: json['exclusiveMinimum'] as num?,
+              exclusiveMaximum: json['exclusiveMaximum'] as num?,
               multipleOf: json['multipleOf'] as num?,
               title: title,
               description: description,
+              isDeprecated: isDeprecated,
+              hasDefault: hasDefault,
+              defaultValue: defaultValue,
             );
             break;
           case 'boolean':
-            schema = BooleanSchema(title: title, description: description);
+            schema = BooleanSchema(
+              title: title,
+              description: description,
+              isDeprecated: isDeprecated,
+              hasDefault: hasDefault,
+              defaultValue: defaultValue,
+            );
             break;
           case 'null':
-            schema = NullSchema(title: title, description: description);
+            schema = NullSchema(
+              title: title,
+              description: description,
+              isDeprecated: isDeprecated,
+              hasDefault: hasDefault,
+              defaultValue: defaultValue,
+            );
             break;
           default:
-            schema = AnythingSchema(title: title, description: description);
+            schema = AnythingSchema(
+              title: title,
+              description: description,
+              isDeprecated: isDeprecated,
+              hasDefault: hasDefault,
+              defaultValue: defaultValue,
+            );
         }
       }
     }
@@ -478,13 +764,333 @@ final class SchemaParser {
         s.properties.values.forEach(visit);
       } else if (s is ArraySchema) {
         visit(s.items);
+        s.prefixItems?.forEach(visit);
+        if (s.contains != null) visit(s.contains!);
       } else if (s is UnionSchema) {
+        s.subschemas.forEach(visit);
+      } else if (s is AllOfSchema) {
         s.subschemas.forEach(visit);
       }
     }
 
     visit(root);
     _cache.values.forEach(visit);
+  }
+
+  final Map<Schema, Schema> _flattenCache = {};
+
+  Schema _flatten(Schema schema) {
+    if (_flattenCache.containsKey(schema)) {
+      return _flattenCache[schema]!;
+    }
+
+    if (schema is RefSchema) {
+      _flattenCache[schema] = schema;
+      if (schema.resolved != null) {
+        schema.resolved = _flatten(schema.resolved!);
+      }
+      return schema;
+    }
+
+    if (schema is ObjectSchema) {
+      var changed = false;
+      final newProps = <String, Schema>{};
+      schema.properties.forEach((k, v) {
+        final nv = _flatten(v);
+        newProps[k] = nv;
+        if (nv != v) changed = true;
+      });
+      final newAddProps = schema.additionalProperties != null
+          ? _flatten(schema.additionalProperties!)
+          : null;
+      if (newAddProps != schema.additionalProperties) changed = true;
+
+      final newDependentRequired = <String, Set<String>>{};
+      schema.dependentRequired.forEach((k, v) {
+        newDependentRequired[k] = v;
+      });
+
+      if (changed) {
+        final newSchema = ObjectSchema(
+          properties: newProps,
+          required: schema.required,
+          additionalProperties: newAddProps,
+          minProperties: schema.minProperties,
+          maxProperties: schema.maxProperties,
+          dependentRequired: newDependentRequired,
+          title: schema.title,
+          description: schema.description,
+          isDeprecated: schema.isDeprecated,
+          hasDefault: schema.hasDefault,
+          defaultValue: schema.defaultValue,
+        );
+        _flattenCache[schema] = newSchema;
+        return newSchema;
+      } else {
+        _flattenCache[schema] = schema;
+        return schema;
+      }
+    }
+
+    if (schema is ArraySchema) {
+      final newItems = _flatten(schema.items);
+      final newContains = schema.contains != null
+          ? _flatten(schema.contains!)
+          : null;
+
+      var prefixItemsChanged = false;
+      List<Schema>? newPrefixItems;
+      if (schema.prefixItems != null) {
+        newPrefixItems = [];
+        for (final item in schema.prefixItems!) {
+          final ni = _flatten(item);
+          newPrefixItems.add(ni);
+          if (ni != item) prefixItemsChanged = true;
+        }
+      }
+
+      if (newItems != schema.items ||
+          newContains != schema.contains ||
+          prefixItemsChanged) {
+        final newSchema = ArraySchema(
+          items: newItems,
+          prefixItems: newPrefixItems,
+          minItems: schema.minItems,
+          maxItems: schema.maxItems,
+          uniqueItems: schema.uniqueItems,
+          contains: newContains,
+          minContains: schema.minContains,
+          maxContains: schema.maxContains,
+          title: schema.title,
+          description: schema.description,
+          isDeprecated: schema.isDeprecated,
+          hasDefault: schema.hasDefault,
+          defaultValue: schema.defaultValue,
+        );
+        _flattenCache[schema] = newSchema;
+        return newSchema;
+      } else {
+        _flattenCache[schema] = schema;
+        return schema;
+      }
+    }
+
+    if (schema is UnionSchema) {
+      var changed = false;
+      final newSubs = <Schema>[];
+      for (final sub in schema.subschemas) {
+        final ns = _flatten(sub);
+        newSubs.add(ns);
+        if (ns != sub) changed = true;
+      }
+      if (changed) {
+        final newSchema = UnionSchema(
+          subschemas: newSubs,
+          discriminator: schema.discriminator,
+          title: schema.title,
+          description: schema.description,
+          isDeprecated: schema.isDeprecated,
+          hasDefault: schema.hasDefault,
+          defaultValue: schema.defaultValue,
+        );
+        _flattenCache[schema] = newSchema;
+        return newSchema;
+      } else {
+        _flattenCache[schema] = schema;
+        return schema;
+      }
+    }
+
+    if (schema is AllOfSchema) {
+      final flattenedSubs = schema.subschemas.map(_flatten).toList();
+      final merged = _mergeAll(flattenedSubs);
+      final finalSchema = _copyWithMetadata(
+        merged,
+        title: schema.title,
+        description: schema.description,
+        isDeprecated: schema.isDeprecated,
+        hasDefault: schema.hasDefault,
+        defaultValue: schema.defaultValue,
+      );
+      _flattenCache[schema] = finalSchema;
+      return finalSchema;
+    }
+
+    _flattenCache[schema] = schema;
+    return schema;
+  }
+
+  Schema _mergeAll(List<Schema> schemas) {
+    if (schemas.isEmpty) return const AnythingSchema();
+    var result = schemas.first;
+    for (var i = 1; i < schemas.length; i++) {
+      result = _merge(result, schemas[i]);
+    }
+    return result;
+  }
+
+  Schema _merge(Schema a, Schema b) {
+    final realA = a.realSchema;
+    final realB = b.realSchema;
+
+    if (realA is AnythingSchema) return b;
+    if (realB is AnythingSchema) return a;
+    if (realA is NeverSchema) return a;
+    if (realB is NeverSchema) return b;
+
+    if (realA is ObjectSchema && realB is ObjectSchema) {
+      final properties = <String, Schema>{}..addAll(realA.properties);
+      realB.properties.forEach((k, v) {
+        if (properties.containsKey(k)) {
+          properties[k] = _merge(properties[k]!, v);
+        } else {
+          properties[k] = v;
+        }
+      });
+
+      final required = <String>{}
+        ..addAll(realA.required)
+        ..addAll(realB.required);
+
+      Schema? additionalProperties;
+      if (realA.additionalProperties == null) {
+        additionalProperties = realB.additionalProperties;
+      } else if (realB.additionalProperties == null) {
+        additionalProperties = realA.additionalProperties;
+      } else {
+        additionalProperties = _merge(
+          realA.additionalProperties!,
+          realB.additionalProperties!,
+        );
+      }
+
+      int? minProperties;
+      if (realA.minProperties != null && realB.minProperties != null) {
+        minProperties = math.max(realA.minProperties!, realB.minProperties!);
+      } else {
+        minProperties = realA.minProperties ?? realB.minProperties;
+      }
+
+      int? maxProperties;
+      if (realA.maxProperties != null && realB.maxProperties != null) {
+        maxProperties = math.min(realA.maxProperties!, realB.maxProperties!);
+      } else {
+        maxProperties = realA.maxProperties ?? realB.maxProperties;
+      }
+
+      final dependentRequired = <String, Set<String>>{};
+      realA.dependentRequired.forEach(
+        (k, v) => dependentRequired[k] = Set.from(v),
+      );
+      realB.dependentRequired.forEach((k, v) {
+        if (dependentRequired.containsKey(k)) {
+          dependentRequired[k]!.addAll(v);
+        } else {
+          dependentRequired[k] = Set.from(v);
+        }
+      });
+
+      return ObjectSchema(
+        properties: properties,
+        required: required,
+        additionalProperties: additionalProperties,
+        minProperties: minProperties,
+        maxProperties: maxProperties,
+        dependentRequired: dependentRequired,
+        title: realA.title ?? realB.title,
+        description: realA.description ?? realB.description,
+        isDeprecated: realA.isDeprecated || realB.isDeprecated,
+        hasDefault: realA.hasDefault || realB.hasDefault,
+        defaultValue: realA.defaultValue ?? realB.defaultValue,
+      );
+    }
+
+    if (realA is StringSchema && realB is StringSchema) {
+      int? minLength;
+      if (realA.minLength != null && realB.minLength != null) {
+        minLength = math.max(realA.minLength!, realB.minLength!);
+      } else {
+        minLength = realA.minLength ?? realB.minLength;
+      }
+
+      int? maxLength;
+      if (realA.maxLength != null && realB.maxLength != null) {
+        maxLength = math.min(realA.maxLength!, realB.maxLength!);
+      } else {
+        maxLength = realA.maxLength ?? realB.maxLength;
+      }
+
+      final pattern = realA.pattern ?? realB.pattern;
+      final format = realA.format ?? realB.format;
+
+      return StringSchema(
+        minLength: minLength,
+        maxLength: maxLength,
+        pattern: pattern,
+        format: format,
+        title: realA.title ?? realB.title,
+        description: realA.description ?? realB.description,
+        isDeprecated: realA.isDeprecated || realB.isDeprecated,
+        hasDefault: realA.hasDefault || realB.hasDefault,
+        defaultValue: realA.defaultValue ?? realB.defaultValue,
+      );
+    }
+
+    if (realA is NumberSchema && realB is NumberSchema) {
+      final isInteger = realA.isInteger || realB.isInteger;
+
+      num? minimum;
+      if (realA.minimum != null && realB.minimum != null) {
+        minimum = math.max(realA.minimum!, realB.minimum!);
+      } else {
+        minimum = realA.minimum ?? realB.minimum;
+      }
+
+      num? maximum;
+      if (realA.maximum != null && realB.maximum != null) {
+        maximum = math.min(realA.maximum!, realB.maximum!);
+      } else {
+        maximum = realA.maximum ?? realB.maximum;
+      }
+
+      num? exclusiveMinimum;
+      if (realA.exclusiveMinimum != null && realB.exclusiveMinimum != null) {
+        exclusiveMinimum = math.max(
+          realA.exclusiveMinimum!,
+          realB.exclusiveMinimum!,
+        );
+      } else {
+        exclusiveMinimum = realA.exclusiveMinimum ?? realB.exclusiveMinimum;
+      }
+
+      num? exclusiveMaximum;
+      if (realA.exclusiveMaximum != null && realB.exclusiveMaximum != null) {
+        exclusiveMaximum = math.min(
+          realA.exclusiveMaximum!,
+          realB.exclusiveMaximum!,
+        );
+      } else {
+        exclusiveMaximum = realA.exclusiveMaximum ?? realB.exclusiveMaximum;
+      }
+
+      final multipleOf = realA.multipleOf ?? realB.multipleOf;
+
+      return NumberSchema(
+        isInteger: isInteger,
+        minimum: minimum,
+        maximum: maximum,
+        exclusiveMinimum: exclusiveMinimum,
+        exclusiveMaximum: exclusiveMaximum,
+        multipleOf: multipleOf,
+        title: realA.title ?? realB.title,
+        description: realA.description ?? realB.description,
+        isDeprecated: realA.isDeprecated || realB.isDeprecated,
+        hasDefault: realA.hasDefault || realB.hasDefault,
+        defaultValue: realA.defaultValue ?? realB.defaultValue,
+      );
+    }
+
+    return const NeverSchema();
   }
 }
 
@@ -706,13 +1312,28 @@ const _dartKeywords = {
   'yield',
 };
 
+String _arrayElementType(ArraySchema schema, Map<Schema, String> classNames) {
+  if (schema.prefixItems == null || schema.prefixItems!.isEmpty) {
+    return dartType(schema.items, classNames);
+  }
+  final types = <String>{};
+  for (final item in schema.prefixItems!) {
+    types.add(dartType(item, classNames));
+  }
+  types.add(dartType(schema.items, classNames));
+  if (types.length == 1) {
+    return types.first;
+  }
+  return 'dynamic';
+}
+
 /// Computes the Dart type string for the given [schema].
 String dartType(Schema schema, Map<Schema, String> classNames) {
   final real = schema.realSchema;
   if (real is ObjectSchema) {
     return classNames[real] ?? 'dynamic';
   } else if (real is ArraySchema) {
-    return 'List<${dartType(real.items, classNames)}>';
+    return 'List<${_arrayElementType(real, classNames)}>';
   } else if (real is StringSchema) {
     return 'String';
   } else if (real is NumberSchema) {
@@ -866,20 +1487,57 @@ String generateWriteStatements(
       depth: depth,
     );
   } else if (real is ArraySchema) {
-    final itemVar = 'item\$depth';
-    final writeItem = generateWriteStatements(
-      real.items,
-      itemVar,
-      sinkVar,
-      depth: depth + 1,
-    );
-    return '''
-      $sinkVar.startArray();
-      for (final $itemVar in $valueVar) {
-        $writeItem
+    if (real.prefixItems == null || real.prefixItems!.isEmpty) {
+      final itemVar = 'item\$depth';
+      final writeItem = generateWriteStatements(
+        real.items,
+        itemVar,
+        sinkVar,
+        depth: depth + 1,
+      );
+      return '''
+        $sinkVar.startArray();
+        for (final $itemVar in $valueVar) {
+          $writeItem
+        }
+        $sinkVar.endArray();
+      ''';
+    } else {
+      final buffer = StringBuffer();
+      buffer.writeln('$sinkVar.startArray();');
+      buffer.writeln('for (var i = 0; i < $valueVar.length; i++) {');
+      buffer.writeln('  final item = $valueVar[i];');
+
+      for (var i = 0; i < real.prefixItems!.length; i++) {
+        final prefixSchema = real.prefixItems![i];
+        final writePrefix = generateWriteStatements(
+          prefixSchema,
+          'item',
+          sinkVar,
+          depth: depth + 1,
+        );
+        if (i == 0) {
+          buffer.writeln('  if (i == 0) {');
+        } else {
+          buffer.writeln('  } else if (i == $i) {');
+        }
+        buffer.writeln('    $writePrefix');
       }
-      $sinkVar.endArray();
-    ''';
+
+      final writeRemaining = generateWriteStatements(
+        real.items,
+        'item',
+        sinkVar,
+        depth: depth + 1,
+      );
+      buffer.writeln('  } else {');
+      buffer.writeln('    $writeRemaining');
+      buffer.writeln('  }');
+
+      buffer.writeln('}');
+      buffer.writeln('$sinkVar.endArray();');
+      return buffer.toString();
+    }
   }
   return '';
 }
@@ -970,6 +1628,10 @@ class AnythingDescriptor extends SchemaDescriptor<dynamic> {
   const AnythingDescriptor();
 }
 
+class NeverDescriptor extends SchemaDescriptor<Never> {
+  const NeverDescriptor();
+}
+
 class NullableDescriptor<T> extends SchemaDescriptor<T?> {
   final SchemaDescriptor<T> inner;
   const NullableDescriptor(this.inner);
@@ -977,7 +1639,8 @@ class NullableDescriptor<T> extends SchemaDescriptor<T?> {
 
 class ArrayDescriptor<T> extends SchemaDescriptor<List<T>> {
   final SchemaDescriptor<T> items;
-  const ArrayDescriptor(this.items);
+  final List<SchemaDescriptor>? prefixItems;
+  const ArrayDescriptor(this.items, {this.prefixItems});
 
   _JsonParseFrame createFrame({required bool validate}) =>
       _ArrayFrame<T>(this, validate: validate);
@@ -1063,6 +1726,12 @@ class _ObjectFrame extends _JsonParseFrame {
           fields[key] = val;
           _currentKey = null;
         }, validate: validate);
+      } else if (desc.additionalProperties != null) {
+        _currentKey = key;
+        _pushSchemaFrame(reader, stack, desc.additionalProperties!, (val) {
+          fields[key] = val;
+          _currentKey = null;
+        }, validate: validate);
       } else {
         reader.skipAnyValue();
       }
@@ -1115,7 +1784,11 @@ class _ArrayFrame<T> extends _JsonParseFrame {
       _initialized = true;
     }
     if (reader.hasNext()) {
-      _pushSchemaFrame(reader, stack, desc.items, (val) {
+      final itemDesc =
+          (desc.prefixItems != null && index < desc.prefixItems!.length)
+          ? desc.prefixItems![index]
+          : desc.items;
+      _pushSchemaFrame(reader, stack, itemDesc, (val) {
         list.add(val as T);
         index++;
       }, validate: validate);
@@ -1241,13 +1914,20 @@ void _pushSchemaFrame(
   } else if (schema is AnythingDescriptor) {
     onComplete(readAny(reader));
   } else if (schema is EnumDescriptor) {
-    onComplete(schema.fromValue(schema.base.read(reader)));
+    final val = schema.base.read(reader);
+    try {
+      onComplete(schema.fromValue(val));
+    } catch (e) {
+      throw reader.fail('Invalid enum value: $val');
+    }
   } else if (schema is ObjectDescriptor) {
     stack.add(_ObjectFrame(schema, validate: validate));
   } else if (schema is ArrayDescriptor) {
     stack.add(schema.createFrame(validate: validate));
   } else if (schema is UnionDescriptor) {
     stack.add(_UnionFrame(schema, validate: validate));
+  } else if (schema is NeverDescriptor) {
+    throw reader.fail('Value is not allowed here');
   }
 }
 
@@ -1272,7 +1952,12 @@ dynamic _runNonRecursiveWithDescriptor(
   } else if (rootSchema is AnythingDescriptor) {
     return readAny(reader);
   } else if (rootSchema is EnumDescriptor) {
-    return rootSchema.fromValue(rootSchema.base.read(reader));
+    final val = rootSchema.base.read(reader);
+    try {
+      return rootSchema.fromValue(val);
+    } catch (e) {
+      throw reader.fail('Invalid enum value: $val');
+    }
   }
 
   final rootFrame = _createFrameForSchema(rootSchema, validate: validate);
@@ -1338,7 +2023,12 @@ dynamic parseWithDescriptor(
   } else if (schema is AnythingDescriptor) {
     return readAny(reader);
   } else if (schema is EnumDescriptor) {
-    return schema.fromValue(schema.base.read(reader));
+    final val = schema.base.read(reader);
+    try {
+      return schema.fromValue(val);
+    } catch (e) {
+      throw reader.fail('Invalid enum value: $val');
+    }
   }
   return _runNonRecursiveWithDescriptor(reader, schema, validate: validate);
 }
@@ -1370,8 +2060,13 @@ void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
   } else if (schema is ArrayDescriptor) {
     sink.startArray();
     if (value is List) {
-      for (final item in value) {
-        _writeSchemaValue(sink, item, schema.items);
+      for (var i = 0; i < value.length; i++) {
+        final item = value[i];
+        final itemSchema =
+            (schema.prefixItems != null && i < schema.prefixItems!.length)
+            ? schema.prefixItems![i]
+            : schema.items;
+        _writeSchemaValue(sink, item, itemSchema);
       }
     }
     sink.endArray();
@@ -1385,6 +2080,15 @@ void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
         _writeSchemaValue(sink, val, prop.schema);
       }
     });
+    if (schema.additionalProperties != null &&
+        schema.additionalProperties is! NeverDescriptor) {
+      fields.forEach((key, val) {
+        if (!schema.properties.containsKey(key) && val != null) {
+          sink.addKey(key);
+          _writeSchemaValue(sink, val, schema.additionalProperties!);
+        }
+      });
+    }
     sink.endObject();
   } else if (schema is UnionDescriptor) {
     if (value is JsonWritable) {
@@ -1531,6 +2235,9 @@ String _generateEnumClass(EnumSchema schema, String className) {
   final isInt = schema.values.every((v) => v is int);
   final backingType = isString ? 'String' : (isInt ? 'int' : 'dynamic');
 
+  if (schema.isDeprecated) {
+    buffer.writeln('@deprecated');
+  }
   buffer.writeln('enum $className {');
   for (final val in schema.values) {
     var enumName = toCamelCase(val.toString());
@@ -1639,8 +2346,18 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
     return 'const NullDescriptor()';
   } else if (real is AnythingSchema) {
     return 'const AnythingDescriptor()';
+  } else if (real is NeverSchema) {
+    return 'const NeverDescriptor()';
   } else if (real is ArraySchema) {
-    return 'ArrayDescriptor(${_descriptorExpr(real.items, classNames)})';
+    final elementType = _arrayElementType(real, classNames);
+    if (real.prefixItems == null || real.prefixItems!.isEmpty) {
+      return 'ArrayDescriptor<$elementType>(${_descriptorExpr(real.items, classNames)})';
+    } else {
+      final prefixExprs = real.prefixItems!
+          .map((s) => _descriptorExpr(s, classNames))
+          .join(', ');
+      return 'ArrayDescriptor<$elementType>(${_descriptorExpr(real.items, classNames)}, prefixItems: [$prefixExprs])';
+    }
   } else if (real is EnumSchema) {
     final name = classNames[real]!;
     return '$name.descriptor';
@@ -1660,6 +2377,108 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
   );
 }
 
+String _fieldType(
+  Schema propSchema,
+  bool isRequired,
+  Map<Schema, String> classNames,
+) {
+  final baseType = dartType(propSchema, classNames);
+  final hasDefault = propSchema.hasDefault;
+  String? defaultLiteral;
+  if (hasDefault) {
+    defaultLiteral = _toDartLiteral(
+      propSchema.defaultValue,
+      propSchema,
+      classNames,
+    );
+  }
+  return (isRequired || (defaultLiteral != null && !baseType.endsWith('?')))
+      ? baseType
+      : (baseType.endsWith('?') ||
+                baseType == 'dynamic' ||
+                baseType == 'Object?'
+            ? baseType
+            : '$baseType?');
+}
+
+bool _isNullable(
+  Schema propSchema,
+  bool isRequired,
+  Map<Schema, String> classNames,
+) {
+  final type = _fieldType(propSchema, isRequired, classNames);
+  return type.endsWith('?') || type == 'dynamic' || type == 'Object?';
+}
+
+String? _toDartLiteral(
+  Object? value,
+  Schema schema,
+  Map<Schema, String> classNames,
+) {
+  final real = schema.realSchema;
+  if (value == null) return 'null';
+  if (value is String) {
+    return "'${value.replaceAll("'", r"\'")}'";
+  }
+  if (value is num || value is bool) {
+    return value.toString();
+  }
+  if (value is List) {
+    if (value.isEmpty) {
+      if (real is ArraySchema) {
+        final itemType = dartType(real.items, classNames);
+        return 'const <$itemType>[]';
+      }
+      return 'const []';
+    }
+    if (real is ArraySchema) {
+      final itemType = dartType(real.items, classNames);
+      final elements = <String>[];
+      for (final val in value) {
+        final lit = _toDartLiteral(val, real.items, classNames);
+        if (lit == null) return null;
+        elements.add(lit);
+      }
+      return 'const <$itemType>[${elements.join(', ')}]';
+    }
+  }
+  if (value is Map) {
+    if (value.isEmpty) {
+      if (real is ObjectSchema) {
+        final className = classNames[real];
+        if (className != null) {
+          return 'const $className()';
+        }
+      }
+      return 'const {}';
+    }
+    if (real is ObjectSchema) {
+      final className = classNames[real];
+      if (className != null) {
+        final args = <String>[];
+        var ok = true;
+        value.forEach((k, v) {
+          final propSchema = real.properties[k];
+          if (propSchema == null) {
+            ok = false;
+            return;
+          }
+          final lit = _toDartLiteral(v, propSchema, classNames);
+          if (lit == null) {
+            ok = false;
+            return;
+          }
+          args.add('${toCamelCase(k as String)}: $lit');
+        });
+        if (ok) {
+          return 'const $className(${args.join(', ')})';
+        }
+      }
+    }
+  }
+  return null;
+}
+
 String _generateObjectClass(
   ObjectSchema schema,
   String className,
@@ -1676,17 +2495,27 @@ String _generateObjectClass(
     final fieldName = toCamelCase(name);
     final isRequired = schema.required.contains(name);
     final baseType = dartType(propSchema, classNames);
-    final fieldType = isRequired
-        ? baseType
-        : (baseType.endsWith('?') ||
-                  baseType == 'dynamic' ||
-                  baseType == 'Object?'
-              ? baseType
-              : '$baseType?');
 
+    final hasDefault = propSchema.hasDefault;
+    String? defaultLiteral;
+    if (hasDefault) {
+      defaultLiteral = _toDartLiteral(
+        propSchema.defaultValue,
+        propSchema,
+        classNames,
+      );
+    }
+
+    final fieldType = _fieldType(propSchema, isRequired, classNames);
+
+    if (propSchema.isDeprecated) {
+      fields.writeln('  @deprecated');
+    }
     fields.writeln('  final $fieldType $fieldName;');
     if (isRequired) {
       constructorParams.writeln('    required this.$fieldName,');
+    } else if (defaultLiteral != null) {
+      constructorParams.writeln('    this.$fieldName = $defaultLiteral,');
     } else {
       constructorParams.writeln('    this.$fieldName,');
     }
@@ -1753,12 +2582,27 @@ String _generateObjectClass(
     getFieldsMap.writeln("      '$name': instance.$fieldName,");
 
     final baseType = dartType(propSchema, classNames);
+    final hasDefault = propSchema.hasDefault;
+    String? defaultLiteral;
+    if (hasDefault) {
+      defaultLiteral = _toDartLiteral(
+        propSchema.defaultValue,
+        propSchema,
+        classNames,
+      );
+    }
+
+    final fieldType = _fieldType(propSchema, isRequired, classNames);
+
     if (isRequired) {
       instantiateArgs.writeln(
         "        $fieldName: fields['$name'] as $baseType,",
       );
+    } else if (defaultLiteral != null) {
+      instantiateArgs.writeln(
+        "        $fieldName: fields.containsKey('$name') ? fields['$name'] as $fieldType : $defaultLiteral,",
+      );
     } else {
-      final fieldType = baseType.endsWith('?') ? baseType : '$baseType?';
       instantiateArgs.writeln(
         "        $fieldName: fields['$name'] as $fieldType,",
       );
@@ -1768,13 +2612,15 @@ String _generateObjectClass(
   if (hasAdditionalProps) {
     getFieldsMap.writeln("      ...instance.additionalProperties,");
     final addPropsType = dartType(schema.additionalProperties!, classNames);
+    final propKeysLiteral =
+        '{${schema.properties.keys.map((k) => "'$k'").join(', ')}}';
     instantiateArgs.writeln(
-      "        additionalProperties: fields.entries.where((e) => !descriptor.properties.containsKey(e.key)).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),",
+      "        additionalProperties: fields.entries.where((e) => !const $propKeysLiteral.contains(e.key)).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),",
     );
   }
 
   String? addPropsExpr;
-  if (hasAdditionalProps) {
+  if (schema.additionalProperties != null) {
     addPropsExpr = _descriptorExpr(schema.additionalProperties!, classNames);
   }
 
@@ -1793,8 +2639,9 @@ $propDescriptors    },
     ${addPropsExpr != null ? 'additionalProperties: $addPropsExpr,' : ''}
   );''';
 
+  final deprecatedAttr = schema.isDeprecated ? '@deprecated\n' : '';
   return '''
-final class $className implements JsonModel {
+${deprecatedAttr}final class $className implements JsonModel {
 $fields
   const $className({
 $constructorParams  });
@@ -1838,6 +2685,130 @@ $descriptorString
 ''';
 }
 
+String _generateMatchBlock(
+  Schema schema,
+  String valueVar,
+  String resultVar,
+  Map<Schema, String> classNames,
+) {
+  final buffer = StringBuffer();
+  final real = schema.realSchema;
+  buffer.writeln('    bool $resultVar = false;');
+  if (real is StringSchema) {
+    buffer.writeln('    if ($valueVar is String) {');
+    buffer.writeln('      $resultVar = true;');
+    if (real.minLength != null) {
+      buffer.writeln(
+        '      if ($valueVar.length < ${real.minLength}) $resultVar = false;',
+      );
+    }
+    if (real.maxLength != null) {
+      buffer.writeln(
+        '      if ($valueVar.length > ${real.maxLength}) $resultVar = false;',
+      );
+    }
+    if (real.pattern != null) {
+      final patternEscaped = real.pattern!.replaceAll("'", r"\'");
+      buffer.writeln(
+        '      if (!RegExp(r\'$patternEscaped\').hasMatch($valueVar)) $resultVar = false;',
+      );
+    }
+    if (real.format != null) {
+      final fmtBuf = StringBuffer();
+      _generateFormatValidation(fmtBuf, valueVar, real.format!, 'item');
+      buffer.writeln('      try {');
+      buffer.write(fmtBuf.toString());
+      buffer.writeln('      } on JsonValidationException catch (_) {');
+      buffer.writeln('        $resultVar = false;');
+      buffer.writeln('      }');
+    }
+    buffer.writeln('    }');
+  } else if (real is NumberSchema) {
+    final typeCheck = real.isInteger ? 'is int' : 'is num';
+    buffer.writeln('    if ($valueVar $typeCheck) {');
+    buffer.writeln('      $resultVar = true;');
+    if (real.minimum != null) {
+      buffer.writeln(
+        '      if ($valueVar < ${real.minimum}) $resultVar = false;',
+      );
+    }
+    if (real.maximum != null) {
+      buffer.writeln(
+        '      if ($valueVar > ${real.maximum}) $resultVar = false;',
+      );
+    }
+    if (real.exclusiveMinimum != null) {
+      buffer.writeln(
+        '      if ($valueVar <= ${real.exclusiveMinimum}) $resultVar = false;',
+      );
+    }
+    if (real.exclusiveMaximum != null) {
+      buffer.writeln(
+        '      if ($valueVar >= ${real.exclusiveMaximum}) $resultVar = false;',
+      );
+    }
+    if (real.multipleOf != null) {
+      if (real.isInteger) {
+        buffer.writeln(
+          '      if ($valueVar % ${real.multipleOf} != 0) $resultVar = false;',
+        );
+      } else {
+        buffer.writeln(
+          '      if (($valueVar / ${real.multipleOf} - ($valueVar / ${real.multipleOf}).round()).abs() > 1e-9) $resultVar = false;',
+        );
+      }
+    }
+    buffer.writeln('    }');
+  } else if (real is BooleanSchema) {
+    buffer.writeln('    if ($valueVar is bool) $resultVar = true;');
+  } else if (real is NullSchema) {
+    buffer.writeln('    if ($valueVar == null) $resultVar = true;');
+  } else if (real is AnythingSchema) {
+    buffer.writeln('    $resultVar = true;');
+  } else if (real is ObjectSchema) {
+    final className = classNames[real]!;
+    buffer.writeln('    if ($valueVar is $className) {');
+    buffer.writeln('      $resultVar = true;');
+    buffer.writeln(
+      '      try { $valueVar.validate(); } on JsonValidationException catch (_) { $resultVar = false; }',
+    );
+    buffer.writeln('    } else if ($valueVar is Map<String, dynamic>) {');
+    buffer.writeln('      try {');
+    buffer.writeln(
+      '        final parsed = $className.fromJson(JsonReader.fromObject($valueVar));',
+    );
+    buffer.writeln('        $resultVar = true;');
+    buffer.writeln('      } catch (_) {}');
+    buffer.writeln('    }');
+  } else if (real is UnionSchema) {
+    final className = classNames[real]!;
+    buffer.writeln('    if ($valueVar is $className) {');
+    buffer.writeln('      $resultVar = true;');
+    buffer.writeln(
+      '      try { $valueVar.validate(); } on JsonValidationException catch (_) { $resultVar = false; }',
+    );
+    buffer.writeln('    } else {');
+    buffer.writeln('      try {');
+    buffer.writeln(
+      '        $className.fromJson(JsonReader.fromObject($valueVar));',
+    );
+    buffer.writeln('        $resultVar = true;');
+    buffer.writeln('      } catch (_) {}');
+    buffer.writeln('    }');
+  } else if (real is EnumSchema) {
+    final className = classNames[real]!;
+    buffer.writeln('    if ($valueVar is $className) {');
+    buffer.writeln('      $resultVar = true;');
+    buffer.writeln('    } else {');
+    buffer.writeln('      try {');
+    buffer.writeln('        $className.fromValue($valueVar);');
+    buffer.writeln('        $resultVar = true;');
+    buffer.writeln('      } catch (_) {}');
+    buffer.writeln('    }');
+  }
+  return buffer.toString();
+}
+
 /// Helper checking if the given schema generates a class type that implements validate().
 bool _hasValidationMethod(Schema schema) {
   final real = schema.realSchema;
@@ -1865,12 +2836,57 @@ String _generateValidationMethod(
 ) {
   final buffer = StringBuffer();
   buffer.writeln('  void validate() {');
+  if (schema.minProperties != null || schema.maxProperties != null) {
+    buffer.writeln('    var count = 0;');
+    schema.properties.forEach((key, propSchema) {
+      final fieldName = toCamelCase(key);
+      final isRequired = schema.required.contains(key);
+      final isNullable = _isNullable(propSchema, isRequired, classNames);
+      if (isNullable) {
+        buffer.writeln('    if ($fieldName != null) count++;');
+      } else {
+        buffer.writeln('    count++;');
+      }
+    });
+    final hasAdditionalProps =
+        schema.additionalProperties != null &&
+        schema.additionalProperties is! NeverSchema;
+    if (hasAdditionalProps) {
+      buffer.writeln('    count += additionalProperties.length;');
+    }
+    if (schema.minProperties != null) {
+      buffer.writeln('    if (count < ${schema.minProperties}) {');
+      buffer.writeln(
+        "      throw JsonValidationException('Object must have >= ${schema.minProperties} properties', []);",
+      );
+      buffer.writeln('    }');
+    }
+    if (schema.maxProperties != null) {
+      buffer.writeln('    if (count > ${schema.maxProperties}) {');
+      buffer.writeln(
+        "      throw JsonValidationException('Object must have <= ${schema.maxProperties} properties', []);",
+      );
+      buffer.writeln('    }');
+    }
+  }
+  schema.dependentRequired.forEach((key, deps) {
+    final fieldName = toCamelCase(key);
+    buffer.writeln('    if ($fieldName != null) {');
+    for (final dep in deps) {
+      final depFieldName = toCamelCase(dep);
+      buffer.writeln('      if ($depFieldName == null) {');
+      buffer.writeln(
+        "        throw JsonValidationException('Property \"$dep\" is required because \"$key\" is present', ['$dep']);",
+      );
+      buffer.writeln('      }');
+    }
+    buffer.writeln('    }');
+  });
   schema.properties.forEach((name, propSchema) {
     final fieldName = toCamelCase(name);
     final isRequired = schema.required.contains(name);
     final real = propSchema.realSchema;
-    final isNullable =
-        !isRequired || dartType(propSchema, classNames).endsWith('?');
+    final isNullable = _isNullable(propSchema, isRequired, classNames);
 
     final valueVar = isNullable ? 'val_$fieldName' : fieldName;
     final validations = StringBuffer();
@@ -1923,6 +2939,24 @@ String _generateValidationMethod(
         );
         validations.writeln('      }');
       }
+      if (real.exclusiveMinimum != null) {
+        validations.writeln(
+          '      if ($valueVar <= ${real.exclusiveMinimum}) {',
+        );
+        validations.writeln(
+          "        throw JsonValidationException('Property \"$name\" must be > ${real.exclusiveMinimum}', ['$name']);",
+        );
+        validations.writeln('      }');
+      }
+      if (real.exclusiveMaximum != null) {
+        validations.writeln(
+          '      if ($valueVar >= ${real.exclusiveMaximum}) {',
+        );
+        validations.writeln(
+          "        throw JsonValidationException('Property \"$name\" must be < ${real.exclusiveMaximum}', ['$name']);",
+        );
+        validations.writeln('      }');
+      }
       if (real.multipleOf != null) {
         if (real.isInteger) {
           validations.writeln(
@@ -1962,10 +2996,56 @@ String _generateValidationMethod(
         );
         validations.writeln('      }');
       }
+      if (real.contains != null) {
+        validations.writeln('      var containsCount = 0;');
+        validations.writeln('      for (final dynamic item in $valueVar) {');
+        final matchBlock = _generateMatchBlock(
+          real.contains!,
+          'item',
+          'matches',
+          classNames,
+        );
+        validations.write(matchBlock);
+        validations.writeln('        if (matches) containsCount++;');
+        validations.writeln('      }');
+        final minContains = real.minContains ?? 1;
+        if (minContains > 0) {
+          validations.writeln('      if (containsCount < $minContains) {');
+          validations.writeln(
+            "        throw JsonValidationException('Property \"$name\" must contain at least $minContains items matching contains schema, but has \$containsCount', ['$name']);",
+          );
+          validations.writeln('      }');
+        }
+        if (real.maxContains != null) {
+          validations.writeln(
+            '      if (containsCount > ${real.maxContains}) {',
+          );
+          validations.writeln(
+            "        throw JsonValidationException('Property \"$name\" must contain at most ${real.maxContains} items matching contains schema, but has \$containsCount', ['$name']);",
+          );
+          validations.writeln('      }');
+        }
+      }
+      if (real.prefixItems != null) {
+        for (var i = 0; i < real.prefixItems!.length; i++) {
+          final prefixSchema = real.prefixItems![i];
+          if (_hasValidationMethod(prefixSchema)) {
+            validations.writeln('''
+      if ($valueVar.length > $i) {
+        try {
+          $valueVar[$i].validate();
+        } on JsonValidationException catch (e) {
+          throw JsonValidationException(e.message, ['$name', '[$i]', ...e.path]);
+        }
+      }''');
+          }
+        }
+      }
       final hasItemValidation = _hasValidationMethod(real.items);
       if (hasItemValidation) {
+        final startIndex = real.prefixItems?.length ?? 0;
         validations.writeln('''
-      for (var i = 0; i < $valueVar.length; i++) {
+      for (var i = $startIndex; i < $valueVar.length; i++) {
         try {
           $valueVar[i].validate();
         } on JsonValidationException catch (e) {
@@ -2071,12 +3151,37 @@ void _generateFormatValidation(
       validations.writeln('      }');
       break;
     case 'uri':
-      validations.writeln('      final parsedUri = Uri.tryParse($valueVar);');
-      validations.writeln(
-        '      if (parsedUri == null || !parsedUri.hasScheme) {',
-      );
+      validations.writeln('      if (!isValidUri($valueVar)) {');
       validations.writeln(
         "        throw JsonValidationException('Property \"$name\" must be a valid absolute URI', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'uri-reference':
+      validations.writeln('      if (!isValidUriReference($valueVar)) {');
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid URI reference', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'ipv6':
+      validations.writeln('      if (!isValidIPv6($valueVar)) {');
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid IPv6 address', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'hostname':
+      validations.writeln('      if (!isValidHostname($valueVar)) {');
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid hostname', ['$name']);",
+      );
+      validations.writeln('      }');
+      break;
+    case 'time':
+      validations.writeln('      if (!isValidTime($valueVar)) {');
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a valid time string', ['$name']);",
       );
       validations.writeln('      }');
       break;
@@ -2131,8 +3236,9 @@ String _generateUnionClass(
 
     final descExpr = _descriptorExpr(sub, classNames);
 
+    final optDeprecatedAttr = sub.isDeprecated ? '@deprecated\n' : '';
     subclasses.writeln('''
-final class $subClassName extends $className {
+${optDeprecatedAttr}final class $subClassName extends $className {
   final $optionType value;
   const $subClassName(this.value);
 
@@ -2217,8 +3323,9 @@ $validationBody
 $optionDescriptors    ],
   );''';
 
+  final deprecatedAttr = schema.isDeprecated ? '@deprecated\n' : '';
   return '''
-sealed class $className implements JsonModel {
+${deprecatedAttr}sealed class $className implements JsonModel {
   const $className();
 
   factory $className.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -2239,4 +3346,205 @@ $descriptorString
 
 $subclasses
 ''';
+}
+
+Schema _copyWithMetadata(
+  Schema schema, {
+  String? title,
+  String? description,
+  bool? isDeprecated,
+  bool? hasDefault,
+  Object? defaultValue,
+}) {
+  final t = title ?? schema.title;
+  final d = description ?? schema.description;
+  final dep = isDeprecated ?? schema.isDeprecated;
+  final hd = hasDefault ?? schema.hasDefault;
+  final dv = defaultValue ?? schema.defaultValue;
+
+  return switch (schema) {
+    ObjectSchema s => ObjectSchema(
+      properties: s.properties,
+      required: s.required,
+      additionalProperties: s.additionalProperties,
+      minProperties: s.minProperties,
+      maxProperties: s.maxProperties,
+      dependentRequired: s.dependentRequired,
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    ArraySchema s => ArraySchema(
+      items: s.items,
+      prefixItems: s.prefixItems,
+      minItems: s.minItems,
+      maxItems: s.maxItems,
+      uniqueItems: s.uniqueItems,
+      contains: s.contains,
+      minContains: s.minContains,
+      maxContains: s.maxContains,
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    StringSchema s => StringSchema(
+      minLength: s.minLength,
+      maxLength: s.maxLength,
+      pattern: s.pattern,
+      format: s.format,
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    NumberSchema s => NumberSchema(
+      isInteger: s.isInteger,
+      minimum: s.minimum,
+      maximum: s.maximum,
+      exclusiveMinimum: s.exclusiveMinimum,
+      exclusiveMaximum: s.exclusiveMaximum,
+      multipleOf: s.multipleOf,
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    BooleanSchema _ => BooleanSchema(
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    NullSchema _ => NullSchema(
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    AnythingSchema _ => AnythingSchema(
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    NeverSchema _ => NeverSchema(
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    RefSchema s => RefSchema(
+      s.ref,
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    )..resolved = s.resolved,
+    UnionSchema s => UnionSchema(
+      subschemas: s.subschemas,
+      discriminator: s.discriminator,
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    AllOfSchema s => AllOfSchema(
+      subschemas: s.subschemas,
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+    EnumSchema s => EnumSchema(
+      values: s.values,
+      baseSchema: s.baseSchema,
+      title: t,
+      description: d,
+      isDeprecated: dep,
+      hasDefault: hd,
+      defaultValue: dv,
+    ),
+  };
+}
+
+/// Validates if a string is a valid hostname according to RFC 1034.
+///
+/// A hostname must be at most 253 characters long.
+/// Labels must be separated by dots and be at most 63 characters long,
+/// containing only alphanumeric characters and hyphens, and not starting
+/// or ending with a hyphen.
+bool isValidHostname(String s) {
+  if (s.length > 253) return false;
+  final labelRegex = RegExp(
+    r'^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])$',
+  );
+  final labels = s.split('.');
+  for (final label in labels) {
+    if (!labelRegex.hasMatch(label)) return false;
+  }
+  return true;
+}
+
+/// Validates if a string is a valid IPv6 address according to RFC 3986.
+bool isValidIPv6(String s) {
+  final ipv6Regex = RegExp(
+    r'^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|'
+    r'(([0-9A-Fa-f]{1,4}:){1,7}:)|'
+    r'(([0-9A-Fa-f]{1,4}:){1,6}:[0-9A-Fa-f]{1,4})|'
+    r'(([0-9A-Fa-f]{1,4}:){1,5}:([0-9A-Fa-f]{1,4}:){1,2}[0-9A-Fa-f]{1,4})|'
+    r'(([0-9A-Fa-f]{1,4}:){1,4}:([0-9A-Fa-f]{1,4}:){1,3}[0-9A-Fa-f]{1,4})|'
+    r'(([0-9A-Fa-f]{1,4}:){1,3}:([0-9A-Fa-f]{1,4}:){1,4}[0-9A-Fa-f]{1,4})|'
+    r'(([0-9A-Fa-f]{1,4}:){1,2}:([0-9A-Fa-f]{1,4}:){1,5}[0-9A-Fa-f]{1,4})|'
+    r'([0-9A-Fa-f]{1,4}::([0-9A-Fa-f]{1,4}:){1,6}[0-9A-Fa-f]{1,4})|'
+    r'(:(:([0-9A-Fa-f]{1,4}:){0,7}[0-9A-Fa-f]{1,4}|:))|'
+    r'(fe80:(:[0-9A-Fa-f]{1,4}){0,4}%[0-9a-zA-Z]{1,})|'
+    r'(::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))|'
+    r'(([0-9A-Fa-f]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])))$',
+  );
+  return ipv6Regex.hasMatch(s);
+}
+
+/// Validates if a string is a valid time string (HH:MM:SS.sss) according to RFC 3339.
+bool isValidTime(String s) {
+  final timeRegex = RegExp(
+    r'^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?([zZ]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$',
+  );
+  return timeRegex.hasMatch(s);
+}
+
+/// Validates if a string is a valid URI reference according to RFC 3986.
+bool isValidUriReference(String s) {
+  if (Uri.tryParse(s) == null) return false;
+  final allowedChars = RegExp(r"^[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]*$");
+  if (!allowedChars.hasMatch(s)) return false;
+
+  final percentCheck = RegExp(r'%[0-9a-fA-F]{2}');
+  var index = 0;
+  while ((index = s.indexOf('%', index)) != -1) {
+    if (index + 2 >= s.length) return false;
+    final part = s.substring(index, index + 3);
+    if (!percentCheck.hasMatch(part)) return false;
+    index += 3;
+  }
+  return true;
+}
+
+/// Validates if a string is a valid absolute URI according to RFC 3986.
+bool isValidUri(String s) {
+  if (!isValidUriReference(s)) return false;
+  final parsed = Uri.tryParse(s);
+  return parsed != null && parsed.hasScheme;
 }

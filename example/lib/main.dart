@@ -7,8 +7,8 @@ void main() {
   final validJson = '''
   {
     "id": 42,
-    "name": "Sigurd Meldgaard",
-    "email": "sigurdm@google.com",
+    "name": "John Doe",
+    "email": "john.doe@google.com",
     "role": "admin",
     "profile": {
       "avatarUrl": "https://example.com/avatar.png",

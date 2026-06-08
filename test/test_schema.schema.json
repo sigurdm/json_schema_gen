@@ -4,7 +4,9 @@
   "type": "object",
   "properties": {
     "name": { "type": "string", "minLength": 2 },
+    "constValue": { "const": "always-this-value" },
     "age": { "type": "integer", "minimum": 0, "multipleOf": 5 },
+    "exclusiveAge": { "type": "integer", "exclusiveMinimum": 0, "exclusiveMaximum": 100 },
     "height": { "type": "number" },
     "email": { "type": "string", "pattern": "^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$" },
     "uuid": { "type": "string", "format": "uuid" },
@@ -34,10 +36,107 @@
     "nullableString": {
       "type": ["string", "null"]
     },
-    "pet": { "$ref": "#/$defs/Pet" }
+    "pet": { "$ref": "#/$defs/Pet" },
+    "restrictedObject": { "$ref": "#/$defs/RestrictedObject" },
+    "dependentObject": { "$ref": "#/$defs/DependentObject" },
+    "restrictedArray": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "contains": { "type": "integer", "minimum": 5 },
+      "minContains": 1,
+      "maxContains": 2
+    },
+    "deprecatedField": {
+      "type": "string",
+      "deprecated": true
+    },
+    "deprecatedRef": {
+      "$ref": "#/$defs/DeprecatedObject"
+    },
+    "defaultString": {
+      "type": "string",
+      "default": "default value"
+    },
+    "defaultInt": {
+      "type": "integer",
+      "default": 42
+    },
+    "defaultBool": {
+      "type": "boolean",
+      "default": true
+    },
+    "defaultList": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["a", "b"]
+    },
+    "defaultObject": {
+      "$ref": "#/$defs/Address",
+      "default": { "city": "Default City" }
+    },
+    "defaultNullableString": {
+      "type": ["string", "null"],
+      "default": null
+    },
+    "mergedValue": {
+      "$ref": "#/$defs/Merged"
+    },
+    "tupleArray": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "string" },
+        { "type": "integer" }
+      ],
+      "items": { "type": "boolean" }
+    },
+    "tupleObjectArray": {
+      "type": "array",
+      "prefixItems": [
+        { "$ref": "#/$defs/Address" },
+        { "$ref": "#/$defs/Cat" }
+      ]
+    },
+    "ipv6Value": {
+      "type": "string",
+      "format": "ipv6"
+    },
+    "hostnameValue": {
+      "type": "string",
+      "format": "hostname"
+    },
+    "timeValue": {
+      "type": "string",
+      "format": "time"
+    },
+    "uriReferenceValue": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "additionalPropertiesObject": {
+      "$ref": "#/$defs/MapObject"
+    },
+    "strictObject": {
+      "$ref": "#/$defs/StrictObject"
+    }
   },
   "required": ["name", "age", "isAwesome", "address"],
   "$defs": {
+    "MapObject": {
+      "title": "MapObject",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      },
+      "additionalProperties": { "type": "string" }
+    },
+    "StrictObject": {
+      "title": "StrictObject",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
     "Address": {
       "title": "Address",
       "type": "object",
@@ -85,6 +184,60 @@
           "cat_type": "#/$defs/Cat",
           "dog_type": "#/$defs/Dog"
         }
+      }
+    },
+    "RestrictedObject": {
+      "title": "RestrictedObject",
+      "type": "object",
+      "properties": {
+        "a": { "type": "string" },
+        "b": { "type": "string" },
+        "c": { "type": "string" }
+      },
+      "minProperties": 1,
+      "maxProperties": 2
+    },
+    "DependentObject": {
+      "title": "DependentObject",
+      "type": "object",
+      "properties": {
+        "creditCard": { "type": "number" },
+        "billingAddress": { "type": "string" }
+      },
+      "dependentRequired": {
+        "creditCard": ["billingAddress"]
+      }
+    },
+    "DeprecatedObject": {
+      "title": "DeprecatedObject",
+      "type": "object",
+      "deprecated": true,
+      "properties": {
+        "value": { "type": "string" }
+      }
+    },
+    "A": {
+      "title": "A",
+      "type": "object",
+      "properties": {
+        "a": { "type": "string" }
+      }
+    },
+    "B": {
+      "title": "B",
+      "type": "object",
+      "properties": {
+        "b": { "type": "integer" }
+      }
+    },
+    "Merged": {
+      "title": "Merged",
+      "allOf": [
+        { "$ref": "#/$defs/A" },
+        { "$ref": "#/$defs/B" }
+      ],
+      "properties": {
+        "c": { "type": "boolean" }
       }
     }
   }

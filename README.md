@@ -13,23 +13,25 @@ This package supports schemas conforming to **JSON Schema Draft 2020-12**.
 
 ### Supported Core Types
 - `object` $\rightarrow$ compiles to Dart `final class`.
-- `array` $\rightarrow$ compiles to Dart `List<T>`.
+- `array` $\rightarrow$ compiles to Dart `List<T>`. Supports positional validation via `prefixItems` (compiles to `List<dynamic>` if types differ).
 - `string` $\rightarrow$ compiles to Dart `String`.
 - `integer` $\rightarrow$ compiles to Dart `int`.
 - `number` $\rightarrow$ compiles to Dart `num`.
 - `boolean` $\rightarrow$ compiles to Dart `bool`.
 - `null` $\rightarrow$ compiles to Dart `Null`.
 - `oneOf` / `anyOf` $\rightarrow$ compiles to Dart `sealed class` unions.
+- `allOf` $\rightarrow$ merges subschemas into a single flattened Dart class.
 - `enum` $\rightarrow$ compiles to Dart `enum`.
 
 ### Supported Validation Constraints
-- `minLength` and `pattern` on strings.
-- `minimum` on numbers/integers.
-- `minItems` on arrays.
+- **Strings**: `minLength`, `maxLength`, `pattern`, `format` (supporting `date-time`, `date`, `time`, `email`, `ipv4`, `ipv6`, `hostname`, `uri`, `uri-reference`, `uuid`).
+- **Numbers/Integers**: `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`, `multipleOf`.
+- **Arrays**: `minItems`, `maxItems`, `uniqueItems`, `contains`, `minContains`, `maxContains`.
+- **Objects**: `required`, `minProperties`, `maxProperties`, `dependentRequired`.
+- **Defaults**: Supports `default` values in constructors and fallback values during parsing.
 
 ### Missing/Unsupported JSON Schema Features
-- `allOf`, `not`, and `patternProperties`.
-- Complex validation keywords like `format`, `maximum`, `maxLength`, `multipleOf`, `maxItems`, `uniqueItems`.
+- `not` and `patternProperties`.
 - Non-discriminator object unions (overlapping schemas without explicit discriminator properties require distinct primitive types or simple structure speculative checks).
 
 ---
@@ -99,7 +101,7 @@ import 'package:json_schema_gen/json_schema.dart';
 import 'user.g.dart'; // The generated code
 
 void main() {
-  final jsonPayload = '{"id": 42, "name": "Sigurd", "role": "admin"}';
+  final jsonPayload = '{"id": 42, "name": "John", "role": "admin"}';
 
   // 1. Parse from string using streaming JsonReader
   final user = User.fromJson(JsonReader.fromString(jsonPayload));
