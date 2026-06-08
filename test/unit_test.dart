@@ -1,7 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:test/test.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
-import 'test_schema.g.dart';
+
 
 void main() {
   group('SchemaExtensions', () {
@@ -267,6 +269,241 @@ void main() {
       };
       final parser = SchemaParser(jsonSchema);
       expect(() => parser.parse(), throwsArgumentError);
+    });
+  });
+
+  group('Runtime Validation', () {
+    test('AnythingSchema', () {
+      final schema = const AnythingSchema();
+      expect(() => schema.validate(1), returnsNormally);
+      expect(() => schema.validate('string'), returnsNormally);
+      expect(() => schema.validate(null), returnsNormally);
+    });
+
+    test('NeverSchema', () {
+      final schema = const NeverSchema();
+      expect(() => schema.validate(1), throwsA(isA<JsonValidationException>()));
+    });
+
+    test('NullSchema', () {
+      final schema = const NullSchema();
+      expect(() => schema.validate(null), returnsNormally);
+      expect(() => schema.validate(1), throwsA(isA<JsonValidationException>()));
+    });
+
+    test('BooleanSchema', () {
+      final schema = const BooleanSchema();
+      expect(() => schema.validate(true), returnsNormally);
+      expect(() => schema.validate(1), throwsA(isA<JsonValidationException>()));
+    });
+
+    test('NumberSchema', () {
+      final schema = const NumberSchema(
+        isInteger: false,
+        minimum: 5,
+        maximum: 10,
+      );
+      expect(() => schema.validate(7), returnsNormally);
+      expect(
+        () => schema.validate(4.9),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate(10.1),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      final intSchema = const NumberSchema(isInteger: true);
+      expect(() => intSchema.validate(5), returnsNormally);
+      expect(
+        () => intSchema.validate(5.5),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('StringSchema', () {
+      final schema = const StringSchema(
+        minLength: 3,
+        maxLength: 5,
+        pattern: r'^[a-z]+$',
+      );
+      expect(() => schema.validate('abc'), returnsNormally);
+      expect(
+        () => schema.validate('ab'),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate('abcdef'),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate('ab1'),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('ArraySchema', () {
+      final schema = const ArraySchema(
+        items: StringSchema(),
+        minItems: 1,
+        maxItems: 3,
+      );
+      expect(() => schema.validate(['a', 'b']), returnsNormally);
+      expect(
+        () => schema.validate([]),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate(['a', 'b', 'c', 'd']),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate([1]),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('ObjectSchema', () {
+      final schema = const ObjectSchema(
+        properties: {
+          'name': StringSchema(),
+          'age': NumberSchema(isInteger: true),
+        },
+        required: {'name'},
+      );
+      expect(
+        () => schema.validate({'name': 'Alice', 'age': 30}),
+        returnsNormally,
+      );
+      expect(
+        () => schema.validate({'age': 30}),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate({'name': 123}),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('createValidator', () {
+      final schemaJson = {
+        'type': 'object',
+        'properties': {
+          'name': {'type': 'string'},
+        },
+        'required': ['name'],
+      };
+      final validator = createValidator(schemaJson);
+      expect(() => validator({'name': 'Alice'}), returnsNormally);
+      expect(() => validator({}), throwsA(isA<JsonValidationException>()));
+    });
+
+    test('Complex Schema Validation', () {
+      final schemaFile = File('test/test_schema.schema.json');
+      final jsonStr = schemaFile.readAsStringSync();
+      final decoded = json.decode(jsonStr) as Map<String, dynamic>;
+      final validator = createValidator(decoded);
+
+      // Valid object
+      final validObject = {
+        'name': 'Alice',
+        'age': 30,
+        'isAwesome': true,
+        'address': {'city': 'Wonderland', 'street': 'Rabbit Hole Lane'},
+        'height': 1.65,
+        'email': 'alice@example.com',
+        'uuid': '123e4567-e89b-12d3-a456-426614174000',
+        'tags': ['awesome', 'curious'],
+        'scores': [
+          {'value': 9.5},
+          {'value': 10.0},
+        ],
+        'unionValue': 'a string',
+        'nullableString': null,
+        'pet': {
+          'kind': 'cat_type', // matches discriminator mapping to Cat
+          'meowVolume': 11.0,
+        },
+        'restrictedObject': {'a': 'valA'},
+        'dependentObject': {
+          'creditCard': 1234567890,
+          'billingAddress': '123 Main St',
+        },
+        'restrictedArray': [
+          3,
+          6,
+          9,
+        ], // contains at least one multiple of 3 >= 5 (6, 9)
+        'defaultString': 'custom value',
+        'ipv6Value': '2001:db8::1',
+        'hostnameValue': 'example.com',
+        'timeValue': '12:30:45Z',
+        'uriReferenceValue': '/path/to/resource',
+        'additionalPropertiesObject': {
+          'name': 'MapName',
+          'extra1': 'value1',
+          'extra2': 'value2',
+        },
+        'strictObject': {'name': 'StrictName'},
+        'notObject': {
+          'notPatternString': 'allowed_string',
+          'notEnumInt': 42,
+          'notNullValue': 'not-null',
+        },
+        'anyOfValue': 42,
+        'myEnumField': 'alpha',
+      };
+
+      expect(() => validator(validObject), returnsNormally);
+
+      // Invalid object (missing required field)
+      final invalidObject = {
+        'name': 'Alice',
+        'age': 30,
+        'isAwesome': true,
+        // 'address' is missing
+      };
+      expect(
+        () => validator(invalidObject),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (invalid field type)
+      final invalidObject2 = {
+        ...validObject,
+        'age': 'thirty', // should be integer
+      };
+      expect(
+        () => validator(invalidObject2),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (violates constraint)
+      final invalidObject3 = {
+        ...validObject,
+        'age': -5, // minimum is 0
+      };
+      expect(
+        () => validator(invalidObject3),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (violates pattern)
+      final invalidObject4 = {...validObject, 'email': 'invalid-email'};
+      expect(
+        () => validator(invalidObject4),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (discriminator mismatch)
+      final invalidObject5 = {
+        ...validObject,
+        'pet': {'kind': 'unknown_type'},
+      };
+      expect(
+        () => validator(invalidObject5),
+        throwsA(isA<JsonValidationException>()),
+      );
     });
   });
 }

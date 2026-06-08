@@ -3585,3 +3585,500 @@ bool isValidUri(String s) {
   final parsed = Uri.tryParse(s);
   return parsed != null && parsed.hasScheme;
 }
+
+/// Extension on [Schema] to support runtime validation.
+extension SchemaValidationExtension on Schema {
+  /// Validates [value] against this schema.
+  ///
+  /// Throws [JsonValidationException] if validation fails.
+  void validate(dynamic value) {
+    _validate(value, this, []);
+  }
+}
+
+/// Creates a validator function for the given JSON [schema].
+///
+/// The returned function takes a decoded JSON value (like [Map], [List],
+/// [String], [num], [bool], or `null`) and validates it.
+/// It throws [JsonValidationException] if validation fails.
+void Function(dynamic) createValidator(Map<String, dynamic> schema) {
+  final parser = SchemaParser(schema);
+  final parsedSchema = parser.parse();
+  return parsedSchema.validate;
+}
+
+void _validate(dynamic value, Schema schema, List<String> path) {
+  // Check 'not' on the current schema level
+  if (schema.not != null) {
+    bool matches = true;
+    try {
+      _validate(value, schema.not!, path);
+    } on JsonValidationException {
+      matches = false;
+    }
+    if (matches) {
+      throw JsonValidationException(
+        'Value must not match the "not" schema',
+        path,
+      );
+    }
+  }
+
+  if (schema is RefSchema) {
+    _validate(value, schema.realSchema, path);
+    return;
+  }
+
+  switch (schema) {
+    case AnythingSchema _:
+      break;
+    case NeverSchema _:
+      throw JsonValidationException('Value matches "never" schema', path);
+    case NullSchema _:
+      if (value != null) {
+        throw JsonValidationException('Value must be null', path);
+      }
+      break;
+    case BooleanSchema _:
+      if (value is! bool) {
+        throw JsonValidationException('Value must be a boolean', path);
+      }
+      break;
+    case NumberSchema s:
+      _validateNumber(value, s, path);
+      break;
+    case StringSchema s:
+      _validateString(value, s, path);
+      break;
+    case ArraySchema s:
+      _validateArray(value, s, path);
+      break;
+    case ObjectSchema s:
+      _validateObject(value, s, path);
+      break;
+    case EnumSchema s:
+      _validateEnum(value, s, path);
+      break;
+    case UnionSchema s:
+      _validateUnion(value, s, path);
+      break;
+    case AllOfSchema s:
+      _validateAllOf(value, s, path);
+      break;
+    default:
+      throw UnimplementedError(
+        'Validation for ${schema.runtimeType} is not implemented',
+      );
+  }
+}
+
+void _validateNumber(dynamic value, NumberSchema schema, List<String> path) {
+  if (schema.isInteger) {
+    if (value is! int) {
+      throw JsonValidationException('Value must be an integer', path);
+    }
+  } else {
+    if (value is! num) {
+      throw JsonValidationException('Value must be a number', path);
+    }
+  }
+
+  final val = value as num;
+  if (schema.minimum != null && val < schema.minimum!) {
+    throw JsonValidationException('Value must be >= ${schema.minimum}', path);
+  }
+  if (schema.maximum != null && val > schema.maximum!) {
+    throw JsonValidationException('Value must be <= ${schema.maximum}', path);
+  }
+  if (schema.exclusiveMinimum != null && val <= schema.exclusiveMinimum!) {
+    throw JsonValidationException(
+      'Value must be > ${schema.exclusiveMinimum}',
+      path,
+    );
+  }
+  if (schema.exclusiveMaximum != null && val >= schema.exclusiveMaximum!) {
+    throw JsonValidationException(
+      'Value must be < ${schema.exclusiveMaximum}',
+      path,
+    );
+  }
+  if (schema.multipleOf != null) {
+    if (schema.isInteger) {
+      if (val % schema.multipleOf! != 0) {
+        throw JsonValidationException(
+          'Value must be a multiple of ${schema.multipleOf}',
+          path,
+        );
+      }
+    } else {
+      if ((val / schema.multipleOf! - (val / schema.multipleOf!).round())
+              .abs() >
+          1e-9) {
+        throw JsonValidationException(
+          'Value must be a multiple of ${schema.multipleOf}',
+          path,
+        );
+      }
+    }
+  }
+}
+
+void _validateString(dynamic value, StringSchema schema, List<String> path) {
+  if (value is! String) {
+    throw JsonValidationException('Value must be a string', path);
+  }
+  if (schema.minLength != null && value.length < schema.minLength!) {
+    throw JsonValidationException(
+      'Value length must be >= ${schema.minLength}',
+      path,
+    );
+  }
+  if (schema.maxLength != null && value.length > schema.maxLength!) {
+    throw JsonValidationException(
+      'Value length must be <= ${schema.maxLength}',
+      path,
+    );
+  }
+  if (schema.pattern != null) {
+    if (!RegExp(schema.pattern!).hasMatch(value)) {
+      throw JsonValidationException(
+        'Value must match pattern ${schema.pattern}',
+        path,
+      );
+    }
+  }
+  if (schema.format != null) {
+    _validateFormat(value, schema.format!, path);
+  }
+}
+
+void _validateFormat(String value, String format, List<String> path) {
+  switch (format) {
+    case 'date-time':
+      if (DateTime.tryParse(value) == null) {
+        throw JsonValidationException(
+          'Value must be a valid RFC 3339 date-time string',
+          path,
+        );
+      }
+      break;
+    case 'date':
+      if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
+        throw JsonValidationException(
+          'Value must be a valid date string (YYYY-MM-DD)',
+          path,
+        );
+      }
+      break;
+    case 'email':
+      if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(value)) {
+        throw JsonValidationException(
+          'Value must be a valid email address',
+          path,
+        );
+      }
+      break;
+    case 'ipv4':
+      if (!RegExp(
+        r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+      ).hasMatch(value)) {
+        throw JsonValidationException(
+          'Value must be a valid IPv4 address',
+          path,
+        );
+      }
+      break;
+    case 'uuid':
+      if (!RegExp(
+        r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+      ).hasMatch(value)) {
+        throw JsonValidationException('Value must be a valid UUID', path);
+      }
+      break;
+    case 'uri':
+      if (!isValidUri(value)) {
+        throw JsonValidationException(
+          'Value must be a valid absolute URI',
+          path,
+        );
+      }
+      break;
+    case 'uri-reference':
+      if (!isValidUriReference(value)) {
+        throw JsonValidationException(
+          'Value must be a valid URI reference',
+          path,
+        );
+      }
+      break;
+    case 'ipv6':
+      if (!isValidIPv6(value)) {
+        throw JsonValidationException(
+          'Value must be a valid IPv6 address',
+          path,
+        );
+      }
+      break;
+    case 'hostname':
+      if (!isValidHostname(value)) {
+        throw JsonValidationException('Value must be a valid hostname', path);
+      }
+      break;
+    case 'time':
+      if (!isValidTime(value)) {
+        throw JsonValidationException(
+          'Value must be a valid time string',
+          path,
+        );
+      }
+      break;
+  }
+}
+
+void _validateArray(dynamic value, ArraySchema schema, List<String> path) {
+  if (value is! List) {
+    throw JsonValidationException('Value must be an array', path);
+  }
+  if (schema.minItems != null && value.length < schema.minItems!) {
+    throw JsonValidationException(
+      'Value must have >= ${schema.minItems} items',
+      path,
+    );
+  }
+  if (schema.maxItems != null && value.length > schema.maxItems!) {
+    throw JsonValidationException(
+      'Value must have <= ${schema.maxItems} items',
+      path,
+    );
+  }
+  if (schema.uniqueItems == true) {
+    for (var i = 0; i < value.length; i++) {
+      for (var j = i + 1; j < value.length; j++) {
+        if (_deepEquals(value[i], value[j])) {
+          throw JsonValidationException('Value items must be unique', path);
+        }
+      }
+    }
+  }
+
+  final prefixLength = schema.prefixItems?.length ?? 0;
+  if (schema.prefixItems != null) {
+    for (var i = 0; i < schema.prefixItems!.length; i++) {
+      if (i < value.length) {
+        _validate(value[i], schema.prefixItems![i], [...path, '[$i]']);
+      }
+    }
+  }
+
+  for (var i = prefixLength; i < value.length; i++) {
+    _validate(value[i], schema.items, [...path, '[$i]']);
+  }
+
+  if (schema.contains != null) {
+    var containsCount = 0;
+    for (var i = 0; i < value.length; i++) {
+      try {
+        _validate(value[i], schema.contains!, [...path, '[$i]']);
+        containsCount++;
+      } on JsonValidationException {
+        // Ignore
+      }
+    }
+    final minContains = schema.minContains ?? 1;
+    if (containsCount < minContains) {
+      throw JsonValidationException(
+        'Value must contain at least $minContains items matching contains schema',
+        path,
+      );
+    }
+    if (schema.maxContains != null && containsCount > schema.maxContains!) {
+      throw JsonValidationException(
+        'Value must contain at most ${schema.maxContains} items matching contains schema',
+        path,
+      );
+    }
+  }
+}
+
+void _validateObject(dynamic value, ObjectSchema schema, List<String> path) {
+  if (value is! Map) {
+    throw JsonValidationException('Value must be an object', path);
+  }
+  final map = value;
+
+  // Check required
+  for (final req in schema.required) {
+    if (!map.containsKey(req)) {
+      throw JsonValidationException('Missing required property: $req', [
+        ...path,
+        req,
+      ]);
+    }
+  }
+
+  // Check min/max properties
+  if (schema.minProperties != null && map.length < schema.minProperties!) {
+    throw JsonValidationException(
+      'Object must have >= ${schema.minProperties} properties',
+      path,
+    );
+  }
+  if (schema.maxProperties != null && map.length > schema.maxProperties!) {
+    throw JsonValidationException(
+      'Object must have <= ${schema.maxProperties} properties',
+      path,
+    );
+  }
+
+  // Validate properties
+  map.forEach((key, val) {
+    if (key is! String) {
+      throw JsonValidationException('Object keys must be strings', path);
+    }
+    final propSchema = schema.properties[key];
+    if (propSchema != null) {
+      _validate(val, propSchema, [...path, key]);
+    } else {
+      // Additional properties
+      final addProps = schema.additionalProperties;
+      if (addProps != null) {
+        _validate(val, addProps, [...path, key]);
+      }
+    }
+  });
+
+  // Check dependentRequired
+  schema.dependentRequired.forEach((key, deps) {
+    if (map.containsKey(key)) {
+      for (final dep in deps) {
+        if (!map.containsKey(dep)) {
+          throw JsonValidationException(
+            'Property "$dep" is required because "$key" is present',
+            [...path, dep],
+          );
+        }
+      }
+    }
+  });
+}
+
+void _validateEnum(dynamic value, EnumSchema schema, List<String> path) {
+  _validate(value, schema.baseSchema, path);
+  final contains = schema.values.any((v) => _deepEquals(v, value));
+  if (!contains) {
+    throw JsonValidationException(
+      'Value must be one of ${schema.values}',
+      path,
+    );
+  }
+}
+
+void _validateUnion(dynamic value, UnionSchema schema, List<String> path) {
+  if (schema.discriminator != null) {
+    final disc = schema.discriminator!;
+    if (value is! Map || !value.containsKey(disc.propertyName)) {
+      throw JsonValidationException(
+        'Missing discriminator property: ${disc.propertyName}',
+        path,
+      );
+    }
+    final discValue = value[disc.propertyName];
+    if (discValue is! String) {
+      throw JsonValidationException('Discriminator property must be a string', [
+        ...path,
+        disc.propertyName,
+      ]);
+    }
+
+    final matchedSchema = _findMatchingSchema(
+      discValue,
+      schema.subschemas,
+      disc.mapping,
+    );
+    if (matchedSchema != null) {
+      _validate(value, matchedSchema, path);
+      return;
+    } else {
+      throw JsonValidationException(
+        'Could not find matching schema for discriminator value "$discValue"',
+        path,
+      );
+    }
+  }
+
+  var matchCount = 0;
+  final errors = <JsonValidationException>[];
+  for (final sub in schema.subschemas) {
+    try {
+      _validate(value, sub, path);
+      matchCount++;
+      break; // anyOf, first match is enough for runtime validation
+    } on JsonValidationException catch (e) {
+      errors.add(e);
+    }
+  }
+
+  if (matchCount == 0) {
+    throw JsonValidationException(
+      'Value does not match any of the union schemas. Errors: ${errors.map((e) => e.message).join(', ')}',
+      path,
+    );
+  }
+}
+
+Schema? _findMatchingSchema(
+  String discValue,
+  List<Schema> subschemas,
+  Map<String, String>? mapping,
+) {
+  if (mapping != null) {
+    final targetRef = mapping[discValue];
+    if (targetRef != null) {
+      for (final sub in subschemas) {
+        if (sub is RefSchema && sub.ref == targetRef) {
+          return sub;
+        }
+      }
+    }
+  }
+
+  for (final sub in subschemas) {
+    final real = sub.realSchema;
+    if (real.title == discValue) {
+      return sub;
+    }
+    if (sub is RefSchema) {
+      final lastSegment = sub.ref.split('/').last;
+      if (lastSegment == discValue) {
+        return sub;
+      }
+    }
+  }
+  return null;
+}
+
+void _validateAllOf(dynamic value, AllOfSchema schema, List<String> path) {
+  for (final sub in schema.subschemas) {
+    _validate(value, sub, path);
+  }
+}
+
+bool _deepEquals(dynamic a, dynamic b) {
+  if (identical(a, b)) return true;
+  if (a is List && b is List) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (!_deepEquals(a[i], b[i])) return false;
+    }
+    return true;
+  }
+  if (a is Map && b is Map) {
+    if (a.length != b.length) return false;
+    for (final key in a.keys) {
+      if (!b.containsKey(key)) return false;
+      if (!_deepEquals(a[key], b[key])) return false;
+    }
+    return true;
+  }
+  return a == b;
+}
