@@ -59,6 +59,17 @@ final class TestRoot implements JsonModel {
   final List<Object?>? stringContainsArray;
   final List<Object?>? numberContainsArray;
   final ObjectWithDynamicProps? dynamicProps;
+  final String? dateTimeField;
+  final String? dateField;
+  final String? ipv4Field;
+  final String? uriField;
+  final List<String> defaultEmptyList;
+  final MapObject defaultEmptyObject;
+  final TestRootUnionWithArrayOption? unionWithArrayOption;
+  final Never? impossibleField;
+  final List<String>? tupleSameTypeArray;
+  final List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems;
+  final TestRootUnionWithAllOfOption? unionWithAllOfOption;
 
   const TestRoot({
     required this.name,
@@ -114,6 +125,17 @@ final class TestRoot implements JsonModel {
     this.stringContainsArray,
     this.numberContainsArray,
     this.dynamicProps,
+    this.dateTimeField,
+    this.dateField,
+    this.ipv4Field,
+    this.uriField,
+    this.defaultEmptyList = const <String>[],
+    this.defaultEmptyObject = const MapObject(),
+    this.unionWithArrayOption,
+    this.impossibleField,
+    this.tupleSameTypeArray,
+    this.arrayWithAllOfItems,
+    this.unionWithAllOfOption,
   });
 
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -183,6 +205,17 @@ final class TestRoot implements JsonModel {
     List<Object?>? stringContainsArray,
     List<Object?>? numberContainsArray,
     ObjectWithDynamicProps? dynamicProps,
+    String? dateTimeField,
+    String? dateField,
+    String? ipv4Field,
+    String? uriField,
+    List<String>? defaultEmptyList,
+    MapObject? defaultEmptyObject,
+    TestRootUnionWithArrayOption? unionWithArrayOption,
+    Never? impossibleField,
+    List<String>? tupleSameTypeArray,
+    List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems,
+    TestRootUnionWithAllOfOption? unionWithAllOfOption,
   }) => TestRoot(
     name: name ?? this.name,
     constValue: constValue ?? this.constValue,
@@ -238,6 +271,17 @@ final class TestRoot implements JsonModel {
     stringContainsArray: stringContainsArray ?? this.stringContainsArray,
     numberContainsArray: numberContainsArray ?? this.numberContainsArray,
     dynamicProps: dynamicProps ?? this.dynamicProps,
+    dateTimeField: dateTimeField ?? this.dateTimeField,
+    dateField: dateField ?? this.dateField,
+    ipv4Field: ipv4Field ?? this.ipv4Field,
+    uriField: uriField ?? this.uriField,
+    defaultEmptyList: defaultEmptyList ?? this.defaultEmptyList,
+    defaultEmptyObject: defaultEmptyObject ?? this.defaultEmptyObject,
+    unionWithArrayOption: unionWithArrayOption ?? this.unionWithArrayOption,
+    impossibleField: impossibleField ?? this.impossibleField,
+    tupleSameTypeArray: tupleSameTypeArray ?? this.tupleSameTypeArray,
+    arrayWithAllOfItems: arrayWithAllOfItems ?? this.arrayWithAllOfItems,
+    unionWithAllOfOption: unionWithAllOfOption ?? this.unionWithAllOfOption,
   );
 
   void validate() {
@@ -734,6 +778,96 @@ final class TestRoot implements JsonModel {
         throw JsonValidationException(e.message, ['dynamicProps', ...e.path]);
       }
     }
+    final val_dateTimeField = dateTimeField;
+    if (val_dateTimeField != null) {
+      if (DateTime.tryParse(val_dateTimeField) == null) {
+        throw JsonValidationException(
+          'Property "dateTimeField" must be a valid RFC 3339 date-time string',
+          ['dateTimeField'],
+        );
+      }
+    }
+    final val_dateField = dateField;
+    if (val_dateField != null) {
+      if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(val_dateField)) {
+        throw JsonValidationException(
+          'Property "dateField" must be a valid date string (YYYY-MM-DD)',
+          ['dateField'],
+        );
+      }
+    }
+    final val_ipv4Field = ipv4Field;
+    if (val_ipv4Field != null) {
+      if (!RegExp(
+        r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+      ).hasMatch(val_ipv4Field)) {
+        throw JsonValidationException(
+          'Property "ipv4Field" must be a valid IPv4 address',
+          ['ipv4Field'],
+        );
+      }
+    }
+    final val_uriField = uriField;
+    if (val_uriField != null) {
+      if (!isValidUri(val_uriField)) {
+        throw JsonValidationException(
+          'Property "uriField" must be a valid absolute URI',
+          ['uriField'],
+        );
+      }
+    }
+    try {
+      defaultEmptyObject.validate();
+    } on JsonValidationException catch (e) {
+      throw JsonValidationException(e.message, [
+        'defaultEmptyObject',
+        ...e.path,
+      ]);
+    }
+    final val_unionWithArrayOption = unionWithArrayOption;
+    if (val_unionWithArrayOption != null) {
+      try {
+        val_unionWithArrayOption.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'unionWithArrayOption',
+          ...e.path,
+        ]);
+      }
+    }
+    final val_impossibleField = impossibleField;
+    if (val_impossibleField != null) {
+      throw JsonValidationException(
+        'Property "impossibleField" matches nothing',
+        ['impossibleField'],
+      );
+    }
+    final val_tupleSameTypeArray = tupleSameTypeArray;
+    final val_arrayWithAllOfItems = arrayWithAllOfItems;
+    if (val_arrayWithAllOfItems != null) {
+      for (var i = 0; i < val_arrayWithAllOfItems.length; i++) {
+        try {
+          val_arrayWithAllOfItems[i].validate();
+        } on JsonValidationException catch (e) {
+          throw JsonValidationException(e.message, [
+            'arrayWithAllOfItems',
+            '[$i]',
+            ...e.path,
+          ]);
+        }
+      }
+    }
+    final val_unionWithAllOfOption = unionWithAllOfOption;
+    if (val_unionWithAllOfOption != null) {
+      try {
+        val_unionWithAllOfOption.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'unionWithAllOfOption',
+          ...e.path,
+        ]);
+      }
+    }
   }
 
   static final descriptor = ObjectDescriptor<TestRoot>(
@@ -806,6 +940,25 @@ final class TestRoot implements JsonModel {
       stringContainsArray: fields['stringContainsArray'] as List<Object?>?,
       numberContainsArray: fields['numberContainsArray'] as List<Object?>?,
       dynamicProps: fields['dynamicProps'] as ObjectWithDynamicProps?,
+      dateTimeField: fields['dateTimeField'] as String?,
+      dateField: fields['dateField'] as String?,
+      ipv4Field: fields['ipv4Field'] as String?,
+      uriField: fields['uriField'] as String?,
+      defaultEmptyList: fields.containsKey('defaultEmptyList')
+          ? fields['defaultEmptyList'] as List<String>
+          : const <String>[],
+      defaultEmptyObject: fields.containsKey('defaultEmptyObject')
+          ? fields['defaultEmptyObject'] as MapObject
+          : const MapObject(),
+      unionWithArrayOption:
+          fields['unionWithArrayOption'] as TestRootUnionWithArrayOption?,
+      impossibleField: fields['impossibleField'] as Never?,
+      tupleSameTypeArray: fields['tupleSameTypeArray'] as List<String>?,
+      arrayWithAllOfItems:
+          fields['arrayWithAllOfItems']
+              as List<TestRootArrayWithAllOfItemsItem>?,
+      unionWithAllOfOption:
+          fields['unionWithAllOfOption'] as TestRootUnionWithAllOfOption?,
     ),
     getFields: (instance) => {
       'name': instance.name,
@@ -861,6 +1014,17 @@ final class TestRoot implements JsonModel {
       'stringContainsArray': instance.stringContainsArray,
       'numberContainsArray': instance.numberContainsArray,
       'dynamicProps': instance.dynamicProps,
+      'dateTimeField': instance.dateTimeField,
+      'dateField': instance.dateField,
+      'ipv4Field': instance.ipv4Field,
+      'uriField': instance.uriField,
+      'defaultEmptyList': instance.defaultEmptyList,
+      'defaultEmptyObject': instance.defaultEmptyObject,
+      'unionWithArrayOption': instance.unionWithArrayOption,
+      'impossibleField': instance.impossibleField,
+      'tupleSameTypeArray': instance.tupleSameTypeArray,
+      'arrayWithAllOfItems': instance.arrayWithAllOfItems,
+      'unionWithAllOfOption': instance.unionWithAllOfOption,
     },
     properties: {
       'name': PropertyDescriptor(
@@ -1134,6 +1298,66 @@ final class TestRoot implements JsonModel {
         isRequired: false,
         schema: ObjectWithDynamicProps.descriptor,
       ),
+      'dateTimeField': PropertyDescriptor(
+        name: 'dateTimeField',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'dateField': PropertyDescriptor(
+        name: 'dateField',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'ipv4Field': PropertyDescriptor(
+        name: 'ipv4Field',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'uriField': PropertyDescriptor(
+        name: 'uriField',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'defaultEmptyList': PropertyDescriptor(
+        name: 'defaultEmptyList',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'defaultEmptyObject': PropertyDescriptor(
+        name: 'defaultEmptyObject',
+        isRequired: false,
+        schema: MapObject.descriptor,
+      ),
+      'unionWithArrayOption': PropertyDescriptor(
+        name: 'unionWithArrayOption',
+        isRequired: false,
+        schema: TestRootUnionWithArrayOption.descriptor,
+      ),
+      'impossibleField': PropertyDescriptor(
+        name: 'impossibleField',
+        isRequired: false,
+        schema: const NeverDescriptor(),
+      ),
+      'tupleSameTypeArray': PropertyDescriptor(
+        name: 'tupleSameTypeArray',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(
+          const StringDescriptor(),
+          prefixItems: [const StringDescriptor(), const StringDescriptor()],
+        ),
+      ),
+      'arrayWithAllOfItems': PropertyDescriptor(
+        name: 'arrayWithAllOfItems',
+        isRequired: false,
+        schema: ArrayDescriptor<TestRootArrayWithAllOfItemsItem>(
+          TestRootArrayWithAllOfItemsItem.descriptor,
+        ),
+      ),
+      'unionWithAllOfOption': PropertyDescriptor(
+        name: 'unionWithAllOfOption',
+        isRequired: false,
+        schema: TestRootUnionWithAllOfOption.descriptor,
+      ),
     },
     required: const ['name', 'age', 'isAwesome', 'address'],
   );
@@ -1195,7 +1419,18 @@ final class TestRoot implements JsonModel {
           anyContainsArray == other.anyContainsArray &&
           stringContainsArray == other.stringContainsArray &&
           numberContainsArray == other.numberContainsArray &&
-          dynamicProps == other.dynamicProps;
+          dynamicProps == other.dynamicProps &&
+          dateTimeField == other.dateTimeField &&
+          dateField == other.dateField &&
+          ipv4Field == other.ipv4Field &&
+          uriField == other.uriField &&
+          defaultEmptyList == other.defaultEmptyList &&
+          defaultEmptyObject == other.defaultEmptyObject &&
+          unionWithArrayOption == other.unionWithArrayOption &&
+          impossibleField == other.impossibleField &&
+          tupleSameTypeArray == other.tupleSameTypeArray &&
+          arrayWithAllOfItems == other.arrayWithAllOfItems &&
+          unionWithAllOfOption == other.unionWithAllOfOption;
 
   @override
   int get hashCode => Object.hashAll([
@@ -1252,11 +1487,22 @@ final class TestRoot implements JsonModel {
     stringContainsArray,
     numberContainsArray,
     dynamicProps,
+    dateTimeField,
+    dateField,
+    ipv4Field,
+    uriField,
+    defaultEmptyList,
+    defaultEmptyObject,
+    unionWithArrayOption,
+    impossibleField,
+    tupleSameTypeArray,
+    arrayWithAllOfItems,
+    unionWithAllOfOption,
   ]);
 
   @override
   String toString() =>
-      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps})';
+      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption})';
 }
 
 enum TestRootConstValue {
@@ -2971,4 +3217,343 @@ final class ObjectWithDynamicProps implements JsonModel {
   @override
   String toString() =>
       'ObjectWithDynamicProps(notInt: ${notInt}, notNum: ${notNum})';
+}
+
+sealed class TestRootUnionWithArrayOption implements JsonModel {
+  const TestRootUnionWithArrayOption();
+
+  factory TestRootUnionWithArrayOption.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootUnionWithArrayOption;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  static final descriptor = UnionDescriptor<TestRootUnionWithArrayOption>(
+    title: 'TestRootUnionWithArrayOption',
+
+    activeOptions: [
+      UnionOptionDescriptor<TestRootUnionWithArrayOption, dynamic>(
+        const StringDescriptor(),
+        (val) => TestRootUnionWithArrayOptionOption0(val),
+      ),
+      UnionOptionDescriptor<TestRootUnionWithArrayOption, dynamic>(
+        ArrayDescriptor<Address>(Address.descriptor),
+        (val) => TestRootUnionWithArrayOptionOption1(val),
+      ),
+    ],
+  );
+}
+
+final class TestRootUnionWithArrayOptionOption0
+    extends TestRootUnionWithArrayOption {
+  final String value;
+  const TestRootUnionWithArrayOptionOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootUnionWithArrayOptionOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootUnionWithArrayOptionOption0(value: $value)';
+}
+
+final class TestRootUnionWithArrayOptionOption1
+    extends TestRootUnionWithArrayOption {
+  final List<Address> value;
+  const TestRootUnionWithArrayOptionOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(
+      target,
+      value,
+      ArrayDescriptor<Address>(Address.descriptor),
+    );
+  }
+
+  @override
+  void validate() {
+    for (var i = 0; i < value.length; i++) {
+      try {
+        (value[i] as JsonModel).validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['[$i]', ...e.path]);
+      }
+    }
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootUnionWithArrayOptionOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootUnionWithArrayOptionOption1(value: $value)';
+}
+
+final class TestRootArrayWithAllOfItemsItem implements JsonModel {
+  final String? a;
+  final int? b;
+
+  const TestRootArrayWithAllOfItemsItem({this.a, this.b});
+
+  factory TestRootArrayWithAllOfItemsItem.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootArrayWithAllOfItemsItem;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  TestRootArrayWithAllOfItemsItem copyWith({String? a, int? b}) =>
+      TestRootArrayWithAllOfItemsItem(a: a ?? this.a, b: b ?? this.b);
+
+  void validate() {
+    final val_a = a;
+    final val_b = b;
+  }
+
+  static final descriptor = ObjectDescriptor<TestRootArrayWithAllOfItemsItem>(
+    title: 'TestRootArrayWithAllOfItemsItem',
+    matches: (instance) => instance is TestRootArrayWithAllOfItemsItem,
+    instantiate: (fields) => TestRootArrayWithAllOfItemsItem(
+      a: fields['a'] as String?,
+      b: fields['b'] as int?,
+    ),
+    getFields: (instance) => {'a': instance.a, 'b': instance.b},
+    properties: {
+      'a': PropertyDescriptor(
+        name: 'a',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'b': PropertyDescriptor(
+        name: 'b',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+    },
+    required: const [],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootArrayWithAllOfItemsItem &&
+          runtimeType == other.runtimeType &&
+          a == other.a &&
+          b == other.b;
+
+  @override
+  int get hashCode => Object.hashAll([a, b]);
+
+  @override
+  String toString() => 'TestRootArrayWithAllOfItemsItem(a: ${a}, b: ${b})';
+}
+
+sealed class TestRootUnionWithAllOfOption implements JsonModel {
+  const TestRootUnionWithAllOfOption();
+
+  factory TestRootUnionWithAllOfOption.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootUnionWithAllOfOption;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  static final descriptor = UnionDescriptor<TestRootUnionWithAllOfOption>(
+    title: 'TestRootUnionWithAllOfOption',
+
+    activeOptions: [
+      UnionOptionDescriptor<TestRootUnionWithAllOfOption, dynamic>(
+        const StringDescriptor(),
+        (val) => TestRootUnionWithAllOfOptionOption0(val),
+      ),
+      UnionOptionDescriptor<TestRootUnionWithAllOfOption, dynamic>(
+        TestRootUnionWithAllOfOptionOptionType1.descriptor,
+        (val) => TestRootUnionWithAllOfOptionOption1(val),
+      ),
+    ],
+  );
+}
+
+final class TestRootUnionWithAllOfOptionOption0
+    extends TestRootUnionWithAllOfOption {
+  final String value;
+  const TestRootUnionWithAllOfOptionOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootUnionWithAllOfOptionOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootUnionWithAllOfOptionOption0(value: $value)';
+}
+
+final class TestRootUnionWithAllOfOptionOption1
+    extends TestRootUnionWithAllOfOption {
+  final TestRootUnionWithAllOfOptionOptionType1 value;
+  const TestRootUnionWithAllOfOptionOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(
+      target,
+      value,
+      TestRootUnionWithAllOfOptionOptionType1.descriptor,
+    );
+  }
+
+  @override
+  void validate() {
+    value.validate();
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootUnionWithAllOfOptionOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootUnionWithAllOfOptionOption1(value: $value)';
+}
+
+final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
+  final String? a;
+  final int? b;
+
+  const TestRootUnionWithAllOfOptionOptionType1({this.a, this.b});
+
+  factory TestRootUnionWithAllOfOptionOptionType1.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootUnionWithAllOfOptionOptionType1;
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  TestRootUnionWithAllOfOptionOptionType1 copyWith({String? a, int? b}) =>
+      TestRootUnionWithAllOfOptionOptionType1(a: a ?? this.a, b: b ?? this.b);
+
+  void validate() {
+    final val_a = a;
+    final val_b = b;
+  }
+
+  static final descriptor =
+      ObjectDescriptor<TestRootUnionWithAllOfOptionOptionType1>(
+        title: 'TestRootUnionWithAllOfOptionOptionType1',
+        matches: (instance) =>
+            instance is TestRootUnionWithAllOfOptionOptionType1,
+        instantiate: (fields) => TestRootUnionWithAllOfOptionOptionType1(
+          a: fields['a'] as String?,
+          b: fields['b'] as int?,
+        ),
+        getFields: (instance) => {'a': instance.a, 'b': instance.b},
+        properties: {
+          'a': PropertyDescriptor(
+            name: 'a',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'b': PropertyDescriptor(
+            name: 'b',
+            isRequired: false,
+            schema: const IntDescriptor(),
+          ),
+        },
+        required: const [],
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootUnionWithAllOfOptionOptionType1 &&
+          runtimeType == other.runtimeType &&
+          a == other.a &&
+          b == other.b;
+
+  @override
+  int get hashCode => Object.hashAll([a, b]);
+
+  @override
+  String toString() =>
+      'TestRootUnionWithAllOfOptionOptionType1(a: ${a}, b: ${b})';
 }

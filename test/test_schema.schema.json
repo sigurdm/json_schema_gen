@@ -2,6 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "TestRoot",
   "type": "object",
+  "definitions": {
+    "Dummy": { "type": "string" }
+  },
   "properties": {
     "name": { "type": "string", "minLength": 2 },
     "constValue": { "const": "always-this-value" },
@@ -179,6 +182,74 @@
     },
     "dynamicProps": {
       "$ref": "#/$defs/ObjectWithDynamicProps"
+    },
+    "dateTimeField": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dateField": {
+      "type": "string",
+      "format": "date"
+    },
+    "ipv4Field": {
+      "type": "string",
+      "format": "ipv4"
+    },
+    "uriField": {
+      "type": "string",
+      "format": "uri"
+    },
+    "defaultEmptyList": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "defaultEmptyObject": {
+      "$ref": "#/$defs/MapObject",
+      "default": {}
+    },
+    "unionWithArrayOption": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Address" }
+        }
+      ]
+    },
+    "impossibleField": {
+      "allOf": [
+        { "type": "string" },
+        { "type": "integer" }
+      ]
+    },
+    "tupleSameTypeArray": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "string", "minLength": 1 },
+        { "type": "string", "maxLength": 5 }
+      ],
+      "items": { "type": "string" }
+    },
+    "arrayWithAllOfItems": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "type": "object", "properties": { "a": { "type": "string" } } },
+          { "type": "object", "properties": { "b": { "type": "integer" } } }
+        ]
+      }
+    },
+    "unionWithAllOfOption": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "allOf": [
+            { "type": "object", "properties": { "a": { "type": "string" } } },
+            { "type": "object", "properties": { "b": { "type": "integer" } } }
+          ]
+        }
+      ]
     }
   },
   "required": ["name", "age", "isAwesome", "address"],

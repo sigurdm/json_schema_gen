@@ -2020,7 +2020,7 @@ String generateCode(Schema rootSchema, String rootName) {
 
       int index = 0;
       for (final sub in analysis.activeSchemas) {
-        discoverClasses(sub, '${candidate}_Option$index');
+        discoverClasses(sub, '${candidate}_OptionType$index');
         index++;
       }
     } else if (real is EnumSchema) {

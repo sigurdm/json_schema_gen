@@ -256,6 +256,19 @@ void main() {
       expect(serialize(_TestEnum.value1, desc), '"value1"');
     });
   });
+
+  group('SchemaParser', () {
+    test('throws ArgumentError on broken ref', () {
+      final jsonSchema = {
+        'type': 'object',
+        'properties': {
+          'broken': {r'$ref': r'#/$defs/NonExistent'},
+        },
+      };
+      final parser = SchemaParser(jsonSchema);
+      expect(() => parser.parse(), throwsArgumentError);
+    });
+  });
 }
 
 class _TestWritable implements JsonWritable {

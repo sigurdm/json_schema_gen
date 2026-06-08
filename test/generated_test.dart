@@ -1994,5 +1994,213 @@ void main() {
         );
       });
     });
+
+    group('Missing formats validation', () {
+      test('success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'dateTimeField': '2026-06-08T12:00:00Z',
+          'dateField': '2026-06-08',
+          'ipv4Field': '192.168.1.1',
+          'uriField': 'https://google.com',
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.dateTimeField, '2026-06-08T12:00:00Z');
+        expect(model.dateField, '2026-06-08');
+        expect(model.ipv4Field, '192.168.1.1');
+        expect(model.uriField, 'https://google.com');
+      });
+
+      test('dateTimeField failure', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'dateTimeField': 'not-a-date-time',
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('must be a valid RFC 3339 date-time string'),
+            ),
+          ),
+        );
+      });
+
+      test('dateField failure', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'dateField': '08-06-2026',
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('must be a valid date string'),
+            ),
+          ),
+        );
+      });
+
+      test('ipv4Field failure', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'ipv4Field': '256.0.0.1',
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('must be a valid IPv4 address'),
+            ),
+          ),
+        );
+      });
+
+      test('uriField failure', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'uriField': 'not-a-uri',
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('must be a valid absolute URI'),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('Empty defaults validation', () {
+      test('should use empty list and empty map defaults', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.defaultEmptyList, const <String>[]);
+        expect(model.defaultEmptyObject, const MapObject());
+      });
+    });
+
+    group('Union with array option validation', () {
+      test('success (string)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'unionWithArrayOption': 'just a string',
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(
+          model.unionWithArrayOption,
+          isA<TestRootUnionWithArrayOptionOption0>(),
+        );
+      });
+
+      test('success (array of Address)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'unionWithArrayOption': [
+            {'city': 'London', 'street': 'Baker St'},
+            {'city': 'Paris'},
+          ],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(
+          model.unionWithArrayOption,
+          isA<TestRootUnionWithArrayOptionOption1>(),
+        );
+      });
+
+      test('failure (invalid item in array)', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'unionWithArrayOption': [
+            {'city': 'London'},
+            {'street': 'Baker St'},
+          ],
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonParseException>().having(
+              (e) => e.message,
+              'message',
+              contains('Missing required property: city'),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('ImpossibleField validation', () {
+      test('always fails when populated', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'impossibleField': 'cannot match string and int',
+        };
+        expect(
+          () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+          throwsA(
+            isA<JsonParseException>().having(
+              (e) => e.message,
+              'message',
+              contains('Value is not allowed here'),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('TupleSameTypeArray validation', () {
+      test('success', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'tupleSameTypeArray': ['a', 'bbbb', 'ccc'],
+        };
+        final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+        expect(model.tupleSameTypeArray, ['a', 'bbbb', 'ccc']);
+      });
+    });
   });
 }
