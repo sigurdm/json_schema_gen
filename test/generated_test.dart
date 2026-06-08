@@ -2202,5 +2202,67 @@ void main() {
         expect(model.tupleSameTypeArray, ['a', 'bbbb', 'ccc']);
       });
     });
+
+    group('Map and Value Conversion', () {
+      test('TestRoot toMap and fromMap success', () {
+        final jsonMap = {
+          'name': 'John',
+          'age': 30,
+          'isAwesome': true,
+          'address': {'city': 'London', 'street': 'Baker St'},
+          'tags': ['a', 'b'],
+          'tupleArray': ['hello', 42, true],
+        };
+
+        // Parse from Map
+        final model = TestRoot.fromMap(jsonMap);
+        expect(model.name, 'John');
+        expect(model.age, 30);
+        expect(model.isAwesome, true);
+        expect(model.address.city, 'London');
+        expect(model.address.street, 'Baker St');
+        expect(model.tags, ['a', 'b']);
+        expect(model.tupleArray, ['hello', 42, true]);
+
+        // Convert back to Map
+        final map = model.toMap();
+        expect(map['name'], 'John');
+        expect(map['age'], 30);
+        expect(map['isAwesome'], true);
+        expect(map['address'], {'city': 'London', 'street': 'Baker St'});
+        expect(map['tags'], ['a', 'b']);
+        expect(map['tupleArray'], ['hello', 42, true]);
+        // Default values should be present
+        expect(map['defaultString'], 'default value');
+      });
+
+      test('TestRoot.fromMap failure (validation)', () {
+        final invalidMap = {
+          'name': 'J', // too short, minLength: 2
+          'age': 30,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+        };
+        expect(
+          () => TestRoot.fromMap(invalidMap),
+          throwsA(isA<JsonValidationException>()),
+        );
+      });
+
+      test('Union fromJsonValue and toJsonValue', () {
+        // Union containing primitive (String)
+        final unionVal1 = TestRootUnionValue.fromJsonValue('hello');
+        expect(unionVal1, isA<TestRootUnionValueOption0>());
+        expect((unionVal1 as TestRootUnionValueOption0).value, 'hello');
+        expect(unionVal1.toJsonValue(), 'hello');
+
+        // Union containing object (Address)
+        final addressMap = {'city': 'Paris'};
+        final unionVal2 = TestRootUnionValue.fromJsonValue(addressMap);
+        expect(unionVal2, isA<TestRootUnionValueOption1>());
+        expect((unionVal2 as TestRootUnionValueOption1).value.city, 'Paris');
+        expect(unionVal2.toJsonValue(), {'city': 'Paris'});
+      });
+    });
   });
 }

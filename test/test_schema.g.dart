@@ -141,6 +141,10 @@ final class TestRoot implements JsonModel {
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as TestRoot;
 
+  /// Creates an instance of [TestRoot] from a JSON Map.
+  factory TestRoot.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      TestRoot.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -150,6 +154,17 @@ final class TestRoot implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   TestRoot copyWith({
     String? name,
@@ -1529,6 +1544,10 @@ final class Address implements JsonModel {
   factory Address.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Address;
 
+  /// Creates an instance of [Address] from a JSON Map.
+  factory Address.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      Address.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -1538,6 +1557,17 @@ final class Address implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   Address copyWith({String? city, String? street}) =>
       Address(city: city ?? this.city, street: street ?? this.street);
@@ -1597,6 +1627,10 @@ final class Score implements JsonModel {
   factory Score.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Score;
 
+  /// Creates an instance of [Score] from a JSON Map.
+  factory Score.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      Score.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -1606,6 +1640,17 @@ final class Score implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   Score copyWith({num? value}) => Score(value: value ?? this.value);
 
@@ -1656,6 +1701,15 @@ sealed class TestRootUnionValue implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as TestRootUnionValue;
 
+  /// Creates an instance of [TestRootUnionValue] from a JSON-compatible Dart value.
+  factory TestRootUnionValue.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => TestRootUnionValue.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -1664,6 +1718,14 @@ sealed class TestRootUnionValue implements JsonModel {
     final buffer = StringBuffer();
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
   }
 
   static final descriptor = UnionDescriptor<TestRootUnionValue>(
@@ -1742,6 +1804,10 @@ sealed class Pet implements JsonModel {
   factory Pet.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Pet;
 
+  /// Creates an instance of [Pet] from a JSON-compatible Dart value.
+  factory Pet.fromJsonValue(Object? value, {bool validate = true}) =>
+      Pet.fromJson(JsonReader.fromObject(value), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -1750,6 +1816,14 @@ sealed class Pet implements JsonModel {
     final buffer = StringBuffer();
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
   }
 
   static final descriptor = UnionDescriptor<Pet>(
@@ -1859,6 +1933,10 @@ final class Cat implements JsonModel {
   factory Cat.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Cat;
 
+  /// Creates an instance of [Cat] from a JSON Map.
+  factory Cat.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      Cat.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -1868,6 +1946,17 @@ final class Cat implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   Cat copyWith({String? kind, num? meowVolume}) =>
       Cat(kind: kind ?? this.kind, meowVolume: meowVolume ?? this.meowVolume);
@@ -1926,6 +2015,10 @@ final class Dog implements JsonModel {
   factory Dog.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Dog;
 
+  /// Creates an instance of [Dog] from a JSON Map.
+  factory Dog.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      Dog.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -1935,6 +2028,17 @@ final class Dog implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   Dog copyWith({String? kind, num? barkVolume}) =>
       Dog(kind: kind ?? this.kind, barkVolume: barkVolume ?? this.barkVolume);
@@ -1998,6 +2102,13 @@ final class RestrictedObject implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as RestrictedObject;
 
+  /// Creates an instance of [RestrictedObject] from a JSON Map.
+  factory RestrictedObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) =>
+      RestrictedObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2007,6 +2118,17 @@ final class RestrictedObject implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   RestrictedObject copyWith({String? a, String? b, String? c}) =>
       RestrictedObject(a: a ?? this.a, b: b ?? this.b, c: c ?? this.c);
@@ -2086,6 +2208,13 @@ final class DependentObject implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as DependentObject;
 
+  /// Creates an instance of [DependentObject] from a JSON Map.
+  factory DependentObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) =>
+      DependentObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2095,6 +2224,17 @@ final class DependentObject implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   DependentObject copyWith({num? creditCard, String? billingAddress}) =>
       DependentObject(
@@ -2170,6 +2310,13 @@ final class DeprecatedObject implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as DeprecatedObject;
 
+  /// Creates an instance of [DeprecatedObject] from a JSON Map.
+  factory DeprecatedObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) =>
+      DeprecatedObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2179,6 +2326,17 @@ final class DeprecatedObject implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   DeprecatedObject copyWith({String? value}) =>
       DeprecatedObject(value: value ?? this.value);
@@ -2227,6 +2385,10 @@ final class Merged implements JsonModel {
   factory Merged.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Merged;
 
+  /// Creates an instance of [Merged] from a JSON Map.
+  factory Merged.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      Merged.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2236,6 +2398,17 @@ final class Merged implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   Merged copyWith({String? a, int? b, bool? c}) =>
       Merged(a: a ?? this.a, b: b ?? this.b, c: c ?? this.c);
@@ -2304,6 +2477,10 @@ final class MapObject implements JsonModel {
   factory MapObject.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as MapObject;
 
+  /// Creates an instance of [MapObject] from a JSON Map.
+  factory MapObject.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      MapObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2313,6 +2490,17 @@ final class MapObject implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   MapObject copyWith({
     String? name,
@@ -2332,7 +2520,7 @@ final class MapObject implements JsonModel {
     instantiate: (fields) => MapObject(
       name: fields['name'] as String?,
       additionalProperties: fields.entries
-          .where((e) => !const {'name'}.contains(e.key))
+          .where((e) => !const <String>{'name'}.contains(e.key))
           .fold<Map<String, String>>(
             {},
             (m, e) => m..[e.key] = e.value as String,
@@ -2389,6 +2577,12 @@ final class StrictObject implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as StrictObject;
 
+  /// Creates an instance of [StrictObject] from a JSON Map.
+  factory StrictObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => StrictObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2398,6 +2592,17 @@ final class StrictObject implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   StrictObject copyWith({String? name}) =>
       StrictObject(name: name ?? this.name);
@@ -2450,6 +2655,10 @@ final class NotObject implements JsonModel {
   factory NotObject.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as NotObject;
 
+  /// Creates an instance of [NotObject] from a JSON Map.
+  factory NotObject.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      NotObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2459,6 +2668,17 @@ final class NotObject implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   NotObject copyWith({
     String? notPatternString,
@@ -2591,6 +2811,15 @@ sealed class TestRootAnyOfValue implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as TestRootAnyOfValue;
 
+  /// Creates an instance of [TestRootAnyOfValue] from a JSON-compatible Dart value.
+  factory TestRootAnyOfValue.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => TestRootAnyOfValue.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2599,6 +2828,14 @@ sealed class TestRootAnyOfValue implements JsonModel {
     final buffer = StringBuffer();
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
   }
 
   static final descriptor = UnionDescriptor<TestRootAnyOfValue>(
@@ -2682,6 +2919,15 @@ final class MergedAllOfObject implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as MergedAllOfObject;
 
+  /// Creates an instance of [MergedAllOfObject] from a JSON Map.
+  factory MergedAllOfObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => MergedAllOfObject.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2691,6 +2937,17 @@ final class MergedAllOfObject implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   MergedAllOfObject copyWith({String? strVal, num? numVal}) =>
       MergedAllOfObject(
@@ -2811,6 +3068,15 @@ final class ComplexMergedObject implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as ComplexMergedObject;
 
+  /// Creates an instance of [ComplexMergedObject] from a JSON Map.
+  factory ComplexMergedObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => ComplexMergedObject.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2820,6 +3086,17 @@ final class ComplexMergedObject implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   ComplexMergedObject copyWith({
     num? numVal,
@@ -2867,7 +3144,7 @@ final class ComplexMergedObject implements JsonModel {
     instantiate: (fields) => ComplexMergedObject(
       numVal: fields['numVal'] as num?,
       additionalProperties: fields.entries
-          .where((e) => !const {'numVal'}.contains(e.key))
+          .where((e) => !const <String>{'numVal'}.contains(e.key))
           .fold<Map<String, String>>(
             {},
             (m, e) => m..[e.key] = e.value as String,
@@ -2942,6 +3219,15 @@ sealed class TestRootUnionContainsArrayContains implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as TestRootUnionContainsArrayContains;
 
+  /// Creates an instance of [TestRootUnionContainsArrayContains] from a JSON-compatible Dart value.
+  factory TestRootUnionContainsArrayContains.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => TestRootUnionContainsArrayContains.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2950,6 +3236,14 @@ sealed class TestRootUnionContainsArrayContains implements JsonModel {
     final buffer = StringBuffer();
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
   }
 
   static final descriptor = UnionDescriptor<TestRootUnionContainsArrayContains>(
@@ -3124,6 +3418,15 @@ final class ObjectWithDynamicProps implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as ObjectWithDynamicProps;
 
+  /// Creates an instance of [ObjectWithDynamicProps] from a JSON Map.
+  factory ObjectWithDynamicProps.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => ObjectWithDynamicProps.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -3133,6 +3436,17 @@ final class ObjectWithDynamicProps implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   ObjectWithDynamicProps copyWith({Object? notInt, Object? notNum}) =>
       ObjectWithDynamicProps(
@@ -3229,6 +3543,15 @@ sealed class TestRootUnionWithArrayOption implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as TestRootUnionWithArrayOption;
 
+  /// Creates an instance of [TestRootUnionWithArrayOption] from a JSON-compatible Dart value.
+  factory TestRootUnionWithArrayOption.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => TestRootUnionWithArrayOption.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -3237,6 +3560,14 @@ sealed class TestRootUnionWithArrayOption implements JsonModel {
     final buffer = StringBuffer();
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
   }
 
   static final descriptor = UnionDescriptor<TestRootUnionWithArrayOption>(
@@ -3334,6 +3665,15 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as TestRootArrayWithAllOfItemsItem;
 
+  /// Creates an instance of [TestRootArrayWithAllOfItemsItem] from a JSON Map.
+  factory TestRootArrayWithAllOfItemsItem.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => TestRootArrayWithAllOfItemsItem.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -3343,6 +3683,17 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   TestRootArrayWithAllOfItemsItem copyWith({String? a, int? b}) =>
       TestRootArrayWithAllOfItemsItem(a: a ?? this.a, b: b ?? this.b);
@@ -3400,6 +3751,15 @@ sealed class TestRootUnionWithAllOfOption implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as TestRootUnionWithAllOfOption;
 
+  /// Creates an instance of [TestRootUnionWithAllOfOption] from a JSON-compatible Dart value.
+  factory TestRootUnionWithAllOfOption.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => TestRootUnionWithAllOfOption.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -3408,6 +3768,14 @@ sealed class TestRootUnionWithAllOfOption implements JsonModel {
     final buffer = StringBuffer();
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
   }
 
   static final descriptor = UnionDescriptor<TestRootUnionWithAllOfOption>(
@@ -3499,6 +3867,15 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
       parseWithDescriptor(reader, descriptor, validate: validate)
           as TestRootUnionWithAllOfOptionOptionType1;
 
+  /// Creates an instance of [TestRootUnionWithAllOfOptionOptionType1] from a JSON Map.
+  factory TestRootUnionWithAllOfOptionOptionType1.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => TestRootUnionWithAllOfOptionOptionType1.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -3508,6 +3885,17 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   TestRootUnionWithAllOfOptionOptionType1 copyWith({String? a, int? b}) =>
       TestRootUnionWithAllOfOptionOptionType1(a: a ?? this.a, b: b ?? this.b);
