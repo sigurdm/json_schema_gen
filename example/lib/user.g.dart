@@ -1,6 +1,8 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
 
+import 'dart:collection';
+import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
@@ -103,7 +105,7 @@ final class User implements JsonModel {
       UserRole.admin,
       UserRole.editor,
       UserRole.user,
-    ].contains(role)) {
+    ].any((v) => const DeepCollectionEquality().equals(v, role))) {
       throw JsonValidationException(
         'Property "role" must be one of [admin, editor, user]',
         ['role'],
@@ -127,7 +129,11 @@ final class User implements JsonModel {
     }
     final val_tags = tags;
     if (val_tags != null) {
-      if (val_tags.length != val_tags.toSet().length) {
+      if (val_tags.length !=
+          (LinkedHashSet<dynamic>(
+            equals: const DeepCollectionEquality().equals,
+            hashCode: const DeepCollectionEquality().hash,
+          )..addAll(val_tags)).length) {
         throw JsonValidationException('Property "tags" items must be unique', [
           'tags',
         ]);
@@ -248,7 +254,7 @@ final class User implements JsonModel {
           role == other.role &&
           profile == other.profile &&
           address == other.address &&
-          tags == other.tags &&
+          const DeepCollectionEquality().equals(tags, other.tags) &&
           preferences == other.preferences &&
           createdAt == other.createdAt;
 
@@ -261,7 +267,7 @@ final class User implements JsonModel {
     role,
     profile,
     address,
-    tags,
+    const DeepCollectionEquality().hash(tags),
     preferences,
     createdAt,
   ]);
@@ -552,19 +558,14 @@ final class UserPreferences implements JsonModel {
       identical(this, other) ||
       other is UserPreferences &&
           runtimeType == other.runtimeType &&
-          additionalProperties.length == other.additionalProperties.length &&
-          additionalProperties.keys.every(
-            (k) =>
-                other.additionalProperties.containsKey(k) &&
-                other.additionalProperties[k] == additionalProperties[k],
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
           );
 
   @override
   int get hashCode => Object.hashAll([
-    additionalProperties.entries.fold<int>(
-      0,
-      (sum, entry) => sum ^ Object.hash(entry.key, entry.value),
-    ),
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override

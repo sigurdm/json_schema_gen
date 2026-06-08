@@ -2264,5 +2264,35 @@ void main() {
         expect(unionVal2.toJsonValue(), {'city': 'Paris'});
       });
     });
+
+    group('Custom Naming (x-dart-name)', () {
+      test('success parsing custom named object, union, and enum', () {
+        final jsonObject = {
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London'},
+          'customNamedObject': {'foo': 'bar'},
+          'customNamedUnion': 'hello union',
+          'customNamedEnum': 'one',
+        };
+
+        final model = TestRoot.fromMap(jsonObject);
+
+        // Verify types of custom named fields
+        expect(model.customNamedObject, isA<MyCustomClassName>());
+        expect(model.customNamedObject?.foo, 'bar');
+
+        expect(model.customNamedUnion, isA<MyCustomUnionName>());
+        expect(model.customNamedUnion, isA<MyCustomUnionNameOption0>());
+        expect(
+          (model.customNamedUnion as MyCustomUnionNameOption0).value,
+          'hello union',
+        );
+
+        expect(model.customNamedEnum, isA<MyCustomEnumName>());
+        expect(model.customNamedEnum, MyCustomEnumName.one);
+      });
+    });
   });
 }

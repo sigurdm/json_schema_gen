@@ -4,7 +4,6 @@ import 'package:test/test.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
-
 void main() {
   group('SchemaExtensions', () {
     test('realSchema throws on unresolved reference', () {
@@ -259,6 +258,109 @@ void main() {
     });
   });
 
+  group('Validation Edge Cases', () {
+    test('uniqueItems with nested collections', () {
+      final schema = const ArraySchema(
+        items: AnythingSchema(),
+        uniqueItems: true,
+      );
+      final list1 = [1, 2];
+      final list2 = [1, 2];
+      expect(
+        () => schema.validate([list1, list2]),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate([
+          list1,
+          [1, 3],
+        ]),
+        returnsNormally,
+      );
+    });
+
+    test('EnumSchema with collection values', () {
+      final schema = const EnumSchema(
+        values: [
+          [1, 2],
+          [3, 4],
+        ],
+        baseSchema: AnythingSchema(),
+      );
+      expect(() => schema.validate([1, 2]), returnsNormally);
+      expect(
+        () => schema.validate([1, 3]),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('SchemaParser handles recursive schema (nested cycle)', () {
+      final jsonSchema = {
+        'definitions': {
+          'A': {
+            'type': 'object',
+            'properties': {
+              'b': {r'$ref': '#/definitions/B'},
+            },
+          },
+          'B': {
+            'type': 'object',
+            'properties': {
+              'a': {r'$ref': '#/definitions/A'},
+            },
+          },
+        },
+        r'$ref': '#/definitions/A',
+      };
+      final parser = SchemaParser(jsonSchema);
+      final schema = parser.parse();
+      expect(schema, isNotNull);
+      final objectSchema = schema.realSchema as ObjectSchema;
+      final propB = objectSchema.properties['b']!;
+      final bSchema = propB.realSchema as ObjectSchema;
+      final propA = bSchema.properties['a']!;
+      expect(propA.realSchema, isA<ObjectSchema>());
+    });
+
+    test(
+      'SchemaParser handles direct cyclic reference and realSchema throws',
+      () {
+        final jsonSchema = {
+          'definitions': {
+            'A': {r'$ref': '#/definitions/B'},
+            'B': {r'$ref': '#/definitions/A'},
+          },
+          r'$ref': '#/definitions/A',
+        };
+        final parser = SchemaParser(jsonSchema);
+        final schema = parser.parse();
+        expect(schema, isNotNull);
+        expect(() => schema.realSchema, throwsStateError);
+      },
+    );
+  });
+
+  group('Formatting Helpers', () {
+    test('toPascalCase', () {
+      expect(toPascalCase('some-name'), 'SomeName');
+      expect(toPascalCase('some_name'), 'SomeName');
+      expect(toPascalCase('some name'), 'SomeName');
+      expect(toPascalCase('1-name'), 'Schema1Name');
+      expect(toPascalCase('123name'), 'Schema123name');
+      expect(toPascalCase(''), '');
+      expect(toPascalCase('!@#'), '');
+    });
+
+    test('toCamelCase', () {
+      expect(toCamelCase('some-name'), 'someName');
+      expect(toCamelCase('some_name'), 'someName');
+      expect(toCamelCase('some name'), 'someName');
+      expect(toCamelCase('PascalCase'), 'pascalCase');
+      expect(toCamelCase('class'), 'class_'); // keyword
+      expect(toCamelCase('hashCode'), 'hashCode_'); // reserved member
+    });
+  });
+
   group('SchemaParser', () {
     test('throws ArgumentError on broken ref', () {
       final jsonSchema = {
@@ -269,6 +371,18 @@ void main() {
       };
       final parser = SchemaParser(jsonSchema);
       expect(() => parser.parse(), throwsArgumentError);
+    });
+
+    test('root ref with definitions', () {
+      final jsonSchema = {
+        'definitions': {
+          'A': {'type': 'string'},
+        },
+        r'$ref': '#/definitions/A',
+      };
+      final parser = SchemaParser(jsonSchema);
+      final schema = parser.parse();
+      print('Parsed schema: $schema');
     });
   });
 
@@ -381,6 +495,56 @@ void main() {
       );
       expect(
         () => schema.validate({'name': 123}),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('AllOfSchema', () {
+      final schema = const AllOfSchema(
+        subschemas: [StringSchema(minLength: 3), StringSchema(maxLength: 5)],
+      );
+      expect(() => schema.validate('abcd'), returnsNormally);
+      expect(
+        () => schema.validate('ab'),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate('abcdef'),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('UnionSchema', () {
+      final schema = const UnionSchema(
+        subschemas: [StringSchema(), NumberSchema(isInteger: true)],
+      );
+      expect(() => schema.validate('hello'), returnsNormally);
+      expect(() => schema.validate(42), returnsNormally);
+      expect(
+        () => schema.validate(true),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('EnumSchema', () {
+      final schema = const EnumSchema(
+        values: ['red', 'green', 'blue'],
+        baseSchema: StringSchema(),
+      );
+      expect(() => schema.validate('red'), returnsNormally);
+      expect(
+        () => schema.validate('yellow'),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('not constraint', () {
+      final schema = const StringSchema(
+        not: StringSchema(pattern: r'^forbidden'),
+      );
+      expect(() => schema.validate('allowed'), returnsNormally);
+      expect(
+        () => schema.validate('forbidden_word'),
         throwsA(isA<JsonValidationException>()),
       );
     });
@@ -502,6 +666,101 @@ void main() {
       };
       expect(
         () => validator(invalidObject5),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (not validation failure - pattern matches)
+      expect(
+        () => validator({
+          ...validObject,
+          'notObject': {
+            'notPatternString': 'forbidden',
+            'notEnumInt': 42,
+            'notNullValue': 'not-null',
+          },
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (not validation failure - enum matches)
+      expect(
+        () => validator({
+          ...validObject,
+          'notObject': {
+            'notPatternString': 'allowed_string',
+            'notEnumInt': 13,
+            'notNullValue': 'not-null',
+          },
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (minProperties failure)
+      expect(
+        () => validator({...validObject, 'restrictedObject': {}}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (maxProperties failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'restrictedObject': {'a': 'valA', 'b': 'valB', 'c': 'valC'},
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (dependentRequired failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'dependentObject': {'creditCard': 1234567890},
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (contains failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'restrictedArray': [1, 2, 4, 5],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - ipv6)
+      expect(
+        () => validator({...validObject, 'ipv6Value': 'invalid-ipv6'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - hostname)
+      expect(
+        () => validator({...validObject, 'hostnameValue': '-invalid-host'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - time)
+      expect(
+        () => validator({...validObject, 'timeValue': '25:00:00Z'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - uri-reference)
+      expect(
+        () => validator({
+          ...validObject,
+          'uriReferenceValue': 'http://example.com/ space',
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (additionalProperties: false failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'strictObject': {'name': 'StrictName', 'extra': 'not-allowed'},
+        }),
         throwsA(isA<JsonValidationException>()),
       );
     });

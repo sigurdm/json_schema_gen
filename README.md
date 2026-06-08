@@ -30,6 +30,11 @@ This package supports schemas conforming to **JSON Schema Draft 2020-12**.
 - **Objects**: `required`, `minProperties`, `maxProperties`, `dependentRequired`.
 - **Defaults**: Supports `default` values in constructors and fallback values during parsing.
 
+### Custom Specification Extensions
+We support some custom annotations to customize the generated Dart code:
+- **`x-dart-name`**: Overrides the name of the generated Dart class or enum. Useful for naming nested objects or inline schemas that would otherwise receive automatic names (e.g. `ParentClass_PropertyName`).
+- **`x-deprecated-message`**: Generates a Dart `@Deprecated('message')` annotation with the specified warning text. It can be applied to fields (properties), classes, or enums. If the standard `deprecated: true` is used without this extension, the standard `@deprecated` annotation (without message) is generated.
+
 ### Missing/Unsupported JSON Schema Features
 - `not` and `patternProperties`.
 - Non-discriminator object unions (overlapping schemas without explicit discriminator properties require distinct primitive types or simple structure speculative checks).

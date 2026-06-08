@@ -15,20 +15,28 @@ sealed class Schema {
   /// Whether this schema is deprecated.
   final bool isDeprecated;
 
+  /// The deprecation message, if specified.
+  final String? deprecatedMessage;
+
   /// Whether this schema has a default value.
   final bool hasDefault;
 
   /// The default value, if specified.
   final Object? defaultValue;
 
+  /// Custom name to use for generated Dart class, if specified via x-dart-name.
+  final String? dartName;
+
   /// Const constructor for subclass schemas.
   const Schema({
     this.title,
     this.description,
     this.isDeprecated = false,
+    this.deprecatedMessage,
     this.hasDefault = false,
     this.defaultValue,
     this.not,
+    this.dartName,
   });
 
   /// Schema that must not validate successfully.
@@ -66,9 +74,11 @@ final class ObjectSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
+    super.dartName,
   });
 }
 
@@ -111,6 +121,7 @@ final class ArraySchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -140,6 +151,7 @@ final class StringSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -177,6 +189,7 @@ final class NumberSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -190,6 +203,7 @@ final class BooleanSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -203,6 +217,7 @@ final class NullSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -223,6 +238,7 @@ final class RefSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -235,7 +251,7 @@ final class Discriminator {
   final String propertyName;
 
   /// Optional explicit mapping of discriminator values to schema references.
-  final Map<String, String>? mapping;
+  final Map<String, Schema>? mapping;
 
   /// Const constructor for discriminator configuration.
   const Discriminator({required this.propertyName, this.mapping});
@@ -256,9 +272,11 @@ final class UnionSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
+    super.dartName,
   });
 }
 
@@ -273,6 +291,7 @@ final class AllOfSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -286,6 +305,7 @@ final class AnythingSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -307,9 +327,11 @@ final class EnumSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
+    super.dartName,
   });
 }
 
@@ -320,6 +342,7 @@ final class NeverSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -427,26 +450,16 @@ final class SchemaParser {
 
     final title = json['title'] as String?;
     final description = json['description'] as String?;
-    final isDeprecated = json['deprecated'] == true;
+    final deprecatedMessage = json['x-deprecated-message'] as String?;
+    final isDeprecated =
+        json['deprecated'] == true || deprecatedMessage != null;
     final hasDefault = json.containsKey('default');
     final defaultValue = json['default'];
     final notJson = json['not'];
     final not = notJson != null ? _parseSchema(notJson, '$path/not') : null;
+    final dartName = json['x-dart-name'] as String?;
 
-    if (json.containsKey(r'$ref')) {
-      final ref = json[r'$ref'] as String;
-      return RefSchema(
-        ref,
-        title: title,
-        description: description,
-        isDeprecated: isDeprecated,
-        hasDefault: hasDefault,
-        defaultValue: defaultValue,
-        not: not,
-      );
-    }
-
-    // Parse definitions under local scopes
+    // Parse definitions under local scopes BEFORE ref check
     if (json[r'$defs'] is Map) {
       (json[r'$defs'] as Map).forEach((key, value) {
         _parseSchema(value, '$path/\$defs/$key');
@@ -456,6 +469,24 @@ final class SchemaParser {
       (json['definitions'] as Map).forEach((key, value) {
         _parseSchema(value, '$path/definitions/$key');
       });
+    }
+
+    if (json.containsKey(r'$ref')) {
+      final ref = json[r'$ref'] as String;
+      final refSchema = RefSchema(
+        ref,
+        title: title,
+        description: description,
+        isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
+        hasDefault: hasDefault,
+        defaultValue: defaultValue,
+        not: not,
+      );
+      if (path.isNotEmpty) {
+        _cache[path] = refSchema;
+      }
+      return refSchema;
     }
 
     if (json.containsKey('const')) {
@@ -468,9 +499,11 @@ final class SchemaParser {
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
+        dartName: dartName,
       );
       if (path.isNotEmpty) {
         _cache[path] = schema;
@@ -488,9 +521,11 @@ final class SchemaParser {
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
+        dartName: dartName,
       );
       if (path.isNotEmpty) {
         _cache[path] = schema;
@@ -507,7 +542,7 @@ final class SchemaParser {
         if (propName != null) {
           final mappingJson = discMap['mapping'] as Map?;
           final mapping = mappingJson?.map(
-            (k, v) => MapEntry(k as String, v as String),
+            (k, v) => MapEntry(k as String, RefSchema(v as String) as Schema),
           );
           return Discriminator(propertyName: propName, mapping: mapping);
         }
@@ -544,6 +579,7 @@ final class SchemaParser {
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
@@ -561,9 +597,11 @@ final class SchemaParser {
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
+        dartName: dartName,
       );
     } else if (json.containsKey('anyOf')) {
       final list = json['anyOf'] as List;
@@ -578,9 +616,11 @@ final class SchemaParser {
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
+        dartName: dartName,
       );
     } else {
       final typeVal = json['type'];
@@ -594,9 +634,11 @@ final class SchemaParser {
           title: title,
           description: description,
           isDeprecated: isDeprecated,
+          deprecatedMessage: deprecatedMessage,
           hasDefault: hasDefault,
           defaultValue: defaultValue,
           not: not,
+          dartName: dartName,
         );
       } else {
         var type = typeVal as String?;
@@ -666,9 +708,11 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
+              dartName: dartName,
             );
             break;
           case 'array':
@@ -704,6 +748,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -718,6 +763,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -734,6 +780,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -750,6 +797,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -760,6 +808,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -770,6 +819,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -780,6 +830,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -789,6 +840,7 @@ final class SchemaParser {
     }
 
     if (path.isNotEmpty) {
+      print('Caching path: $path');
       _cache[path] = schema;
     }
     return schema;
@@ -813,6 +865,9 @@ final class SchemaParser {
         if (s.contains != null) visit(s.contains!);
       } else if (s is UnionSchema) {
         s.subschemas.forEach(visit);
+        if (s.discriminator?.mapping != null) {
+          s.discriminator!.mapping!.values.forEach(visit);
+        }
       } else if (s is AllOfSchema) {
         s.subschemas.forEach(visit);
       }
@@ -1262,11 +1317,16 @@ void writeAny(JsonSink sink, dynamic value) {
 
 /// Formats a name string into PascalCase for Dart class names.
 String toPascalCase(String text) {
-  return text
+  final result = text
       .split(RegExp(r'[^a-zA-Z0-9]+'))
       .where((s) => s.isNotEmpty)
       .map((s) => s[0].toUpperCase() + s.substring(1))
       .join('');
+  if (result.isEmpty) return '';
+  if (RegExp(r'^[0-9]').hasMatch(result)) {
+    return 'Schema$result';
+  }
+  return result;
 }
 
 /// Formats a name string into camelCase for Dart properties.
@@ -1419,19 +1479,37 @@ String dartType(Schema schema, Map<Schema, String> classNames) {
   return 'dynamic';
 }
 
+/// Base class for all runtime descriptors that define how to parse and
+/// serialize JSON values according to a schema.
 abstract class SchemaDescriptor<T> {
+  /// Const constructor for subclasses.
   const SchemaDescriptor();
 }
 
+/// Descriptor for JSON objects that map to Dart class [T].
 class ObjectDescriptor<T> extends SchemaDescriptor<T> {
+  /// The title/name of the object schema.
   final String title;
+
+  /// Factory function to instantiate [T] from a map of parsed fields.
   final T Function(Map<String, dynamic> fields) instantiate;
+
+  /// Map of property names to their descriptors.
   final Map<String, PropertyDescriptor> properties;
+
+  /// List of required property names.
   final List<String> required;
+
+  /// Descriptor for additional properties if allowed, otherwise null.
   final SchemaDescriptor? additionalProperties;
+
+  /// Function to extract fields from an instance of [T] for serialization.
   final Map<String, Object?> Function(dynamic instance) getFields;
+
+  /// Function to check if an instance matches this descriptor.
   final bool Function(dynamic instance) matches;
 
+  /// Creates an [ObjectDescriptor].
   const ObjectDescriptor({
     required this.title,
     required this.instantiate,
@@ -1443,11 +1521,18 @@ class ObjectDescriptor<T> extends SchemaDescriptor<T> {
   });
 }
 
+/// Descriptor for a single property of an object.
 class PropertyDescriptor {
+  /// The JSON property name.
   final String name;
+
+  /// The descriptor for the property value.
   final SchemaDescriptor schema;
+
+  /// Whether this property is required in the object.
   final bool isRequired;
 
+  /// Creates a [PropertyDescriptor].
   const PropertyDescriptor({
     required this.name,
     required this.schema,
@@ -1455,13 +1540,23 @@ class PropertyDescriptor {
   });
 }
 
+/// Base class for descriptors of primitive JSON types (string, number, boolean, null).
 abstract class PrimitiveDescriptor<T> extends SchemaDescriptor<T> {
+  /// Const constructor.
   const PrimitiveDescriptor();
+
+  /// Reads a value of type [T] from [reader].
+  ///
+  /// Throws [FormatException] if the value is not of the expected type.
   T read(JsonReader reader);
+
+  /// Writes [value] to [sink].
   void write(JsonSink sink, T value);
 }
 
+/// Descriptor for JSON strings.
 class StringDescriptor extends PrimitiveDescriptor<String> {
+  /// Const constructor.
   const StringDescriptor();
   @override
   String read(JsonReader reader) => reader.expectString();
@@ -1469,7 +1564,9 @@ class StringDescriptor extends PrimitiveDescriptor<String> {
   void write(JsonSink sink, String value) => sink.addString(value);
 }
 
+/// Descriptor for JSON integers.
 class IntDescriptor extends PrimitiveDescriptor<int> {
+  /// Const constructor.
   const IntDescriptor();
   @override
   int read(JsonReader reader) => reader.expectInt();
@@ -1477,7 +1574,9 @@ class IntDescriptor extends PrimitiveDescriptor<int> {
   void write(JsonSink sink, int value) => sink.addNumber(value);
 }
 
+/// Descriptor for JSON numbers (integers or doubles).
 class NumDescriptor extends PrimitiveDescriptor<num> {
+  /// Const constructor.
   const NumDescriptor();
   @override
   num read(JsonReader reader) => reader.expectNum();
@@ -1485,7 +1584,9 @@ class NumDescriptor extends PrimitiveDescriptor<num> {
   void write(JsonSink sink, num value) => sink.addNumber(value);
 }
 
+/// Descriptor for JSON booleans.
 class BoolDescriptor extends PrimitiveDescriptor<bool> {
+  /// Const constructor.
   const BoolDescriptor();
   @override
   bool read(JsonReader reader) => reader.expectBool();
@@ -1493,7 +1594,9 @@ class BoolDescriptor extends PrimitiveDescriptor<bool> {
   void write(JsonSink sink, bool value) => sink.addBool(value);
 }
 
+/// Descriptor for JSON null values.
 class NullDescriptor extends PrimitiveDescriptor<Null> {
+  /// Const constructor.
   const NullDescriptor();
   @override
   Null read(JsonReader reader) => reader.expectNull();
@@ -1501,34 +1604,57 @@ class NullDescriptor extends PrimitiveDescriptor<Null> {
   void write(JsonSink sink, Null value) => sink.addNull();
 }
 
+/// Descriptor representing any JSON value (`AnythingSchema`).
 class AnythingDescriptor extends SchemaDescriptor<dynamic> {
+  /// Const constructor.
   const AnythingDescriptor();
 }
 
+/// Descriptor representing a schema that never validates successfully.
 class NeverDescriptor extends SchemaDescriptor<Never> {
+  /// Const constructor.
   const NeverDescriptor();
 }
 
+/// Descriptor for a nullable type wrapping another descriptor.
 class NullableDescriptor<T> extends SchemaDescriptor<T?> {
+  /// The descriptor of the non-null value.
   final SchemaDescriptor<T> inner;
+
+  /// Creates a [NullableDescriptor] wrapping [inner].
   const NullableDescriptor(this.inner);
 }
 
+/// Descriptor for JSON arrays mapping to Dart `List<T>`.
 class ArrayDescriptor<T> extends SchemaDescriptor<List<T>> {
+  /// The descriptor for array items.
   final SchemaDescriptor<T> items;
+
+  /// Positional descriptors for tuple-like arrays.
   final List<SchemaDescriptor>? prefixItems;
+
+  /// Creates an [ArrayDescriptor].
   const ArrayDescriptor(this.items, {this.prefixItems});
 
   _JsonParseFrame createFrame({required bool validate}) =>
       _ArrayFrame<T>(this, validate: validate);
 }
 
+/// Descriptor for JSON enums mapping to Dart enum [T].
 class EnumDescriptor<T> extends SchemaDescriptor<T> {
+  /// The allowed enum values.
   final List<T> values;
+
+  /// Factory function to convert a raw value to enum [T].
   final T Function(dynamic val) fromValue;
+
+  /// Function to convert enum [T] back to raw value.
   final dynamic Function(dynamic val) toValue;
+
+  /// The descriptor of the base type of the enum.
   final PrimitiveDescriptor base;
 
+  /// Creates an [EnumDescriptor].
   const EnumDescriptor({
     required this.values,
     required this.fromValue,
@@ -1537,18 +1663,33 @@ class EnumDescriptor<T> extends SchemaDescriptor<T> {
   });
 }
 
+/// Descriptor for a single option of a union.
 class UnionOptionDescriptor<T, V> {
+  /// The descriptor for the option value.
   final SchemaDescriptor<V> schema;
+
+  /// Function to wrap the parsed option value into union type [T].
   final T Function(V val) wrap;
+
+  /// Creates a [UnionOptionDescriptor].
   const UnionOptionDescriptor(this.schema, this.wrap);
 }
 
+/// Descriptor for JSON unions (oneOf/anyOf) mapping to Dart class [T].
 class UnionDescriptor<T> extends SchemaDescriptor<T> {
+  /// The title/name of the union schema.
   final String title;
+
+  /// The property name used as discriminator, if any.
   final String? discriminatorProperty;
+
+  /// Optional mapping from discriminator values to option descriptors.
   final Map<String, UnionOptionDescriptor<T, dynamic>>? discriminatorMapping;
+
+  /// List of candidate descriptors for non-discriminated union resolution.
   final List<UnionOptionDescriptor<T, dynamic>> activeOptions;
 
+  /// Creates a [UnionDescriptor].
   const UnionDescriptor({
     required this.title,
     this.discriminatorProperty,
@@ -1623,11 +1764,7 @@ class _ObjectFrame extends _JsonParseFrame {
       if (validate && _result is JsonModel) {
         (_result as JsonModel).validate();
       }
-      stack.removeLast();
-      if (stack.isNotEmpty) {
-        stack.last.resume(_result);
-      }
-      return false;
+      return true;
     }
   }
 }
@@ -1638,7 +1775,6 @@ class _ArrayFrame<T> extends _JsonParseFrame {
   final List<T> list = [];
   bool _initialized = false;
   int index = 0;
-  dynamic _result;
 
   _ArrayFrame(this.desc, {this.validate = true});
 
@@ -1671,12 +1807,7 @@ class _ArrayFrame<T> extends _JsonParseFrame {
       }, validate: validate);
       return false;
     } else {
-      _result = list;
-      stack.removeLast();
-      if (stack.isNotEmpty) {
-        stack.last.resume(_result);
-      }
-      return false;
+      return true;
     }
   }
 }
@@ -1711,11 +1842,7 @@ class _UnionFrame extends _JsonParseFrame {
       if (validate && _result is JsonModel) {
         (_result as JsonModel).validate();
       }
-      stack.removeLast();
-      if (stack.isNotEmpty) {
-        stack.last.resume(_result);
-      }
-      return false;
+      return true;
     }
 
     if (desc.discriminatorProperty != null) {
@@ -1747,23 +1874,30 @@ class _UnionFrame extends _JsonParseFrame {
       }, validate: validate);
       return false;
     } else {
-      FormatException? lastException;
+      Exception? lastException;
       for (final option in desc.activeOptions) {
         final rCopy = reader.copy();
         try {
-          _runNonRecursiveWithDescriptor(rCopy, option.schema, validate: false);
-          _pendingOption = option;
-          _pushSchemaFrame(reader, stack, option.schema, (val) {
-            _result = option.wrap(val);
-            _pendingOption = null;
-          }, validate: validate);
-          return false;
+          final parsedValue = _runNonRecursiveWithDescriptor(
+            rCopy,
+            option.schema,
+            validate: validate,
+          );
+          reader.skipAnyValue();
+          final wrapped = option.wrap(parsedValue);
+          if (validate && wrapped is JsonModel) {
+            wrapped.validate();
+          }
+          _result = wrapped;
+          return true;
         } on FormatException catch (e) {
+          lastException = e;
+        } on JsonValidationException catch (e) {
           lastException = e;
         }
       }
       throw reader.fail(
-        'Failed to parse ${desc.title} union. Last error: ${lastException?.message}',
+        'Failed to parse ${desc.title} union. Last error: $lastException',
       );
     }
   }
@@ -1847,7 +1981,10 @@ dynamic _runNonRecursiveWithDescriptor(
       final current = stack.last;
       final isComplete = current.execute(reader, stack);
       if (isComplete) {
-        stack.removeLast();
+        final popped = stack.removeLast();
+        if (stack.isNotEmpty) {
+          stack.last.resume(popped.result);
+        }
       }
     }
     return rootFrame.result;
@@ -1886,6 +2023,15 @@ _JsonParseFrame _createFrameForSchema(
   throw UnsupportedError('Primitive schemas do not require frame creation.');
 }
 
+/// Parses a JSON value from [reader] using the structural definition
+/// provided by [schema] descriptor.
+///
+/// If [validate] is true (default), the parsed value is validated against
+/// schema constraints (like minLength, minimum, required fields) immediately
+/// after parsing.
+///
+/// Throws [JsonParseException] if the JSON structure is invalid.
+/// Throws [JsonValidationException] if validation is enabled and fails.
 dynamic parseWithDescriptor(
   JsonReader reader,
   SchemaDescriptor schema, {
@@ -1894,12 +2040,60 @@ dynamic parseWithDescriptor(
   return _runNonRecursiveWithDescriptor(reader, schema, validate: validate);
 }
 
+/// Serializes [value] to [sink] using the structural definition
+/// provided by [schema] descriptor.
 void writeWithDescriptor<T>(
   JsonSink sink,
   T value,
   SchemaDescriptor<T> schema,
 ) {
   _writeSchemaValue(sink, value, schema);
+}
+
+bool _descriptorMatches(SchemaDescriptor schema, Object? value) {
+  if (schema is NullableDescriptor) {
+    if (value == null) return true;
+    return _descriptorMatches(schema.inner, value);
+  }
+  if (schema is StringDescriptor) {
+    return value is String;
+  }
+  if (schema is IntDescriptor) {
+    return value is int;
+  }
+  if (schema is NumDescriptor) {
+    return value is num;
+  }
+  if (schema is BoolDescriptor) {
+    return value is bool;
+  }
+  if (schema is NullDescriptor) {
+    return value == null;
+  }
+  if (schema is AnythingDescriptor) {
+    return true;
+  }
+  if (schema is NeverDescriptor) {
+    return false;
+  }
+  if (schema is ArrayDescriptor) {
+    return value is List;
+  }
+  if (schema is ObjectDescriptor) {
+    return schema.matches(value);
+  }
+  if (schema is EnumDescriptor) {
+    return schema.values.contains(value);
+  }
+  if (schema is UnionDescriptor) {
+    for (final option in schema.activeOptions) {
+      if (_descriptorMatches(option.schema, value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  return false;
 }
 
 void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
@@ -1954,6 +2148,20 @@ void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
   } else if (schema is UnionDescriptor) {
     if (value is JsonWritable) {
       value.writeJson(sink);
+    } else {
+      var found = false;
+      for (final option in schema.activeOptions) {
+        if (_descriptorMatches(option.schema, value)) {
+          _writeSchemaValue(sink, value, option.schema);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw ArgumentError(
+          'Value $value does not match any option of union ${schema.title}',
+        );
+      }
     }
   }
 }
@@ -1967,7 +2175,7 @@ String generateCode(Schema rootSchema, String rootName) {
     final real = schema.realSchema;
     if (real is ObjectSchema) {
       if (classNames.containsKey(real)) return;
-      final name = real.title ?? preferredName;
+      final name = real.dartName ?? real.title ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Model';
       var candidate = className;
@@ -2007,7 +2215,7 @@ String generateCode(Schema rootSchema, String rootName) {
         return;
       }
       if (classNames.containsKey(real)) return;
-      final name = real.title ?? preferredName;
+      final name = real.dartName ?? real.title ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Union';
       var candidate = className;
@@ -2028,7 +2236,7 @@ String generateCode(Schema rootSchema, String rootName) {
       }
     } else if (real is EnumSchema) {
       if (classNames.containsKey(real)) return;
-      final name = real.title ?? preferredName;
+      final name = real.dartName ?? real.title ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Enum';
       var candidate = className;
@@ -2052,6 +2260,8 @@ String generateCode(Schema rootSchema, String rootName) {
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
 
+import 'dart:collection';
+import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 ''');
@@ -2087,7 +2297,11 @@ String _generateEnumClass(EnumSchema schema, String className) {
   final backingType = isString ? 'String' : (isInt ? 'int' : 'dynamic');
 
   if (schema.isDeprecated) {
-    buffer.writeln('@deprecated');
+    if (schema.deprecatedMessage != null) {
+      buffer.writeln("@Deprecated('${schema.deprecatedMessage}')");
+    } else {
+      buffer.writeln('@deprecated');
+    }
   }
   buffer.writeln('enum $className {');
   for (final val in schema.values) {
@@ -2115,71 +2329,7 @@ String _generateEnumClass(EnumSchema schema, String className) {
 
 /// Checks if a string is a reserved Dart keyword.
 bool isKeyword(String s) {
-  const keywords = {
-    'abstract',
-    'as',
-    'assert',
-    'async',
-    'await',
-    'break',
-    'case',
-    'catch',
-    'class',
-    'const',
-    'continue',
-    'covariant',
-    'default',
-    'deferred',
-    'do',
-    'dynamic',
-    'else',
-    'enum',
-    'export',
-    'extends',
-    'extension',
-    'external',
-    'factory',
-    'false',
-    'final',
-    'finally',
-    'for',
-    'Function',
-    'get',
-    'hide',
-    'if',
-    'implements',
-    'import',
-    'in',
-    'out',
-    'interface',
-    'is',
-    'late',
-    'library',
-    'mixin',
-    'new',
-    'null',
-    'on',
-    'operator',
-    'part',
-    'required',
-    'rethrow',
-    'return',
-    'set',
-    'show',
-    'static',
-    'super',
-    'switch',
-    'sync',
-    'this',
-    'throw',
-    'true',
-    'try',
-    'typedef',
-    'var',
-    'void',
-    'yield',
-  };
-  return keywords.contains(s);
+  return _dartKeywords.contains(s);
 }
 
 String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
@@ -2244,7 +2394,8 @@ String _fieldType(
       ? baseType
       : (baseType.endsWith('?') ||
                 baseType == 'dynamic' ||
-                baseType == 'Object?'
+                baseType == 'Object?' ||
+                baseType == 'Null'
             ? baseType
             : '$baseType?');
 }
@@ -2344,6 +2495,7 @@ String _generateObjectClass(
   final fields = StringBuffer();
   final constructorParams = StringBuffer();
   final equalityProps = <String>[];
+  final hashExprs = <String>[];
   final toStringProps = <String>[];
   final copyWithParams = StringBuffer();
   final copyWithArgs = StringBuffer();
@@ -2366,7 +2518,11 @@ String _generateObjectClass(
     final fieldType = _fieldType(propSchema, isRequired, classNames);
 
     if (propSchema.isDeprecated) {
-      fields.writeln('  @deprecated');
+      if (propSchema.deprecatedMessage != null) {
+        fields.writeln("  @Deprecated('${propSchema.deprecatedMessage}')");
+      } else {
+        fields.writeln('  @deprecated');
+      }
     }
     fields.writeln('  final $fieldType $fieldName;');
     if (isRequired) {
@@ -2377,11 +2533,25 @@ String _generateObjectClass(
       constructorParams.writeln('    this.$fieldName,');
     }
 
-    final copyWithType = baseType.endsWith('?') ? baseType : '$baseType?';
+    final copyWithType =
+        (baseType.endsWith('?') || baseType == 'Null') ? baseType : '$baseType?';
     copyWithParams.writeln('    $copyWithType $fieldName,');
     copyWithArgs.writeln('    $fieldName: $fieldName ?? this.$fieldName,');
 
-    equalityProps.add('$fieldName == other.$fieldName');
+    final isColl =
+        baseType.startsWith('List') ||
+        baseType.startsWith('Map') ||
+        baseType == 'dynamic' ||
+        baseType == 'Object?';
+    if (isColl) {
+      equalityProps.add(
+        'const DeepCollectionEquality().equals($fieldName, other.$fieldName)',
+      );
+      hashExprs.add('const DeepCollectionEquality().hash($fieldName)');
+    } else {
+      equalityProps.add('$fieldName == other.$fieldName');
+      hashExprs.add(fieldName);
+    }
     toStringProps.add('$fieldName: \${$fieldName}');
   });
 
@@ -2400,23 +2570,15 @@ String _generateObjectClass(
       '    additionalProperties: additionalProperties ?? this.additionalProperties,',
     );
     equalityProps.add(
-      'additionalProperties.length == other.additionalProperties.length && additionalProperties.keys.every((k) => other.additionalProperties.containsKey(k) && other.additionalProperties[k] == additionalProperties[k])',
+      'const DeepCollectionEquality().equals(additionalProperties, other.additionalProperties)',
     );
+    hashExprs.add('const DeepCollectionEquality().hash(additionalProperties)');
     toStringProps.add('additionalProperties: \${additionalProperties}');
   }
 
   final equalityExpr = equalityProps.isEmpty
       ? 'true'
       : equalityProps.join(' && ');
-
-  final hashFields = schema.properties.keys
-      .map((name) => toCamelCase(name))
-      .toList();
-  if (hasAdditionalProps) {
-    hashFields.add(
-      'additionalProperties.entries.fold<int>(0, (sum, entry) => sum ^ Object.hash(entry.key, entry.value))',
-    );
-  }
 
   final validationMethod = _generateValidationMethod(
     schema,
@@ -2496,12 +2658,29 @@ $propDescriptors    },
     ${addPropsExpr != null ? 'additionalProperties: $addPropsExpr,' : ''}
   );''';
 
-  final deprecatedAttr = schema.isDeprecated ? '@deprecated\n' : '';
+  final deprecatedAttr = schema.isDeprecated
+      ? (schema.deprecatedMessage != null
+            ? "@Deprecated('${schema.deprecatedMessage}')\n"
+            : '@deprecated\n')
+      : '';
+
+  final constructorStr = constructorParams.isEmpty
+      ? '  const $className();'
+      : '''
+  const $className({
+$constructorParams  });''';
+
+  final copyWithStr = copyWithParams.isEmpty
+      ? '  $className copyWith() => $className();'
+      : '''
+  $className copyWith({
+$copyWithParams  }) => $className(
+$copyWithArgs  );''';
+
   return '''
 ${deprecatedAttr}final class $className implements JsonModel {
 $fields
-  const $className({
-$constructorParams  });
+$constructorStr
 
   factory $className.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as $className;
@@ -2531,9 +2710,7 @@ $constructorParams  });
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  $className copyWith({
-$copyWithParams  }) => $className(
-$copyWithArgs  );
+$copyWithStr
 
 $validationMethod
 
@@ -2548,7 +2725,7 @@ $descriptorString
 
   @override
   int get hashCode => Object.hashAll([
-        ${hashFields.join(',\n        ')}
+        ${hashExprs.join(',\n        ')}
       ]);
 
   @override
@@ -2975,7 +3152,7 @@ void _generateSchemaValidations(
     }
     if (real.uniqueItems == true) {
       validations.writeln(
-        '      if ($valueVar.length != $valueVar.toSet().length) {',
+        '      if ($valueVar.length != (LinkedHashSet<dynamic>(equals: const DeepCollectionEquality().equals, hashCode: const DeepCollectionEquality().hash)..addAll($valueVar)).length) {',
       );
       validations.writeln(
         "        throw JsonValidationException('Property \"$name\" items must be unique', ['$name']);",
@@ -3068,7 +3245,7 @@ void _generateSchemaValidations(
         .map((v) => _toDartLiteral(v, real, classNames))
         .join(', ');
     validations.writeln(
-      '      if (!const [$valuesLiterals].contains($valueVar)) {',
+      '      if (!const [$valuesLiterals].any((v) => const DeepCollectionEquality().equals(v, $valueVar))) {',
     );
     validations.writeln(
       "        throw JsonValidationException('Property \"$name\" must be one of ${real.values}', ['$name']);",
@@ -3277,7 +3454,24 @@ String _generateUnionClass(
 
     final descExpr = _descriptorExpr(sub, classNames);
 
-    final optDeprecatedAttr = sub.isDeprecated ? '@deprecated\n' : '';
+    final optDeprecatedAttr = sub.isDeprecated
+        ? (sub.deprecatedMessage != null
+              ? "@Deprecated('${sub.deprecatedMessage}')\n"
+              : '@deprecated\n')
+        : '';
+
+    final isColl =
+        optionType.startsWith('List') ||
+        optionType.startsWith('Map') ||
+        optionType == 'dynamic' ||
+        optionType == 'Object?';
+    final equalityExpr = isColl
+        ? 'const DeepCollectionEquality().equals(value, other.value)'
+        : 'value == other.value';
+    final hashExpr = isColl
+        ? 'const DeepCollectionEquality().hash(value)'
+        : 'value.hashCode';
+
     subclasses.writeln('''
 ${optDeprecatedAttr}final class $subClassName extends $className {
   final $optionType value;
@@ -3295,10 +3489,10 @@ $validationBody
       identical(this, other) ||
       other is $subClassName &&
           runtimeType == other.runtimeType &&
-          value == other.value;
+          $equalityExpr;
 
   @override
-  int get hashCode => value.hashCode;
+  int get hashCode => $hashExpr;
 
   @override
   String toString() => '$subClassName(value: \$value)';
@@ -3332,9 +3526,8 @@ $validationBody
       final subClassName = '${className}Option$i';
       final caseLabels = <String>[];
       if (disc.mapping != null) {
-        disc.mapping!.forEach((discVal, targetStr) {
-          final lastSegment = targetStr.split('/').last;
-          if (optionType.toLowerCase().endsWith(lastSegment.toLowerCase())) {
+        disc.mapping!.forEach((discVal, targetSchema) {
+          if (sub.realSchema == targetSchema.realSchema) {
             caseLabels.add(discVal);
           }
         });
@@ -3364,7 +3557,11 @@ $validationBody
 $optionDescriptors    ],
   );''';
 
-  final deprecatedAttr = schema.isDeprecated ? '@deprecated\n' : '';
+  final deprecatedAttr = schema.isDeprecated
+      ? (schema.deprecatedMessage != null
+            ? "@Deprecated('${schema.deprecatedMessage}')\n"
+            : '@deprecated\n')
+      : '';
   return '''
 ${deprecatedAttr}sealed class $className implements JsonModel {
   const $className();
@@ -3416,6 +3613,8 @@ Schema _copyWithMetadata(
   final hd = hasDefault ?? schema.hasDefault;
   final dv = defaultValue ?? schema.defaultValue;
   final n = not ?? schema.not;
+  final dn = schema.dartName;
+  final dm = schema.deprecatedMessage;
 
   return switch (schema) {
     ObjectSchema s => ObjectSchema(
@@ -3428,9 +3627,11 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
+      dartName: dn,
     ),
     ArraySchema s => ArraySchema(
       items: s.items,
@@ -3444,6 +3645,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3456,6 +3658,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3470,6 +3673,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3478,6 +3682,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3486,6 +3691,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3494,6 +3700,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3502,6 +3709,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3511,6 +3719,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3521,15 +3730,18 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
+      dartName: dn,
     ),
     AllOfSchema s => AllOfSchema(
       subschemas: s.subschemas,
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -3540,9 +3752,11 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
+      dartName: dn,
     ),
   };
 }
@@ -4059,13 +4273,13 @@ void _validateUnion(dynamic value, UnionSchema schema, List<String> path) {
 Schema? _findMatchingSchema(
   String discValue,
   List<Schema> subschemas,
-  Map<String, String>? mapping,
+  Map<String, Schema>? mapping,
 ) {
   if (mapping != null) {
-    final targetRef = mapping[discValue];
-    if (targetRef != null) {
+    final targetSchema = mapping[discValue];
+    if (targetSchema != null) {
       for (final sub in subschemas) {
-        if (sub is RefSchema && sub.ref == targetRef) {
+        if (sub.realSchema == targetSchema.realSchema) {
           return sub;
         }
       }

@@ -250,6 +250,101 @@
           ]
         }
       ]
+    },
+    "deprecatedFieldWithMessage": {
+      "type": "string",
+      "x-deprecated-message": "Use newAwesomeField instead"
+    },
+    "customNamedObject": {
+      "type": "object",
+      "x-dart-name": "MyCustomClassName",
+      "properties": {
+        "foo": { "type": "string" }
+      }
+    },
+    "customNamedUnion": {
+      "x-dart-name": "MyCustomUnionName",
+      "x-deprecated-message": "This union is deprecated, use MyCustomUnionName2",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "integer" }
+      ]
+    },
+    "customNamedEnum": {
+      "x-dart-name": "MyCustomEnumName",
+      "type": "string",
+      "enum": ["one", "two"]
+    },
+    "coverageTrigger": {
+      "type": "object",
+      "properties": {
+        "mergeArray": {
+          "allOf": [
+            { "type": "array", "items": { "type": "string" } },
+            {}
+          ]
+        },
+        "mergeString": {
+          "allOf": [
+            { "type": "string", "minLength": 2 },
+            { "type": "string", "maxLength": 10 }
+          ]
+        },
+        "mergeNumber": {
+          "allOf": [
+            { "type": "number", "minimum": 1 },
+            { "type": "number", "maximum": 10 }
+          ]
+        },
+        "mergeBoolean": {
+          "allOf": [
+            { "type": "boolean" },
+            {}
+          ]
+        },
+        "mergeNull": {
+          "allOf": [
+            { "type": "null" },
+            {}
+          ]
+        },
+        "mergeAnything": {
+          "allOf": [
+            {},
+            {}
+          ]
+        },
+        "mergeNever": {
+          "allOf": [
+            { "not": {} },
+            { "type": "string" }
+          ]
+        },
+        "mergeRef": {
+          "allOf": [
+            {},
+            { "$ref": "#/$defs/MapObject" }
+          ]
+        },
+        "mergeEnum": {
+          "allOf": [
+            { "type": "string", "enum": ["a", "b"] },
+            {}
+          ]
+        },
+        "mergeUnion": {
+          "allOf": [
+            { "oneOf": [ { "type": "string" }, { "type": "integer" } ] },
+            {}
+          ]
+        },
+        "mergeObjectsWithNoAdditional": {
+          "allOf": [
+            { "type": "object", "additionalProperties": false },
+            { "type": "object", "additionalProperties": false }
+          ]
+        }
+      }
     }
   },
   "required": ["name", "age", "isAwesome", "address"],
