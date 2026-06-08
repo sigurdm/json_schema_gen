@@ -1195,6 +1195,9 @@ FormatException wrapException(FormatException e, dynamic pathSegment) {
 abstract class JsonModel implements JsonWritable {
   /// Validates the model instance against schema constraints.
   void validate();
+
+  /// Converts the model to a JSON-compatible Dart value (Map, List, primitive, etc.).
+  Object? toJsonValue();
 }
 
 /// Exception thrown when schema validation fails.
@@ -2467,7 +2470,7 @@ String _generateObjectClass(
     getFieldsMap.writeln("      ...instance.additionalProperties,");
     final addPropsType = dartType(schema.additionalProperties!, classNames);
     final propKeysLiteral =
-        '{${schema.properties.keys.map((k) => "'$k'").join(', ')}}';
+        '<String>{${schema.properties.keys.map((k) => "'$k'").join(', ')}}';
     instantiateArgs.writeln(
       "        additionalProperties: fields.entries.where((e) => !const $propKeysLiteral.contains(e.key)).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),",
     );
@@ -2503,6 +2506,10 @@ $constructorParams  });
   factory $className.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as $className;
 
+  /// Creates an instance of [$className] from a JSON Map.
+  factory $className.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      $className.fromJson(JsonReader.fromObject(map), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -2512,6 +2519,17 @@ $constructorParams  });
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
   }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   $className copyWith({
 $copyWithParams  }) => $className(
@@ -3354,6 +3372,10 @@ ${deprecatedAttr}sealed class $className implements JsonModel {
   factory $className.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as $className;
 
+  /// Creates an instance of [$className] from a JSON-compatible Dart value.
+  factory $className.fromJsonValue(Object? value, {bool validate = true}) =>
+      $className.fromJson(JsonReader.fromObject(value), validate: validate);
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -3362,6 +3384,14 @@ ${deprecatedAttr}sealed class $className implements JsonModel {
     final buffer = StringBuffer();
     writeJson(jsonStringWriter(buffer));
     return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
   }
 
 $descriptorString

@@ -5,18 +5,43 @@
   "properties": {
     "id": { "type": "integer" },
     "name": { "type": "string", "minLength": 2 },
-    "email": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "age": { "type": "integer", "minimum": 0 },
     "role": {
       "type": "string",
-      "enum": ["admin", "editor", "user"]
+      "enum": ["admin", "editor", "user"],
+      "default": "user"
     },
     "profile": {
       "type": "object",
       "properties": {
-        "avatarUrl": { "type": "string" },
+        "avatarUrl": { "type": "string", "format": "uri" },
         "bio": { "type": "string" }
       }
-    }
+    },
+    "address": { "$ref": "#/$defs/Address" },
+    "tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "createdAt": { "type": "string", "format": "date-time" }
   },
-  "required": ["id", "name", "email", "role"]
+  "required": ["id", "name", "email"],
+  "$defs": {
+    "Address": {
+      "title": "Address",
+      "type": "object",
+      "properties": {
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "zipCode": { "type": "string", "pattern": "^[0-9]{5}$" }
+      },
+      "required": ["city"]
+    }
+  }
 }
