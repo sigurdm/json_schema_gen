@@ -36,6 +36,16 @@
         { "$ref": "#/$defs/Address" }
       ]
     },
+    "nullableUnionValue": {
+      "oneOf": [
+        { "type": "string" },
+        { "$ref": "#/$defs/Address" },
+        { "type": "null" }
+      ]
+    },
+    "requiredNullableUnionObject": {
+      "$ref": "#/$defs/RequiredNullableUnionObject"
+    },
     "nullableString": {
       "type": ["string", "null"]
     },
@@ -59,6 +69,26 @@
     "defaultString": {
       "type": "string",
       "default": "default value"
+    },
+    "defaultBackslash": {
+      "type": "string",
+      "default": "foo\\sbar"
+    },
+    "nestedArray": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/Address"
+        }
+      }
+    },
+    "single'quote'key": {
+      "type": "string"
+    },
+    "mixedEnum": {
+      "type": ["string", "integer"],
+      "enum": ["foo", 42, "bar", 100]
     },
     "defaultInt": {
       "type": "integer",
@@ -349,6 +379,20 @@
   },
   "required": ["name", "age", "isAwesome", "address"],
   "$defs": {
+    "RequiredNullableUnionObject": {
+      "title": "RequiredNullableUnionObject",
+      "type": "object",
+      "properties": {
+        "nullableUnion": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "integer" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": ["nullableUnion"]
+    },
     "ObjectWithDynamicProps": {
       "title": "ObjectWithDynamicProps",
       "type": "object",

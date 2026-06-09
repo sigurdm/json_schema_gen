@@ -48,11 +48,11 @@ Add `json_schema_gen` and `build_runner` to your `pubspec.yaml`:
 ```yaml
 dependencies:
   jsontool: ^2.1.0
+  json_schema_gen:
+    path: path/to/json_schema_gen # Or pub package when published
 
 dev_dependencies:
   build_runner: ^2.4.0
-  json_schema_gen:
-    path: path/to/json_schema_gen # Or pub package when published
 ```
 
 ### 1. Define your Schema
@@ -126,3 +126,13 @@ void main() {
   }
 }
 ```
+
+---
+
+## Performance & Implementation Characteristics
+
+The generator employs an **interpreted descriptor-based runtime strategy** combined with a non-recursive frame-based state machine.
+*   **Stack-Overflow Safety**: Deserialization does not use recursion. Deeply nested JSON payloads that would crash standard recursive parsers will parse safely without throwing stack overflow errors.
+*   **Overhead**: To achieve stack safety, the parser allocates state frames on the heap during traversal. This results in a performance penalty compared to standard recursive call-stack parsing:
+    *   Parsing with validation enabled is **~2.9x slower** than a raw recursive parser.
+    *   Parsing with validation disabled is **~1.15x slower**.

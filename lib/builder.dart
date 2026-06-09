@@ -3,9 +3,10 @@ import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:json_schema_gen/json_schema.dart';
+import 'package:path/path.dart' as p;
 
 /// A [Builder] that compiles JSON Schema files (.schema.json) to Dart models.
-class JsonSchemaBuilder implements Builder {
+final class JsonSchemaBuilder implements Builder {
   /// Default constructor.
   const JsonSchemaBuilder();
 
@@ -26,8 +27,19 @@ class JsonSchemaBuilder implements Builder {
     }
 
     // Parse the JSON Schema into our AST
-    final parser = SchemaParser(decoded);
-    final rootSchema = parser.parse();
+    final parser = SchemaParser(
+      decoded,
+      baseUri: inputId.pathSegments.last,
+      uriResolver: (uri) async {
+        final resolvedId = AssetId(
+          inputId.package,
+          p.normalize(p.join(p.dirname(inputId.path), uri)),
+        );
+        final content = await buildStep.readAsString(resolvedId);
+        return json.decode(content) as Map<String, dynamic>;
+      },
+    );
+    final rootSchema = await parser.parse();
 
     // Determine the root name based on the schema title or the file name
     final baseName = inputId.pathSegments.last.replaceAll('.schema.json', '');
@@ -49,13 +61,7 @@ class JsonSchemaBuilder implements Builder {
       formattedCode = generatedCode;
     }
 
-    final path = inputId.path;
-    if (!path.endsWith('.schema.json')) {
-      throw ArgumentError('Input must end with .schema.json');
-    }
-    final outputPath =
-        path.substring(0, path.length - '.schema.json'.length) + '.g.dart';
-    final outputId = AssetId(inputId.package, outputPath);
+    final outputId = buildStep.allowedOutputs.single;
     await buildStep.writeAsString(outputId, formattedCode);
   }
 }

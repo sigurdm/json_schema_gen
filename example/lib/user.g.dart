@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
 
 import 'dart:collection';
 import 'package:collection/collection.dart';
@@ -175,17 +175,20 @@ final class User implements JsonModel {
       preferences: fields['preferences'] as UserPreferences?,
       createdAt: fields['createdAt'] as String?,
     ),
-    getFields: (instance) => {
-      'id': instance.id,
-      'name': instance.name,
-      'email': instance.email,
-      'age': instance.age,
-      'role': instance.role,
-      'profile': instance.profile,
-      'address': instance.address,
-      'tags': instance.tags,
-      'preferences': instance.preferences,
-      'createdAt': instance.createdAt,
+    getFields: (instance) {
+      final typedInstance = instance as User;
+      return {
+        'id': typedInstance.id,
+        'name': typedInstance.name,
+        'email': typedInstance.email,
+        'age': typedInstance.age,
+        'role': typedInstance.role,
+        'profile': typedInstance.profile,
+        'address': typedInstance.address,
+        'tags': typedInstance.tags,
+        'preferences': typedInstance.preferences,
+        'createdAt': typedInstance.createdAt,
+      };
     },
     properties: {
       'id': PropertyDescriptor(
@@ -354,9 +357,9 @@ final class UserProfile implements JsonModel {
       avatarUrl: fields['avatarUrl'] as String?,
       bio: fields['bio'] as String?,
     ),
-    getFields: (instance) => {
-      'avatarUrl': instance.avatarUrl,
-      'bio': instance.bio,
+    getFields: (instance) {
+      final typedInstance = instance as UserProfile;
+      return {'avatarUrl': typedInstance.avatarUrl, 'bio': typedInstance.bio};
     },
     properties: {
       'avatarUrl': PropertyDescriptor(
@@ -433,7 +436,7 @@ final class Address implements JsonModel {
     final val_street = street;
     final val_zipCode = zipCode;
     if (val_zipCode != null) {
-      if (!RegExp(r'^[0-9]{5}$').hasMatch(val_zipCode)) {
+      if (!RegExp('^[0-9]{5}\$').hasMatch(val_zipCode)) {
         throw JsonValidationException(
           'Property "zipCode" must match pattern "^[0-9]{5}\$"',
           ['zipCode'],
@@ -450,10 +453,13 @@ final class Address implements JsonModel {
       city: fields['city'] as String,
       zipCode: fields['zipCode'] as String?,
     ),
-    getFields: (instance) => {
-      'street': instance.street,
-      'city': instance.city,
-      'zipCode': instance.zipCode,
+    getFields: (instance) {
+      final typedInstance = instance as Address;
+      return {
+        'street': typedInstance.street,
+        'city': typedInstance.city,
+        'zipCode': typedInstance.zipCode,
+      };
     },
     properties: {
       'street': PropertyDescriptor(
@@ -547,7 +553,10 @@ final class UserPreferences implements JsonModel {
             (m, e) => m..[e.key] = e.value as String,
           ),
     ),
-    getFields: (instance) => {...instance.additionalProperties},
+    getFields: (instance) {
+      final typedInstance = instance as UserPreferences;
+      return {...typedInstance.additionalProperties};
+    },
     properties: {},
     required: const [],
     additionalProperties: const StringDescriptor(),

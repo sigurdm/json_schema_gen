@@ -420,13 +420,22 @@ final class UnionAnalysis {
 final class SchemaParser {
   final Map<String, Schema> _cache = {};
   final Map<String, dynamic> _rootJson;
+  final String baseUri;
+  final Future<Map<String, dynamic>> Function(String uri)? uriResolver;
+  final Set<String> _loadedFiles = {};
 
   /// Creates a parser for the given [rootJson] schema definition.
-  SchemaParser(Map<String, dynamic> rootJson) : _rootJson = rootJson;
+  SchemaParser(
+    Map<String, dynamic> rootJson, {
+    this.baseUri = '',
+    this.uriResolver,
+  }) : _rootJson = rootJson {
+    _loadedFiles.add(baseUri);
+  }
 
   /// Parses the schema structure and resolves all internal references.
-  Schema parse() {
-    final root = _parseSchema(_rootJson, '#');
+  Future<Schema> parse() async {
+    final root = await _parseSchema(_rootJson, '$baseUri#');
     _resolveRefs(root);
     final flattenedRoot = _flatten(root);
 
@@ -436,15 +445,27 @@ final class SchemaParser {
       _cache[key] = _flatten(_cache[key]!);
     }
 
+    _updateResolvedRefs(flattenedRoot);
+    for (final key in _cache.keys) {
+      _updateResolvedRefs(_cache[key]!);
+    }
+
     return flattenedRoot;
   }
 
-  Schema _parseSchema(dynamic json, String path) {
+  String _getFileUri(String path) {
+    return path.split('#')[0];
+  }
+
+  Future<Schema> _parseSchema(dynamic json, String path) async {
     if (path.isNotEmpty && _cache.containsKey(path)) {
       return _cache[path]!;
     }
 
     if (json is! Map) {
+      if (json == false) {
+        return const NeverSchema();
+      }
       return const AnythingSchema();
     }
 
@@ -456,25 +477,44 @@ final class SchemaParser {
     final hasDefault = json.containsKey('default');
     final defaultValue = json['default'];
     final notJson = json['not'];
-    final not = notJson != null ? _parseSchema(notJson, '$path/not') : null;
+    final not = notJson != null
+        ? await _parseSchema(notJson, '$path/not')
+        : null;
     final dartName = json['x-dart-name'] as String?;
 
     // Parse definitions under local scopes BEFORE ref check
     if (json[r'$defs'] is Map) {
-      (json[r'$defs'] as Map).forEach((key, value) {
-        _parseSchema(value, '$path/\$defs/$key');
-      });
+      for (final entry in (json[r'$defs'] as Map).entries) {
+        await _parseSchema(entry.value, '$path/\$defs/${entry.key}');
+      }
     }
     if (json['definitions'] is Map) {
-      (json['definitions'] as Map).forEach((key, value) {
-        _parseSchema(value, '$path/definitions/$key');
-      });
+      for (final entry in (json['definitions'] as Map).entries) {
+        await _parseSchema(entry.value, '$path/definitions/${entry.key}');
+      }
     }
 
     if (json.containsKey(r'$ref')) {
       final ref = json[r'$ref'] as String;
+      final currentFile = _getFileUri(path);
+      final resolvedRefUri = Uri.parse(currentFile).resolve(ref).toString();
+
+      final refFile = _getFileUri(resolvedRefUri);
+      if (refFile != currentFile && refFile.isNotEmpty) {
+        if (!_loadedFiles.contains(refFile)) {
+          _loadedFiles.add(refFile);
+          if (uriResolver == null) {
+            throw ArgumentError(
+              'Cannot resolve external ref $ref because no uriResolver was provided.',
+            );
+          }
+          final externalJson = await uriResolver!(refFile);
+          await _parseSchema(externalJson, '$refFile#');
+        }
+      }
+
       final refSchema = RefSchema(
-        ref,
+        resolvedRefUri,
         title: title,
         description: description,
         isDeprecated: isDeprecated,
@@ -492,7 +532,7 @@ final class SchemaParser {
     if (json.containsKey('const')) {
       final constValue = json['const'];
       final jsonWithoutConst = Map<String, dynamic>.from(json)..remove('const');
-      final baseSchema = _parseSchema(jsonWithoutConst, '$path/base');
+      final baseSchema = await _parseSchema(jsonWithoutConst, '$path/base');
       final schema = EnumSchema(
         values: [constValue],
         baseSchema: baseSchema,
@@ -514,7 +554,7 @@ final class SchemaParser {
     if (json.containsKey('enum')) {
       final enumValues = (json['enum'] as List).toList();
       final jsonWithoutEnum = Map<String, dynamic>.from(json)..remove('enum');
-      final baseSchema = _parseSchema(jsonWithoutEnum, '$path/base');
+      final baseSchema = await _parseSchema(jsonWithoutEnum, '$path/base');
       final schema = EnumSchema(
         values: enumValues,
         baseSchema: baseSchema,
@@ -541,8 +581,13 @@ final class SchemaParser {
         final propName = discMap['propertyName'] as String?;
         if (propName != null) {
           final mappingJson = discMap['mapping'] as Map?;
+          final currentFile = _getFileUri(path);
           final mapping = mappingJson?.map(
-            (k, v) => MapEntry(k as String, RefSchema(v as String) as Schema),
+            (k, v) => MapEntry(
+              k as String,
+              RefSchema(Uri.parse(currentFile).resolve(v as String).toString())
+                  as Schema,
+            ),
           );
           return Discriminator(propertyName: propName, mapping: mapping);
         }
@@ -552,11 +597,11 @@ final class SchemaParser {
 
     if (json.containsKey('allOf')) {
       final list = json['allOf'] as List;
-      final subschemas = list
-          .asMap()
-          .entries
-          .map((e) => _parseSchema(e.value, '$path/allOf/${e.key}'))
-          .toList();
+      final subschemas = await Future.wait(
+        list.asMap().entries.map(
+          (e) => _parseSchema(e.value, '$path/allOf/${e.key}'),
+        ),
+      );
 
       final copy = Map<String, dynamic>.from(json);
       copy.remove('allOf');
@@ -568,7 +613,7 @@ final class SchemaParser {
       copy.remove('definitions');
 
       if (copy.isNotEmpty) {
-        final restSchema = _parseSchema(copy, '$path/rest');
+        final restSchema = await _parseSchema(copy, '$path/rest');
         if (restSchema is! AnythingSchema) {
           subschemas.add(restSchema);
         }
@@ -586,11 +631,11 @@ final class SchemaParser {
       );
     } else if (json.containsKey('oneOf')) {
       final list = json['oneOf'] as List;
-      final subschemas = list
-          .asMap()
-          .entries
-          .map((e) => _parseSchema(e.value, '$path/oneOf/${e.key}'))
-          .toList();
+      final subschemas = await Future.wait(
+        list.asMap().entries.map(
+          (e) => _parseSchema(e.value, '$path/oneOf/${e.key}'),
+        ),
+      );
       schema = UnionSchema(
         subschemas: subschemas,
         discriminator: parseDiscriminator(json),
@@ -605,11 +650,11 @@ final class SchemaParser {
       );
     } else if (json.containsKey('anyOf')) {
       final list = json['anyOf'] as List;
-      final subschemas = list
-          .asMap()
-          .entries
-          .map((e) => _parseSchema(e.value, '$path/anyOf/${e.key}'))
-          .toList();
+      final subschemas = await Future.wait(
+        list.asMap().entries.map(
+          (e) => _parseSchema(e.value, '$path/anyOf/${e.key}'),
+        ),
+      );
       schema = UnionSchema(
         subschemas: subschemas,
         discriminator: parseDiscriminator(json),
@@ -625,10 +670,12 @@ final class SchemaParser {
     } else {
       final typeVal = json['type'];
       if (typeVal is List) {
-        final subschemas = typeVal.map((t) {
-          final singleJson = Map<String, dynamic>.from(json)..['type'] = t;
-          return _parseSchema(singleJson, '$path/type/$t');
-        }).toList();
+        final subschemas = await Future.wait(
+          typeVal.map((t) {
+            final singleJson = Map<String, dynamic>.from(json)..['type'] = t;
+            return _parseSchema(singleJson, '$path/type/$t');
+          }),
+        );
         schema = UnionSchema(
           subschemas: subschemas,
           title: title,
@@ -668,9 +715,12 @@ final class SchemaParser {
           case 'object':
             final properties = <String, Schema>{};
             if (json['properties'] is Map) {
-              (json['properties'] as Map).forEach((key, value) {
-                properties[key] = _parseSchema(value, '$path/properties/$key');
-              });
+              for (final entry in (json['properties'] as Map).entries) {
+                properties[entry.key as String] = await _parseSchema(
+                  entry.value,
+                  '$path/properties/${entry.key}',
+                );
+              }
             }
             final required =
                 (json['required'] as List?)?.cast<String>().toSet() ?? {};
@@ -683,7 +733,7 @@ final class SchemaParser {
                 additionalProperties = const AnythingSchema();
               }
             } else if (addPropsVal is Map) {
-              additionalProperties = _parseSchema(
+              additionalProperties = await _parseSchema(
                 addPropsVal,
                 '$path/additionalProperties',
               );
@@ -718,7 +768,7 @@ final class SchemaParser {
           case 'array':
             final itemsJson = json['items'];
             final items = itemsJson != null
-                ? _parseSchema(itemsJson, '$path/items')
+                ? await _parseSchema(itemsJson, '$path/items')
                 : const AnythingSchema();
 
             final prefixItemsJson = json['prefixItems'];
@@ -727,14 +777,17 @@ final class SchemaParser {
               prefixItems = [];
               for (var i = 0; i < prefixItemsJson.length; i++) {
                 prefixItems.add(
-                  _parseSchema(prefixItemsJson[i], '$path/prefixItems/$i'),
+                  await _parseSchema(
+                    prefixItemsJson[i],
+                    '$path/prefixItems/$i',
+                  ),
                 );
               }
             }
 
             final containsJson = json['contains'];
             final contains = containsJson != null
-                ? _parseSchema(containsJson, '$path/contains')
+                ? await _parseSchema(containsJson, '$path/contains')
                 : null;
             schema = ArraySchema(
               items: items,
@@ -877,6 +930,36 @@ final class SchemaParser {
     _cache.values.forEach(visit);
   }
 
+  void _updateResolvedRefs(Schema root) {
+    final visited = <Schema>{};
+    void visit(Schema s) {
+      if (!visited.add(s)) return;
+      if (s is RefSchema) {
+        if (s.resolved != null) {
+          s.resolved = _flattenCache[s.resolved] ?? s.resolved;
+          visit(s.resolved!);
+        }
+      }
+      if (s is ObjectSchema) {
+        s.properties.values.forEach(visit);
+        if (s.additionalProperties != null) visit(s.additionalProperties!);
+      } else if (s is ArraySchema) {
+        visit(s.items);
+        s.prefixItems?.forEach(visit);
+        if (s.contains != null) visit(s.contains!);
+      } else if (s is UnionSchema) {
+        s.subschemas.forEach(visit);
+        if (s.discriminator?.mapping != null) {
+          s.discriminator!.mapping!.values.forEach(visit);
+        }
+      } else if (s is AllOfSchema) {
+        s.subschemas.forEach(visit);
+      }
+    }
+
+    visit(root);
+  }
+
   final Map<Schema, Schema> _flattenCache = {};
 
   Schema _flatten(Schema schema) {
@@ -891,6 +974,9 @@ final class SchemaParser {
       }
       return schema;
     }
+
+    // Cache the schema as itself initially to handle cyclic references
+    _flattenCache[schema] = schema;
 
     if (schema is ObjectSchema) {
       var changed = false;
@@ -1341,7 +1427,10 @@ String toCamelCase(String text) {
       .skip(1)
       .map((s) => s[0].toUpperCase() + s.substring(1))
       .join('');
-  final candidate = '$first$rest';
+  var candidate = '$first$rest';
+  if (RegExp(r'^[0-9]').hasMatch(candidate)) {
+    candidate = 'value$candidate';
+  }
 
   if (_dartKeywords.contains(candidate) ||
       _reservedMemberNames.contains(candidate)) {
@@ -1470,7 +1559,7 @@ String dartType(Schema schema, Map<Schema, String> classNames) {
     }
     final name = classNames[real];
     if (name == null) return 'dynamic';
-    return name;
+    return analysis.isNullable ? '$name?' : name;
   } else if (real is EnumSchema) {
     return classNames[real] ?? 'dynamic';
   } else if (real is NeverSchema) {
@@ -1605,9 +1694,13 @@ class NullDescriptor extends PrimitiveDescriptor<Null> {
 }
 
 /// Descriptor representing any JSON value (`AnythingSchema`).
-class AnythingDescriptor extends SchemaDescriptor<dynamic> {
+class AnythingDescriptor extends PrimitiveDescriptor<dynamic> {
   /// Const constructor.
   const AnythingDescriptor();
+  @override
+  dynamic read(JsonReader reader) => readAny(reader);
+  @override
+  void write(JsonSink sink, dynamic value) => writeAny(sink, value);
 }
 
 /// Descriptor representing a schema that never validates successfully.
@@ -1636,7 +1729,7 @@ class ArrayDescriptor<T> extends SchemaDescriptor<List<T>> {
   /// Creates an [ArrayDescriptor].
   const ArrayDescriptor(this.items, {this.prefixItems});
 
-  _JsonParseFrame createFrame({required bool validate}) =>
+  _JsonParseFrame _createFrame({required bool validate}) =>
       _ArrayFrame<T>(this, validate: validate);
 }
 
@@ -1669,7 +1762,7 @@ class UnionOptionDescriptor<T, V> {
   final SchemaDescriptor<V> schema;
 
   /// Function to wrap the parsed option value into union type [T].
-  final T Function(V val) wrap;
+  final T Function(dynamic val) wrap;
 
   /// Creates a [UnionOptionDescriptor].
   const UnionOptionDescriptor(this.schema, this.wrap);
@@ -1937,7 +2030,7 @@ void _pushSchemaFrame(
   } else if (schema is ObjectDescriptor) {
     stack.add(_ObjectFrame(schema, validate: validate));
   } else if (schema is ArrayDescriptor) {
-    stack.add(schema.createFrame(validate: validate));
+    stack.add(schema._createFrame(validate: validate));
   } else if (schema is UnionDescriptor) {
     stack.add(_UnionFrame(schema, validate: validate));
   } else if (schema is NeverDescriptor) {
@@ -1963,8 +2056,6 @@ dynamic _runNonRecursiveWithDescriptor(
   }
   if (rootSchema is PrimitiveDescriptor) {
     return rootSchema.read(reader);
-  } else if (rootSchema is AnythingDescriptor) {
-    return readAny(reader);
   } else if (rootSchema is EnumDescriptor) {
     final val = rootSchema.base.read(reader);
     try {
@@ -2016,7 +2107,7 @@ _JsonParseFrame _createFrameForSchema(
   if (schema is ObjectDescriptor) {
     return _ObjectFrame(schema, validate: validate);
   } else if (schema is ArrayDescriptor) {
-    return schema.createFrame(validate: validate);
+    return schema._createFrame(validate: validate);
   } else if (schema is UnionDescriptor) {
     return _UnionFrame(schema, validate: validate);
   }
@@ -2107,8 +2198,6 @@ void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
   }
   if (schema is PrimitiveDescriptor) {
     schema.write(sink, value);
-  } else if (schema is AnythingDescriptor) {
-    writeAny(sink, value);
   } else if (schema is EnumDescriptor) {
     final backingVal = schema.toValue(value);
     schema.base.write(sink, backingVal);
@@ -2258,7 +2347,7 @@ String generateCode(Schema rootSchema, String rootName) {
   final buffer = StringBuffer();
   buffer.writeln('''
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
 
 import 'dart:collection';
 import 'package:collection/collection.dart';
@@ -2287,14 +2376,19 @@ String _toEnumConstantName(Object? val) {
   return enumName;
 }
 
+String _enumBackingType(EnumSchema schema) {
+  final isString = schema.values.every((v) => v is String);
+  final isInt = schema.values.every((v) => v is int);
+  return isString ? 'String' : (isInt ? 'int' : 'dynamic');
+}
+
 /// Generates a Dart enum class representation for an EnumSchema.
 String _generateEnumClass(EnumSchema schema, String className) {
   final buffer = StringBuffer();
 
-  // Detect backing type
-  final isString = schema.values.every((v) => v is String);
-  final isInt = schema.values.every((v) => v is int);
-  final backingType = isString ? 'String' : (isInt ? 'int' : 'dynamic');
+  final backingType = _enumBackingType(schema);
+  final isString = backingType == 'String';
+  final isInt = backingType == 'int';
 
   if (schema.isDeprecated) {
     if (schema.deprecatedMessage != null) {
@@ -2306,7 +2400,7 @@ String _generateEnumClass(EnumSchema schema, String className) {
   buffer.writeln('enum $className {');
   for (final val in schema.values) {
     final enumName = _toEnumConstantName(val);
-    final formattedValue = isString ? "'$val'" : '$val';
+    final formattedValue = _toBasicDartLiteral(val);
     buffer.writeln("  $enumName($formattedValue),");
   }
   buffer.writeln(';');
@@ -2409,6 +2503,30 @@ bool _isNullable(
   return type.endsWith('?') || type == 'dynamic' || type == 'Object?';
 }
 
+String _toBasicDartLiteral(Object? value) {
+  if (value == null) return 'null';
+  if (value is String) {
+    return "'${value.replaceAll(r'\', r'\\').replaceAll("'", r"\'")}'";
+  }
+  if (value is num || value is bool) {
+    return value.toString();
+  }
+  if (value is List) {
+    final elements = value.map(_toBasicDartLiteral).join(', ');
+    return 'const [$elements]';
+  }
+  if (value is Map) {
+    final entries = value.entries
+        .map(
+          (e) =>
+              "'${e.key.toString().replaceAll("'", r"\'")}': ${_toBasicDartLiteral(e.value)}",
+        )
+        .join(', ');
+    return 'const {$entries}';
+  }
+  throw ArgumentError('Unsupported value type: ${value.runtimeType}');
+}
+
 String? _toDartLiteral(
   Object? value,
   Schema schema,
@@ -2426,7 +2544,7 @@ String? _toDartLiteral(
   }
   if (value == null) return 'null';
   if (value is String) {
-    return "'${value.replaceAll("'", r"\'")}'";
+    return "'${value.replaceAll(r'\', r'\\').replaceAll("'", r"\'")}'";
   }
   if (value is num || value is bool) {
     return value.toString();
@@ -2533,8 +2651,9 @@ String _generateObjectClass(
       constructorParams.writeln('    this.$fieldName,');
     }
 
-    final copyWithType =
-        (baseType.endsWith('?') || baseType == 'Null') ? baseType : '$baseType?';
+    final copyWithType = (baseType.endsWith('?') || baseType == 'Null')
+        ? baseType
+        : '$baseType?';
     copyWithParams.writeln('    $copyWithType $fieldName,');
     copyWithArgs.writeln('    $fieldName: $fieldName ?? this.$fieldName,');
 
@@ -2592,13 +2711,14 @@ String _generateObjectClass(
 
   schema.properties.forEach((name, propSchema) {
     final fieldName = toCamelCase(name);
+    final nameEscaped = name.replaceAll("'", r"\'");
     final isRequired = schema.required.contains(name);
     final descExpr = _descriptorExpr(propSchema, classNames);
 
     propDescriptors.writeln(
-      "      '$name': PropertyDescriptor(name: '$name', isRequired: $isRequired, schema: $descExpr),",
+      "      '$nameEscaped': PropertyDescriptor(name: '$nameEscaped', isRequired: $isRequired, schema: $descExpr),",
     );
-    getFieldsMap.writeln("      '$name': instance.$fieldName,");
+    getFieldsMap.writeln("      '$nameEscaped': typedInstance.$fieldName,");
 
     final baseType = dartType(propSchema, classNames);
     final hasDefault = propSchema.hasDefault;
@@ -2615,24 +2735,24 @@ String _generateObjectClass(
 
     if (isRequired) {
       instantiateArgs.writeln(
-        "        $fieldName: fields['$name'] as $baseType,",
+        "        $fieldName: fields['$nameEscaped'] as $baseType,",
       );
     } else if (defaultLiteral != null) {
       instantiateArgs.writeln(
-        "        $fieldName: fields.containsKey('$name') ? fields['$name'] as $fieldType : $defaultLiteral,",
+        "        $fieldName: fields.containsKey('$nameEscaped') ? fields['$nameEscaped'] as $fieldType : $defaultLiteral,",
       );
     } else {
       instantiateArgs.writeln(
-        "        $fieldName: fields['$name'] as $fieldType,",
+        "        $fieldName: fields['$nameEscaped'] as $fieldType,",
       );
     }
   });
 
   if (hasAdditionalProps) {
-    getFieldsMap.writeln("      ...instance.additionalProperties,");
+    getFieldsMap.writeln("      ...typedInstance.additionalProperties,");
     final addPropsType = dartType(schema.additionalProperties!, classNames);
     final propKeysLiteral =
-        '<String>{${schema.properties.keys.map((k) => "'$k'").join(', ')}}';
+        '<String>{${schema.properties.keys.map((k) => "'${k.replaceAll("'", r"\'")}'").join(', ')}}';
     instantiateArgs.writeln(
       "        additionalProperties: fields.entries.where((e) => !const $propKeysLiteral.contains(e.key)).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),",
     );
@@ -2650,11 +2770,14 @@ String _generateObjectClass(
     matches: (instance) => instance is $className,
     instantiate: (fields) => $className(
 $instantiateArgs    ),
-    getFields: (instance) => {
-$getFieldsMap    },
+    getFields: (instance) {
+      final typedInstance = instance as $className;
+      return {
+$getFieldsMap      };
+    },
     properties: {
 $propDescriptors    },
-    required: const [${schema.required.map((r) => "'$r'").join(', ')}],
+    required: const [${schema.required.map((r) => "'${r.replaceAll("'", r"\'")}'").join(', ')}],
     ${addPropsExpr != null ? 'additionalProperties: $addPropsExpr,' : ''}
   );''';
 
@@ -2757,9 +2880,12 @@ String _generateMatchBlock(
       );
     }
     if (real.pattern != null) {
-      final patternEscaped = real.pattern!.replaceAll("'", r"\'");
+      final patternEscaped = real.pattern!
+          .replaceAll(r'\', r'\\')
+          .replaceAll(r'$', r'\$')
+          .replaceAll("'", r"\'");
       buffer.writeln(
-        '      if (!RegExp(r\'$patternEscaped\').hasMatch($valueVar)) $resultVar = false;',
+        '      if (!RegExp(\'$patternEscaped\').hasMatch($valueVar)) $resultVar = false;',
       );
     }
     if (real.format != null) {
@@ -2846,11 +2972,18 @@ String _generateMatchBlock(
     buffer.writeln('    }');
   } else if (real is EnumSchema) {
     final className = classNames[real]!;
+    final backingType = _enumBackingType(real);
     buffer.writeln('    if ($valueVar is $className) {');
     buffer.writeln('      $resultVar = true;');
     buffer.writeln('    } else {');
     buffer.writeln('      try {');
-    buffer.writeln('        $className.fromValue($valueVar);');
+    if (backingType != 'dynamic') {
+      buffer.writeln(
+        '        $className.fromValue($valueVar as $backingType);',
+      );
+    } else {
+      buffer.writeln('        $className.fromValue($valueVar);');
+    }
     buffer.writeln('        $resultVar = true;');
     buffer.writeln('      } catch (_) {}');
     buffer.writeln('    }');
@@ -3001,14 +3134,17 @@ String _generateValidationMethod(
     final addSchema = schema.additionalProperties!;
     final hasAddValidation = _hasValidationMethod(addSchema);
     if (hasAddValidation) {
-      buffer.writeln('''
-    additionalProperties.forEach((key, value) {
-      try {
-        value.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [key, ...e.path]);
-      }
-    });''');
+      buffer.writeln('    additionalProperties.forEach((key, value) {');
+      _generateArrayItemValidation(
+        buffer,
+        addSchema,
+        'value',
+        r'$key',
+        [r'$key'],
+        0,
+        classNames,
+      );
+      buffer.writeln('    });');
     } else {
       final validations = StringBuffer();
       _generateSchemaValidations(
@@ -3029,6 +3165,47 @@ String _generateValidationMethod(
 
   buffer.writeln('  }');
   return buffer.toString();
+}
+
+void _generateArrayItemValidation(
+  StringBuffer validations,
+  Schema itemSchema,
+  String valueVar,
+  String name,
+  List<String> path,
+  int depth,
+  Map<Schema, String> classNames,
+) {
+  final real = itemSchema.realSchema;
+  if (real is ObjectSchema || real is UnionSchema) {
+    validations.writeln('''
+        try {
+          $valueVar.validate();
+        } on JsonValidationException catch (e) {
+          throw JsonValidationException(e.message, [${path.map((p) => "'$p'").join(', ')}, ...e.path]);
+        }''');
+  } else if (real is ArraySchema) {
+    final itemVar = 'item$depth';
+    final indexVar = 'i$depth';
+    final hasItemValidation = _hasValidationMethod(real.items);
+    if (hasItemValidation) {
+      final startIndex = real.prefixItems?.length ?? 0;
+      validations.writeln(
+        '        for (var $indexVar = $startIndex; $indexVar < $valueVar.length; $indexVar++) {',
+      );
+      validations.writeln('          final $itemVar = $valueVar[$indexVar];');
+      _generateArrayItemValidation(
+        validations,
+        real.items,
+        itemVar,
+        name,
+        [...path, '[\\\$${indexVar}]'],
+        depth + 1,
+        classNames,
+      );
+      validations.writeln('        }');
+    }
+  }
 }
 
 void _generateSchemaValidations(
@@ -3064,13 +3241,17 @@ void _generateSchemaValidations(
       validations.writeln('      }');
     }
     if (real.pattern != null) {
-      final patternEscaped = real.pattern!.replaceAll("'", r"\'");
+      final patternEscaped = real.pattern!
+          .replaceAll(r'\', r'\\')
+          .replaceAll(r'$', r'\$')
+          .replaceAll("'", r"\'");
       final msgPatternEscaped = real.pattern!
+          .replaceAll(r'\', r'\\')
           .replaceAll(r'$', r'\$')
           .replaceAll("'", r"\'")
           .replaceAll('"', '\\"');
       validations.writeln('''
-      if (!RegExp(r'$patternEscaped').hasMatch($valueVar)) {
+      if (!RegExp('$patternEscaped').hasMatch($valueVar)) {
         throw JsonValidationException('Property "$name" must match pattern "$msgPatternEscaped"', ['$name']);
       }''');
     }
@@ -3191,28 +3372,36 @@ void _generateSchemaValidations(
       for (var i = 0; i < real.prefixItems!.length; i++) {
         final prefixSchema = real.prefixItems![i];
         if (_hasValidationMethod(prefixSchema)) {
-          validations.writeln('''
-      if ($valueVar.length > $i) {
-        try {
-          $valueVar[$i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, ['$name', '[$i]', ...e.path]);
-        }
-      }''');
+          validations.writeln('      if ($valueVar.length > $i) {');
+          _generateArrayItemValidation(
+            validations,
+            prefixSchema,
+            '$valueVar[$i]',
+            name,
+            [name, '[$i]'],
+            0,
+            classNames,
+          );
+          validations.writeln('      }');
         }
       }
     }
     final hasItemValidation = _hasValidationMethod(real.items);
     if (hasItemValidation) {
       final startIndex = real.prefixItems?.length ?? 0;
-      validations.writeln('''
-      for (var i = $startIndex; i < $valueVar.length; i++) {
-        try {
-          $valueVar[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, ['$name', '[\$i]', ...e.path]);
-        }
-      }''');
+      validations.writeln(
+        '      for (var i = $startIndex; i < $valueVar.length; i++) {',
+      );
+      _generateArrayItemValidation(
+        validations,
+        real.items,
+        '$valueVar[i]',
+        name,
+        [name, r'[\$i]'],
+        0,
+        classNames,
+      );
+      validations.writeln('      }');
     }
   } else if (real is BooleanSchema) {
     if (checkType) {
@@ -3513,8 +3702,9 @@ $validationBody
   for (final sub in analysis.activeSchemas) {
     final subClassName = '${className}Option$i';
     final descExpr = _descriptorExpr(sub, classNames);
+    final optionType = dartType(sub, classNames);
     optionDescriptors.writeln(
-      "      UnionOptionDescriptor<$className, dynamic>($descExpr, (val) => $subClassName(val)),",
+      "      UnionOptionDescriptor<$className, $optionType>($descExpr, (val) => $subClassName(val as $optionType)),",
     );
     i++;
   }
@@ -3540,7 +3730,7 @@ $validationBody
 
       for (final label in caseLabels.toSet()) {
         mappingEntries.writeln(
-          "      '$label': UnionOptionDescriptor<$className, dynamic>(${_descriptorExpr(sub, classNames)}, (val) => $subClassName(val)),",
+          "      '$label': UnionOptionDescriptor<$className, $optionType>(${_descriptorExpr(sub, classNames)}, (val) => $subClassName(val as $optionType)),",
         );
       }
       i++;
@@ -3845,9 +4035,12 @@ extension SchemaValidationExtension on Schema {
 /// The returned function takes a decoded JSON value (like [Map], [List],
 /// [String], [num], [bool], or `null`) and validates it.
 /// It throws [JsonValidationException] if validation fails.
-void Function(dynamic) createValidator(Map<String, dynamic> schema) {
-  final parser = SchemaParser(schema);
-  final parsedSchema = parser.parse();
+Future<void Function(dynamic)> createValidator(
+  Map<String, dynamic> schema, {
+  Future<Map<String, dynamic>> Function(String uri)? uriResolver,
+}) async {
+  final parser = SchemaParser(schema, uriResolver: uriResolver);
+  final parsedSchema = await parser.parse();
   return parsedSchema.validate;
 }
 

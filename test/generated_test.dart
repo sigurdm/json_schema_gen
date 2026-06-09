@@ -827,6 +827,59 @@ void main() {
         ),
       );
     });
+    test('nested array validation - success', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'nestedArray': [
+          [
+            {'city': 'Paris'},
+            {'city': 'Berlin'},
+          ],
+          [
+            {'city': 'Rome'},
+          ],
+        ],
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.nestedArray![0][0].city, 'Paris');
+      expect(model.nestedArray![1][0].city, 'Rome');
+    });
+
+    test('nested array validation - failure', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'nestedArray': [
+          [
+            {'city': 'Paris'},
+            {'city': 'Lo'}, // Invalid city (length < 3)
+          ],
+        ],
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having(
+                (e) => e.message,
+                'message',
+                'Property "city" length must be >= 3',
+              )
+              .having((e) => e.path, 'path', [
+                'nestedArray',
+                '[0]',
+                '[1]',
+                'city',
+              ]),
+        ),
+      );
+    });
+
     test('deprecated fields serialization and parsing', () {
       final jsonObject = {
         'name': 'John',

@@ -294,7 +294,7 @@ void main() {
       );
     });
 
-    test('SchemaParser handles recursive schema (nested cycle)', () {
+    test('SchemaParser handles recursive schema (nested cycle)', () async {
       final jsonSchema = {
         'definitions': {
           'A': {
@@ -313,7 +313,7 @@ void main() {
         r'$ref': '#/definitions/A',
       };
       final parser = SchemaParser(jsonSchema);
-      final schema = parser.parse();
+      final schema = await parser.parse();
       expect(schema, isNotNull);
       final objectSchema = schema.realSchema as ObjectSchema;
       final propB = objectSchema.properties['b']!;
@@ -324,7 +324,7 @@ void main() {
 
     test(
       'SchemaParser handles direct cyclic reference and realSchema throws',
-      () {
+      () async {
         final jsonSchema = {
           'definitions': {
             'A': {r'$ref': '#/definitions/B'},
@@ -333,7 +333,7 @@ void main() {
           r'$ref': '#/definitions/A',
         };
         final parser = SchemaParser(jsonSchema);
-        final schema = parser.parse();
+        final schema = await parser.parse();
         expect(schema, isNotNull);
         expect(() => schema.realSchema, throwsStateError);
       },
@@ -358,6 +358,8 @@ void main() {
       expect(toCamelCase('PascalCase'), 'pascalCase');
       expect(toCamelCase('class'), 'class_'); // keyword
       expect(toCamelCase('hashCode'), 'hashCode_'); // reserved member
+      expect(toCamelCase('1-name'), 'value1Name');
+      expect(toCamelCase('123name'), 'value123name');
     });
   });
 
@@ -370,10 +372,10 @@ void main() {
         },
       };
       final parser = SchemaParser(jsonSchema);
-      expect(() => parser.parse(), throwsArgumentError);
+      expect(parser.parse(), throwsArgumentError);
     });
 
-    test('root ref with definitions', () {
+    test('root ref with definitions', () async {
       final jsonSchema = {
         'definitions': {
           'A': {'type': 'string'},
@@ -381,8 +383,82 @@ void main() {
         r'$ref': '#/definitions/A',
       };
       final parser = SchemaParser(jsonSchema);
-      final schema = parser.parse();
+      final schema = await parser.parse();
       print('Parsed schema: $schema');
+    });
+
+    test(
+      'handles recursive schema with flattening changes without duplicating classes',
+      () async {
+        final jsonSchema = {
+          'definitions': {
+            'Node': {
+              'type': 'object',
+              'properties': {
+                'child': {r'$ref': '#/definitions/Node'},
+                'foo': {
+                  'allOf': [
+                    {'type': 'string', 'minLength': 3},
+                    {'type': 'string', 'maxLength': 5},
+                  ],
+                },
+              },
+            },
+          },
+          r'$ref': '#/definitions/Node',
+        };
+        final parser = SchemaParser(jsonSchema);
+        final schema = await parser.parse();
+
+        final rootRef = schema as RefSchema;
+        final node1 = rootRef.resolved as ObjectSchema;
+
+        final childRef = node1.properties['child'] as RefSchema;
+        final node2 = childRef.resolved as ObjectSchema;
+
+        expect(identical(node1, node2), isTrue);
+      },
+    );
+
+    test('parses boolean schema false as NeverSchema', () async {
+      final jsonSchema = {
+        'type': 'object',
+        'properties': {'blocked': false, 'allowed': true},
+      };
+      final parser = SchemaParser(jsonSchema);
+      final schema = await parser.parse() as ObjectSchema;
+      expect(schema.properties['blocked']!.realSchema, isA<NeverSchema>());
+      expect(schema.properties['allowed']!.realSchema, isA<AnythingSchema>());
+    });
+
+    test('resolves relative external refs', () async {
+      final mainSchema = {
+        'type': 'object',
+        'properties': {
+          'externalRef': {r'$ref': 'other.json#/definitions/External'},
+        },
+      };
+      final otherSchema = {
+        'definitions': {
+          'External': {'type': 'string'},
+        },
+      };
+
+      final parser = SchemaParser(
+        mainSchema,
+        baseUri: 'main.json',
+        uriResolver: (uri) async {
+          if (uri == 'other.json') {
+            return otherSchema;
+          }
+          throw ArgumentError('Unexpected URI: $uri');
+        },
+      );
+
+      final schema = await parser.parse() as ObjectSchema;
+      final extRef = schema.properties['externalRef'] as RefSchema;
+      expect(extRef.resolved, isNotNull);
+      expect(extRef.resolved!.realSchema, isA<StringSchema>());
     });
   });
 
@@ -549,7 +625,7 @@ void main() {
       );
     });
 
-    test('createValidator', () {
+    test('createValidator', () async {
       final schemaJson = {
         'type': 'object',
         'properties': {
@@ -557,16 +633,16 @@ void main() {
         },
         'required': ['name'],
       };
-      final validator = createValidator(schemaJson);
+      final validator = await createValidator(schemaJson);
       expect(() => validator({'name': 'Alice'}), returnsNormally);
       expect(() => validator({}), throwsA(isA<JsonValidationException>()));
     });
 
-    test('Complex Schema Validation', () {
+    test('Complex Schema Validation', () async {
       final schemaFile = File('test/test_schema.schema.json');
       final jsonStr = schemaFile.readAsStringSync();
       final decoded = json.decode(jsonStr) as Map<String, dynamic>;
-      final validator = createValidator(decoded);
+      final validator = await createValidator(decoded);
 
       // Valid object
       final validObject = {

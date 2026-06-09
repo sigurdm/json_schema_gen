@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import 'package:json_schema_gen/json_schema.dart';
 
 void main() {
-  test('Generator output is stable and matches test_schema.g.dart', () {
+  test('Generator output is stable and matches test_schema.g.dart', () async {
     final schemaFile = File('test/test_schema.schema.json');
     expect(schemaFile.existsSync(), isTrue);
 
@@ -14,7 +14,7 @@ void main() {
     final decoded = json.decode(jsonStr) as Map<String, dynamic>;
 
     final parser = SchemaParser(decoded);
-    final rootSchema = parser.parse();
+    final rootSchema = await parser.parse();
 
     final rootName = decoded['title'] as String? ?? 'TestRoot';
     final generatedCode = generateCode(rootSchema, rootName);
