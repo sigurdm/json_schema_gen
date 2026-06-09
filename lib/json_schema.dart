@@ -423,6 +423,7 @@ final class SchemaParser {
   final String baseUri;
   final Future<Map<String, dynamic>> Function(String uri)? uriResolver;
   final Set<String> _loadedFiles = {};
+  bool _disallowExternalRefs = false;
 
   /// Creates a parser for the given [rootJson] schema definition.
   SchemaParser(
@@ -434,7 +435,8 @@ final class SchemaParser {
   }
 
   /// Parses the schema structure and resolves all internal references.
-  Future<Schema> parse() async {
+  Future<Schema> parse({bool disallowExternalRefs = true}) async {
+    _disallowExternalRefs = disallowExternalRefs;
     final root = await _parseSchema(_rootJson, '$baseUri#');
     _resolveRefs(root);
     final flattenedRoot = _flatten(root);
@@ -501,6 +503,9 @@ final class SchemaParser {
 
       final refFile = _getFileUri(resolvedRefUri);
       if (refFile != currentFile && refFile.isNotEmpty) {
+        if (_disallowExternalRefs) {
+          throw ArgumentError('External references are disallowed: $ref');
+        }
         if (!_loadedFiles.contains(refFile)) {
           _loadedFiles.add(refFile);
           if (uriResolver == null) {
@@ -583,11 +588,18 @@ final class SchemaParser {
           final mappingJson = discMap['mapping'] as Map?;
           final currentFile = _getFileUri(path);
           final mapping = mappingJson?.map(
-            (k, v) => MapEntry(
-              k as String,
-              RefSchema(Uri.parse(currentFile).resolve(v as String).toString())
-                  as Schema,
-            ),
+            (k, v) => MapEntry(k as String, () {
+              final resolved = Uri.parse(
+                currentFile,
+              ).resolve(v as String).toString();
+              final refFile = _getFileUri(resolved);
+              if (refFile != currentFile && refFile.isNotEmpty) {
+                if (_disallowExternalRefs) {
+                  throw ArgumentError('External references are disallowed: $v');
+                }
+              }
+              return RefSchema(resolved) as Schema;
+            }()),
           );
           return Discriminator(propertyName: propName, mapping: mapping);
         }
@@ -4038,9 +4050,12 @@ extension SchemaValidationExtension on Schema {
 Future<void Function(dynamic)> createValidator(
   Map<String, dynamic> schema, {
   Future<Map<String, dynamic>> Function(String uri)? uriResolver,
+  bool disallowExternalRefs = true,
 }) async {
   final parser = SchemaParser(schema, uriResolver: uriResolver);
-  final parsedSchema = await parser.parse();
+  final parsedSchema = await parser.parse(
+    disallowExternalRefs: disallowExternalRefs,
+  );
   return parsedSchema.validate;
 }
 

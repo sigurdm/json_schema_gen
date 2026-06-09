@@ -39,7 +39,7 @@ final class JsonSchemaBuilder implements Builder {
         return json.decode(content) as Map<String, dynamic>;
       },
     );
-    final rootSchema = await parser.parse();
+    final rootSchema = await parser.parse(disallowExternalRefs: false);
 
     // Determine the root name based on the schema title or the file name
     final baseName = inputId.pathSegments.last.replaceAll('.schema.json', '');

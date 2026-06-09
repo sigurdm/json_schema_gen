@@ -431,7 +431,7 @@ void main() {
       expect(schema.properties['allowed']!.realSchema, isA<AnythingSchema>());
     });
 
-    test('resolves relative external refs', () async {
+    test('resolves relative external refs when allowed', () async {
       final mainSchema = {
         'type': 'object',
         'properties': {
@@ -455,10 +455,33 @@ void main() {
         },
       );
 
-      final schema = await parser.parse() as ObjectSchema;
+      final schema =
+          await parser.parse(disallowExternalRefs: false) as ObjectSchema;
       final extRef = schema.properties['externalRef'] as RefSchema;
       expect(extRef.resolved, isNotNull);
       expect(extRef.resolved!.realSchema, isA<StringSchema>());
+    });
+
+    test('throws by default on external refs', () async {
+      final mainSchema = {
+        'type': 'object',
+        'properties': {
+          'externalRef': {r'$ref': 'other.json#/definitions/External'},
+        },
+      };
+      final parser = SchemaParser(mainSchema, baseUri: 'main.json');
+      expect(parser.parse(), throwsArgumentError);
+    });
+
+    test('throws when disallowExternalRefs is true', () async {
+      final mainSchema = {
+        'type': 'object',
+        'properties': {
+          'externalRef': {r'$ref': 'other.json#/definitions/External'},
+        },
+      };
+      final parser = SchemaParser(mainSchema, baseUri: 'main.json');
+      expect(parser.parse(disallowExternalRefs: true), throwsArgumentError);
     });
   });
 
