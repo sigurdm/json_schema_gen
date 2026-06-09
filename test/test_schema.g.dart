@@ -27,6 +27,7 @@ final class TestRoot implements JsonModel {
   final TestRootNullableUnionValue? nullableUnionValue;
   final RequiredNullableUnionObject? requiredNullableUnionObject;
   final String? nullableString;
+  final List<String>? primitiveArrayWithValidation;
   final Pet? pet;
   final RestrictedObject? restrictedObject;
   final DependentObject? dependentObject;
@@ -107,6 +108,7 @@ final class TestRoot implements JsonModel {
     this.nullableUnionValue,
     this.requiredNullableUnionObject,
     this.nullableString,
+    this.primitiveArrayWithValidation,
     this.pet,
     this.restrictedObject,
     this.dependentObject,
@@ -213,6 +215,7 @@ final class TestRoot implements JsonModel {
     TestRootNullableUnionValue? nullableUnionValue,
     RequiredNullableUnionObject? requiredNullableUnionObject,
     String? nullableString,
+    List<String>? primitiveArrayWithValidation,
     Pet? pet,
     RestrictedObject? restrictedObject,
     DependentObject? dependentObject,
@@ -290,6 +293,8 @@ final class TestRoot implements JsonModel {
     requiredNullableUnionObject:
         requiredNullableUnionObject ?? this.requiredNullableUnionObject,
     nullableString: nullableString ?? this.nullableString,
+    primitiveArrayWithValidation:
+        primitiveArrayWithValidation ?? this.primitiveArrayWithValidation,
     pet: pet ?? this.pet,
     restrictedObject: restrictedObject ?? this.restrictedObject,
     dependentObject: dependentObject ?? this.dependentObject,
@@ -442,7 +447,7 @@ final class TestRoot implements JsonModel {
         } on JsonValidationException catch (e) {
           throw JsonValidationException(e.message, [
             'scores',
-            '[\$i]',
+            '[$i]',
             ...e.path,
           ]);
         }
@@ -479,6 +484,23 @@ final class TestRoot implements JsonModel {
       }
     }
     final val_nullableString = nullableString;
+    final val_primitiveArrayWithValidation = primitiveArrayWithValidation;
+    if (val_primitiveArrayWithValidation != null) {
+      for (var i = 0; i < val_primitiveArrayWithValidation.length; i++) {
+        if (val_primitiveArrayWithValidation[i] is! String) {
+          throw JsonValidationException(
+            'Property "primitiveArrayWithValidation" must be a string',
+            ['primitiveArrayWithValidation', '[$i]'],
+          );
+        }
+        if (val_primitiveArrayWithValidation[i].length < 3) {
+          throw JsonValidationException(
+            'Property "primitiveArrayWithValidation" length must be >= 3',
+            ['primitiveArrayWithValidation', '[$i]'],
+          );
+        }
+      }
+    }
     final val_pet = pet;
     if (val_pet != null) {
       try {
@@ -553,8 +575,8 @@ final class TestRoot implements JsonModel {
           } on JsonValidationException catch (e) {
             throw JsonValidationException(e.message, [
               'nestedArray',
-              '[\$i]',
-              '[\$i0]',
+              '[$i]',
+              '[$i0]',
               ...e.path,
             ]);
           }
@@ -967,6 +989,36 @@ final class TestRoot implements JsonModel {
       );
     }
     final val_tupleSameTypeArray = tupleSameTypeArray;
+    if (val_tupleSameTypeArray != null) {
+      if (val_tupleSameTypeArray.length > 0) {
+        if (val_tupleSameTypeArray[0] is! String) {
+          throw JsonValidationException(
+            'Property "tupleSameTypeArray" must be a string',
+            ['tupleSameTypeArray', '[0]'],
+          );
+        }
+        if (val_tupleSameTypeArray[0].length < 1) {
+          throw JsonValidationException(
+            'Property "tupleSameTypeArray" length must be >= 1',
+            ['tupleSameTypeArray', '[0]'],
+          );
+        }
+      }
+      if (val_tupleSameTypeArray.length > 1) {
+        if (val_tupleSameTypeArray[1] is! String) {
+          throw JsonValidationException(
+            'Property "tupleSameTypeArray" must be a string',
+            ['tupleSameTypeArray', '[1]'],
+          );
+        }
+        if (val_tupleSameTypeArray[1].length > 5) {
+          throw JsonValidationException(
+            'Property "tupleSameTypeArray" length must be <= 5',
+            ['tupleSameTypeArray', '[1]'],
+          );
+        }
+      }
+    }
     final val_arrayWithAllOfItems = arrayWithAllOfItems;
     if (val_arrayWithAllOfItems != null) {
       for (var i = 0; i < val_arrayWithAllOfItems.length; i++) {
@@ -975,7 +1027,7 @@ final class TestRoot implements JsonModel {
         } on JsonValidationException catch (e) {
           throw JsonValidationException(e.message, [
             'arrayWithAllOfItems',
-            '[\$i]',
+            '[$i]',
             ...e.path,
           ]);
         }
@@ -1065,6 +1117,8 @@ final class TestRoot implements JsonModel {
       requiredNullableUnionObject:
           fields['requiredNullableUnionObject'] as RequiredNullableUnionObject?,
       nullableString: fields['nullableString'] as String?,
+      primitiveArrayWithValidation:
+          fields['primitiveArrayWithValidation'] as List<String>?,
       pet: fields['pet'] as Pet?,
       restrictedObject: fields['restrictedObject'] as RestrictedObject?,
       dependentObject: fields['dependentObject'] as DependentObject?,
@@ -1169,6 +1223,8 @@ final class TestRoot implements JsonModel {
         'requiredNullableUnionObject':
             typedInstance.requiredNullableUnionObject,
         'nullableString': typedInstance.nullableString,
+        'primitiveArrayWithValidation':
+            typedInstance.primitiveArrayWithValidation,
         'pet': typedInstance.pet,
         'restrictedObject': typedInstance.restrictedObject,
         'dependentObject': typedInstance.dependentObject,
@@ -1315,7 +1371,7 @@ final class TestRoot implements JsonModel {
       'nullableUnionValue': PropertyDescriptor(
         name: 'nullableUnionValue',
         isRequired: false,
-        schema: TestRootNullableUnionValue.descriptor,
+        schema: NullableDescriptor(TestRootNullableUnionValue.descriptor),
       ),
       'requiredNullableUnionObject': PropertyDescriptor(
         name: 'requiredNullableUnionObject',
@@ -1326,6 +1382,11 @@ final class TestRoot implements JsonModel {
         name: 'nullableString',
         isRequired: false,
         schema: NullableDescriptor(const StringDescriptor()),
+      ),
+      'primitiveArrayWithValidation': PropertyDescriptor(
+        name: 'primitiveArrayWithValidation',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
       ),
       'pet': PropertyDescriptor(
         name: 'pet',
@@ -1644,6 +1705,10 @@ final class TestRoot implements JsonModel {
           nullableUnionValue == other.nullableUnionValue &&
           requiredNullableUnionObject == other.requiredNullableUnionObject &&
           nullableString == other.nullableString &&
+          const DeepCollectionEquality().equals(
+            primitiveArrayWithValidation,
+            other.primitiveArrayWithValidation,
+          ) &&
           pet == other.pet &&
           restrictedObject == other.restrictedObject &&
           dependentObject == other.dependentObject &&
@@ -1773,6 +1838,7 @@ final class TestRoot implements JsonModel {
     nullableUnionValue,
     requiredNullableUnionObject,
     nullableString,
+    const DeepCollectionEquality().hash(primitiveArrayWithValidation),
     pet,
     restrictedObject,
     dependentObject,
@@ -1832,7 +1898,7 @@ final class TestRoot implements JsonModel {
 
   @override
   String toString() =>
-      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableUnionValue: ${nullableUnionValue}, requiredNullableUnionObject: ${requiredNullableUnionObject}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultBackslash: ${defaultBackslash}, nestedArray: ${nestedArray}, singleQuoteKey: ${singleQuoteKey}, mixedEnum: ${mixedEnum}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, deprecatedFieldWithMessage: ${deprecatedFieldWithMessage}, customNamedObject: ${customNamedObject}, customNamedUnion: ${customNamedUnion}, customNamedEnum: ${customNamedEnum}, coverageTrigger: ${coverageTrigger})';
+      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableUnionValue: ${nullableUnionValue}, requiredNullableUnionObject: ${requiredNullableUnionObject}, nullableString: ${nullableString}, primitiveArrayWithValidation: ${primitiveArrayWithValidation}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultBackslash: ${defaultBackslash}, nestedArray: ${nestedArray}, singleQuoteKey: ${singleQuoteKey}, mixedEnum: ${mixedEnum}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, deprecatedFieldWithMessage: ${deprecatedFieldWithMessage}, customNamedObject: ${customNamedObject}, customNamedUnion: ${customNamedUnion}, customNamedEnum: ${customNamedEnum}, coverageTrigger: ${coverageTrigger})';
 }
 
 enum TestRootConstValue {
@@ -2302,7 +2368,9 @@ final class RequiredNullableUnionObject implements JsonModel {
       'nullableUnion': PropertyDescriptor(
         name: 'nullableUnion',
         isRequired: true,
-        schema: RequiredNullableUnionObjectNullableUnion.descriptor,
+        schema: NullableDescriptor(
+          RequiredNullableUnionObjectNullableUnion.descriptor,
+        ),
       ),
     },
     required: const ['nullableUnion'],

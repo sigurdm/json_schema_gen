@@ -49,6 +49,10 @@
     "nullableString": {
       "type": ["string", "null"]
     },
+    "primitiveArrayWithValidation": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 }
+    },
     "pet": { "$ref": "#/$defs/Pet" },
     "restrictedObject": { "$ref": "#/$defs/RestrictedObject" },
     "dependentObject": { "$ref": "#/$defs/DependentObject" },
