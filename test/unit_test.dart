@@ -565,7 +565,7 @@ void main() {
         final parser = SchemaParser(
           json.decode(mainFile.readAsStringSync()) as Map<String, dynamic>,
           baseUri: mainUri.toString(),
-          uriResolver: ioFileResolver,
+          uriResolver: (uri) => ioFileResolver(uri, rootDirectory: tempDir),
         );
 
         final schema =
@@ -573,6 +573,42 @@ void main() {
         final extRef = schema.properties['externalRef'] as RefSchema;
         expect(extRef.resolved, isNotNull);
         expect(extRef.resolved!.realSchema, isA<StringSchema>());
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('ioFileResolver throws ArgumentError on path traversal', () async {
+      final tempDir = Directory.systemTemp.createTempSync('json_schema_test');
+      try {
+        final mainUri = tempDir.uri.resolve('main.json');
+        final mainFile = File.fromUri(mainUri);
+
+        mainFile.writeAsStringSync(
+          json.encode({
+            'type': 'object',
+            'properties': {
+              'externalRef': {r'$ref': '../unsafe.json#/definitions/External'},
+            },
+          }),
+        );
+
+        final parser = SchemaParser(
+          json.decode(mainFile.readAsStringSync()) as Map<String, dynamic>,
+          baseUri: mainUri.toString(),
+          uriResolver: (uri) => ioFileResolver(uri, rootDirectory: tempDir),
+        );
+
+        expect(
+          () => parser.parse(disallowExternalRefs: false),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              'message',
+              contains('Access denied'),
+            ),
+          ),
+        );
       } finally {
         tempDir.deleteSync(recursive: true);
       }
