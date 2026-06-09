@@ -85,6 +85,8 @@ final class TestRoot implements JsonModel {
   final MyCustomUnionName? customNamedUnion;
   final MyCustomEnumName? customNamedEnum;
   final TestRootCoverageTrigger? coverageTrigger;
+  final CollidingEnum? collidingEnumField;
+  final CollidingObject? collidingObjectField;
 
   const TestRoot({
     required this.name,
@@ -162,6 +164,8 @@ final class TestRoot implements JsonModel {
     this.customNamedUnion,
     this.customNamedEnum,
     this.coverageTrigger,
+    this.collidingEnumField,
+    this.collidingObjectField,
   });
 
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -268,6 +272,8 @@ final class TestRoot implements JsonModel {
     MyCustomUnionName? customNamedUnion,
     MyCustomEnumName? customNamedEnum,
     TestRootCoverageTrigger? coverageTrigger,
+    CollidingEnum? collidingEnumField,
+    CollidingObject? collidingObjectField,
   }) => TestRoot(
     name: name ?? this.name,
     constValue: constValue ?? this.constValue,
@@ -347,6 +353,8 @@ final class TestRoot implements JsonModel {
     customNamedUnion: customNamedUnion ?? this.customNamedUnion,
     customNamedEnum: customNamedEnum ?? this.customNamedEnum,
     coverageTrigger: coverageTrigger ?? this.coverageTrigger,
+    collidingEnumField: collidingEnumField ?? this.collidingEnumField,
+    collidingObjectField: collidingObjectField ?? this.collidingObjectField,
   );
 
   void validate() {
@@ -1037,6 +1045,37 @@ final class TestRoot implements JsonModel {
         ]);
       }
     }
+    final val_collidingEnumField = collidingEnumField;
+    if (val_collidingEnumField != null) {
+      if (!const [
+        CollidingEnum.values_1,
+        CollidingEnum.value_1,
+        CollidingEnum.fromValue_1,
+        CollidingEnum.descriptor_,
+        CollidingEnum.fooBar,
+        CollidingEnum.fooBar_1,
+        CollidingEnum.a1,
+        CollidingEnum.a1_1,
+      ].any(
+        (v) => const DeepCollectionEquality().equals(v, val_collidingEnumField),
+      )) {
+        throw JsonValidationException(
+          'Property "collidingEnumField" must be one of [values, value, fromValue, descriptor, foo-bar, foo_bar, {a: 1}, {a: 1}]',
+          ['collidingEnumField'],
+        );
+      }
+    }
+    final val_collidingObjectField = collidingObjectField;
+    if (val_collidingObjectField != null) {
+      try {
+        val_collidingObjectField.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'collidingObjectField',
+          ...e.path,
+        ]);
+      }
+    }
   }
 
   static final descriptor = ObjectDescriptor<TestRoot>(
@@ -1144,6 +1183,8 @@ final class TestRoot implements JsonModel {
       customNamedUnion: fields['customNamedUnion'] as MyCustomUnionName?,
       customNamedEnum: fields['customNamedEnum'] as MyCustomEnumName?,
       coverageTrigger: fields['coverageTrigger'] as TestRootCoverageTrigger?,
+      collidingEnumField: fields['collidingEnumField'] as CollidingEnum?,
+      collidingObjectField: fields['collidingObjectField'] as CollidingObject?,
     ),
     getFields: (instance) {
       final typedInstance = instance as TestRoot;
@@ -1224,6 +1265,8 @@ final class TestRoot implements JsonModel {
         'customNamedUnion': typedInstance.customNamedUnion,
         'customNamedEnum': typedInstance.customNamedEnum,
         'coverageTrigger': typedInstance.coverageTrigger,
+        'collidingEnumField': typedInstance.collidingEnumField,
+        'collidingObjectField': typedInstance.collidingObjectField,
       };
     },
     properties: {
@@ -1615,6 +1658,16 @@ final class TestRoot implements JsonModel {
         isRequired: false,
         schema: TestRootCoverageTrigger.descriptor,
       ),
+      'collidingEnumField': PropertyDescriptor(
+        name: 'collidingEnumField',
+        isRequired: false,
+        schema: CollidingEnum.descriptor,
+      ),
+      'collidingObjectField': PropertyDescriptor(
+        name: 'collidingObjectField',
+        isRequired: false,
+        schema: CollidingObject.descriptor,
+      ),
     },
     required: const ['name', 'age', 'isAwesome', 'address'],
   );
@@ -1749,7 +1802,9 @@ final class TestRoot implements JsonModel {
           customNamedObject == other.customNamedObject &&
           customNamedUnion == other.customNamedUnion &&
           customNamedEnum == other.customNamedEnum &&
-          coverageTrigger == other.coverageTrigger;
+          coverageTrigger == other.coverageTrigger &&
+          collidingEnumField == other.collidingEnumField &&
+          collidingObjectField == other.collidingObjectField;
 
   @override
   int get hashCode => Object.hashAll([
@@ -1828,11 +1883,13 @@ final class TestRoot implements JsonModel {
     customNamedUnion,
     customNamedEnum,
     coverageTrigger,
+    collidingEnumField,
+    collidingObjectField,
   ]);
 
   @override
   String toString() =>
-      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableUnionValue: ${nullableUnionValue}, requiredNullableUnionObject: ${requiredNullableUnionObject}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultBackslash: ${defaultBackslash}, nestedArray: ${nestedArray}, singleQuoteKey: ${singleQuoteKey}, mixedEnum: ${mixedEnum}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, deprecatedFieldWithMessage: ${deprecatedFieldWithMessage}, customNamedObject: ${customNamedObject}, customNamedUnion: ${customNamedUnion}, customNamedEnum: ${customNamedEnum}, coverageTrigger: ${coverageTrigger})';
+      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableUnionValue: ${nullableUnionValue}, requiredNullableUnionObject: ${requiredNullableUnionObject}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultBackslash: ${defaultBackslash}, nestedArray: ${nestedArray}, singleQuoteKey: ${singleQuoteKey}, mixedEnum: ${mixedEnum}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, deprecatedFieldWithMessage: ${deprecatedFieldWithMessage}, customNamedObject: ${customNamedObject}, customNamedUnion: ${customNamedUnion}, customNamedEnum: ${customNamedEnum}, coverageTrigger: ${coverageTrigger}, collidingEnumField: ${collidingEnumField}, collidingObjectField: ${collidingObjectField})';
 }
 
 enum TestRootConstValue {
@@ -5450,4 +5507,164 @@ final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
 
   @override
   String toString() => 'TestRootCoverageTriggerMergeObjectsWithNoAdditional()';
+}
+
+enum CollidingEnum {
+  values_1('values'),
+  value_1('value'),
+  fromValue_1('fromValue'),
+  descriptor_('descriptor'),
+  fooBar('foo-bar'),
+  fooBar_1('foo_bar'),
+  a1(const {'a': 1}),
+  a1_1(const {'a': '1'});
+
+  final dynamic value;
+  const CollidingEnum(this.value);
+  static CollidingEnum fromValue(dynamic val) =>
+      values.firstWhere((e) => e.value == val);
+  static final descriptor = EnumDescriptor<CollidingEnum>(
+    values: values,
+    fromValue: (val) => fromValue(val as dynamic),
+    toValue: (e) => (e as CollidingEnum).value,
+    base: const AnythingDescriptor(),
+  );
+}
+
+final class CollidingObject implements JsonModel {
+  final String? foo;
+  final String? foo_1;
+  final String? bar;
+  final String? bar1;
+  final String? validate_;
+
+  const CollidingObject({
+    this.foo,
+    this.foo_1,
+    this.bar,
+    this.bar1,
+    this.validate_,
+  });
+
+  factory CollidingObject.fromJson(JsonReader reader, {bool validate = true}) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as CollidingObject;
+
+  /// Creates an instance of [CollidingObject] from a JSON Map.
+  factory CollidingObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) =>
+      CollidingObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  CollidingObject copyWith({
+    String? foo,
+    String? foo_1,
+    String? bar,
+    String? bar1,
+    String? validate_,
+  }) => CollidingObject(
+    foo: foo ?? this.foo,
+    foo_1: foo_1 ?? this.foo_1,
+    bar: bar ?? this.bar,
+    bar1: bar1 ?? this.bar1,
+    validate_: validate_ ?? this.validate_,
+  );
+
+  void validate() {
+    final val_foo = foo;
+    final val_foo_1 = foo_1;
+    final val_bar = bar;
+    final val_bar1 = bar1;
+    final val_validate_ = validate_;
+  }
+
+  static final descriptor = ObjectDescriptor<CollidingObject>(
+    title: 'CollidingObject',
+    matches: (instance) => instance is CollidingObject,
+    instantiate: (fields) => CollidingObject(
+      foo: fields['foo'] as String?,
+      foo_1: fields['@foo'] as String?,
+      bar: fields['bar'] as String?,
+      bar1: fields['bar_1'] as String?,
+      validate_: fields['validate'] as String?,
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as CollidingObject;
+      return {
+        'foo': typedInstance.foo,
+        '@foo': typedInstance.foo_1,
+        'bar': typedInstance.bar,
+        'bar_1': typedInstance.bar1,
+        'validate': typedInstance.validate_,
+      };
+    },
+    properties: {
+      'foo': PropertyDescriptor(
+        name: 'foo',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '@foo': PropertyDescriptor(
+        name: '@foo',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'bar': PropertyDescriptor(
+        name: 'bar',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'bar_1': PropertyDescriptor(
+        name: 'bar_1',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'validate': PropertyDescriptor(
+        name: 'validate',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+    required: const [],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CollidingObject &&
+          runtimeType == other.runtimeType &&
+          foo == other.foo &&
+          foo_1 == other.foo_1 &&
+          bar == other.bar &&
+          bar1 == other.bar1 &&
+          validate_ == other.validate_;
+
+  @override
+  int get hashCode => Object.hashAll([foo, foo_1, bar, bar1, validate_]);
+
+  @override
+  String toString() =>
+      'CollidingObject(foo: ${foo}, foo_1: ${foo_1}, bar: ${bar}, bar1: ${bar1}, validate_: ${validate_})';
 }

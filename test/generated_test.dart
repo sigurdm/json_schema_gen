@@ -2347,5 +2347,41 @@ void main() {
         expect(model.customNamedEnum, MyCustomEnumName.one);
       });
     });
+
+    group('Collision Handling', () {
+      test('CollidingEnum has unique renamed constants', () {
+        expect(CollidingEnum.values.length, 8);
+        expect(CollidingEnum.values_1.value, 'values');
+        expect(CollidingEnum.value_1.value, 'value');
+        expect(CollidingEnum.fromValue_1.value, 'fromValue');
+        expect(CollidingEnum.descriptor_.value, 'descriptor');
+        expect(CollidingEnum.fooBar.value, 'foo-bar');
+        expect(CollidingEnum.fooBar_1.value, 'foo_bar');
+        expect(CollidingEnum.a1.value, const {'a': 1});
+        expect(CollidingEnum.a1_1.value, const {'a': '1'});
+      });
+
+      test('CollidingObject has unique renamed fields', () {
+        const obj = CollidingObject(
+          foo: '1',
+          foo_1: '2', // from @foo
+          bar: '3',
+          bar1: '4', // from bar_1
+          validate_: '5', // from validate
+        );
+        expect(obj.foo, '1');
+        expect(obj.foo_1, '2');
+        expect(obj.bar, '3');
+        expect(obj.bar1, '4');
+        expect(obj.validate_, '5');
+
+        final map = obj.toMap();
+        expect(map['foo'], '1');
+        expect(map['@foo'], '2');
+        expect(map['bar'], '3');
+        expect(map['bar_1'], '4');
+        expect(map['validate'], '5');
+      });
+    });
   });
 }

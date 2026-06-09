@@ -3,59 +3,125 @@
   "title": "TestRoot",
   "type": "object",
   "definitions": {
-    "Dummy": { "type": "string" }
+    "Dummy": {
+      "type": "string"
+    }
   },
   "properties": {
-    "name": { "type": "string", "minLength": 2 },
-    "constValue": { "const": "always-this-value" },
-    "age": { "type": "integer", "minimum": 0, "multipleOf": 5 },
-    "exclusiveAge": { "type": "integer", "exclusiveMinimum": 0, "exclusiveMaximum": 100 },
-    "height": { "type": "number" },
-    "email": { "type": "string", "pattern": "^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$" },
-    "uuid": { "type": "string", "format": "uuid" },
-    "isAwesome": { "type": "boolean" },
-    "class": { "type": "string" },
-    "reader": { "type": "string" },
-    "stack": { "type": "string" },
-    "validate": { "type": "string" },
-    "result": { "type": "string" },
-    "address": { "$ref": "#/$defs/Address" },
+    "name": {
+      "type": "string",
+      "minLength": 2
+    },
+    "constValue": {
+      "const": "always-this-value"
+    },
+    "age": {
+      "type": "integer",
+      "minimum": 0,
+      "multipleOf": 5
+    },
+    "exclusiveAge": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "exclusiveMaximum": 100
+    },
+    "height": {
+      "type": "number"
+    },
+    "email": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$"
+    },
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "isAwesome": {
+      "type": "boolean"
+    },
+    "class": {
+      "type": "string"
+    },
+    "reader": {
+      "type": "string"
+    },
+    "stack": {
+      "type": "string"
+    },
+    "validate": {
+      "type": "string"
+    },
+    "result": {
+      "type": "string"
+    },
+    "address": {
+      "$ref": "#/$defs/Address"
+    },
     "tags": {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "scores": {
       "type": "array",
-      "items": { "$ref": "#/$defs/Score" }
+      "items": {
+        "$ref": "#/$defs/Score"
+      }
     },
     "unionValue": {
       "oneOf": [
-        { "type": "string" },
-        { "$ref": "#/$defs/Address" }
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Address"
+        }
       ]
     },
     "nullableUnionValue": {
       "oneOf": [
-        { "type": "string" },
-        { "$ref": "#/$defs/Address" },
-        { "type": "null" }
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Address"
+        },
+        {
+          "type": "null"
+        }
       ]
     },
     "requiredNullableUnionObject": {
       "$ref": "#/$defs/RequiredNullableUnionObject"
     },
     "nullableString": {
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
     },
-    "pet": { "$ref": "#/$defs/Pet" },
-    "restrictedObject": { "$ref": "#/$defs/RestrictedObject" },
-    "dependentObject": { "$ref": "#/$defs/DependentObject" },
+    "pet": {
+      "$ref": "#/$defs/Pet"
+    },
+    "restrictedObject": {
+      "$ref": "#/$defs/RestrictedObject"
+    },
+    "dependentObject": {
+      "$ref": "#/$defs/DependentObject"
+    },
     "restrictedArray": {
       "type": "array",
-      "items": { "type": "integer" },
-      "contains": { "type": "integer", "minimum": 5, "multipleOf": 3 },
+      "items": {
+        "type": "integer"
+      },
+      "contains": {
+        "type": "integer",
+        "minimum": 5,
+        "multipleOf": 3
+      },
       "minContains": 1,
       "maxContains": 2
     },
@@ -87,8 +153,16 @@
       "type": "string"
     },
     "mixedEnum": {
-      "type": ["string", "integer"],
-      "enum": ["foo", 42, "bar", 100]
+      "type": [
+        "string",
+        "integer"
+      ],
+      "enum": [
+        "foo",
+        42,
+        "bar",
+        100
+      ]
     },
     "defaultInt": {
       "type": "integer",
@@ -100,15 +174,25 @@
     },
     "defaultList": {
       "type": "array",
-      "items": { "type": "string" },
-      "default": ["a", "b"]
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "a",
+        "b"
+      ]
     },
     "defaultObject": {
       "$ref": "#/$defs/Address",
-      "default": { "city": "Default City" }
+      "default": {
+        "city": "Default City"
+      }
     },
     "defaultNullableString": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "default": null
     },
     "mergedValue": {
@@ -117,16 +201,26 @@
     "tupleArray": {
       "type": "array",
       "prefixItems": [
-        { "type": "string" },
-        { "type": "integer" }
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        }
       ],
-      "items": { "type": "boolean" }
+      "items": {
+        "type": "boolean"
+      }
     },
     "tupleObjectArray": {
       "type": "array",
       "prefixItems": [
-        { "$ref": "#/$defs/Address" },
-        { "$ref": "#/$defs/Cat" }
+        {
+          "$ref": "#/$defs/Address"
+        },
+        {
+          "$ref": "#/$defs/Cat"
+        }
       ]
     },
     "ipv6Value": {
@@ -156,40 +250,72 @@
     },
     "anyOfValue": {
       "anyOf": [
-        { "type": "string" },
-        { "type": "integer" }
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        }
       ]
     },
     "mergedAllOfObject": {
       "$ref": "#/$defs/MergedAllOfObject"
     },
-    "complexMerged": { "$ref": "#/$defs/ComplexMergedObject" },
-    "myEnumField": { "$ref": "#/$defs/MyEnum" },
+    "complexMerged": {
+      "$ref": "#/$defs/ComplexMergedObject"
+    },
+    "myEnumField": {
+      "$ref": "#/$defs/MyEnum"
+    },
     "unionContainsArray": {
       "type": "array",
       "contains": {
         "oneOf": [
-          { "type": "string", "minLength": 3, "maxLength": 10, "pattern": "^a", "format": "email" },
-          { "type": "integer", "minimum": 5, "maximum": 10, "multipleOf": 2 },
-          { "type": "number", "exclusiveMinimum": 5.0, "exclusiveMaximum": 11.0, "multipleOf": 0.5 }
+          {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 10,
+            "pattern": "^a",
+            "format": "email"
+          },
+          {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 10,
+            "multipleOf": 2
+          },
+          {
+            "type": "number",
+            "exclusiveMinimum": 5.0,
+            "exclusiveMaximum": 11.0,
+            "multipleOf": 0.5
+          }
         ]
       }
     },
     "objectContainsArray": {
       "type": "array",
-      "contains": { "$ref": "#/$defs/Address" }
+      "contains": {
+        "$ref": "#/$defs/Address"
+      }
     },
     "enumContainsArray": {
       "type": "array",
-      "contains": { "$ref": "#/$defs/MyEnum" }
+      "contains": {
+        "$ref": "#/$defs/MyEnum"
+      }
     },
     "booleanContainsArray": {
       "type": "array",
-      "contains": { "type": "boolean" }
+      "contains": {
+        "type": "boolean"
+      }
     },
     "nullContainsArray": {
       "type": "array",
-      "contains": { "type": "null" }
+      "contains": {
+        "type": "null"
+      }
     },
     "anyContainsArray": {
       "type": "array",
@@ -197,7 +323,13 @@
     },
     "stringContainsArray": {
       "type": "array",
-      "contains": { "type": "string", "minLength": 3, "maxLength": 10, "pattern": "^a", "format": "email" }
+      "contains": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 10,
+        "pattern": "^a",
+        "format": "email"
+      }
     },
     "numberContainsArray": {
       "type": "array",
@@ -231,7 +363,9 @@
     },
     "defaultEmptyList": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "default": []
     },
     "defaultEmptyObject": {
@@ -240,43 +374,89 @@
     },
     "unionWithArrayOption": {
       "oneOf": [
-        { "type": "string" },
+        {
+          "type": "string"
+        },
         {
           "type": "array",
-          "items": { "$ref": "#/$defs/Address" }
+          "items": {
+            "$ref": "#/$defs/Address"
+          }
         }
       ]
     },
     "impossibleField": {
       "allOf": [
-        { "type": "string" },
-        { "type": "integer" }
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        }
       ]
     },
     "tupleSameTypeArray": {
       "type": "array",
       "prefixItems": [
-        { "type": "string", "minLength": 1 },
-        { "type": "string", "maxLength": 5 }
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "string",
+          "maxLength": 5
+        }
       ],
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "arrayWithAllOfItems": {
       "type": "array",
       "items": {
         "allOf": [
-          { "type": "object", "properties": { "a": { "type": "string" } } },
-          { "type": "object", "properties": { "b": { "type": "integer" } } }
+          {
+            "type": "object",
+            "properties": {
+              "a": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "b": {
+                "type": "integer"
+              }
+            }
+          }
         ]
       }
     },
     "unionWithAllOfOption": {
       "oneOf": [
-        { "type": "string" },
+        {
+          "type": "string"
+        },
         {
           "allOf": [
-            { "type": "object", "properties": { "a": { "type": "string" } } },
-            { "type": "object", "properties": { "b": { "type": "integer" } } }
+            {
+              "type": "object",
+              "properties": {
+                "a": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "b": {
+                  "type": "integer"
+                }
+              }
+            }
           ]
         }
       ]
@@ -289,52 +469,82 @@
       "type": "object",
       "x-dart-name": "MyCustomClassName",
       "properties": {
-        "foo": { "type": "string" }
+        "foo": {
+          "type": "string"
+        }
       }
     },
     "customNamedUnion": {
       "x-dart-name": "MyCustomUnionName",
       "x-deprecated-message": "This union is deprecated, use MyCustomUnionName2",
       "oneOf": [
-        { "type": "string" },
-        { "type": "integer" }
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        }
       ]
     },
     "customNamedEnum": {
       "x-dart-name": "MyCustomEnumName",
       "type": "string",
-      "enum": ["one", "two"]
+      "enum": [
+        "one",
+        "two"
+      ]
     },
     "coverageTrigger": {
       "type": "object",
       "properties": {
         "mergeArray": {
           "allOf": [
-            { "type": "array", "items": { "type": "string" } },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             {}
           ]
         },
         "mergeString": {
           "allOf": [
-            { "type": "string", "minLength": 2 },
-            { "type": "string", "maxLength": 10 }
+            {
+              "type": "string",
+              "minLength": 2
+            },
+            {
+              "type": "string",
+              "maxLength": 10
+            }
           ]
         },
         "mergeNumber": {
           "allOf": [
-            { "type": "number", "minimum": 1 },
-            { "type": "number", "maximum": 10 }
+            {
+              "type": "number",
+              "minimum": 1
+            },
+            {
+              "type": "number",
+              "maximum": 10
+            }
           ]
         },
         "mergeBoolean": {
           "allOf": [
-            { "type": "boolean" },
+            {
+              "type": "boolean"
+            },
             {}
           ]
         },
         "mergeNull": {
           "allOf": [
-            { "type": "null" },
+            {
+              "type": "null"
+            },
             {}
           ]
         },
@@ -346,38 +556,76 @@
         },
         "mergeNever": {
           "allOf": [
-            { "not": {} },
-            { "type": "string" }
+            {
+              "not": {}
+            },
+            {
+              "type": "string"
+            }
           ]
         },
         "mergeRef": {
           "allOf": [
             {},
-            { "$ref": "#/$defs/MapObject" }
+            {
+              "$ref": "#/$defs/MapObject"
+            }
           ]
         },
         "mergeEnum": {
           "allOf": [
-            { "type": "string", "enum": ["a", "b"] },
+            {
+              "type": "string",
+              "enum": [
+                "a",
+                "b"
+              ]
+            },
             {}
           ]
         },
         "mergeUnion": {
           "allOf": [
-            { "oneOf": [ { "type": "string" }, { "type": "integer" } ] },
+            {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
             {}
           ]
         },
         "mergeObjectsWithNoAdditional": {
           "allOf": [
-            { "type": "object", "additionalProperties": false },
-            { "type": "object", "additionalProperties": false }
+            {
+              "type": "object",
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "additionalProperties": false
+            }
           ]
         }
       }
+    },
+    "collidingEnumField": {
+      "$ref": "#/$defs/CollidingEnum"
+    },
+    "collidingObjectField": {
+      "$ref": "#/$defs/CollidingObject"
     }
   },
-  "required": ["name", "age", "isAwesome", "address"],
+  "required": [
+    "name",
+    "age",
+    "isAwesome",
+    "address"
+  ],
   "$defs": {
     "RequiredNullableUnionObject": {
       "title": "RequiredNullableUnionObject",
@@ -385,23 +633,35 @@
       "properties": {
         "nullableUnion": {
           "oneOf": [
-            { "type": "string" },
-            { "type": "integer" },
-            { "type": "null" }
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
           ]
         }
       },
-      "required": ["nullableUnion"]
+      "required": [
+        "nullableUnion"
+      ]
     },
     "ObjectWithDynamicProps": {
       "title": "ObjectWithDynamicProps",
       "type": "object",
       "properties": {
         "notInt": {
-          "not": { "type": "integer" }
+          "not": {
+            "type": "integer"
+          }
         },
         "notNum": {
-          "not": { "type": "number" }
+          "not": {
+            "type": "number"
+          }
         }
       }
     },
@@ -409,15 +669,21 @@
       "title": "MapObject",
       "type": "object",
       "properties": {
-        "name": { "type": "string" }
+        "name": {
+          "type": "string"
+        }
       },
-      "additionalProperties": { "type": "string" }
+      "additionalProperties": {
+        "type": "string"
+      }
     },
     "StrictObject": {
       "title": "StrictObject",
       "type": "object",
       "properties": {
-        "name": { "type": "string" }
+        "name": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     },
@@ -427,17 +693,30 @@
       "properties": {
         "notPatternString": {
           "type": "string",
-          "not": { "pattern": "forbidden" }
+          "not": {
+            "pattern": "forbidden"
+          }
         },
         "notEnumInt": {
           "type": "integer",
-          "not": { "enum": [13, 17] }
+          "not": {
+            "enum": [
+              13,
+              17
+            ]
+          }
         },
         "notNullValue": {
-          "not": { "type": "null" }
+          "not": {
+            "type": "null"
+          }
         }
       },
-      "required": ["notPatternString", "notEnumInt", "notNullValue"]
+      "required": [
+        "notPatternString",
+        "notEnumInt",
+        "notNullValue"
+      ]
     },
     "MergedAllOfObject": {
       "title": "MergedAllOfObject",
@@ -459,7 +738,9 @@
             }
           },
           "dependentRequired": {
-            "strVal": ["numVal"]
+            "strVal": [
+              "numVal"
+            ]
           }
         },
         {
@@ -482,7 +763,11 @@
     "MyEnum": {
       "title": "MyEnum",
       "type": "string",
-      "enum": ["alpha", "beta", "gamma"]
+      "enum": [
+        "alpha",
+        "beta",
+        "gamma"
+      ]
     },
     "ComplexMergedObject": {
       "title": "ComplexMergedObject",
@@ -523,42 +808,70 @@
       "title": "Address",
       "type": "object",
       "properties": {
-        "city": { "type": "string", "minLength": 3 },
-        "street": { "type": "string" }
+        "city": {
+          "type": "string",
+          "minLength": 3
+        },
+        "street": {
+          "type": "string"
+        }
       },
-      "required": ["city"]
+      "required": [
+        "city"
+      ]
     },
     "Score": {
       "title": "Score",
       "type": "object",
       "properties": {
-        "value": { "type": "number", "minimum": 0.0 }
+        "value": {
+          "type": "number",
+          "minimum": 0.0
+        }
       },
-      "required": ["value"]
+      "required": [
+        "value"
+      ]
     },
     "Cat": {
       "title": "Cat",
       "type": "object",
       "properties": {
-        "kind": { "type": "string" },
-        "meowVolume": { "type": "number" }
+        "kind": {
+          "type": "string"
+        },
+        "meowVolume": {
+          "type": "number"
+        }
       },
-      "required": ["kind"]
+      "required": [
+        "kind"
+      ]
     },
     "Dog": {
       "title": "Dog",
       "type": "object",
       "properties": {
-        "kind": { "type": "string" },
-        "barkVolume": { "type": "number" }
+        "kind": {
+          "type": "string"
+        },
+        "barkVolume": {
+          "type": "number"
+        }
       },
-      "required": ["kind"]
+      "required": [
+        "kind"
+      ]
     },
     "Pet": {
       "title": "Pet",
       "oneOf": [
-        { "$ref": "#/$defs/Cat" },
-        { "$ref": "#/$defs/Dog" }
+        {
+          "$ref": "#/$defs/Cat"
+        },
+        {
+          "$ref": "#/$defs/Dog"
+        }
       ],
       "discriminator": {
         "propertyName": "kind",
@@ -572,9 +885,15 @@
       "title": "RestrictedObject",
       "type": "object",
       "properties": {
-        "a": { "type": "string" },
-        "b": { "type": "string" },
-        "c": { "type": "string" }
+        "a": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        },
+        "c": {
+          "type": "string"
+        }
       },
       "minProperties": 1,
       "maxProperties": 2
@@ -583,11 +902,17 @@
       "title": "DependentObject",
       "type": "object",
       "properties": {
-        "creditCard": { "type": "number" },
-        "billingAddress": { "type": "string" }
+        "creditCard": {
+          "type": "number"
+        },
+        "billingAddress": {
+          "type": "string"
+        }
       },
       "dependentRequired": {
-        "creditCard": ["billingAddress"]
+        "creditCard": [
+          "billingAddress"
+        ]
       }
     },
     "DeprecatedObject": {
@@ -595,31 +920,81 @@
       "type": "object",
       "deprecated": true,
       "properties": {
-        "value": { "type": "string" }
+        "value": {
+          "type": "string"
+        }
       }
     },
     "A": {
       "title": "A",
       "type": "object",
       "properties": {
-        "a": { "type": "string" }
+        "a": {
+          "type": "string"
+        }
       }
     },
     "B": {
       "title": "B",
       "type": "object",
       "properties": {
-        "b": { "type": "integer" }
+        "b": {
+          "type": "integer"
+        }
       }
     },
     "Merged": {
       "title": "Merged",
       "allOf": [
-        { "$ref": "#/$defs/A" },
-        { "$ref": "#/$defs/B" }
+        {
+          "$ref": "#/$defs/A"
+        },
+        {
+          "$ref": "#/$defs/B"
+        }
       ],
       "properties": {
-        "c": { "type": "boolean" }
+        "c": {
+          "type": "boolean"
+        }
+      }
+    },
+    "CollidingEnum": {
+      "title": "CollidingEnum",
+      "enum": [
+        "values",
+        "value",
+        "fromValue",
+        "descriptor",
+        "foo-bar",
+        "foo_bar",
+        {
+          "a": 1
+        },
+        {
+          "a": "1"
+        }
+      ]
+    },
+    "CollidingObject": {
+      "title": "CollidingObject",
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        },
+        "@foo": {
+          "type": "string"
+        },
+        "bar": {
+          "type": "string"
+        },
+        "bar_1": {
+          "type": "string"
+        },
+        "validate": {
+          "type": "string"
+        }
       }
     }
   }
