@@ -112,6 +112,10 @@
     "dependentObject": {
       "$ref": "#/$defs/DependentObject"
     },
+    "primitiveArrayWithValidation": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 }
+    },
     "restrictedArray": {
       "type": "array",
       "items": {

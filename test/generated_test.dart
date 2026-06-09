@@ -185,6 +185,88 @@ void main() {
       }
     });
 
+    test('Nullable multi-option union validation with explicit null', () {
+      final json = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'nullableUnionValue': null,
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(json));
+      expect(model.nullableUnionValue, null);
+    });
+
+    test('Primitive array validation - success', () {
+      final json = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'primitiveArrayWithValidation': ['abc', 'defg'],
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(json));
+      expect(model.primitiveArrayWithValidation, ['abc', 'defg']);
+    });
+
+    test('Primitive array validation - failure', () {
+      final json = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'primitiveArrayWithValidation': ['abc', 'ab', 'defg'],
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(json)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having((e) => e.path, 'path', [
+                'primitiveArrayWithValidation',
+                '[1]',
+              ])
+              .having(
+                (e) => e.message,
+                'message',
+                contains(
+                  'Property "primitiveArrayWithValidation" length must be >= 3',
+                ),
+              ),
+        ),
+      );
+    });
+
+    test('Primitive array validation - manual validate failure', () {
+      final json = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'primitiveArrayWithValidation': ['abc', 'ab', 'defg'],
+      };
+      final model = TestRoot.fromJson(
+        JsonReader.fromObject(json),
+        validate: false,
+      );
+      expect(
+        () => model.validate(),
+        throwsA(
+          isA<JsonValidationException>()
+              .having((e) => e.path, 'path', [
+                'primitiveArrayWithValidation',
+                '[1]',
+              ])
+              .having(
+                (e) => e.message,
+                'message',
+                contains(
+                  'Property "primitiveArrayWithValidation" length must be >= 3',
+                ),
+              ),
+        ),
+      );
+    });
+
     test('Equality and copyWith', () {
       final a1 = Address(city: 'London', street: 'Street');
       final a2 = Address(city: 'London', street: 'Street');
