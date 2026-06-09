@@ -1464,6 +1464,11 @@ const _reservedMemberNames = {
   'runtimeType',
   'noSuchMethod',
   'toString',
+  'copyWith',
+  'toMap',
+  'toJsonValue',
+  'descriptor',
+  'additionalProperties',
 };
 
 const _dartKeywords = {
@@ -2273,6 +2278,46 @@ void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
 }
 
 /// Entry point to generate code for a parsed JSON Schema.
+Map<EnumSchema, Map<dynamic, String>>? _currentEnumConstantNames;
+Map<ObjectSchema, Map<String, String>>? _currentObjectFieldNames;
+
+Map<dynamic, String> _calculateEnumConstantNames(EnumSchema schema) {
+  final names = <dynamic, String>{};
+  final used = <String>{'values', 'value', 'fromValue', 'descriptor'};
+
+  for (final val in schema.values) {
+    var baseName = _toEnumConstantName(val, null);
+    var name = baseName;
+    int counter = 1;
+    while (used.contains(name)) {
+      name = '${baseName}_$counter';
+      counter++;
+    }
+    used.add(name);
+    names[val] = name;
+  }
+  return names;
+}
+
+Map<String, String> _calculateFieldNames(ObjectSchema schema) {
+  final fieldNames = <String, String>{};
+  final usedFieldNames = <String>{};
+  usedFieldNames.addAll(_reservedMemberNames);
+
+  schema.properties.forEach((name, propSchema) {
+    final baseName = toCamelCase(name);
+    var fieldName = baseName;
+    int counter = 1;
+    while (usedFieldNames.contains(fieldName)) {
+      fieldName = '${baseName}_$counter';
+      counter++;
+    }
+    usedFieldNames.add(fieldName);
+    fieldNames[name] = fieldName;
+  });
+  return fieldNames;
+}
+
 String generateCode(Schema rootSchema, String rootName) {
   final classNames = Map<Schema, String>.identity();
   final usedNames = <String>{};
@@ -2361,8 +2406,19 @@ String generateCode(Schema rootSchema, String rootName) {
 
   discoverClasses(rootSchema, rootName);
 
-  final buffer = StringBuffer();
-  buffer.writeln('''
+  _currentEnumConstantNames = {};
+  _currentObjectFieldNames = {};
+  classNames.forEach((schema, name) {
+    if (schema is EnumSchema) {
+      _currentEnumConstantNames![schema] = _calculateEnumConstantNames(schema);
+    } else if (schema is ObjectSchema) {
+      _currentObjectFieldNames![schema] = _calculateFieldNames(schema);
+    }
+  });
+
+  try {
+    final buffer = StringBuffer();
+    buffer.writeln('''
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
 
@@ -2372,20 +2428,31 @@ import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 ''');
 
-  classNames.forEach((schema, name) {
-    if (schema is ObjectSchema) {
-      buffer.writeln(_generateObjectClass(schema, name, classNames));
-    } else if (schema is UnionSchema) {
-      buffer.writeln(_generateUnionClass(schema, name, classNames));
-    } else if (schema is EnumSchema) {
-      buffer.writeln(_generateEnumClass(schema, name));
-    }
-  });
+    classNames.forEach((schema, name) {
+      if (schema is ObjectSchema) {
+        buffer.writeln(_generateObjectClass(schema, name, classNames));
+      } else if (schema is UnionSchema) {
+        buffer.writeln(_generateUnionClass(schema, name, classNames));
+      } else if (schema is EnumSchema) {
+        buffer.writeln(_generateEnumClass(schema, name));
+      }
+    });
 
-  return buffer.toString();
+    return buffer.toString();
+  } finally {
+    _currentEnumConstantNames = null;
+    _currentObjectFieldNames = null;
+  }
 }
 
-String _toEnumConstantName(Object? val) {
+String _toEnumConstantName(Object? val, [EnumSchema? schema]) {
+  if (schema != null && _currentEnumConstantNames != null) {
+    final names = _currentEnumConstantNames![schema];
+    if (names != null) {
+      final name = names[val];
+      if (name != null) return name;
+    }
+  }
   var enumName = toCamelCase(val.toString());
   if (isKeyword(enumName) || int.tryParse(enumName[0]) != null) {
     enumName = 'val${toPascalCase(val.toString())}';
@@ -2416,7 +2483,7 @@ String _generateEnumClass(EnumSchema schema, String className) {
   }
   buffer.writeln('enum $className {');
   for (final val in schema.values) {
-    final enumName = _toEnumConstantName(val);
+    final enumName = _toEnumConstantName(val, schema);
     final formattedValue = _toBasicDartLiteral(val);
     buffer.writeln("  $enumName($formattedValue),");
   }
@@ -2553,7 +2620,7 @@ String? _toDartLiteral(
   if (real is EnumSchema) {
     final className = classNames[real];
     if (className != null) {
-      final constName = _toEnumConstantName(value);
+      final constName = _toEnumConstantName(value, real);
       return '$className.$constName';
     } else {
       return _toDartLiteral(value, real.baseSchema, classNames);
@@ -2600,6 +2667,8 @@ String? _toDartLiteral(
       if (className != null) {
         final args = <String>[];
         var ok = true;
+        final fieldNames =
+            _currentObjectFieldNames?[real] ?? _calculateFieldNames(real);
         value.forEach((k, v) {
           final propSchema = real.properties[k];
           if (propSchema == null) {
@@ -2611,7 +2680,8 @@ String? _toDartLiteral(
             ok = false;
             return;
           }
-          args.add('${toCamelCase(k as String)}: $lit');
+          final dartFieldName = fieldNames[k] ?? toCamelCase(k as String);
+          args.add('$dartFieldName: $lit');
         });
         if (ok) {
           return 'const $className(${args.join(', ')})';
@@ -2627,6 +2697,8 @@ String _generateObjectClass(
   String className,
   Map<Schema, String> classNames,
 ) {
+  final fieldNames =
+      _currentObjectFieldNames?[schema] ?? _calculateFieldNames(schema);
   final fields = StringBuffer();
   final constructorParams = StringBuffer();
   final equalityProps = <String>[];
@@ -2636,7 +2708,7 @@ String _generateObjectClass(
   final copyWithArgs = StringBuffer();
 
   schema.properties.forEach((name, propSchema) {
-    final fieldName = toCamelCase(name);
+    final fieldName = fieldNames[name]!;
     final isRequired = schema.required.contains(name);
     final baseType = dartType(propSchema, classNames);
 
@@ -2720,6 +2792,7 @@ String _generateObjectClass(
     schema,
     className,
     classNames,
+    fieldNames,
   );
 
   final propDescriptors = StringBuffer();
@@ -2727,7 +2800,7 @@ String _generateObjectClass(
   final instantiateArgs = StringBuffer();
 
   schema.properties.forEach((name, propSchema) {
-    final fieldName = toCamelCase(name);
+    final fieldName = fieldNames[name]!;
     final nameEscaped = name.replaceAll("'", r"\'");
     final isRequired = schema.required.contains(name);
     final descExpr = _descriptorExpr(propSchema, classNames);
@@ -3032,13 +3105,14 @@ String _generateValidationMethod(
   ObjectSchema schema,
   String className,
   Map<Schema, String> classNames,
+  Map<String, String> fieldNames,
 ) {
   final buffer = StringBuffer();
   buffer.writeln('  void validate() {');
   if (schema.minProperties != null || schema.maxProperties != null) {
     buffer.writeln('    var count = 0;');
     schema.properties.forEach((key, propSchema) {
-      final fieldName = toCamelCase(key);
+      final fieldName = fieldNames[key]!;
       final isRequired = schema.required.contains(key);
       final isNullable = _isNullable(propSchema, isRequired, classNames);
       if (isNullable) {
@@ -3069,10 +3143,10 @@ String _generateValidationMethod(
     }
   }
   schema.dependentRequired.forEach((key, deps) {
-    final fieldName = toCamelCase(key);
+    final fieldName = fieldNames[key]!;
     buffer.writeln('    if ($fieldName != null) {');
     for (final dep in deps) {
-      final depFieldName = toCamelCase(dep);
+      final depFieldName = fieldNames[dep]!;
       buffer.writeln('      if ($depFieldName == null) {');
       buffer.writeln(
         "        throw JsonValidationException('Property \"$dep\" is required because \"$key\" is present', ['$dep']);",
@@ -3082,7 +3156,7 @@ String _generateValidationMethod(
     buffer.writeln('    }');
   });
   schema.properties.forEach((name, propSchema) {
-    final fieldName = toCamelCase(name);
+    final fieldName = fieldNames[name]!;
     final isRequired = schema.required.contains(name);
     final isNullable = _isNullable(propSchema, isRequired, classNames);
 
