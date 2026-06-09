@@ -33,10 +33,9 @@ final class JsonSchemaBuilder implements Builder {
       uriResolver: (uri) async {
         final resolvedId = AssetId(
           inputId.package,
-          p.normalize(p.join(p.dirname(inputId.path), uri)),
+          p.normalize(p.join(p.dirname(inputId.path), uri.path)),
         );
-        final content = await buildStep.readAsString(resolvedId);
-        return json.decode(content) as Map<String, dynamic>;
+        return buildStep.readAsBytes(resolvedId);
       },
     );
     final rootSchema = await parser.parse(disallowExternalRefs: false);

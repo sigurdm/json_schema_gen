@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io' as io;
 import 'dart:math' as math;
 import 'package:jsontool/jsontool.dart';
 
@@ -421,7 +423,7 @@ final class SchemaParser {
   final Map<String, Schema> _cache = {};
   final Map<String, dynamic> _rootJson;
   final String baseUri;
-  final Future<Map<String, dynamic>> Function(String uri)? uriResolver;
+  final Future<List<int>> Function(Uri uri)? uriResolver;
   final Set<String> _loadedFiles = {};
   bool _disallowExternalRefs = false;
 
@@ -513,7 +515,9 @@ final class SchemaParser {
               'Cannot resolve external ref $ref because no uriResolver was provided.',
             );
           }
-          final externalJson = await uriResolver!(refFile);
+          final bytes = await uriResolver!(Uri.parse(refFile));
+          final externalJson =
+              jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>;
           await _parseSchema(externalJson, '$refFile#');
         }
       }
@@ -4049,7 +4053,7 @@ extension SchemaValidationExtension on Schema {
 /// It throws [JsonValidationException] if validation fails.
 Future<void Function(dynamic)> createValidator(
   Map<String, dynamic> schema, {
-  Future<Map<String, dynamic>> Function(String uri)? uriResolver,
+  Future<List<int>> Function(Uri uri)? uriResolver,
   bool disallowExternalRefs = true,
 }) async {
   final parser = SchemaParser(schema, uriResolver: uriResolver);
@@ -4533,4 +4537,14 @@ bool _deepEquals(dynamic a, dynamic b) {
     return true;
   }
   return a == b;
+}
+
+/// A resolver that loads schemas from the local file system.
+Future<List<int>> ioFileResolver(Uri uri) async {
+  if (uri.scheme != 'file' && uri.scheme != '') {
+    throw ArgumentError(
+      'Unsupported scheme: ${uri.scheme}. Only file URIs are supported.',
+    );
+  }
+  return io.File.fromUri(uri).readAsBytes();
 }

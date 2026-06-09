@@ -448,8 +448,8 @@ void main() {
         mainSchema,
         baseUri: 'main.json',
         uriResolver: (uri) async {
-          if (uri == 'other.json') {
-            return otherSchema;
+          if (uri.path == 'other.json') {
+            return utf8.encode(json.encode(otherSchema));
           }
           throw ArgumentError('Unexpected URI: $uri');
         },
@@ -482,6 +482,47 @@ void main() {
       };
       final parser = SchemaParser(mainSchema, baseUri: 'main.json');
       expect(parser.parse(disallowExternalRefs: true), throwsArgumentError);
+    });
+
+    test('ioFileResolver resolves local files', () async {
+      final tempDir = Directory.systemTemp.createTempSync('json_schema_test');
+      try {
+        final mainUri = tempDir.uri.resolve('main.json');
+        final otherUri = tempDir.uri.resolve('other.json');
+        final mainFile = File.fromUri(mainUri);
+        final otherFile = File.fromUri(otherUri);
+
+        mainFile.writeAsStringSync(
+          json.encode({
+            'type': 'object',
+            'properties': {
+              'externalRef': {r'$ref': 'other.json#/definitions/External'},
+            },
+          }),
+        );
+
+        otherFile.writeAsStringSync(
+          json.encode({
+            'definitions': {
+              'External': {'type': 'string'},
+            },
+          }),
+        );
+
+        final parser = SchemaParser(
+          json.decode(mainFile.readAsStringSync()) as Map<String, dynamic>,
+          baseUri: mainUri.toString(),
+          uriResolver: ioFileResolver,
+        );
+
+        final schema =
+            await parser.parse(disallowExternalRefs: false) as ObjectSchema;
+        final extRef = schema.properties['externalRef'] as RefSchema;
+        expect(extRef.resolved, isNotNull);
+        expect(extRef.resolved!.realSchema, isA<StringSchema>());
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
     });
   });
 
@@ -702,6 +743,12 @@ void main() {
         'hostnameValue': 'example.com',
         'timeValue': '12:30:45Z',
         'uriReferenceValue': '/path/to/resource',
+        'dateTimeField': '2026-06-08T12:00:00Z',
+        'dateField': '2026-06-08',
+        'ipv4Field': '192.168.1.1',
+        'uriField': 'https://example.com',
+        'tupleArray': ['hello', 42, true],
+        'mergedAllOfObject': {'numVal': 15.0, 'strVal': 'a@b.com'},
         'additionalPropertiesObject': {
           'name': 'MapName',
           'extra1': 'value1',
@@ -859,6 +906,90 @@ void main() {
         () => validator({
           ...validObject,
           'strictObject': {'name': 'StrictName', 'extra': 'not-allowed'},
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - date-time)
+      expect(
+        () => validator({...validObject, 'dateTimeField': 'invalid-date-time'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - date)
+      expect(
+        () => validator({...validObject, 'dateField': 'invalid-date'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - ipv4)
+      expect(
+        () => validator({...validObject, 'ipv4Field': '256.1.1.1'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - uri)
+      expect(
+        () => validator({...validObject, 'uriField': 'invalid-uri'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (tupleArray first item failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'tupleArray': [123, 42],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (tupleArray second item failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'tupleArray': ['hello', 42.5],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (tupleArray third item failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'tupleArray': ['hello', 42, 'not-bool'],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (uniqueItems failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'tags': ['awesome', 'awesome'],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (multipleOf integer failure)
+      expect(
+        () => validator({...validObject, 'age': 7}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (multipleOf number failure in mergedAllOfObject)
+      expect(
+        () => validator({
+          ...validObject,
+          'mergedAllOfObject': {'numVal': 7.5, 'strVal': 'a@b.com'},
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (minLength failure in mergedAllOfObject)
+      expect(
+        () => validator({
+          ...validObject,
+          'mergedAllOfObject': {'numVal': 15.0, 'strVal': 'abc'},
         }),
         throwsA(isA<JsonValidationException>()),
       );
