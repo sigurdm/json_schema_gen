@@ -256,6 +256,59 @@ void main() {
       final desc = _testEnumDescriptor;
       expect(serialize(_TestEnum.value1, desc), '"value1"');
     });
+
+    test('UnionDescriptor matching (primitive and complex types)', () {
+      final unionDesc = UnionDescriptor(
+        title: 'TestUnion',
+        activeOptions: [
+          UnionOptionDescriptor(const NullDescriptor(), (v) => v),
+          UnionOptionDescriptor(const BoolDescriptor(), (v) => v),
+          UnionOptionDescriptor(const StringDescriptor(), (v) => v),
+          UnionOptionDescriptor(const IntDescriptor(), (v) => v),
+          UnionOptionDescriptor(const NumDescriptor(), (v) => v),
+          UnionOptionDescriptor(
+            const ArrayDescriptor(StringDescriptor()),
+            (v) => v,
+          ),
+          UnionOptionDescriptor(
+            ObjectDescriptor<Map>(
+              title: 'EmptyObj',
+              matches: (v) => v is Map && v.isEmpty,
+              instantiate: (f) => f,
+              getFields: (v) => (v as Map).cast<String, Object?>(),
+              properties: {},
+              required: [],
+            ),
+            (v) => v,
+          ),
+          UnionOptionDescriptor(_testEnumDescriptor, (v) => v),
+          UnionOptionDescriptor(const NeverDescriptor(), (v) => v),
+        ],
+      );
+
+      expect(serialize(null, unionDesc), 'null');
+      expect(serialize(true, unionDesc), 'true');
+      expect(serialize('hello', unionDesc), '"hello"');
+      expect(serialize(42, unionDesc), '42');
+      expect(serialize(42.5, unionDesc), '42.5');
+      expect(serialize(['a', 'b'], unionDesc), '["a","b"]');
+      expect(serialize({}, unionDesc), '{}');
+      expect(serialize(_TestEnum.value1, unionDesc), '"value1"');
+
+      // Failure case (no match)
+      expect(() => serialize({'not': 'empty'}, unionDesc), throwsArgumentError);
+
+      // Union with AnythingDescriptor
+      final unionWithAnythingDesc = UnionDescriptor(
+        title: 'TestUnionWithAnything',
+        activeOptions: [
+          UnionOptionDescriptor(const IntDescriptor(), (v) => v),
+          UnionOptionDescriptor(const AnythingDescriptor(), (v) => v),
+        ],
+      );
+      expect(serialize(42, unionWithAnythingDesc), '42');
+      expect(serialize('string', unionWithAnythingDesc), '"string"');
+    });
   });
 
   group('Validation Edge Cases', () {
