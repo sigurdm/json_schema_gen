@@ -227,6 +227,20 @@ void main() {
         throwsFormatException,
       );
     });
+
+    test('NotDescriptor success', () {
+      final desc = const NotDescriptor(StringDescriptor());
+      final val = parseWithDescriptor(JsonReader.fromObject(42), desc);
+      expect(val, 42);
+    });
+
+    test('NotDescriptor failure', () {
+      final desc = const NotDescriptor(StringDescriptor());
+      expect(
+        () => parseWithDescriptor(JsonReader.fromObject('hello'), desc),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
   });
 
   group('writeWithDescriptor extra branches', () {
@@ -569,6 +583,14 @@ void main() {
         () => validator(invalidObject5),
         throwsA(isA<JsonValidationException>()),
       );
+    });
+
+    test('not support', () {
+      final schema = const AnythingSchema(
+        not: StringSchema(),
+      );
+      expect(() => schema.validate(1), returnsNormally);
+      expect(() => schema.validate('string'), throwsA(isA<JsonValidationException>()));
     });
   });
 }

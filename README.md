@@ -22,6 +22,7 @@ This package supports schemas conforming to **JSON Schema Draft 2020-12**.
 - `oneOf` / `anyOf` $\rightarrow$ compiles to Dart `sealed class` unions.
 - `allOf` $\rightarrow$ merges subschemas into a single flattened Dart class.
 - `enum` $\rightarrow$ compiles to Dart `enum`.
+- `not` $\rightarrow$ supported. Inverts subschema validation. Fields with only `not` constraints fall back to `dynamic` typing.
 
 ### Supported Validation Constraints
 - **Strings**: `minLength`, `maxLength`, `pattern`, `format` (supporting `date-time`, `date`, `time`, `email`, `ipv4`, `ipv6`, `hostname`, `uri`, `uri-reference`, `uuid`).
@@ -31,8 +32,14 @@ This package supports schemas conforming to **JSON Schema Draft 2020-12**.
 - **Defaults**: Supports `default` values in constructors and fallback values during parsing.
 
 ### Missing/Unsupported JSON Schema Features
-- `not` and `patternProperties`.
+- `patternProperties`.
 - Non-discriminator object unions (overlapping schemas without explicit discriminator properties require distinct primitive types or simple structure speculative checks).
+
+### The `not` Keyword & Typing Caveats
+
+The `not` keyword inverts the validation logic of a subschema.
+- If a property only has a `not` constraint (without an explicit `type` keyword), the generator cannot infer a specific Dart type and will fall back to `dynamic`.
+- If the `not` subschema negates the parent schema's type (e.g. `{ "type": "string", "not": { "type": "string" } }`), validation will always fail at runtime. The generator will emit a warning during code generation for such cases.
 
 ---
 

@@ -247,3 +247,12 @@ final class UnionDescriptor<T> extends SchemaDescriptor<T> {
     required this.activeOptions,
   });
 }
+
+/// Descriptor for negated schemas.
+final class NotDescriptor extends SchemaDescriptor<dynamic> {
+  /// The negated schema descriptor.
+  final SchemaDescriptor inner;
+
+  /// Creates a [NotDescriptor] wrapping [inner].
+  const NotDescriptor(this.inner);
+}

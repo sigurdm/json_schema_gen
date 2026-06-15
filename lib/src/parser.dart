@@ -57,15 +57,26 @@ final class SchemaParser {
 
     if (json.containsKey(r'$ref')) {
       final ref = json[r'$ref'] as String;
-      return RefSchema(
+      final refSchema = RefSchema(
         ref,
         title: title,
         description: description,
         isDeprecated: isDeprecated,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
-        not: not,
       );
+      if (not != null) {
+        return AllOfSchema(
+          subschemas: [refSchema],
+          not: not,
+          title: title,
+          description: description,
+          isDeprecated: isDeprecated,
+          hasDefault: hasDefault,
+          defaultValue: defaultValue,
+        );
+      }
+      return refSchema;
     }
 
     // Parse definitions under local scopes
@@ -430,6 +441,7 @@ final class SchemaParser {
     final visited = <Schema>{};
     void visit(Schema s) {
       if (!visited.add(s)) return;
+      if (s.not != null) visit(s.not!);
       if (s is RefSchema) {
         final target = _cache[s.ref];
         if (target == null) {
@@ -448,6 +460,8 @@ final class SchemaParser {
         s.subschemas.forEach(visit);
       } else if (s is AllOfSchema) {
         s.subschemas.forEach(visit);
+      } else if (s is EnumSchema) {
+        visit(s.baseSchema);
       }
     }
 
@@ -462,6 +476,9 @@ final class SchemaParser {
       return _flattenCache[schema]!;
     }
 
+    final newNot = schema.not != null ? _flatten(schema.not!) : null;
+    final notChanged = newNot != schema.not;
+
     if (schema is RefSchema) {
       _flattenCache[schema] = schema;
       if (schema.resolved != null) {
@@ -471,7 +488,7 @@ final class SchemaParser {
     }
 
     if (schema is ObjectSchema) {
-      var changed = false;
+      var changed = notChanged;
       final newProps = <String, Schema>{};
       schema.properties.forEach((k, v) {
         final nv = _flatten(v);
@@ -508,6 +525,7 @@ final class SchemaParser {
           isDeprecated: schema.isDeprecated,
           hasDefault: schema.hasDefault,
           defaultValue: schema.defaultValue,
+          not: newNot,
         );
         _flattenCache[schema] = newSchema;
         return newSchema;
@@ -536,7 +554,8 @@ final class SchemaParser {
 
       if (newItems != schema.items ||
           newContains != schema.contains ||
-          prefixItemsChanged) {
+          prefixItemsChanged ||
+          notChanged) {
         final newSchema = ArraySchema(
           items: newItems,
           prefixItems: newPrefixItems,
@@ -551,6 +570,7 @@ final class SchemaParser {
           isDeprecated: schema.isDeprecated,
           hasDefault: schema.hasDefault,
           defaultValue: schema.defaultValue,
+          not: newNot,
         );
         _flattenCache[schema] = newSchema;
         return newSchema;
@@ -561,7 +581,7 @@ final class SchemaParser {
     }
 
     if (schema is UnionSchema) {
-      var changed = false;
+      var changed = notChanged;
       final newSubs = <Schema>[];
       for (final sub in schema.subschemas) {
         final ns = _flatten(sub);
@@ -577,6 +597,7 @@ final class SchemaParser {
           isDeprecated: schema.isDeprecated,
           hasDefault: schema.hasDefault,
           defaultValue: schema.defaultValue,
+          not: newNot,
         );
         _flattenCache[schema] = newSchema;
         return newSchema;
@@ -589,14 +610,46 @@ final class SchemaParser {
     if (schema is AllOfSchema) {
       final flattenedSubs = schema.subschemas.map(_flatten).toList();
       final merged = _mergeAll(flattenedSubs);
-      final finalSchema = _copyWithMetadata(
-        merged,
-        title: schema.title,
-        description: schema.description,
-        isDeprecated: schema.isDeprecated,
-        hasDefault: schema.hasDefault,
-        defaultValue: schema.defaultValue,
+      final combinedNot = _mergeNot(merged.not, newNot);
+      final mergedWithoutNot = _copyWithMetadata(merged, not: null);
+      final finalSchema = _attachNot(
+        _copyWithMetadata(
+          mergedWithoutNot,
+          title: schema.title,
+          description: schema.description,
+          isDeprecated: schema.isDeprecated,
+          hasDefault: schema.hasDefault,
+          defaultValue: schema.defaultValue,
+        ),
+        combinedNot,
       );
+      _flattenCache[schema] = finalSchema;
+      return finalSchema;
+    }
+
+    if (schema is EnumSchema) {
+      final newBase = _flatten(schema.baseSchema);
+      if (newBase != schema.baseSchema || notChanged) {
+        final newSchema = EnumSchema(
+          values: schema.values,
+          baseSchema: newBase,
+          title: schema.title,
+          description: schema.description,
+          isDeprecated: schema.isDeprecated,
+          hasDefault: schema.hasDefault,
+          defaultValue: schema.defaultValue,
+          not: newNot,
+        );
+        _flattenCache[schema] = newSchema;
+        return newSchema;
+      } else {
+        _flattenCache[schema] = schema;
+        return schema;
+      }
+    }
+
+    if (notChanged) {
+      final finalSchema = _copyWithMetadata(schema, not: newNot);
       _flattenCache[schema] = finalSchema;
       return finalSchema;
     }
@@ -616,7 +669,8 @@ final class SchemaParser {
 
   Schema _merge(Schema a, Schema b) {
     final merged = _mergeInner(a, b);
-    return _copyWithMetadata(merged, not: _mergeNot(a.not, b.not));
+    final mergedNot = _mergeNot(a.not, b.not);
+    return _attachNot(merged, mergedNot);
   }
 
   Schema? _mergeNot(Schema? a, Schema? b) {
@@ -959,4 +1013,12 @@ Schema _copyWithMetadata(
       not: n,
     ),
   };
+}
+
+Schema _attachNot(Schema schema, Schema? not) {
+  if (not == null) return schema;
+  if (schema is RefSchema) {
+    return AllOfSchema(subschemas: [schema], not: not);
+  }
+  return _copyWithMetadata(schema, not: not);
 }
