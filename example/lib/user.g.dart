@@ -1,6 +1,8 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
 
+import 'dart:collection';
+import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
@@ -103,7 +105,7 @@ final class User implements JsonModel {
       UserRole.admin,
       UserRole.editor,
       UserRole.user,
-    ].contains(role)) {
+    ].any((v) => const DeepCollectionEquality().equals(v, role))) {
       throw JsonValidationException(
         'Property "role" must be one of [admin, editor, user]',
         ['role'],
@@ -127,7 +129,11 @@ final class User implements JsonModel {
     }
     final val_tags = tags;
     if (val_tags != null) {
-      if (val_tags.length != val_tags.toSet().length) {
+      if (val_tags.length !=
+          (LinkedHashSet<dynamic>(
+            equals: const DeepCollectionEquality().equals,
+            hashCode: const DeepCollectionEquality().hash,
+          )..addAll(val_tags)).length) {
         throw JsonValidationException('Property "tags" items must be unique', [
           'tags',
         ]);
@@ -169,17 +175,20 @@ final class User implements JsonModel {
       preferences: fields['preferences'] as UserPreferences?,
       createdAt: fields['createdAt'] as String?,
     ),
-    getFields: (instance) => {
-      'id': instance.id,
-      'name': instance.name,
-      'email': instance.email,
-      'age': instance.age,
-      'role': instance.role,
-      'profile': instance.profile,
-      'address': instance.address,
-      'tags': instance.tags,
-      'preferences': instance.preferences,
-      'createdAt': instance.createdAt,
+    getFields: (instance) {
+      final typedInstance = instance as User;
+      return {
+        'id': typedInstance.id,
+        'name': typedInstance.name,
+        'email': typedInstance.email,
+        'age': typedInstance.age,
+        'role': typedInstance.role,
+        'profile': typedInstance.profile,
+        'address': typedInstance.address,
+        'tags': typedInstance.tags,
+        'preferences': typedInstance.preferences,
+        'createdAt': typedInstance.createdAt,
+      };
     },
     properties: {
       'id': PropertyDescriptor(
@@ -249,7 +258,7 @@ final class User implements JsonModel {
           role == other.role &&
           profile == other.profile &&
           address == other.address &&
-          tags == other.tags &&
+          const DeepCollectionEquality().equals(tags, other.tags) &&
           preferences == other.preferences &&
           createdAt == other.createdAt;
 
@@ -262,7 +271,7 @@ final class User implements JsonModel {
     role,
     profile,
     address,
-    tags,
+    const DeepCollectionEquality().hash(tags),
     preferences,
     createdAt,
   ]);
@@ -349,9 +358,9 @@ final class UserProfile implements JsonModel {
       avatarUrl: fields['avatarUrl'] as String?,
       bio: fields['bio'] as String?,
     ),
-    getFields: (instance) => {
-      'avatarUrl': instance.avatarUrl,
-      'bio': instance.bio,
+    getFields: (instance) {
+      final typedInstance = instance as UserProfile;
+      return {'avatarUrl': typedInstance.avatarUrl, 'bio': typedInstance.bio};
     },
     properties: {
       'avatarUrl': PropertyDescriptor(
@@ -429,7 +438,7 @@ final class Address implements JsonModel {
     final val_street = street;
     final val_zipCode = zipCode;
     if (val_zipCode != null) {
-      if (!RegExp(r'^[0-9]{5}$').hasMatch(val_zipCode)) {
+      if (!RegExp('^[0-9]{5}\$').hasMatch(val_zipCode)) {
         throw JsonValidationException(
           'Property "zipCode" must match pattern "^[0-9]{5}\$"',
           ['zipCode'],
@@ -446,10 +455,13 @@ final class Address implements JsonModel {
       city: fields['city'] as String,
       zipCode: fields['zipCode'] as String?,
     ),
-    getFields: (instance) => {
-      'street': instance.street,
-      'city': instance.city,
-      'zipCode': instance.zipCode,
+    getFields: (instance) {
+      final typedInstance = instance as Address;
+      return {
+        'street': typedInstance.street,
+        'city': typedInstance.city,
+        'zipCode': typedInstance.zipCode,
+      };
     },
     properties: {
       'street': PropertyDescriptor(
@@ -547,7 +559,10 @@ final class UserPreferences implements JsonModel {
             (m, e) => m..[e.key] = e.value as String,
           ),
     ),
-    getFields: (instance) => {...instance.additionalProperties},
+    getFields: (instance) {
+      final typedInstance = instance as UserPreferences;
+      return {...typedInstance.additionalProperties};
+    },
     properties: {},
 
     required: const [],
@@ -559,19 +574,14 @@ final class UserPreferences implements JsonModel {
       identical(this, other) ||
       other is UserPreferences &&
           runtimeType == other.runtimeType &&
-          additionalProperties.length == other.additionalProperties.length &&
-          additionalProperties.keys.every(
-            (k) =>
-                other.additionalProperties.containsKey(k) &&
-                other.additionalProperties[k] == additionalProperties[k],
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
           );
 
   @override
   int get hashCode => Object.hashAll([
-    additionalProperties.entries.fold<int>(
-      0,
-      (sum, entry) => sum ^ Object.hash(entry.key, entry.value),
-    ),
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override

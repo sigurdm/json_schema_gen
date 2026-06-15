@@ -270,6 +270,164 @@ void main() {
       final desc = _testEnumDescriptor;
       expect(serialize(_TestEnum.value1, desc), '"value1"');
     });
+
+    test('UnionDescriptor matching (primitive and complex types)', () {
+      final unionDesc = UnionDescriptor(
+        title: 'TestUnion',
+        activeOptions: [
+          UnionOptionDescriptor(const NullDescriptor(), (v) => v),
+          UnionOptionDescriptor(const BoolDescriptor(), (v) => v),
+          UnionOptionDescriptor(const StringDescriptor(), (v) => v),
+          UnionOptionDescriptor(const IntDescriptor(), (v) => v),
+          UnionOptionDescriptor(const NumDescriptor(), (v) => v),
+          UnionOptionDescriptor(
+            const ArrayDescriptor(StringDescriptor()),
+            (v) => v,
+          ),
+          UnionOptionDescriptor(
+            ObjectDescriptor<Map>(
+              title: 'EmptyObj',
+              matches: (v) => v is Map && v.isEmpty,
+              instantiate: (f) => f,
+              getFields: (v) => (v as Map).cast<String, Object?>(),
+              properties: {},
+              required: [],
+            ),
+            (v) => v,
+          ),
+          UnionOptionDescriptor(_testEnumDescriptor, (v) => v),
+          UnionOptionDescriptor(const NeverDescriptor(), (v) => v),
+        ],
+      );
+
+      expect(serialize(null, unionDesc), 'null');
+      expect(serialize(true, unionDesc), 'true');
+      expect(serialize('hello', unionDesc), '"hello"');
+      expect(serialize(42, unionDesc), '42');
+      expect(serialize(42.5, unionDesc), '42.5');
+      expect(serialize(['a', 'b'], unionDesc), '["a","b"]');
+      expect(serialize({}, unionDesc), '{}');
+      expect(serialize(_TestEnum.value1, unionDesc), '"value1"');
+
+      // Failure case (no match)
+      expect(() => serialize({'not': 'empty'}, unionDesc), throwsArgumentError);
+
+      // Union with AnythingDescriptor
+      final unionWithAnythingDesc = UnionDescriptor(
+        title: 'TestUnionWithAnything',
+        activeOptions: [
+          UnionOptionDescriptor(const IntDescriptor(), (v) => v),
+          UnionOptionDescriptor(const AnythingDescriptor(), (v) => v),
+        ],
+      );
+      expect(serialize(42, unionWithAnythingDesc), '42');
+      expect(serialize('string', unionWithAnythingDesc), '"string"');
+    });
+  });
+
+  group('Validation Edge Cases', () {
+    test('uniqueItems with nested collections', () {
+      final schema = const ArraySchema(
+        items: AnythingSchema(),
+        uniqueItems: true,
+      );
+      final list1 = [1, 2];
+      final list2 = [1, 2];
+      expect(
+        () => schema.validate([list1, list2]),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate([
+          list1,
+          [1, 3],
+        ]),
+        returnsNormally,
+      );
+    });
+
+    test('EnumSchema with collection values', () {
+      final schema = const EnumSchema(
+        values: [
+          [1, 2],
+          [3, 4],
+        ],
+        baseSchema: AnythingSchema(),
+      );
+      expect(() => schema.validate([1, 2]), returnsNormally);
+      expect(
+        () => schema.validate([1, 3]),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('SchemaParser handles recursive schema (nested cycle)', () async {
+      final jsonSchema = {
+        'definitions': {
+          'A': {
+            'type': 'object',
+            'properties': {
+              'b': {r'$ref': '#/definitions/B'},
+            },
+          },
+          'B': {
+            'type': 'object',
+            'properties': {
+              'a': {r'$ref': '#/definitions/A'},
+            },
+          },
+        },
+        r'$ref': '#/definitions/A',
+      };
+      final parser = SchemaParser(jsonSchema);
+      final schema = await parser.parse();
+      expect(schema, isNotNull);
+      final objectSchema = schema.realSchema as ObjectSchema;
+      final propB = objectSchema.properties['b']!;
+      final bSchema = propB.realSchema as ObjectSchema;
+      final propA = bSchema.properties['a']!;
+      expect(propA.realSchema, isA<ObjectSchema>());
+    });
+
+    test(
+      'SchemaParser handles direct cyclic reference and realSchema throws',
+      () async {
+        final jsonSchema = {
+          'definitions': {
+            'A': {r'$ref': '#/definitions/B'},
+            'B': {r'$ref': '#/definitions/A'},
+          },
+          r'$ref': '#/definitions/A',
+        };
+        final parser = SchemaParser(jsonSchema);
+        final schema = await parser.parse();
+        expect(schema, isNotNull);
+        expect(() => schema.realSchema, throwsStateError);
+      },
+    );
+  });
+
+  group('Formatting Helpers', () {
+    test('toPascalCase', () {
+      expect(toPascalCase('some-name'), 'SomeName');
+      expect(toPascalCase('some_name'), 'SomeName');
+      expect(toPascalCase('some name'), 'SomeName');
+      expect(toPascalCase('1-name'), 'Schema1Name');
+      expect(toPascalCase('123name'), 'Schema123name');
+      expect(toPascalCase(''), '');
+      expect(toPascalCase('!@#'), '');
+    });
+
+    test('toCamelCase', () {
+      expect(toCamelCase('some-name'), 'someName');
+      expect(toCamelCase('some_name'), 'someName');
+      expect(toCamelCase('some name'), 'someName');
+      expect(toCamelCase('PascalCase'), 'pascalCase');
+      expect(toCamelCase('class'), 'class_'); // keyword
+      expect(toCamelCase('hashCode'), 'hashCode_'); // reserved member
+      expect(toCamelCase('1-name'), 'value1Name');
+      expect(toCamelCase('123name'), 'value123name');
+    });
   });
 
   group('SchemaParser', () {
@@ -281,7 +439,193 @@ void main() {
         },
       };
       final parser = SchemaParser(jsonSchema);
-      expect(() => parser.parse(), throwsArgumentError);
+      expect(parser.parse(), throwsArgumentError);
+    });
+
+    test('root ref with definitions', () async {
+      final jsonSchema = {
+        'definitions': {
+          'A': {'type': 'string'},
+        },
+        r'$ref': '#/definitions/A',
+      };
+      final parser = SchemaParser(jsonSchema);
+      final schema = await parser.parse();
+      print('Parsed schema: $schema');
+    });
+
+    test(
+      'handles recursive schema with flattening changes without duplicating classes',
+      () async {
+        final jsonSchema = {
+          'definitions': {
+            'Node': {
+              'type': 'object',
+              'properties': {
+                'child': {r'$ref': '#/definitions/Node'},
+                'foo': {
+                  'allOf': [
+                    {'type': 'string', 'minLength': 3},
+                    {'type': 'string', 'maxLength': 5},
+                  ],
+                },
+              },
+            },
+          },
+          r'$ref': '#/definitions/Node',
+        };
+        final parser = SchemaParser(jsonSchema);
+        final schema = await parser.parse();
+
+        final rootRef = schema as RefSchema;
+        final node1 = rootRef.resolved as ObjectSchema;
+
+        final childRef = node1.properties['child'] as RefSchema;
+        final node2 = childRef.resolved as ObjectSchema;
+
+        expect(identical(node1, node2), isTrue);
+      },
+    );
+
+    test('parses boolean schema false as NeverSchema', () async {
+      final jsonSchema = {
+        'type': 'object',
+        'properties': {'blocked': false, 'allowed': true},
+      };
+      final parser = SchemaParser(jsonSchema);
+      final schema = await parser.parse() as ObjectSchema;
+      expect(schema.properties['blocked']!.realSchema, isA<NeverSchema>());
+      expect(schema.properties['allowed']!.realSchema, isA<AnythingSchema>());
+    });
+
+    test('resolves relative external refs when allowed', () async {
+      final mainSchema = {
+        'type': 'object',
+        'properties': {
+          'externalRef': {r'$ref': 'other.json#/definitions/External'},
+        },
+      };
+      final otherSchema = {
+        'definitions': {
+          'External': {'type': 'string'},
+        },
+      };
+
+      final parser = SchemaParser(
+        mainSchema,
+        baseUri: 'main.json',
+        uriResolver: (uri) async {
+          if (uri.path == 'other.json') {
+            return utf8.encode(json.encode(otherSchema));
+          }
+          throw ArgumentError('Unexpected URI: $uri');
+        },
+      );
+
+      final schema =
+          await parser.parse(disallowExternalRefs: false) as ObjectSchema;
+      final extRef = schema.properties['externalRef'] as RefSchema;
+      expect(extRef.resolved, isNotNull);
+      expect(extRef.resolved!.realSchema, isA<StringSchema>());
+    });
+
+    test('throws by default on external refs', () async {
+      final mainSchema = {
+        'type': 'object',
+        'properties': {
+          'externalRef': {r'$ref': 'other.json#/definitions/External'},
+        },
+      };
+      final parser = SchemaParser(mainSchema, baseUri: 'main.json');
+      expect(parser.parse(), throwsArgumentError);
+    });
+
+    test('throws when disallowExternalRefs is true', () async {
+      final mainSchema = {
+        'type': 'object',
+        'properties': {
+          'externalRef': {r'$ref': 'other.json#/definitions/External'},
+        },
+      };
+      final parser = SchemaParser(mainSchema, baseUri: 'main.json');
+      expect(parser.parse(disallowExternalRefs: true), throwsArgumentError);
+    });
+
+    test('ioFileResolver resolves local files', () async {
+      final tempDir = Directory.systemTemp.createTempSync('json_schema_test');
+      try {
+        final mainUri = tempDir.uri.resolve('main.json');
+        final otherUri = tempDir.uri.resolve('other.json');
+        final mainFile = File.fromUri(mainUri);
+        final otherFile = File.fromUri(otherUri);
+
+        mainFile.writeAsStringSync(
+          json.encode({
+            'type': 'object',
+            'properties': {
+              'externalRef': {r'$ref': 'other.json#/definitions/External'},
+            },
+          }),
+        );
+
+        otherFile.writeAsStringSync(
+          json.encode({
+            'definitions': {
+              'External': {'type': 'string'},
+            },
+          }),
+        );
+
+        final parser = SchemaParser(
+          json.decode(mainFile.readAsStringSync()) as Map<String, dynamic>,
+          baseUri: mainUri.toString(),
+          uriResolver: (uri) => ioFileResolver(uri, rootDirectory: tempDir),
+        );
+
+        final schema =
+            await parser.parse(disallowExternalRefs: false) as ObjectSchema;
+        final extRef = schema.properties['externalRef'] as RefSchema;
+        expect(extRef.resolved, isNotNull);
+        expect(extRef.resolved!.realSchema, isA<StringSchema>());
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('ioFileResolver throws ArgumentError on path traversal', () async {
+      final tempDir = Directory.systemTemp.createTempSync('json_schema_test');
+      try {
+        final mainUri = tempDir.uri.resolve('main.json');
+        final mainFile = File.fromUri(mainUri);
+
+        mainFile.writeAsStringSync(
+          json.encode({
+            'type': 'object',
+            'properties': {
+              'externalRef': {r'$ref': '../unsafe.json#/definitions/External'},
+            },
+          }),
+        );
+
+        final parser = SchemaParser(
+          json.decode(mainFile.readAsStringSync()) as Map<String, dynamic>,
+          baseUri: mainUri.toString(),
+          uriResolver: (uri) => ioFileResolver(uri, rootDirectory: tempDir),
+        );
+
+        expect(
+          () => parser.parse(disallowExternalRefs: false),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              'message',
+              contains('Access denied'),
+            ),
+          ),
+        );
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
     });
   });
 
@@ -464,7 +808,57 @@ void main() {
       );
     });
 
-    test('createValidator', () {
+    test('AllOfSchema', () {
+      final schema = const AllOfSchema(
+        subschemas: [StringSchema(minLength: 3), StringSchema(maxLength: 5)],
+      );
+      expect(() => schema.validate('abcd'), returnsNormally);
+      expect(
+        () => schema.validate('ab'),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate('abcdef'),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('UnionSchema', () {
+      final schema = const UnionSchema(
+        subschemas: [StringSchema(), NumberSchema(isInteger: true)],
+      );
+      expect(() => schema.validate('hello'), returnsNormally);
+      expect(() => schema.validate(42), returnsNormally);
+      expect(
+        () => schema.validate(true),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('EnumSchema', () {
+      final schema = const EnumSchema(
+        values: ['red', 'green', 'blue'],
+        baseSchema: StringSchema(),
+      );
+      expect(() => schema.validate('red'), returnsNormally);
+      expect(
+        () => schema.validate('yellow'),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('not constraint', () {
+      final schema = const StringSchema(
+        not: StringSchema(pattern: r'^forbidden'),
+      );
+      expect(() => schema.validate('allowed'), returnsNormally);
+      expect(
+        () => schema.validate('forbidden_word'),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('createValidator', () async {
       final schemaJson = {
         'type': 'object',
         'properties': {
@@ -472,16 +866,16 @@ void main() {
         },
         'required': ['name'],
       };
-      final validator = createValidator(schemaJson);
+      final validator = await createValidator(schemaJson);
       expect(() => validator({'name': 'Alice'}), returnsNormally);
       expect(() => validator({}), throwsA(isA<JsonValidationException>()));
     });
 
-    test('Complex Schema Validation', () {
+    test('Complex Schema Validation', () async {
       final schemaFile = File('test/test_schema.schema.json');
       final jsonStr = schemaFile.readAsStringSync();
       final decoded = json.decode(jsonStr) as Map<String, dynamic>;
-      final validator = createValidator(decoded);
+      final validator = await createValidator(decoded);
 
       // Valid object
       final validObject = {
@@ -518,6 +912,12 @@ void main() {
         'hostnameValue': 'example.com',
         'timeValue': '12:30:45Z',
         'uriReferenceValue': '/path/to/resource',
+        'dateTimeField': '2026-06-08T12:00:00Z',
+        'dateField': '2026-06-08',
+        'ipv4Field': '192.168.1.1',
+        'uriField': 'https://example.com',
+        'tupleArray': ['hello', 42, true],
+        'mergedAllOfObject': {'numVal': 15.0, 'strVal': 'a@b.com'},
         'additionalPropertiesObject': {
           'name': 'MapName',
           'extra1': 'value1',
@@ -581,6 +981,185 @@ void main() {
       };
       expect(
         () => validator(invalidObject5),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (not validation failure - pattern matches)
+      expect(
+        () => validator({
+          ...validObject,
+          'notObject': {
+            'notPatternString': 'forbidden',
+            'notEnumInt': 42,
+            'notNullValue': 'not-null',
+          },
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (not validation failure - enum matches)
+      expect(
+        () => validator({
+          ...validObject,
+          'notObject': {
+            'notPatternString': 'allowed_string',
+            'notEnumInt': 13,
+            'notNullValue': 'not-null',
+          },
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (minProperties failure)
+      expect(
+        () => validator({...validObject, 'restrictedObject': {}}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (maxProperties failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'restrictedObject': {'a': 'valA', 'b': 'valB', 'c': 'valC'},
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (dependentRequired failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'dependentObject': {'creditCard': 1234567890},
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (contains failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'restrictedArray': [1, 2, 4, 5],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - ipv6)
+      expect(
+        () => validator({...validObject, 'ipv6Value': 'invalid-ipv6'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - hostname)
+      expect(
+        () => validator({...validObject, 'hostnameValue': '-invalid-host'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - time)
+      expect(
+        () => validator({...validObject, 'timeValue': '25:00:00Z'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - uri-reference)
+      expect(
+        () => validator({
+          ...validObject,
+          'uriReferenceValue': 'http://example.com/ space',
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (additionalProperties: false failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'strictObject': {'name': 'StrictName', 'extra': 'not-allowed'},
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - date-time)
+      expect(
+        () => validator({...validObject, 'dateTimeField': 'invalid-date-time'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - date)
+      expect(
+        () => validator({...validObject, 'dateField': 'invalid-date'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - ipv4)
+      expect(
+        () => validator({...validObject, 'ipv4Field': '256.1.1.1'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (format failure - uri)
+      expect(
+        () => validator({...validObject, 'uriField': 'invalid-uri'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (tupleArray first item failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'tupleArray': [123, 42],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (tupleArray second item failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'tupleArray': ['hello', 42.5],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (tupleArray third item failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'tupleArray': ['hello', 42, 'not-bool'],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (uniqueItems failure)
+      expect(
+        () => validator({
+          ...validObject,
+          'tags': ['awesome', 'awesome'],
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (multipleOf integer failure)
+      expect(
+        () => validator({...validObject, 'age': 7}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (multipleOf number failure in mergedAllOfObject)
+      expect(
+        () => validator({
+          ...validObject,
+          'mergedAllOfObject': {'numVal': 7.5, 'strVal': 'a@b.com'},
+        }),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      // Invalid object (minLength failure in mergedAllOfObject)
+      expect(
+        () => validator({
+          ...validObject,
+          'mergedAllOfObject': {'numVal': 15.0, 'strVal': 'abc'},
+        }),
         throwsA(isA<JsonValidationException>()),
       );
     });
