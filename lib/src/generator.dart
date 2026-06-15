@@ -12,16 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:io';
 import 'schema.dart';
 
 /// Formats a name string into PascalCase for Dart class names.
 String toPascalCase(String text) {
-  return text
+  final result = text
       .split(RegExp(r'[^a-zA-Z0-9]+'))
       .where((s) => s.isNotEmpty)
       .map((s) => s[0].toUpperCase() + s.substring(1))
       .join('');
+  if (result.isEmpty) return '';
+  if (RegExp(r'^[0-9]').hasMatch(result)) {
+    return 'Schema$result';
+  }
+  return result;
 }
 
 /// Formats a name string into camelCase for Dart properties.
@@ -36,7 +40,10 @@ String toCamelCase(String text) {
       .skip(1)
       .map((s) => s[0].toUpperCase() + s.substring(1))
       .join('');
-  final candidate = '$first$rest';
+  var candidate = '$first$rest';
+  if (RegExp(r'^[0-9]').hasMatch(candidate)) {
+    candidate = 'value$candidate';
+  }
 
   if (_dartKeywords.contains(candidate) ||
       _reservedMemberNames.contains(candidate)) {
@@ -53,6 +60,12 @@ const _reservedMemberNames = {
   'runtimeType',
   'noSuchMethod',
   'toString',
+  'copyWith',
+  'toMap',
+  'toJsonValue',
+  'descriptor',
+  'additionalProperties',
+  'patternProperties',
 };
 
 const _dartKeywords = {
@@ -78,7 +91,6 @@ const _dartKeywords = {
   'extends',
   'extension',
   'external',
-  'factory',
   'false',
   'final',
   'finally',
@@ -157,32 +169,73 @@ String dartType(Schema schema, Map<Schema, String> classNames) {
   } else if (real is NullSchema) {
     return 'Null';
   } else if (real is AnythingSchema) {
-    if (schema.not != null || real.not != null) {
-      return 'dynamic';
-    }
     return 'Object?';
+  } else if (real is NeverSchema) {
+    return 'Never';
+  } else if (real is EnumSchema) {
+    return classNames[real] ?? _enumBackingType(real);
   } else if (real is UnionSchema) {
     final analysis = UnionAnalysis.analyze(real);
     if (analysis.isNullable && analysis.nonNullSchema != null) {
-      return '${dartType(analysis.nonNullSchema!, classNames)}?';
+      final baseType = dartType(analysis.nonNullSchema!, classNames);
+      return (baseType == 'dynamic' ||
+              baseType == 'Object?' ||
+              baseType.endsWith('?'))
+          ? baseType
+          : '$baseType?';
     }
     final name = classNames[real];
     if (name == null) return 'dynamic';
-    return name;
-  } else if (real is EnumSchema) {
-    return classNames[real] ?? 'dynamic';
-  } else if (real is NeverSchema) {
-    return 'Never';
+    return analysis.isNullable ? '$name?' : name;
   } else if (real is AllOfSchema) {
-    if (real.subschemas.length == 1) {
-      return dartType(real.subschemas.first, classNames);
-    }
     return 'dynamic';
   }
-  return 'dynamic';
+  throw UnsupportedError(
+    'Unsupported schema type for type generation: ${real.runtimeType}',
+  );
 }
 
 /// Entry point to generate code for a parsed JSON Schema.
+Map<EnumSchema, Map<dynamic, String>>? _currentEnumConstantNames;
+Map<ObjectSchema, Map<String, String>>? _currentObjectFieldNames;
+
+Map<dynamic, String> _calculateEnumConstantNames(EnumSchema schema) {
+  final names = <dynamic, String>{};
+  final used = <String>{'values', 'value', 'fromValue', 'descriptor'};
+
+  for (final val in schema.values) {
+    var baseName = _toEnumConstantName(val, null);
+    var name = baseName;
+    int counter = 1;
+    while (used.contains(name)) {
+      name = '${baseName}_$counter';
+      counter++;
+    }
+    used.add(name);
+    names[val] = name;
+  }
+  return names;
+}
+
+Map<String, String> _calculateFieldNames(ObjectSchema schema) {
+  final fieldNames = <String, String>{};
+  final usedFieldNames = <String>{};
+  usedFieldNames.addAll(_reservedMemberNames);
+
+  schema.properties.forEach((name, propSchema) {
+    final baseName = toCamelCase(name);
+    var fieldName = baseName;
+    int counter = 1;
+    while (usedFieldNames.contains(fieldName)) {
+      fieldName = '${baseName}_$counter';
+      counter++;
+    }
+    usedFieldNames.add(fieldName);
+    fieldNames[name] = fieldName;
+  });
+  return fieldNames;
+}
+
 String generateCode(Schema rootSchema, String rootName) {
   final classNames = Map<Schema, String>.identity();
   final usedNames = <String>{};
@@ -191,7 +244,7 @@ String generateCode(Schema rootSchema, String rootName) {
     final real = schema.realSchema;
     if (real is ObjectSchema) {
       if (classNames.containsKey(real)) return;
-      final name = real.title ?? preferredName;
+      final name = real.dartName ?? real.title ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Model';
       var candidate = className;
@@ -231,7 +284,7 @@ String generateCode(Schema rootSchema, String rootName) {
         return;
       }
       if (classNames.containsKey(real)) return;
-      final name = real.title ?? preferredName;
+      final name = real.dartName ?? real.title ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Union';
       var candidate = className;
@@ -252,7 +305,7 @@ String generateCode(Schema rootSchema, String rootName) {
       }
     } else if (real is EnumSchema) {
       if (classNames.containsKey(real)) return;
-      final name = real.title ?? preferredName;
+      final name = real.dartName ?? real.title ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Enum';
       var candidate = className;
@@ -267,7 +320,6 @@ String generateCode(Schema rootSchema, String rootName) {
       classNames[real] = candidate;
       discoverClasses(real.baseSchema, '${candidate}_Base');
     }
-    _checkAndWarnNot(preferredName, schema);
     if (schema.not != null) {
       discoverClasses(schema.not!, '${preferredName}_Not');
     }
@@ -275,29 +327,53 @@ String generateCode(Schema rootSchema, String rootName) {
 
   discoverClasses(rootSchema, rootName);
 
-  final buffer = StringBuffer();
-  buffer.writeln('''
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
+  _currentEnumConstantNames = {};
+  _currentObjectFieldNames = {};
+  classNames.forEach((schema, name) {
+    if (schema is EnumSchema) {
+      _currentEnumConstantNames![schema] = _calculateEnumConstantNames(schema);
+    } else if (schema is ObjectSchema) {
+      _currentObjectFieldNames![schema] = _calculateFieldNames(schema);
+    }
+  });
 
+  try {
+    final buffer = StringBuffer();
+    buffer.writeln('''
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
+
+import 'dart:collection';
+import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 ''');
 
-  classNames.forEach((schema, name) {
-    if (schema is ObjectSchema) {
-      buffer.writeln(_generateObjectClass(schema, name, classNames));
-    } else if (schema is UnionSchema) {
-      buffer.writeln(_generateUnionClass(schema, name, classNames));
-    } else if (schema is EnumSchema) {
-      buffer.writeln(_generateEnumClass(schema, name));
-    }
-  });
+    classNames.forEach((schema, name) {
+      if (schema is ObjectSchema) {
+        buffer.writeln(_generateObjectClass(schema, name, classNames));
+      } else if (schema is UnionSchema) {
+        buffer.writeln(_generateUnionClass(schema, name, classNames));
+      } else if (schema is EnumSchema) {
+        buffer.writeln(_generateEnumClass(schema, name));
+      }
+    });
 
-  return buffer.toString();
+    return buffer.toString();
+  } finally {
+    _currentEnumConstantNames = null;
+    _currentObjectFieldNames = null;
+  }
 }
 
-String _toEnumConstantName(Object? val) {
+String _toEnumConstantName(Object? val, [EnumSchema? schema]) {
+  if (schema != null && _currentEnumConstantNames != null) {
+    final names = _currentEnumConstantNames![schema];
+    if (names != null) {
+      final name = names[val];
+      if (name != null) return name;
+    }
+  }
   var enumName = toCamelCase(val.toString());
   if (isKeyword(enumName) || int.tryParse(enumName[0]) != null) {
     enumName = 'val${toPascalCase(val.toString())}';
@@ -305,21 +381,31 @@ String _toEnumConstantName(Object? val) {
   return enumName;
 }
 
+String _enumBackingType(EnumSchema schema) {
+  final isString = schema.values.every((v) => v is String);
+  final isInt = schema.values.every((v) => v is int);
+  return isString ? 'String' : (isInt ? 'int' : 'dynamic');
+}
+
+/// Generates a Dart enum class representation for an EnumSchema.
 String _generateEnumClass(EnumSchema schema, String className) {
   final buffer = StringBuffer();
 
-  // Detect backing type
-  final isString = schema.values.every((v) => v is String);
-  final isInt = schema.values.every((v) => v is int);
-  final backingType = isString ? 'String' : (isInt ? 'int' : 'dynamic');
+  final backingType = _enumBackingType(schema);
+  final isString = backingType == 'String';
+  final isInt = backingType == 'int';
 
   if (schema.isDeprecated) {
-    buffer.writeln('@deprecated');
+    if (schema.deprecatedMessage != null) {
+      buffer.writeln("@Deprecated('${schema.deprecatedMessage}')");
+    } else {
+      buffer.writeln('@deprecated');
+    }
   }
   buffer.writeln('enum $className {');
   for (final val in schema.values) {
-    final enumName = _toEnumConstantName(val);
-    final formattedValue = isString ? "'$val'" : '$val';
+    final enumName = _toEnumConstantName(val, schema);
+    final formattedValue = _toBasicDartLiteral(val);
     buffer.writeln("  $enumName($formattedValue),");
   }
   buffer.writeln(';');
@@ -342,71 +428,7 @@ String _generateEnumClass(EnumSchema schema, String className) {
 
 /// Checks if a string is a reserved Dart keyword.
 bool isKeyword(String s) {
-  const keywords = {
-    'abstract',
-    'as',
-    'assert',
-    'async',
-    'await',
-    'break',
-    'case',
-    'catch',
-    'class',
-    'const',
-    'continue',
-    'covariant',
-    'default',
-    'deferred',
-    'do',
-    'dynamic',
-    'else',
-    'enum',
-    'export',
-    'extends',
-    'extension',
-    'external',
-    'factory',
-    'false',
-    'final',
-    'finally',
-    'for',
-    'Function',
-    'get',
-    'hide',
-    'if',
-    'implements',
-    'import',
-    'in',
-    'out',
-    'interface',
-    'is',
-    'late',
-    'library',
-    'mixin',
-    'new',
-    'null',
-    'on',
-    'operator',
-    'part',
-    'required',
-    'rethrow',
-    'return',
-    'set',
-    'show',
-    'static',
-    'super',
-    'switch',
-    'sync',
-    'this',
-    'throw',
-    'true',
-    'try',
-    'typedef',
-    'var',
-    'void',
-    'yield',
-  };
-  return keywords.contains(s);
+  return _dartKeywords.contains(s);
 }
 
 String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
@@ -420,9 +442,6 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
   } else if (real is NullSchema) {
     return 'const NullDescriptor()';
   } else if (real is AnythingSchema) {
-    if (real.not != null) {
-      return 'NotDescriptor(${_descriptorExpr(real.not!, classNames)})';
-    }
     return 'const AnythingDescriptor()';
   } else if (real is NeverSchema) {
     return 'const NeverDescriptor()';
@@ -441,18 +460,16 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
     return '$name.descriptor';
   } else if (real is UnionSchema) {
     final analysis = UnionAnalysis.analyze(real);
-    if (analysis.isNullable && analysis.nonNullSchema != null) {
-      return 'NullableDescriptor(${_descriptorExpr(analysis.nonNullSchema!, classNames)})';
+    final baseDesc = analysis.nonNullSchema != null
+        ? _descriptorExpr(analysis.nonNullSchema!, classNames)
+        : '${classNames[real]!}.descriptor';
+    if (analysis.isNullable) {
+      return 'NullableDescriptor($baseDesc)';
     }
-    final name = classNames[real]!;
-    return '$name.descriptor';
+    return baseDesc;
   } else if (real is ObjectSchema) {
     final name = classNames[real]!;
     return '$name.descriptor';
-  } else if (real is AllOfSchema) {
-    if (real.subschemas.length == 1) {
-      return _descriptorExpr(real.subschemas.first, classNames);
-    }
   }
   throw UnsupportedError(
     'Unsupported schema type for descriptor generation: ${real.runtimeType}',
@@ -478,7 +495,8 @@ String _fieldType(
       ? baseType
       : (baseType.endsWith('?') ||
                 baseType == 'dynamic' ||
-                baseType == 'Object?'
+                baseType == 'Object?' ||
+                baseType == 'Null'
             ? baseType
             : '$baseType?');
 }
@@ -492,25 +510,48 @@ bool _isNullable(
   return type.endsWith('?') || type == 'dynamic' || type == 'Object?';
 }
 
+String _toBasicDartLiteral(Object? value) {
+  if (value == null) return 'null';
+  if (value is String) {
+    return "'${value.replaceAll(r'\', r'\\').replaceAll("'", r"\'")}'";
+  }
+  if (value is num || value is bool) {
+    return value.toString();
+  }
+  if (value is List) {
+    final elements = value.map(_toBasicDartLiteral).join(', ');
+    return 'const [$elements]';
+  }
+  if (value is Map) {
+    final entries = value.entries
+        .map(
+          (e) =>
+              "'${e.key.toString().replaceAll("'", r"\'")}': ${_toBasicDartLiteral(e.value)}",
+        )
+        .join(', ');
+    return 'const {$entries}';
+  }
+  throw ArgumentError('Unsupported value type: ${value.runtimeType}');
+}
+
 String? _toDartLiteral(
   Object? value,
   Schema schema,
-  Map<Schema, String> classNames, {
-  bool raw = false,
-}) {
+  Map<Schema, String> classNames,
+) {
   final real = schema.realSchema;
   if (real is EnumSchema) {
     final className = classNames[real];
-    if (className != null && !raw) {
-      final constName = _toEnumConstantName(value);
+    if (className != null) {
+      final constName = _toEnumConstantName(value, real);
       return '$className.$constName';
     } else {
-      return _toDartLiteral(value, real.baseSchema, classNames, raw: raw);
+      return _toDartLiteral(value, real.baseSchema, classNames);
     }
   }
   if (value == null) return 'null';
   if (value is String) {
-    return "'${value.replaceAll("'", r"\'")}'";
+    return "'${value.replaceAll(r'\', r'\\').replaceAll("'", r"\'")}'";
   }
   if (value is num || value is bool) {
     return value.toString();
@@ -527,7 +568,7 @@ String? _toDartLiteral(
       final itemType = dartType(real.items, classNames);
       final elements = <String>[];
       for (final val in value) {
-        final lit = _toDartLiteral(val, real.items, classNames, raw: raw);
+        final lit = _toDartLiteral(val, real.items, classNames);
         if (lit == null) return null;
         elements.add(lit);
       }
@@ -549,18 +590,21 @@ String? _toDartLiteral(
       if (className != null) {
         final args = <String>[];
         var ok = true;
+        final fieldNames =
+            _currentObjectFieldNames?[real] ?? _calculateFieldNames(real);
         value.forEach((k, v) {
           final propSchema = real.properties[k];
           if (propSchema == null) {
             ok = false;
             return;
           }
-          final lit = _toDartLiteral(v, propSchema, classNames, raw: raw);
+          final lit = _toDartLiteral(v, propSchema, classNames);
           if (lit == null) {
             ok = false;
             return;
           }
-          args.add('${toCamelCase(k as String)}: $lit');
+          final dartFieldName = fieldNames[k] ?? toCamelCase(k as String);
+          args.add('$dartFieldName: $lit');
         });
         if (ok) {
           return 'const $className(${args.join(', ')})';
@@ -576,15 +620,18 @@ String _generateObjectClass(
   String className,
   Map<Schema, String> classNames,
 ) {
+  final fieldNames =
+      _currentObjectFieldNames?[schema] ?? _calculateFieldNames(schema);
   final fields = StringBuffer();
   final constructorParams = StringBuffer();
   final equalityProps = <String>[];
+  final hashExprs = <String>[];
   final toStringProps = <String>[];
   final copyWithParams = StringBuffer();
   final copyWithArgs = StringBuffer();
 
   schema.properties.forEach((name, propSchema) {
-    final fieldName = toCamelCase(name);
+    final fieldName = fieldNames[name]!;
     final isRequired = schema.required.contains(name);
     final baseType = dartType(propSchema, classNames);
 
@@ -601,7 +648,11 @@ String _generateObjectClass(
     final fieldType = _fieldType(propSchema, isRequired, classNames);
 
     if (propSchema.isDeprecated) {
-      fields.writeln('  @deprecated');
+      if (propSchema.deprecatedMessage != null) {
+        fields.writeln("  @Deprecated('${propSchema.deprecatedMessage}')");
+      } else {
+        fields.writeln('  @deprecated');
+      }
     }
     fields.writeln('  final $fieldType $fieldName;');
     if (isRequired) {
@@ -612,14 +663,26 @@ String _generateObjectClass(
       constructorParams.writeln('    this.$fieldName,');
     }
 
-    final copyWithType =
-        (baseType.endsWith('?') || baseType == 'dynamic')
-            ? baseType
-            : '$baseType?';
+    final copyWithType = (baseType.endsWith('?') || baseType == 'Null')
+        ? baseType
+        : '$baseType?';
     copyWithParams.writeln('    $copyWithType $fieldName,');
     copyWithArgs.writeln('    $fieldName: $fieldName ?? this.$fieldName,');
 
-    equalityProps.add('$fieldName == other.$fieldName');
+    final isColl =
+        baseType.startsWith('List') ||
+        baseType.startsWith('Map') ||
+        baseType == 'dynamic' ||
+        baseType == 'Object?';
+    if (isColl) {
+      equalityProps.add(
+        'const DeepCollectionEquality().equals($fieldName, other.$fieldName)',
+      );
+      hashExprs.add('const DeepCollectionEquality().hash($fieldName)');
+    } else {
+      equalityProps.add('$fieldName == other.$fieldName');
+      hashExprs.add(fieldName);
+    }
     toStringProps.add('$fieldName: \${$fieldName}');
   });
 
@@ -645,8 +708,9 @@ String _generateObjectClass(
       '    patternProperties: patternProperties ?? this.patternProperties,',
     );
     equalityProps.add(
-      'patternProperties.length == other.patternProperties.length && patternProperties.keys.every((k) => other.patternProperties.containsKey(k) && other.patternProperties[k] == patternProperties[k])',
+      'const DeepCollectionEquality().equals(patternProperties, other.patternProperties)',
     );
+    hashExprs.add('const DeepCollectionEquality().hash(patternProperties)');
     toStringProps.add('patternProperties: \${patternProperties}');
   }
 
@@ -661,8 +725,9 @@ String _generateObjectClass(
       '    additionalProperties: additionalProperties ?? this.additionalProperties,',
     );
     equalityProps.add(
-      'additionalProperties.length == other.additionalProperties.length && additionalProperties.keys.every((k) => other.additionalProperties.containsKey(k) && other.additionalProperties[k] == additionalProperties[k])',
+      'const DeepCollectionEquality().equals(additionalProperties, other.additionalProperties)',
     );
+    hashExprs.add('const DeepCollectionEquality().hash(additionalProperties)');
     toStringProps.add('additionalProperties: \${additionalProperties}');
   }
 
@@ -670,24 +735,11 @@ String _generateObjectClass(
       ? 'true'
       : equalityProps.join(' && ');
 
-  final hashFields = schema.properties.keys
-      .map((name) => toCamelCase(name))
-      .toList();
-  if (hasPatternProps) {
-    hashFields.add(
-      'patternProperties.entries.fold<int>(0, (sum, entry) => sum ^ Object.hash(entry.key, entry.value))',
-    );
-  }
-  if (hasAdditionalProps) {
-    hashFields.add(
-      'additionalProperties.entries.fold<int>(0, (sum, entry) => sum ^ Object.hash(entry.key, entry.value))',
-    );
-  }
-
   final validationMethod = _generateValidationMethod(
     schema,
     className,
     classNames,
+    fieldNames,
   );
 
   final propDescriptors = StringBuffer();
@@ -695,14 +747,15 @@ String _generateObjectClass(
   final instantiateArgs = StringBuffer();
 
   schema.properties.forEach((name, propSchema) {
-    final fieldName = toCamelCase(name);
+    final fieldName = fieldNames[name]!;
+    final nameEscaped = name.replaceAll("'", r"\'");
     final isRequired = schema.required.contains(name);
     final descExpr = _descriptorExpr(propSchema, classNames);
 
     propDescriptors.writeln(
-      "      '$name': PropertyDescriptor(name: '$name', isRequired: $isRequired, schema: $descExpr),",
+      "      '$nameEscaped': PropertyDescriptor(name: '$nameEscaped', isRequired: $isRequired, schema: $descExpr),",
     );
-    getFieldsMap.writeln("      '$name': instance.$fieldName,");
+    getFieldsMap.writeln("      '$nameEscaped': typedInstance.$fieldName,");
 
     final baseType = dartType(propSchema, classNames);
     final hasDefault = propSchema.hasDefault;
@@ -719,21 +772,21 @@ String _generateObjectClass(
 
     if (isRequired) {
       instantiateArgs.writeln(
-        "        $fieldName: fields['$name'] as $baseType,",
+        "        $fieldName: fields['$nameEscaped'] as $baseType,",
       );
     } else if (defaultLiteral != null) {
       instantiateArgs.writeln(
-        "        $fieldName: fields.containsKey('$name') ? fields['$name'] as $fieldType : $defaultLiteral,",
+        "        $fieldName: fields.containsKey('$nameEscaped') ? fields['$nameEscaped'] as $fieldType : $defaultLiteral,",
       );
     } else {
       instantiateArgs.writeln(
-        "        $fieldName: fields['$name'] as $fieldType,",
+        "        $fieldName: fields['$nameEscaped'] as $fieldType,",
       );
     }
   });
 
   final propKeysLiteral =
-      '<String>{${schema.properties.keys.map((k) => "'$k'").join(', ')}}';
+      '<String>{${schema.properties.keys.map((k) => "'${k.replaceAll("'", r"\'")}'").join(', ')}}';
 
   String patternMatchExpr = 'false';
   if (hasPatternProps) {
@@ -745,7 +798,7 @@ String _generateObjectClass(
   }
 
   if (hasPatternProps) {
-    getFieldsMap.writeln("      ...instance.patternProperties,");
+    getFieldsMap.writeln("      ...typedInstance.patternProperties,");
     instantiateArgs.writeln('''
         patternProperties: fields.entries.where((e) {
           if (const $propKeysLiteral.contains(e.key)) return false;
@@ -754,15 +807,11 @@ String _generateObjectClass(
   }
 
   if (hasAdditionalProps) {
-    getFieldsMap.writeln("      ...instance.additionalProperties,");
+    getFieldsMap.writeln("      ...typedInstance.additionalProperties,");
     final addPropsType = dartType(schema.additionalProperties!, classNames);
     final condExpr = hasPatternProps ? '!($patternMatchExpr)' : 'true';
     instantiateArgs.writeln(
-      '''
-        additionalProperties: fields.entries.where((e) {
-          if (const $propKeysLiteral.contains(e.key)) return false;
-          return $condExpr;
-        }).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),''',
+      "        additionalProperties: fields.entries.where((e) => !const $propKeysLiteral.contains(e.key) && $condExpr).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),",
     );
   }
 
@@ -789,21 +838,41 @@ String _generateObjectClass(
     matches: (instance) => instance is $className,
     instantiate: (fields) => $className(
 $instantiateArgs    ),
-    getFields: (instance) => {
-$getFieldsMap    },
+    getFields: (instance) {
+      final typedInstance = instance as $className;
+      return {
+$getFieldsMap      };
+    },
     properties: {
 $propDescriptors    },
     $patternPropsExpr
-    required: const [${schema.required.map((r) => "'$r'").join(', ')}],
+    required: const [${schema.required.map((r) => "'${r.replaceAll("'", r"\'")}'").join(', ')}],
     ${addPropsExpr != null ? 'additionalProperties: $addPropsExpr,' : ''}
   );''';
 
-  final deprecatedAttr = schema.isDeprecated ? '@deprecated\n' : '';
+  final deprecatedAttr = schema.isDeprecated
+      ? (schema.deprecatedMessage != null
+            ? "@Deprecated('${schema.deprecatedMessage}')\n"
+            : '@deprecated\n')
+      : '';
+
+  final constructorStr = constructorParams.isEmpty
+      ? '  const $className();'
+      : '''
+  const $className({
+$constructorParams  });''';
+
+  final copyWithStr = copyWithParams.isEmpty
+      ? '  $className copyWith() => $className();'
+      : '''
+  $className copyWith({
+$copyWithParams  }) => $className(
+$copyWithArgs  );''';
+
   return '''
 ${deprecatedAttr}final class $className implements JsonModel {
 $fields
-  const $className({
-$constructorParams  });
+$constructorStr
 
   factory $className.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as $className;
@@ -833,9 +902,7 @@ $constructorParams  });
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  $className copyWith({
-$copyWithParams  }) => $className(
-$copyWithArgs  );
+$copyWithStr
 
 $validationMethod
 
@@ -850,7 +917,7 @@ $descriptorString
 
   @override
   int get hashCode => Object.hashAll([
-        ${hashFields.join(',\n        ')}
+        ${hashExprs.join(',\n        ')}
       ]);
 
   @override
@@ -882,9 +949,12 @@ String _generateMatchBlock(
       );
     }
     if (real.pattern != null) {
-      final patternEscaped = real.pattern!.replaceAll("'", r"\'");
+      final patternEscaped = real.pattern!
+          .replaceAll(r'\', r'\\')
+          .replaceAll(r'$', r'\$')
+          .replaceAll("'", r"\'");
       buffer.writeln(
-        '      if (!RegExp(r\'$patternEscaped\').hasMatch($valueVar)) $resultVar = false;',
+        '      if (!RegExp(\'$patternEscaped\').hasMatch($valueVar)) $resultVar = false;',
       );
     }
     if (real.format != null) {
@@ -971,11 +1041,18 @@ String _generateMatchBlock(
     buffer.writeln('    }');
   } else if (real is EnumSchema) {
     final className = classNames[real]!;
+    final backingType = _enumBackingType(real);
     buffer.writeln('    if ($valueVar is $className) {');
     buffer.writeln('      $resultVar = true;');
     buffer.writeln('    } else {');
     buffer.writeln('      try {');
-    buffer.writeln('        $className.fromValue($valueVar);');
+    if (backingType != 'dynamic') {
+      buffer.writeln(
+        '        $className.fromValue($valueVar as $backingType);',
+      );
+    } else {
+      buffer.writeln('        $className.fromValue($valueVar);');
+    }
     buffer.writeln('        $resultVar = true;');
     buffer.writeln('      } catch (_) {}');
     buffer.writeln('    }');
@@ -983,6 +1060,7 @@ String _generateMatchBlock(
   return buffer.toString();
 }
 
+/// Helper checking if the given schema generates a class type that implements validate().
 bool _hasValidationMethod(Schema schema) {
   final real = schema.realSchema;
   if (real is ObjectSchema) {
@@ -1001,17 +1079,56 @@ bool _hasValidationMethod(Schema schema) {
   return false;
 }
 
+bool _hasItemValidation(Schema schema) {
+  final real = schema.realSchema;
+  if (_hasValidationMethod(real)) return true;
+  if (real is StringSchema) {
+    return real.minLength != null ||
+        real.maxLength != null ||
+        real.pattern != null ||
+        real.format != null ||
+        real.not != null;
+  }
+  if (real is NumberSchema) {
+    return real.minimum != null ||
+        real.maximum != null ||
+        real.exclusiveMinimum != null ||
+        real.exclusiveMaximum != null ||
+        real.multipleOf != null ||
+        real.not != null;
+  }
+  if (real is EnumSchema) {
+    return true;
+  }
+  if (real is ArraySchema) {
+    if (real.minItems != null ||
+        real.maxItems != null ||
+        real.uniqueItems == true ||
+        real.contains != null) {
+      return true;
+    }
+    if (real.prefixItems != null && real.prefixItems!.any(_hasItemValidation)) {
+      return true;
+    }
+    return _hasItemValidation(real.items);
+  }
+  if (real.not != null) return true;
+  return false;
+}
+
+/// Generates validation method body checking constraints on class fields.
 String _generateValidationMethod(
   ObjectSchema schema,
   String className,
   Map<Schema, String> classNames,
+  Map<String, String> fieldNames,
 ) {
   final buffer = StringBuffer();
   buffer.writeln('  void validate() {');
   if (schema.minProperties != null || schema.maxProperties != null) {
     buffer.writeln('    var count = 0;');
     schema.properties.forEach((key, propSchema) {
-      final fieldName = toCamelCase(key);
+      final fieldName = fieldNames[key]!;
       final isRequired = schema.required.contains(key);
       final isNullable = _isNullable(propSchema, isRequired, classNames);
       if (isNullable) {
@@ -1042,20 +1159,22 @@ String _generateValidationMethod(
     }
   }
   schema.dependentRequired.forEach((key, deps) {
-    final fieldName = toCamelCase(key);
+    final escapedKey = key.replaceAll("'", "\\'");
+    final fieldName = fieldNames[key]!;
     buffer.writeln('    if ($fieldName != null) {');
     for (final dep in deps) {
-      final depFieldName = toCamelCase(dep);
+      final escapedDep = dep.replaceAll("'", "\\'");
+      final depFieldName = fieldNames[dep]!;
       buffer.writeln('      if ($depFieldName == null) {');
       buffer.writeln(
-        "        throw JsonValidationException('Property \"$dep\" is required because \"$key\" is present', ['$dep']);",
+        "        throw JsonValidationException('Property \"$escapedDep\" is required because \"$escapedKey\" is present', ['$escapedDep']);",
       );
       buffer.writeln('      }');
     }
     buffer.writeln('    }');
   });
   schema.properties.forEach((name, propSchema) {
-    final fieldName = toCamelCase(name);
+    final fieldName = fieldNames[name]!;
     final isRequired = schema.required.contains(name);
     final isNullable = _isNullable(propSchema, isRequired, classNames);
 
@@ -1095,7 +1214,6 @@ String _generateValidationMethod(
           classNames,
           checkType: true,
           includeNot: true,
-          rawEnum: true,
         );
         if (notValBuf.isNotEmpty) {
           buffer.writeln('    bool notMatches_$fieldName = true;');
@@ -1111,11 +1229,16 @@ String _generateValidationMethod(
           buffer.writeln('    }');
         }
       } else {
+        final escapedName = name.replaceAll("'", "\\'");
         final descExpr = _descriptorExpr(propSchema.not!, classNames);
         buffer.writeln('    bool notMatches_$fieldName = true;');
         buffer.writeln('    try {');
-        buffer.writeln('      final rawValue = $valueVar is JsonModel ? $valueVar.toJsonValue() : $valueVar;');
-        buffer.writeln('      parseWithDescriptor(JsonReader.fromObject(rawValue), $descExpr, validate: true);');
+        buffer.writeln(
+          '      final rawValue = $valueVar is JsonModel ? $valueVar.toJsonValue() : $valueVar;',
+        );
+        buffer.writeln(
+          '      parseWithDescriptor(JsonReader.fromObject(rawValue), $descExpr, validate: true);',
+        );
         buffer.writeln('    } on JsonValidationException {');
         buffer.writeln('      notMatches_$fieldName = false;');
         buffer.writeln('    } on FormatException {');
@@ -1123,7 +1246,7 @@ String _generateValidationMethod(
         buffer.writeln('    }');
         buffer.writeln('    if (notMatches_$fieldName) {');
         buffer.writeln(
-          "      throw JsonValidationException('Property \"$name\" must not match the schema', ['$name']);",
+          "      throw JsonValidationException('Property \"$escapedName\" must not match the schema', ['$escapedName']);",
         );
         buffer.writeln('    }');
       }
@@ -1160,14 +1283,17 @@ String _generateValidationMethod(
     final addSchema = schema.additionalProperties!;
     final hasAddValidation = _hasValidationMethod(addSchema);
     if (hasAddValidation) {
-      buffer.writeln('''
-    additionalProperties.forEach((key, value) {
-      try {
-        value.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [key, ...e.path]);
-      }
-    });''');
+      buffer.writeln('    additionalProperties.forEach((key, value) {');
+      _generateArrayItemValidation(
+        buffer,
+        addSchema,
+        'value',
+        r'$key',
+        [r'$key'],
+        0,
+        classNames,
+      );
+      buffer.writeln('    });');
     } else {
       final validations = StringBuffer();
       _generateSchemaValidations(
@@ -1190,6 +1316,70 @@ String _generateValidationMethod(
   return buffer.toString();
 }
 
+void _generateArrayItemValidation(
+  StringBuffer validations,
+  Schema itemSchema,
+  String valueVar,
+  String name,
+  List<String> path,
+  int depth,
+  Map<Schema, String> classNames,
+) {
+  final real = itemSchema.realSchema;
+  if (real is ObjectSchema || real is UnionSchema) {
+    validations.writeln('''
+        try {
+          $valueVar.validate();
+        } on JsonValidationException catch (e) {
+          throw JsonValidationException(e.message, [${path.map((p) => "'${p.replaceAll("'", "\\'")}'").join(', ')}, ...e.path]);
+        }''');
+  } else if (real is ArraySchema) {
+    final itemVar = 'item$depth';
+    final indexVar = 'i$depth';
+    final hasItemValidation = _hasItemValidation(real.items);
+    if (hasItemValidation) {
+      final startIndex = real.prefixItems?.length ?? 0;
+      validations.writeln(
+        '        for (var $indexVar = $startIndex; $indexVar < $valueVar.length; $indexVar++) {',
+      );
+      validations.writeln('          final $itemVar = $valueVar[$indexVar];');
+      _generateArrayItemValidation(
+        validations,
+        real.items,
+        itemVar,
+        name,
+        [...path, '[\$$indexVar]'],
+        depth + 1,
+        classNames,
+      );
+      validations.writeln('        }');
+    }
+  } else {
+    final primitiveValidations = StringBuffer();
+    _generateSchemaValidations(
+      primitiveValidations,
+      real,
+      valueVar,
+      name,
+      classNames,
+      checkType: true,
+      path: path,
+    );
+    if (primitiveValidations.isNotEmpty) {
+      final indent = '  ' * (depth + 1);
+      final lines = primitiveValidations.toString().split('\n');
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.isNotEmpty) {
+          validations.writeln('$indent$line');
+        } else if (i < lines.length - 1) {
+          validations.writeln();
+        }
+      }
+    }
+  }
+}
+
 void _generateSchemaValidations(
   StringBuffer validations,
   Schema schema,
@@ -1198,44 +1388,59 @@ void _generateSchemaValidations(
   Map<Schema, String> classNames, {
   bool checkType = false,
   bool includeNot = true,
-  bool rawEnum = false,
+  List<String>? path,
 }) {
+  final unescapedName = name;
+  name = name.replaceAll("'", "\\'");
   final real = schema.realSchema;
+  final effectivePath = path ?? [unescapedName];
+  final effectivePathExpr =
+      '[${effectivePath.map((p) => "'${p.replaceAll("'", "\\'")}'").join(', ')}]';
   if (real is StringSchema) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! String) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a string', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a string', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.minLength != null) {
       validations.writeln('      if ($valueVar.length < ${real.minLength}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" length must be >= ${real.minLength}', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" length must be >= ${real.minLength}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.maxLength != null) {
       validations.writeln('      if ($valueVar.length > ${real.maxLength}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" length must be <= ${real.maxLength}', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" length must be <= ${real.maxLength}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.pattern != null) {
-      final patternEscaped = real.pattern!.replaceAll("'", r"\'");
+      final patternEscaped = real.pattern!
+          .replaceAll(r'\', r'\\')
+          .replaceAll(r'$', r'\$')
+          .replaceAll("'", r"\'");
       final msgPatternEscaped = real.pattern!
+          .replaceAll(r'\', r'\\')
           .replaceAll(r'$', r'\$')
           .replaceAll("'", r"\'")
           .replaceAll('"', '\\"');
       validations.writeln('''
-      if (!RegExp(r'$patternEscaped').hasMatch($valueVar)) {
-        throw JsonValidationException('Property "$name" must match pattern "$msgPatternEscaped"', ['$name']);
+      if (!RegExp('$patternEscaped').hasMatch($valueVar)) {
+        throw JsonValidationException('Property "$name" must match pattern "$msgPatternEscaped"', $effectivePathExpr);
       }''');
     }
     if (real.format != null) {
-      _generateFormatValidation(validations, valueVar, real.format!, name);
+      _generateFormatValidation(
+        validations,
+        valueVar,
+        real.format!,
+        name,
+        pathExpr: effectivePathExpr,
+      );
     }
   } else if (real is NumberSchema) {
     if (checkType) {
@@ -1243,35 +1448,35 @@ void _generateSchemaValidations(
       final typeName = real.isInteger ? 'an integer' : 'a number';
       validations.writeln('      if ($valueVar $typeCheck) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be $typeName', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be $typeName', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.minimum != null) {
       validations.writeln('      if ($valueVar < ${real.minimum}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be >= ${real.minimum}', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be >= ${real.minimum}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.maximum != null) {
       validations.writeln('      if ($valueVar > ${real.maximum}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be <= ${real.maximum}', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be <= ${real.maximum}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.exclusiveMinimum != null) {
       validations.writeln('      if ($valueVar <= ${real.exclusiveMinimum}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be > ${real.exclusiveMinimum}', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be > ${real.exclusiveMinimum}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.exclusiveMaximum != null) {
       validations.writeln('      if ($valueVar >= ${real.exclusiveMaximum}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be < ${real.exclusiveMaximum}', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be < ${real.exclusiveMaximum}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
@@ -1284,7 +1489,7 @@ void _generateSchemaValidations(
         );
       }
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a multiple of ${real.multipleOf}', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a multiple of ${real.multipleOf}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
@@ -1292,30 +1497,30 @@ void _generateSchemaValidations(
     if (checkType) {
       validations.writeln('      if ($valueVar is! List) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be an array', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be an array', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.minItems != null) {
       validations.writeln('      if ($valueVar.length < ${real.minItems}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must have >= ${real.minItems} items', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must have >= ${real.minItems} items', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.maxItems != null) {
       validations.writeln('      if ($valueVar.length > ${real.maxItems}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must have <= ${real.maxItems} items', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must have <= ${real.maxItems} items', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.uniqueItems == true) {
       validations.writeln(
-        '      if ($valueVar.length != $valueVar.toSet().length) {',
+        '      if ($valueVar.length != (LinkedHashSet<dynamic>(equals: const DeepCollectionEquality().equals, hashCode: const DeepCollectionEquality().hash)..addAll($valueVar)).length) {',
       );
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" items must be unique', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" items must be unique', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
@@ -1335,14 +1540,14 @@ void _generateSchemaValidations(
       if (minContains > 0) {
         validations.writeln('      if (containsCount < $minContains) {');
         validations.writeln(
-          "        throw JsonValidationException('Property \"$name\" must contain at least $minContains items matching contains schema, but has \$containsCount', ['$name']);",
+          "        throw JsonValidationException('Property \"$name\" must contain at least $minContains items matching contains schema, but has \$containsCount', $effectivePathExpr);",
         );
         validations.writeln('      }');
       }
       if (real.maxContains != null) {
         validations.writeln('      if (containsCount > ${real.maxContains}) {');
         validations.writeln(
-          "        throw JsonValidationException('Property \"$name\" must contain at most ${real.maxContains} items matching contains schema, but has \$containsCount', ['$name']);",
+          "        throw JsonValidationException('Property \"$name\" must contain at most ${real.maxContains} items matching contains schema, but has \$containsCount', $effectivePathExpr);",
         );
         validations.writeln('      }');
       }
@@ -1350,35 +1555,43 @@ void _generateSchemaValidations(
     if (real.prefixItems != null) {
       for (var i = 0; i < real.prefixItems!.length; i++) {
         final prefixSchema = real.prefixItems![i];
-        if (_hasValidationMethod(prefixSchema)) {
-          validations.writeln('''
-      if ($valueVar.length > $i) {
-        try {
-          $valueVar[$i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, ['$name', '[$i]', ...e.path]);
-        }
-      }''');
+        if (_hasItemValidation(prefixSchema)) {
+          validations.writeln('      if ($valueVar.length > $i) {');
+          _generateArrayItemValidation(
+            validations,
+            prefixSchema,
+            '$valueVar[$i]',
+            name,
+            [...effectivePath, '[$i]'],
+            0,
+            classNames,
+          );
+          validations.writeln('      }');
         }
       }
     }
-    final hasItemValidation = _hasValidationMethod(real.items);
+    final hasItemValidation = _hasItemValidation(real.items);
     if (hasItemValidation) {
       final startIndex = real.prefixItems?.length ?? 0;
-      validations.writeln('''
-      for (var i = $startIndex; i < $valueVar.length; i++) {
-        try {
-          $valueVar[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, ['$name', '[\$i]', ...e.path]);
-        }
-      }''');
+      validations.writeln(
+        '      for (var i = $startIndex; i < $valueVar.length; i++) {',
+      );
+      _generateArrayItemValidation(
+        validations,
+        real.items,
+        '$valueVar[i]',
+        name,
+        [...effectivePath, '[\$i]'],
+        0,
+        classNames,
+      );
+      validations.writeln('      }');
     }
   } else if (real is BooleanSchema) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! bool) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a boolean', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a boolean', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
@@ -1386,7 +1599,7 @@ void _generateSchemaValidations(
     if (checkType) {
       validations.writeln('      if ($valueVar != null) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be null', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be null', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
@@ -1396,47 +1609,38 @@ void _generateSchemaValidations(
         validations,
         real.baseSchema,
         valueVar,
-        name,
+        unescapedName,
         classNames,
         checkType: true,
-        rawEnum: rawEnum,
+        path: effectivePath,
       );
     }
     final valuesLiterals = real.values
-        .map((v) => _toDartLiteral(v, real, classNames, raw: rawEnum))
+        .map((v) => _toDartLiteral(v, real.baseSchema, classNames))
         .join(', ');
+    final effectiveValue =
+        '$valueVar is Enum ? ($valueVar as dynamic).value : $valueVar';
     validations.writeln(
-      '      if (!const [$valuesLiterals].contains($valueVar)) {',
+      '      if (!const [$valuesLiterals].any((v) => const DeepCollectionEquality().equals(v, $effectiveValue))) {',
     );
     validations.writeln(
-      "        throw JsonValidationException('Property \"$name\" must be one of ${real.values}', ['$name']);",
+      "        throw JsonValidationException('Property \"$name\" must be one of ${real.values}', $effectivePathExpr);",
     );
     validations.writeln('      }');
-  } else if (real is ObjectSchema) {
+  } else if (real is ObjectSchema || real is UnionSchema) {
     if (checkType) {
-      final type = dartType(real, classNames);
-      validations.writeln('      if ($valueVar is! $type) {');
+      final className = classNames[real]!;
+      validations.writeln('      if ($valueVar is! $className) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a $type', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a $className', $effectivePathExpr);",
       );
       validations.writeln('      }');
-    }
-  } else if (real is UnionSchema) {
-    if (checkType) {
-      final type = dartType(real, classNames);
-      if (type != 'dynamic') {
-        validations.writeln('      if ($valueVar is! $type) {');
-        validations.writeln(
-          "        throw JsonValidationException('Property \"$name\" must be a $type', ['$name']);",
-        );
-        validations.writeln('      }');
-      }
     }
   } else if (real is AnythingSchema) {
     // Always succeeds, so do nothing.
   } else if (real is NeverSchema) {
     validations.writeln(
-      "      throw JsonValidationException('Property \"$name\" matches nothing', ['$name']);",
+      "      throw JsonValidationException('Property \"$name\" matches nothing', $effectivePathExpr);",
     );
   }
 
@@ -1460,11 +1664,10 @@ void _generateSchemaValidations(
         notValBuf,
         schema.not!,
         valueVar,
-        name,
+        unescapedName,
         classNames,
         checkType: true,
         includeNot: true,
-        rawEnum: true,
       );
       if (notValBuf.isNotEmpty) {
         validations.writeln('      bool notMatches = true;');
@@ -1475,7 +1678,7 @@ void _generateSchemaValidations(
         validations.writeln('      }');
         validations.writeln('      if (notMatches) {');
         validations.writeln(
-          "        throw JsonValidationException('Property \"$name\" must not match the schema', ['$name']);",
+          "        throw JsonValidationException('Property \"$name\" must not match the schema', $effectivePathExpr);",
         );
         validations.writeln('      }');
       }
@@ -1483,8 +1686,12 @@ void _generateSchemaValidations(
       final descExpr = _descriptorExpr(schema.not!, classNames);
       validations.writeln('      bool notMatches = true;');
       validations.writeln('      try {');
-      validations.writeln('        final rawValue = $valueVar is JsonModel ? $valueVar.toJsonValue() : $valueVar;');
-      validations.writeln('        parseWithDescriptor(JsonReader.fromObject(rawValue), $descExpr, validate: true);');
+      validations.writeln(
+        '        final rawValue = $valueVar is JsonModel ? $valueVar.toJsonValue() : $valueVar;',
+      );
+      validations.writeln(
+        '        parseWithDescriptor(JsonReader.fromObject(rawValue), $descExpr, validate: true);',
+      );
       validations.writeln('      } on JsonValidationException {');
       validations.writeln('        notMatches = false;');
       validations.writeln('      } on FormatException {');
@@ -1492,7 +1699,7 @@ void _generateSchemaValidations(
       validations.writeln('      }');
       validations.writeln('      if (notMatches) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must not match the schema', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must not match the schema', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
@@ -1503,13 +1710,16 @@ void _generateFormatValidation(
   StringBuffer validations,
   String valueVar,
   String format,
-  String name,
-) {
+  String name, {
+  String? pathExpr,
+}) {
+  name = name.replaceAll("'", "\\'");
+  final effectivePathExpr = pathExpr ?? "['$name']";
   switch (format) {
     case 'date-time':
       validations.writeln('      if (DateTime.tryParse($valueVar) == null) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid RFC 3339 date-time string', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid RFC 3339 date-time string', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
@@ -1518,7 +1728,7 @@ void _generateFormatValidation(
         "      if (!RegExp(r'^\\d{4}-\\d{2}-\\d{2}\$').hasMatch($valueVar)) {",
       );
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid date string (YYYY-MM-DD)', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid date string (YYYY-MM-DD)', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
@@ -1527,7 +1737,7 @@ void _generateFormatValidation(
         "      if (!RegExp(r'^[^@]+@[^@]+\$').hasMatch($valueVar)) {",
       );
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid email address', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid email address', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
@@ -1536,7 +1746,7 @@ void _generateFormatValidation(
         "      if (!RegExp(r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\$').hasMatch($valueVar)) {",
       );
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid IPv4 address', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid IPv4 address', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
@@ -1545,42 +1755,42 @@ void _generateFormatValidation(
         "      if (!RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$').hasMatch($valueVar)) {",
       );
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid UUID', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid UUID', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
     case 'uri':
       validations.writeln('      if (!isValidUri($valueVar)) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid absolute URI', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid absolute URI', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
     case 'uri-reference':
       validations.writeln('      if (!isValidUriReference($valueVar)) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid URI reference', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid URI reference', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
     case 'ipv6':
       validations.writeln('      if (!isValidIPv6($valueVar)) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid IPv6 address', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid IPv6 address', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
     case 'hostname':
       validations.writeln('      if (!isValidHostname($valueVar)) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid hostname', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid hostname', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
     case 'time':
       validations.writeln('      if (!isValidTime($valueVar)) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid time string', ['$name']);",
+        "        throw JsonValidationException('Property \"$name\" must be a valid time string', $effectivePathExpr);",
       );
       validations.writeln('      }');
       break;
@@ -1648,7 +1858,24 @@ String _generateUnionClass(
 
     final descExpr = _descriptorExpr(sub, classNames);
 
-    final optDeprecatedAttr = sub.isDeprecated ? '@deprecated\n' : '';
+    final optDeprecatedAttr = sub.isDeprecated
+        ? (sub.deprecatedMessage != null
+              ? "@Deprecated('${sub.deprecatedMessage}')\n"
+              : '@deprecated\n')
+        : '';
+
+    final isColl =
+        optionType.startsWith('List') ||
+        optionType.startsWith('Map') ||
+        optionType == 'dynamic' ||
+        optionType == 'Object?';
+    final equalityExpr = isColl
+        ? 'const DeepCollectionEquality().equals(value, other.value)'
+        : 'value == other.value';
+    final hashExpr = isColl
+        ? 'const DeepCollectionEquality().hash(value)'
+        : 'value.hashCode';
+
     subclasses.writeln('''
 ${optDeprecatedAttr}final class $subClassName extends $className {
   final $optionType value;
@@ -1666,10 +1893,10 @@ $validationBody
       identical(this, other) ||
       other is $subClassName &&
           runtimeType == other.runtimeType &&
-          value == other.value;
+          $equalityExpr;
 
   @override
-  int get hashCode => value.hashCode;
+  int get hashCode => $hashExpr;
 
   @override
   String toString() => '$subClassName(value: \$value)';
@@ -1690,8 +1917,9 @@ $validationBody
   for (final sub in analysis.activeSchemas) {
     final subClassName = '${className}Option$i';
     final descExpr = _descriptorExpr(sub, classNames);
+    final optionType = dartType(sub, classNames);
     optionDescriptors.writeln(
-      "      UnionOptionDescriptor<$className, dynamic>($descExpr, (val) => $subClassName(val)),",
+      "      UnionOptionDescriptor<$className, $optionType>($descExpr, (val) => $subClassName(val as $optionType)),",
     );
     i++;
   }
@@ -1703,9 +1931,8 @@ $validationBody
       final subClassName = '${className}Option$i';
       final caseLabels = <String>[];
       if (disc.mapping != null) {
-        disc.mapping!.forEach((discVal, targetStr) {
-          final lastSegment = targetStr.split('/').last;
-          if (optionType.toLowerCase().endsWith(lastSegment.toLowerCase())) {
+        disc.mapping!.forEach((discVal, targetSchema) {
+          if (sub.realSchema == targetSchema.realSchema) {
             caseLabels.add(discVal);
           }
         });
@@ -1718,7 +1945,7 @@ $validationBody
 
       for (final label in caseLabels.toSet()) {
         mappingEntries.writeln(
-          "      '$label': UnionOptionDescriptor<$className, dynamic>(${_descriptorExpr(sub, classNames)}, (val) => $subClassName(val)),",
+          "      '$label': UnionOptionDescriptor<$className, $optionType>(${_descriptorExpr(sub, classNames)}, (val) => $subClassName(val as $optionType)),",
         );
       }
       i++;
@@ -1735,7 +1962,11 @@ $validationBody
 $optionDescriptors    ],
   );''';
 
-  final deprecatedAttr = schema.isDeprecated ? '@deprecated\n' : '';
+  final deprecatedAttr = schema.isDeprecated
+      ? (schema.deprecatedMessage != null
+            ? "@Deprecated('${schema.deprecatedMessage}')\n"
+            : '@deprecated\n')
+      : '';
   return '''
 ${deprecatedAttr}sealed class $className implements JsonModel {
   const $className();
@@ -1770,42 +2001,4 @@ $descriptorString
 
 $subclasses
 ''';
-}
-
-void _checkAndWarnNot(String fieldName, Schema propSchema) {
-  if (propSchema.not != null) {
-    var real = propSchema.realSchema;
-    if (real is AllOfSchema && real.subschemas.length == 1) {
-      real = real.subschemas.first.realSchema;
-    }
-    final notReal = propSchema.not!.realSchema;
-    
-    if (real is AnythingSchema) {
-      stderr.writeln('WARNING: Field "$fieldName" has "not" constraint but no explicit type. It will fall back to dynamic.');
-    } else if (notReal is! AnythingSchema && _isTypeOnlySchema(notReal)) {
-      if (real.runtimeType == notReal.runtimeType) {
-        if (real is NumberSchema && notReal is NumberSchema) {
-          if (real.isInteger == notReal.isInteger) {
-            stderr.writeln('WARNING: Field "$fieldName" negates its own type. It will always fail validation.');
-          }
-        } else {
-          stderr.writeln('WARNING: Field "$fieldName" negates its own type. It will always fail validation.');
-        }
-      }
-    }
-  }
-}
-
-bool _isTypeOnlySchema(Schema schema) {
-  return _hasNoConstraints(schema) && schema.not == null;
-}
-
-bool _hasNoConstraints(Schema schema) {
-  return switch (schema) {
-    StringSchema s => s.minLength == null && s.maxLength == null && s.pattern == null && s.format == null,
-    NumberSchema s => s.minimum == null && s.maximum == null && s.exclusiveMinimum == null && s.exclusiveMaximum == null && s.multipleOf == null,
-    ArraySchema s => s.minItems == null && s.maxItems == null && s.uniqueItems == null && s.contains == null && s.prefixItems == null,
-    ObjectSchema s => s.properties.isEmpty && s.required.isEmpty && s.additionalProperties == null && s.minProperties == null && s.maxProperties == null,
-    _ => true,
-  };
 }

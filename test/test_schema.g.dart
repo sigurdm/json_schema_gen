@@ -1,6 +1,8 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
 
+import 'dart:collection';
+import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
@@ -22,15 +24,22 @@ final class TestRoot implements JsonModel {
   final List<String>? tags;
   final List<Score>? scores;
   final TestRootUnionValue? unionValue;
+  final TestRootNullableUnionValue? nullableUnionValue;
+  final RequiredNullableUnionObject? requiredNullableUnionObject;
   final String? nullableString;
   final Pet? pet;
   final RestrictedObject? restrictedObject;
   final DependentObject? dependentObject;
+  final List<String>? primitiveArrayWithValidation;
   final List<int>? restrictedArray;
   @deprecated
   final String? deprecatedField;
   final DeprecatedObject? deprecatedRef;
   final String defaultString;
+  final String defaultBackslash;
+  final List<List<Address>>? nestedArray;
+  final String? singleQuoteKey;
+  final TestRootMixedEnum? mixedEnum;
   final int defaultInt;
   final bool defaultBool;
   final List<String> defaultList;
@@ -72,6 +81,15 @@ final class TestRoot implements JsonModel {
   final TestRootUnionWithAllOfOption? unionWithAllOfOption;
   final PatternPropertiesObject? patternPropsField;
   final OverlappingUnion? overlappingUnion;
+  @Deprecated('Use newAwesomeField instead')
+  final String? deprecatedFieldWithMessage;
+  final MyCustomClassName? customNamedObject;
+  @Deprecated('This union is deprecated, use MyCustomUnionName2')
+  final MyCustomUnionName? customNamedUnion;
+  final MyCustomEnumName? customNamedEnum;
+  final TestRootCoverageTrigger? coverageTrigger;
+  final CollidingEnum? collidingEnumField;
+  final CollidingObject? collidingObjectField;
 
   const TestRoot({
     required this.name,
@@ -91,14 +109,21 @@ final class TestRoot implements JsonModel {
     this.tags,
     this.scores,
     this.unionValue,
+    this.nullableUnionValue,
+    this.requiredNullableUnionObject,
     this.nullableString,
     this.pet,
     this.restrictedObject,
     this.dependentObject,
+    this.primitiveArrayWithValidation,
     this.restrictedArray,
     this.deprecatedField,
     this.deprecatedRef,
     this.defaultString = 'default value',
+    this.defaultBackslash = 'foo\\sbar',
+    this.nestedArray,
+    this.singleQuoteKey,
+    this.mixedEnum,
     this.defaultInt = 42,
     this.defaultBool = true,
     this.defaultList = const <String>['a', 'b'],
@@ -140,6 +165,13 @@ final class TestRoot implements JsonModel {
     this.unionWithAllOfOption,
     this.patternPropsField,
     this.overlappingUnion,
+    this.deprecatedFieldWithMessage,
+    this.customNamedObject,
+    this.customNamedUnion,
+    this.customNamedEnum,
+    this.coverageTrigger,
+    this.collidingEnumField,
+    this.collidingObjectField,
   });
 
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -188,14 +220,21 @@ final class TestRoot implements JsonModel {
     List<String>? tags,
     List<Score>? scores,
     TestRootUnionValue? unionValue,
+    TestRootNullableUnionValue? nullableUnionValue,
+    RequiredNullableUnionObject? requiredNullableUnionObject,
     String? nullableString,
     Pet? pet,
     RestrictedObject? restrictedObject,
     DependentObject? dependentObject,
+    List<String>? primitiveArrayWithValidation,
     List<int>? restrictedArray,
     String? deprecatedField,
     DeprecatedObject? deprecatedRef,
     String? defaultString,
+    String? defaultBackslash,
+    List<List<Address>>? nestedArray,
+    String? singleQuoteKey,
+    TestRootMixedEnum? mixedEnum,
     int? defaultInt,
     bool? defaultBool,
     List<String>? defaultList,
@@ -237,6 +276,13 @@ final class TestRoot implements JsonModel {
     TestRootUnionWithAllOfOption? unionWithAllOfOption,
     PatternPropertiesObject? patternPropsField,
     OverlappingUnion? overlappingUnion,
+    String? deprecatedFieldWithMessage,
+    MyCustomClassName? customNamedObject,
+    MyCustomUnionName? customNamedUnion,
+    MyCustomEnumName? customNamedEnum,
+    TestRootCoverageTrigger? coverageTrigger,
+    CollidingEnum? collidingEnumField,
+    CollidingObject? collidingObjectField,
   }) => TestRoot(
     name: name ?? this.name,
     constValue: constValue ?? this.constValue,
@@ -255,14 +301,23 @@ final class TestRoot implements JsonModel {
     tags: tags ?? this.tags,
     scores: scores ?? this.scores,
     unionValue: unionValue ?? this.unionValue,
+    nullableUnionValue: nullableUnionValue ?? this.nullableUnionValue,
+    requiredNullableUnionObject:
+        requiredNullableUnionObject ?? this.requiredNullableUnionObject,
     nullableString: nullableString ?? this.nullableString,
     pet: pet ?? this.pet,
     restrictedObject: restrictedObject ?? this.restrictedObject,
     dependentObject: dependentObject ?? this.dependentObject,
+    primitiveArrayWithValidation:
+        primitiveArrayWithValidation ?? this.primitiveArrayWithValidation,
     restrictedArray: restrictedArray ?? this.restrictedArray,
     deprecatedField: deprecatedField ?? this.deprecatedField,
     deprecatedRef: deprecatedRef ?? this.deprecatedRef,
     defaultString: defaultString ?? this.defaultString,
+    defaultBackslash: defaultBackslash ?? this.defaultBackslash,
+    nestedArray: nestedArray ?? this.nestedArray,
+    singleQuoteKey: singleQuoteKey ?? this.singleQuoteKey,
+    mixedEnum: mixedEnum ?? this.mixedEnum,
     defaultInt: defaultInt ?? this.defaultInt,
     defaultBool: defaultBool ?? this.defaultBool,
     defaultList: defaultList ?? this.defaultList,
@@ -305,6 +360,14 @@ final class TestRoot implements JsonModel {
     unionWithAllOfOption: unionWithAllOfOption ?? this.unionWithAllOfOption,
     patternPropsField: patternPropsField ?? this.patternPropsField,
     overlappingUnion: overlappingUnion ?? this.overlappingUnion,
+    deprecatedFieldWithMessage:
+        deprecatedFieldWithMessage ?? this.deprecatedFieldWithMessage,
+    customNamedObject: customNamedObject ?? this.customNamedObject,
+    customNamedUnion: customNamedUnion ?? this.customNamedUnion,
+    customNamedEnum: customNamedEnum ?? this.customNamedEnum,
+    coverageTrigger: coverageTrigger ?? this.coverageTrigger,
+    collidingEnumField: collidingEnumField ?? this.collidingEnumField,
+    collidingObjectField: collidingObjectField ?? this.collidingObjectField,
   );
 
   void validate() {
@@ -315,9 +378,14 @@ final class TestRoot implements JsonModel {
     }
     final val_constValue = constValue;
     if (val_constValue != null) {
-      if (!const [
-        TestRootConstValue.alwaysThisValue,
-      ].contains(val_constValue)) {
+      if (!const ['always-this-value'].any(
+        (v) => const DeepCollectionEquality().equals(
+          v,
+          val_constValue is Enum
+              ? (val_constValue as dynamic).value
+              : val_constValue,
+        ),
+      )) {
         throw JsonValidationException(
           'Property "constValue" must be one of [always-this-value]',
           ['constValue'],
@@ -348,7 +416,7 @@ final class TestRoot implements JsonModel {
     final val_height = height;
     final val_email = email;
     if (val_email != null) {
-      if (!RegExp(r'^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$').hasMatch(val_email)) {
+      if (!RegExp('^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+\$').hasMatch(val_email)) {
         throw JsonValidationException(
           'Property "email" must match pattern "^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+\$"',
           ['email'],
@@ -382,7 +450,11 @@ final class TestRoot implements JsonModel {
           'tags',
         ]);
       }
-      if (val_tags.length != val_tags.toSet().length) {
+      if (val_tags.length !=
+          (LinkedHashSet<dynamic>(
+            equals: const DeepCollectionEquality().equals,
+            hashCode: const DeepCollectionEquality().hash,
+          )..addAll(val_tags)).length) {
         throw JsonValidationException('Property "tags" items must be unique', [
           'tags',
         ]);
@@ -408,6 +480,28 @@ final class TestRoot implements JsonModel {
         val_unionValue.validate();
       } on JsonValidationException catch (e) {
         throw JsonValidationException(e.message, ['unionValue', ...e.path]);
+      }
+    }
+    final val_nullableUnionValue = nullableUnionValue;
+    if (val_nullableUnionValue != null) {
+      try {
+        val_nullableUnionValue.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'nullableUnionValue',
+          ...e.path,
+        ]);
+      }
+    }
+    final val_requiredNullableUnionObject = requiredNullableUnionObject;
+    if (val_requiredNullableUnionObject != null) {
+      try {
+        val_requiredNullableUnionObject.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'requiredNullableUnionObject',
+          ...e.path,
+        ]);
       }
     }
     final val_nullableString = nullableString;
@@ -439,6 +533,23 @@ final class TestRoot implements JsonModel {
           'dependentObject',
           ...e.path,
         ]);
+      }
+    }
+    final val_primitiveArrayWithValidation = primitiveArrayWithValidation;
+    if (val_primitiveArrayWithValidation != null) {
+      for (var i = 0; i < val_primitiveArrayWithValidation.length; i++) {
+        if (val_primitiveArrayWithValidation[i] is! String) {
+          throw JsonValidationException(
+            'Property "primitiveArrayWithValidation" must be a string',
+            ['primitiveArrayWithValidation', '[$i]'],
+          );
+        }
+        if (val_primitiveArrayWithValidation[i].length < 3) {
+          throw JsonValidationException(
+            'Property "primitiveArrayWithValidation" length must be >= 3',
+            ['primitiveArrayWithValidation', '[$i]'],
+          );
+        }
       }
     }
     final val_restrictedArray = restrictedArray;
@@ -473,6 +584,41 @@ final class TestRoot implements JsonModel {
         val_deprecatedRef.validate();
       } on JsonValidationException catch (e) {
         throw JsonValidationException(e.message, ['deprecatedRef', ...e.path]);
+      }
+    }
+    final val_nestedArray = nestedArray;
+    if (val_nestedArray != null) {
+      for (var i = 0; i < val_nestedArray.length; i++) {
+        for (var i0 = 0; i0 < val_nestedArray[i].length; i0++) {
+          final item0 = val_nestedArray[i][i0];
+          try {
+            item0.validate();
+          } on JsonValidationException catch (e) {
+            throw JsonValidationException(e.message, [
+              'nestedArray',
+              '[$i]',
+              '[$i0]',
+              ...e.path,
+            ]);
+          }
+        }
+      }
+    }
+    final val_singleQuoteKey = singleQuoteKey;
+    final val_mixedEnum = mixedEnum;
+    if (val_mixedEnum != null) {
+      if (!const ['foo', 42, 'bar', 100].any(
+        (v) => const DeepCollectionEquality().equals(
+          v,
+          val_mixedEnum is Enum
+              ? (val_mixedEnum as dynamic).value
+              : val_mixedEnum,
+        ),
+      )) {
+        throw JsonValidationException(
+          'Property "mixedEnum" must be one of [foo, 42, bar, 100]',
+          ['mixedEnum'],
+        );
       }
     }
     try {
@@ -607,11 +753,14 @@ final class TestRoot implements JsonModel {
     }
     final val_myEnumField = myEnumField;
     if (val_myEnumField != null) {
-      if (!const [
-        MyEnum.alpha,
-        MyEnum.beta,
-        MyEnum.gamma,
-      ].contains(val_myEnumField)) {
+      if (!const ['alpha', 'beta', 'gamma'].any(
+        (v) => const DeepCollectionEquality().equals(
+          v,
+          val_myEnumField is Enum
+              ? (val_myEnumField as dynamic).value
+              : val_myEnumField,
+        ),
+      )) {
         throw JsonValidationException(
           'Property "myEnumField" must be one of [alpha, beta, gamma]',
           ['myEnumField'],
@@ -683,7 +832,7 @@ final class TestRoot implements JsonModel {
           matches = true;
         } else {
           try {
-            MyEnum.fromValue(item);
+            MyEnum.fromValue(item as String);
             matches = true;
           } catch (_) {}
         }
@@ -750,7 +899,7 @@ final class TestRoot implements JsonModel {
           matches = true;
           if (item.length < 3) matches = false;
           if (item.length > 10) matches = false;
-          if (!RegExp(r'^a').hasMatch(item)) matches = false;
+          if (!RegExp('^a').hasMatch(item)) matches = false;
           try {
             if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(item)) {
               throw JsonValidationException(
@@ -866,6 +1015,36 @@ final class TestRoot implements JsonModel {
       );
     }
     final val_tupleSameTypeArray = tupleSameTypeArray;
+    if (val_tupleSameTypeArray != null) {
+      if (val_tupleSameTypeArray.length > 0) {
+        if (val_tupleSameTypeArray[0] is! String) {
+          throw JsonValidationException(
+            'Property "tupleSameTypeArray" must be a string',
+            ['tupleSameTypeArray', '[0]'],
+          );
+        }
+        if (val_tupleSameTypeArray[0].length < 1) {
+          throw JsonValidationException(
+            'Property "tupleSameTypeArray" length must be >= 1',
+            ['tupleSameTypeArray', '[0]'],
+          );
+        }
+      }
+      if (val_tupleSameTypeArray.length > 1) {
+        if (val_tupleSameTypeArray[1] is! String) {
+          throw JsonValidationException(
+            'Property "tupleSameTypeArray" must be a string',
+            ['tupleSameTypeArray', '[1]'],
+          );
+        }
+        if (val_tupleSameTypeArray[1].length > 5) {
+          throw JsonValidationException(
+            'Property "tupleSameTypeArray" length must be <= 5',
+            ['tupleSameTypeArray', '[1]'],
+          );
+        }
+      }
+    }
     final val_arrayWithAllOfItems = arrayWithAllOfItems;
     if (val_arrayWithAllOfItems != null) {
       for (var i = 0; i < val_arrayWithAllOfItems.length; i++) {
@@ -913,6 +1092,92 @@ final class TestRoot implements JsonModel {
         ]);
       }
     }
+    final val_deprecatedFieldWithMessage = deprecatedFieldWithMessage;
+    final val_customNamedObject = customNamedObject;
+    if (val_customNamedObject != null) {
+      try {
+        val_customNamedObject.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'customNamedObject',
+          ...e.path,
+        ]);
+      }
+    }
+    final val_customNamedUnion = customNamedUnion;
+    if (val_customNamedUnion != null) {
+      try {
+        val_customNamedUnion.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'customNamedUnion',
+          ...e.path,
+        ]);
+      }
+    }
+    final val_customNamedEnum = customNamedEnum;
+    if (val_customNamedEnum != null) {
+      if (!const ['one', 'two'].any(
+        (v) => const DeepCollectionEquality().equals(
+          v,
+          val_customNamedEnum is Enum
+              ? (val_customNamedEnum as dynamic).value
+              : val_customNamedEnum,
+        ),
+      )) {
+        throw JsonValidationException(
+          'Property "customNamedEnum" must be one of [one, two]',
+          ['customNamedEnum'],
+        );
+      }
+    }
+    final val_coverageTrigger = coverageTrigger;
+    if (val_coverageTrigger != null) {
+      try {
+        val_coverageTrigger.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'coverageTrigger',
+          ...e.path,
+        ]);
+      }
+    }
+    final val_collidingEnumField = collidingEnumField;
+    if (val_collidingEnumField != null) {
+      if (!const [
+        'values',
+        'value',
+        'fromValue',
+        'descriptor',
+        'foo-bar',
+        'foo_bar',
+        null,
+        null,
+      ].any(
+        (v) => const DeepCollectionEquality().equals(
+          v,
+          val_collidingEnumField is Enum
+              ? (val_collidingEnumField as dynamic).value
+              : val_collidingEnumField,
+        ),
+      )) {
+        throw JsonValidationException(
+          'Property "collidingEnumField" must be one of [values, value, fromValue, descriptor, foo-bar, foo_bar, {a: 1}, {a: 1}]',
+          ['collidingEnumField'],
+        );
+      }
+    }
+    final val_collidingObjectField = collidingObjectField;
+    if (val_collidingObjectField != null) {
+      try {
+        val_collidingObjectField.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'collidingObjectField',
+          ...e.path,
+        ]);
+      }
+    }
   }
 
   static final descriptor = ObjectDescriptor<TestRoot>(
@@ -936,16 +1201,28 @@ final class TestRoot implements JsonModel {
       tags: fields['tags'] as List<String>?,
       scores: fields['scores'] as List<Score>?,
       unionValue: fields['unionValue'] as TestRootUnionValue?,
+      nullableUnionValue:
+          fields['nullableUnionValue'] as TestRootNullableUnionValue?,
+      requiredNullableUnionObject:
+          fields['requiredNullableUnionObject'] as RequiredNullableUnionObject?,
       nullableString: fields['nullableString'] as String?,
       pet: fields['pet'] as Pet?,
       restrictedObject: fields['restrictedObject'] as RestrictedObject?,
       dependentObject: fields['dependentObject'] as DependentObject?,
+      primitiveArrayWithValidation:
+          fields['primitiveArrayWithValidation'] as List<String>?,
       restrictedArray: fields['restrictedArray'] as List<int>?,
       deprecatedField: fields['deprecatedField'] as String?,
       deprecatedRef: fields['deprecatedRef'] as DeprecatedObject?,
       defaultString: fields.containsKey('defaultString')
           ? fields['defaultString'] as String
           : 'default value',
+      defaultBackslash: fields.containsKey('defaultBackslash')
+          ? fields['defaultBackslash'] as String
+          : 'foo\\sbar',
+      nestedArray: fields['nestedArray'] as List<List<Address>>?,
+      singleQuoteKey: fields['single\'quote\'key'] as String?,
+      mixedEnum: fields['mixedEnum'] as TestRootMixedEnum?,
       defaultInt: fields.containsKey('defaultInt')
           ? fields['defaultInt'] as int
           : 42,
@@ -1007,74 +1284,101 @@ final class TestRoot implements JsonModel {
       patternPropsField:
           fields['patternPropsField'] as PatternPropertiesObject?,
       overlappingUnion: fields['overlappingUnion'] as OverlappingUnion?,
+      deprecatedFieldWithMessage:
+          fields['deprecatedFieldWithMessage'] as String?,
+      customNamedObject: fields['customNamedObject'] as MyCustomClassName?,
+      customNamedUnion: fields['customNamedUnion'] as MyCustomUnionName?,
+      customNamedEnum: fields['customNamedEnum'] as MyCustomEnumName?,
+      coverageTrigger: fields['coverageTrigger'] as TestRootCoverageTrigger?,
+      collidingEnumField: fields['collidingEnumField'] as CollidingEnum?,
+      collidingObjectField: fields['collidingObjectField'] as CollidingObject?,
     ),
-    getFields: (instance) => {
-      'name': instance.name,
-      'constValue': instance.constValue,
-      'age': instance.age,
-      'exclusiveAge': instance.exclusiveAge,
-      'height': instance.height,
-      'email': instance.email,
-      'uuid': instance.uuid,
-      'isAwesome': instance.isAwesome,
-      'class': instance.class_,
-      'reader': instance.reader,
-      'stack': instance.stack,
-      'validate': instance.validate_,
-      'result': instance.result,
-      'address': instance.address,
-      'tags': instance.tags,
-      'scores': instance.scores,
-      'unionValue': instance.unionValue,
-      'nullableString': instance.nullableString,
-      'pet': instance.pet,
-      'restrictedObject': instance.restrictedObject,
-      'dependentObject': instance.dependentObject,
-      'restrictedArray': instance.restrictedArray,
-      'deprecatedField': instance.deprecatedField,
-      'deprecatedRef': instance.deprecatedRef,
-      'defaultString': instance.defaultString,
-      'defaultInt': instance.defaultInt,
-      'defaultBool': instance.defaultBool,
-      'defaultList': instance.defaultList,
-      'defaultObject': instance.defaultObject,
-      'defaultNullableString': instance.defaultNullableString,
-      'mergedValue': instance.mergedValue,
-      'tupleArray': instance.tupleArray,
-      'tupleObjectArray': instance.tupleObjectArray,
-      'ipv6Value': instance.ipv6Value,
-      'hostnameValue': instance.hostnameValue,
-      'timeValue': instance.timeValue,
-      'uriReferenceValue': instance.uriReferenceValue,
-      'additionalPropertiesObject': instance.additionalPropertiesObject,
-      'strictObject': instance.strictObject,
-      'notObject': instance.notObject,
-      'anyOfValue': instance.anyOfValue,
-      'mergedAllOfObject': instance.mergedAllOfObject,
-      'complexMerged': instance.complexMerged,
-      'myEnumField': instance.myEnumField,
-      'unionContainsArray': instance.unionContainsArray,
-      'objectContainsArray': instance.objectContainsArray,
-      'enumContainsArray': instance.enumContainsArray,
-      'booleanContainsArray': instance.booleanContainsArray,
-      'nullContainsArray': instance.nullContainsArray,
-      'anyContainsArray': instance.anyContainsArray,
-      'stringContainsArray': instance.stringContainsArray,
-      'numberContainsArray': instance.numberContainsArray,
-      'dynamicProps': instance.dynamicProps,
-      'dateTimeField': instance.dateTimeField,
-      'dateField': instance.dateField,
-      'ipv4Field': instance.ipv4Field,
-      'uriField': instance.uriField,
-      'defaultEmptyList': instance.defaultEmptyList,
-      'defaultEmptyObject': instance.defaultEmptyObject,
-      'unionWithArrayOption': instance.unionWithArrayOption,
-      'impossibleField': instance.impossibleField,
-      'tupleSameTypeArray': instance.tupleSameTypeArray,
-      'arrayWithAllOfItems': instance.arrayWithAllOfItems,
-      'unionWithAllOfOption': instance.unionWithAllOfOption,
-      'patternPropsField': instance.patternPropsField,
-      'overlappingUnion': instance.overlappingUnion,
+    getFields: (instance) {
+      final typedInstance = instance as TestRoot;
+      return {
+        'name': typedInstance.name,
+        'constValue': typedInstance.constValue,
+        'age': typedInstance.age,
+        'exclusiveAge': typedInstance.exclusiveAge,
+        'height': typedInstance.height,
+        'email': typedInstance.email,
+        'uuid': typedInstance.uuid,
+        'isAwesome': typedInstance.isAwesome,
+        'class': typedInstance.class_,
+        'reader': typedInstance.reader,
+        'stack': typedInstance.stack,
+        'validate': typedInstance.validate_,
+        'result': typedInstance.result,
+        'address': typedInstance.address,
+        'tags': typedInstance.tags,
+        'scores': typedInstance.scores,
+        'unionValue': typedInstance.unionValue,
+        'nullableUnionValue': typedInstance.nullableUnionValue,
+        'requiredNullableUnionObject':
+            typedInstance.requiredNullableUnionObject,
+        'nullableString': typedInstance.nullableString,
+        'pet': typedInstance.pet,
+        'restrictedObject': typedInstance.restrictedObject,
+        'dependentObject': typedInstance.dependentObject,
+        'primitiveArrayWithValidation':
+            typedInstance.primitiveArrayWithValidation,
+        'restrictedArray': typedInstance.restrictedArray,
+        'deprecatedField': typedInstance.deprecatedField,
+        'deprecatedRef': typedInstance.deprecatedRef,
+        'defaultString': typedInstance.defaultString,
+        'defaultBackslash': typedInstance.defaultBackslash,
+        'nestedArray': typedInstance.nestedArray,
+        'single\'quote\'key': typedInstance.singleQuoteKey,
+        'mixedEnum': typedInstance.mixedEnum,
+        'defaultInt': typedInstance.defaultInt,
+        'defaultBool': typedInstance.defaultBool,
+        'defaultList': typedInstance.defaultList,
+        'defaultObject': typedInstance.defaultObject,
+        'defaultNullableString': typedInstance.defaultNullableString,
+        'mergedValue': typedInstance.mergedValue,
+        'tupleArray': typedInstance.tupleArray,
+        'tupleObjectArray': typedInstance.tupleObjectArray,
+        'ipv6Value': typedInstance.ipv6Value,
+        'hostnameValue': typedInstance.hostnameValue,
+        'timeValue': typedInstance.timeValue,
+        'uriReferenceValue': typedInstance.uriReferenceValue,
+        'additionalPropertiesObject': typedInstance.additionalPropertiesObject,
+        'strictObject': typedInstance.strictObject,
+        'notObject': typedInstance.notObject,
+        'anyOfValue': typedInstance.anyOfValue,
+        'mergedAllOfObject': typedInstance.mergedAllOfObject,
+        'complexMerged': typedInstance.complexMerged,
+        'myEnumField': typedInstance.myEnumField,
+        'unionContainsArray': typedInstance.unionContainsArray,
+        'objectContainsArray': typedInstance.objectContainsArray,
+        'enumContainsArray': typedInstance.enumContainsArray,
+        'booleanContainsArray': typedInstance.booleanContainsArray,
+        'nullContainsArray': typedInstance.nullContainsArray,
+        'anyContainsArray': typedInstance.anyContainsArray,
+        'stringContainsArray': typedInstance.stringContainsArray,
+        'numberContainsArray': typedInstance.numberContainsArray,
+        'dynamicProps': typedInstance.dynamicProps,
+        'dateTimeField': typedInstance.dateTimeField,
+        'dateField': typedInstance.dateField,
+        'ipv4Field': typedInstance.ipv4Field,
+        'uriField': typedInstance.uriField,
+        'defaultEmptyList': typedInstance.defaultEmptyList,
+        'defaultEmptyObject': typedInstance.defaultEmptyObject,
+        'unionWithArrayOption': typedInstance.unionWithArrayOption,
+        'impossibleField': typedInstance.impossibleField,
+        'tupleSameTypeArray': typedInstance.tupleSameTypeArray,
+        'arrayWithAllOfItems': typedInstance.arrayWithAllOfItems,
+        'unionWithAllOfOption': typedInstance.unionWithAllOfOption,
+        'patternPropsField': typedInstance.patternPropsField,
+        'overlappingUnion': typedInstance.overlappingUnion,
+        'deprecatedFieldWithMessage': typedInstance.deprecatedFieldWithMessage,
+        'customNamedObject': typedInstance.customNamedObject,
+        'customNamedUnion': typedInstance.customNamedUnion,
+        'customNamedEnum': typedInstance.customNamedEnum,
+        'coverageTrigger': typedInstance.coverageTrigger,
+        'collidingEnumField': typedInstance.collidingEnumField,
+        'collidingObjectField': typedInstance.collidingObjectField,
+      };
     },
     properties: {
       'name': PropertyDescriptor(
@@ -1162,6 +1466,16 @@ final class TestRoot implements JsonModel {
         isRequired: false,
         schema: TestRootUnionValue.descriptor,
       ),
+      'nullableUnionValue': PropertyDescriptor(
+        name: 'nullableUnionValue',
+        isRequired: false,
+        schema: NullableDescriptor(TestRootNullableUnionValue.descriptor),
+      ),
+      'requiredNullableUnionObject': PropertyDescriptor(
+        name: 'requiredNullableUnionObject',
+        isRequired: false,
+        schema: RequiredNullableUnionObject.descriptor,
+      ),
       'nullableString': PropertyDescriptor(
         name: 'nullableString',
         isRequired: false,
@@ -1182,6 +1496,11 @@ final class TestRoot implements JsonModel {
         isRequired: false,
         schema: DependentObject.descriptor,
       ),
+      'primitiveArrayWithValidation': PropertyDescriptor(
+        name: 'primitiveArrayWithValidation',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
       'restrictedArray': PropertyDescriptor(
         name: 'restrictedArray',
         isRequired: false,
@@ -1201,6 +1520,28 @@ final class TestRoot implements JsonModel {
         name: 'defaultString',
         isRequired: false,
         schema: const StringDescriptor(),
+      ),
+      'defaultBackslash': PropertyDescriptor(
+        name: 'defaultBackslash',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'nestedArray': PropertyDescriptor(
+        name: 'nestedArray',
+        isRequired: false,
+        schema: ArrayDescriptor<List<Address>>(
+          ArrayDescriptor<Address>(Address.descriptor),
+        ),
+      ),
+      'single\'quote\'key': PropertyDescriptor(
+        name: 'single\'quote\'key',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'mixedEnum': PropertyDescriptor(
+        name: 'mixedEnum',
+        isRequired: false,
+        schema: TestRootMixedEnum.descriptor,
       ),
       'defaultInt': PropertyDescriptor(
         name: 'defaultInt',
@@ -1418,6 +1759,41 @@ final class TestRoot implements JsonModel {
         isRequired: false,
         schema: OverlappingUnion.descriptor,
       ),
+      'deprecatedFieldWithMessage': PropertyDescriptor(
+        name: 'deprecatedFieldWithMessage',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'customNamedObject': PropertyDescriptor(
+        name: 'customNamedObject',
+        isRequired: false,
+        schema: MyCustomClassName.descriptor,
+      ),
+      'customNamedUnion': PropertyDescriptor(
+        name: 'customNamedUnion',
+        isRequired: false,
+        schema: MyCustomUnionName.descriptor,
+      ),
+      'customNamedEnum': PropertyDescriptor(
+        name: 'customNamedEnum',
+        isRequired: false,
+        schema: MyCustomEnumName.descriptor,
+      ),
+      'coverageTrigger': PropertyDescriptor(
+        name: 'coverageTrigger',
+        isRequired: false,
+        schema: TestRootCoverageTrigger.descriptor,
+      ),
+      'collidingEnumField': PropertyDescriptor(
+        name: 'collidingEnumField',
+        isRequired: false,
+        schema: CollidingEnum.descriptor,
+      ),
+      'collidingObjectField': PropertyDescriptor(
+        name: 'collidingObjectField',
+        isRequired: false,
+        schema: CollidingObject.descriptor,
+      ),
     },
 
     required: const ['name', 'age', 'isAwesome', 'address'],
@@ -1442,58 +1818,126 @@ final class TestRoot implements JsonModel {
           validate_ == other.validate_ &&
           result == other.result &&
           address == other.address &&
-          tags == other.tags &&
-          scores == other.scores &&
+          const DeepCollectionEquality().equals(tags, other.tags) &&
+          const DeepCollectionEquality().equals(scores, other.scores) &&
           unionValue == other.unionValue &&
+          nullableUnionValue == other.nullableUnionValue &&
+          requiredNullableUnionObject == other.requiredNullableUnionObject &&
           nullableString == other.nullableString &&
           pet == other.pet &&
           restrictedObject == other.restrictedObject &&
           dependentObject == other.dependentObject &&
-          restrictedArray == other.restrictedArray &&
+          const DeepCollectionEquality().equals(
+            primitiveArrayWithValidation,
+            other.primitiveArrayWithValidation,
+          ) &&
+          const DeepCollectionEquality().equals(
+            restrictedArray,
+            other.restrictedArray,
+          ) &&
           deprecatedField == other.deprecatedField &&
           deprecatedRef == other.deprecatedRef &&
           defaultString == other.defaultString &&
+          defaultBackslash == other.defaultBackslash &&
+          const DeepCollectionEquality().equals(
+            nestedArray,
+            other.nestedArray,
+          ) &&
+          singleQuoteKey == other.singleQuoteKey &&
+          mixedEnum == other.mixedEnum &&
           defaultInt == other.defaultInt &&
           defaultBool == other.defaultBool &&
-          defaultList == other.defaultList &&
+          const DeepCollectionEquality().equals(
+            defaultList,
+            other.defaultList,
+          ) &&
           defaultObject == other.defaultObject &&
           defaultNullableString == other.defaultNullableString &&
           mergedValue == other.mergedValue &&
-          tupleArray == other.tupleArray &&
-          tupleObjectArray == other.tupleObjectArray &&
+          const DeepCollectionEquality().equals(tupleArray, other.tupleArray) &&
+          const DeepCollectionEquality().equals(
+            tupleObjectArray,
+            other.tupleObjectArray,
+          ) &&
           ipv6Value == other.ipv6Value &&
           hostnameValue == other.hostnameValue &&
           timeValue == other.timeValue &&
           uriReferenceValue == other.uriReferenceValue &&
-          additionalPropertiesObject == other.additionalPropertiesObject &&
+          const DeepCollectionEquality().equals(
+            additionalPropertiesObject,
+            other.additionalPropertiesObject,
+          ) &&
           strictObject == other.strictObject &&
           notObject == other.notObject &&
           anyOfValue == other.anyOfValue &&
           mergedAllOfObject == other.mergedAllOfObject &&
           complexMerged == other.complexMerged &&
           myEnumField == other.myEnumField &&
-          unionContainsArray == other.unionContainsArray &&
-          objectContainsArray == other.objectContainsArray &&
-          enumContainsArray == other.enumContainsArray &&
-          booleanContainsArray == other.booleanContainsArray &&
-          nullContainsArray == other.nullContainsArray &&
-          anyContainsArray == other.anyContainsArray &&
-          stringContainsArray == other.stringContainsArray &&
-          numberContainsArray == other.numberContainsArray &&
+          const DeepCollectionEquality().equals(
+            unionContainsArray,
+            other.unionContainsArray,
+          ) &&
+          const DeepCollectionEquality().equals(
+            objectContainsArray,
+            other.objectContainsArray,
+          ) &&
+          const DeepCollectionEquality().equals(
+            enumContainsArray,
+            other.enumContainsArray,
+          ) &&
+          const DeepCollectionEquality().equals(
+            booleanContainsArray,
+            other.booleanContainsArray,
+          ) &&
+          const DeepCollectionEquality().equals(
+            nullContainsArray,
+            other.nullContainsArray,
+          ) &&
+          const DeepCollectionEquality().equals(
+            anyContainsArray,
+            other.anyContainsArray,
+          ) &&
+          const DeepCollectionEquality().equals(
+            stringContainsArray,
+            other.stringContainsArray,
+          ) &&
+          const DeepCollectionEquality().equals(
+            numberContainsArray,
+            other.numberContainsArray,
+          ) &&
           dynamicProps == other.dynamicProps &&
           dateTimeField == other.dateTimeField &&
           dateField == other.dateField &&
           ipv4Field == other.ipv4Field &&
           uriField == other.uriField &&
-          defaultEmptyList == other.defaultEmptyList &&
-          defaultEmptyObject == other.defaultEmptyObject &&
+          const DeepCollectionEquality().equals(
+            defaultEmptyList,
+            other.defaultEmptyList,
+          ) &&
+          const DeepCollectionEquality().equals(
+            defaultEmptyObject,
+            other.defaultEmptyObject,
+          ) &&
           unionWithArrayOption == other.unionWithArrayOption &&
           impossibleField == other.impossibleField &&
-          tupleSameTypeArray == other.tupleSameTypeArray &&
-          arrayWithAllOfItems == other.arrayWithAllOfItems &&
+          const DeepCollectionEquality().equals(
+            tupleSameTypeArray,
+            other.tupleSameTypeArray,
+          ) &&
+          const DeepCollectionEquality().equals(
+            arrayWithAllOfItems,
+            other.arrayWithAllOfItems,
+          ) &&
           unionWithAllOfOption == other.unionWithAllOfOption &&
           patternPropsField == other.patternPropsField &&
-          overlappingUnion == other.overlappingUnion;
+          overlappingUnion == other.overlappingUnion &&
+          deprecatedFieldWithMessage == other.deprecatedFieldWithMessage &&
+          customNamedObject == other.customNamedObject &&
+          customNamedUnion == other.customNamedUnion &&
+          customNamedEnum == other.customNamedEnum &&
+          coverageTrigger == other.coverageTrigger &&
+          collidingEnumField == other.collidingEnumField &&
+          collidingObjectField == other.collidingObjectField;
 
   @override
   int get hashCode => Object.hashAll([
@@ -1511,63 +1955,77 @@ final class TestRoot implements JsonModel {
     validate_,
     result,
     address,
-    tags,
-    scores,
+    const DeepCollectionEquality().hash(tags),
+    const DeepCollectionEquality().hash(scores),
     unionValue,
+    nullableUnionValue,
+    requiredNullableUnionObject,
     nullableString,
     pet,
     restrictedObject,
     dependentObject,
-    restrictedArray,
+    const DeepCollectionEquality().hash(primitiveArrayWithValidation),
+    const DeepCollectionEquality().hash(restrictedArray),
     deprecatedField,
     deprecatedRef,
     defaultString,
+    defaultBackslash,
+    const DeepCollectionEquality().hash(nestedArray),
+    singleQuoteKey,
+    mixedEnum,
     defaultInt,
     defaultBool,
-    defaultList,
+    const DeepCollectionEquality().hash(defaultList),
     defaultObject,
     defaultNullableString,
     mergedValue,
-    tupleArray,
-    tupleObjectArray,
+    const DeepCollectionEquality().hash(tupleArray),
+    const DeepCollectionEquality().hash(tupleObjectArray),
     ipv6Value,
     hostnameValue,
     timeValue,
     uriReferenceValue,
-    additionalPropertiesObject,
+    const DeepCollectionEquality().hash(additionalPropertiesObject),
     strictObject,
     notObject,
     anyOfValue,
     mergedAllOfObject,
     complexMerged,
     myEnumField,
-    unionContainsArray,
-    objectContainsArray,
-    enumContainsArray,
-    booleanContainsArray,
-    nullContainsArray,
-    anyContainsArray,
-    stringContainsArray,
-    numberContainsArray,
+    const DeepCollectionEquality().hash(unionContainsArray),
+    const DeepCollectionEquality().hash(objectContainsArray),
+    const DeepCollectionEquality().hash(enumContainsArray),
+    const DeepCollectionEquality().hash(booleanContainsArray),
+    const DeepCollectionEquality().hash(nullContainsArray),
+    const DeepCollectionEquality().hash(anyContainsArray),
+    const DeepCollectionEquality().hash(stringContainsArray),
+    const DeepCollectionEquality().hash(numberContainsArray),
     dynamicProps,
     dateTimeField,
     dateField,
     ipv4Field,
     uriField,
-    defaultEmptyList,
-    defaultEmptyObject,
+    const DeepCollectionEquality().hash(defaultEmptyList),
+    const DeepCollectionEquality().hash(defaultEmptyObject),
     unionWithArrayOption,
     impossibleField,
-    tupleSameTypeArray,
-    arrayWithAllOfItems,
+    const DeepCollectionEquality().hash(tupleSameTypeArray),
+    const DeepCollectionEquality().hash(arrayWithAllOfItems),
     unionWithAllOfOption,
     patternPropsField,
     overlappingUnion,
+    deprecatedFieldWithMessage,
+    customNamedObject,
+    customNamedUnion,
+    customNamedEnum,
+    coverageTrigger,
+    collidingEnumField,
+    collidingObjectField,
   ]);
 
   @override
   String toString() =>
-      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, patternPropsField: ${patternPropsField}, overlappingUnion: ${overlappingUnion})';
+      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableUnionValue: ${nullableUnionValue}, requiredNullableUnionObject: ${requiredNullableUnionObject}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, primitiveArrayWithValidation: ${primitiveArrayWithValidation}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultBackslash: ${defaultBackslash}, nestedArray: ${nestedArray}, singleQuoteKey: ${singleQuoteKey}, mixedEnum: ${mixedEnum}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, patternPropsField: ${patternPropsField}, overlappingUnion: ${overlappingUnion}, deprecatedFieldWithMessage: ${deprecatedFieldWithMessage}, customNamedObject: ${customNamedObject}, customNamedUnion: ${customNamedUnion}, customNamedEnum: ${customNamedEnum}, coverageTrigger: ${coverageTrigger}, collidingEnumField: ${collidingEnumField}, collidingObjectField: ${collidingObjectField})';
 }
 
 enum TestRootConstValue {
@@ -1638,7 +2096,10 @@ final class Address implements JsonModel {
       city: fields['city'] as String,
       street: fields['street'] as String?,
     ),
-    getFields: (instance) => {'city': instance.city, 'street': instance.street},
+    getFields: (instance) {
+      final typedInstance = instance as Address;
+      return {'city': typedInstance.city, 'street': typedInstance.street};
+    },
     properties: {
       'city': PropertyDescriptor(
         name: 'city',
@@ -1717,7 +2178,10 @@ final class Score implements JsonModel {
     title: 'Score',
     matches: (instance) => instance is Score,
     instantiate: (fields) => Score(value: fields['value'] as num),
-    getFields: (instance) => {'value': instance.value},
+    getFields: (instance) {
+      final typedInstance = instance as Score;
+      return {'value': typedInstance.value};
+    },
     properties: {
       'value': PropertyDescriptor(
         name: 'value',
@@ -1784,13 +2248,13 @@ sealed class TestRootUnionValue implements JsonModel {
     title: 'TestRootUnionValue',
 
     activeOptions: [
-      UnionOptionDescriptor<TestRootUnionValue, dynamic>(
+      UnionOptionDescriptor<TestRootUnionValue, String>(
         const StringDescriptor(),
-        (val) => TestRootUnionValueOption0(val),
+        (val) => TestRootUnionValueOption0(val as String),
       ),
-      UnionOptionDescriptor<TestRootUnionValue, dynamic>(
+      UnionOptionDescriptor<TestRootUnionValue, Address>(
         Address.descriptor,
-        (val) => TestRootUnionValueOption1(val),
+        (val) => TestRootUnionValueOption1(val as Address),
       ),
     ],
   );
@@ -1850,6 +2314,328 @@ final class TestRootUnionValueOption1 extends TestRootUnionValue {
   String toString() => 'TestRootUnionValueOption1(value: $value)';
 }
 
+sealed class TestRootNullableUnionValue implements JsonModel {
+  const TestRootNullableUnionValue();
+
+  factory TestRootNullableUnionValue.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootNullableUnionValue;
+
+  /// Creates an instance of [TestRootNullableUnionValue] from a JSON-compatible Dart value.
+  factory TestRootNullableUnionValue.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => TestRootNullableUnionValue.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  static final descriptor = UnionDescriptor<TestRootNullableUnionValue>(
+    title: 'TestRootNullableUnionValue',
+
+    activeOptions: [
+      UnionOptionDescriptor<TestRootNullableUnionValue, String>(
+        const StringDescriptor(),
+        (val) => TestRootNullableUnionValueOption0(val as String),
+      ),
+      UnionOptionDescriptor<TestRootNullableUnionValue, Address>(
+        Address.descriptor,
+        (val) => TestRootNullableUnionValueOption1(val as Address),
+      ),
+    ],
+  );
+}
+
+final class TestRootNullableUnionValueOption0
+    extends TestRootNullableUnionValue {
+  final String value;
+  const TestRootNullableUnionValueOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootNullableUnionValueOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootNullableUnionValueOption0(value: $value)';
+}
+
+final class TestRootNullableUnionValueOption1
+    extends TestRootNullableUnionValue {
+  final Address value;
+  const TestRootNullableUnionValueOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, Address.descriptor);
+  }
+
+  @override
+  void validate() {
+    value.validate();
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootNullableUnionValueOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootNullableUnionValueOption1(value: $value)';
+}
+
+final class RequiredNullableUnionObject implements JsonModel {
+  final RequiredNullableUnionObjectNullableUnion? nullableUnion;
+
+  const RequiredNullableUnionObject({required this.nullableUnion});
+
+  factory RequiredNullableUnionObject.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as RequiredNullableUnionObject;
+
+  /// Creates an instance of [RequiredNullableUnionObject] from a JSON Map.
+  factory RequiredNullableUnionObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => RequiredNullableUnionObject.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  RequiredNullableUnionObject copyWith({
+    RequiredNullableUnionObjectNullableUnion? nullableUnion,
+  }) => RequiredNullableUnionObject(
+    nullableUnion: nullableUnion ?? this.nullableUnion,
+  );
+
+  void validate() {
+    final val_nullableUnion = nullableUnion;
+    if (val_nullableUnion != null) {
+      try {
+        val_nullableUnion.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['nullableUnion', ...e.path]);
+      }
+    }
+  }
+
+  static final descriptor = ObjectDescriptor<RequiredNullableUnionObject>(
+    title: 'RequiredNullableUnionObject',
+    matches: (instance) => instance is RequiredNullableUnionObject,
+    instantiate: (fields) => RequiredNullableUnionObject(
+      nullableUnion:
+          fields['nullableUnion'] as RequiredNullableUnionObjectNullableUnion?,
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as RequiredNullableUnionObject;
+      return {'nullableUnion': typedInstance.nullableUnion};
+    },
+    properties: {
+      'nullableUnion': PropertyDescriptor(
+        name: 'nullableUnion',
+        isRequired: true,
+        schema: NullableDescriptor(
+          RequiredNullableUnionObjectNullableUnion.descriptor,
+        ),
+      ),
+    },
+
+    required: const ['nullableUnion'],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RequiredNullableUnionObject &&
+          runtimeType == other.runtimeType &&
+          nullableUnion == other.nullableUnion;
+
+  @override
+  int get hashCode => Object.hashAll([nullableUnion]);
+
+  @override
+  String toString() =>
+      'RequiredNullableUnionObject(nullableUnion: ${nullableUnion})';
+}
+
+sealed class RequiredNullableUnionObjectNullableUnion implements JsonModel {
+  const RequiredNullableUnionObjectNullableUnion();
+
+  factory RequiredNullableUnionObjectNullableUnion.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as RequiredNullableUnionObjectNullableUnion;
+
+  /// Creates an instance of [RequiredNullableUnionObjectNullableUnion] from a JSON-compatible Dart value.
+  factory RequiredNullableUnionObjectNullableUnion.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => RequiredNullableUnionObjectNullableUnion.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  static final descriptor =
+      UnionDescriptor<RequiredNullableUnionObjectNullableUnion>(
+        title: 'RequiredNullableUnionObjectNullableUnion',
+
+        activeOptions: [
+          UnionOptionDescriptor<
+            RequiredNullableUnionObjectNullableUnion,
+            String
+          >(
+            const StringDescriptor(),
+            (val) =>
+                RequiredNullableUnionObjectNullableUnionOption0(val as String),
+          ),
+          UnionOptionDescriptor<RequiredNullableUnionObjectNullableUnion, int>(
+            const IntDescriptor(),
+            (val) =>
+                RequiredNullableUnionObjectNullableUnionOption1(val as int),
+          ),
+        ],
+      );
+}
+
+final class RequiredNullableUnionObjectNullableUnionOption0
+    extends RequiredNullableUnionObjectNullableUnion {
+  final String value;
+  const RequiredNullableUnionObjectNullableUnionOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RequiredNullableUnionObjectNullableUnionOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() =>
+      'RequiredNullableUnionObjectNullableUnionOption0(value: $value)';
+}
+
+final class RequiredNullableUnionObjectNullableUnionOption1
+    extends RequiredNullableUnionObjectNullableUnion {
+  final int value;
+  const RequiredNullableUnionObjectNullableUnionOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const IntDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RequiredNullableUnionObjectNullableUnionOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() =>
+      'RequiredNullableUnionObjectNullableUnionOption1(value: $value)';
+}
+
 sealed class Pet implements JsonModel {
   const Pet();
 
@@ -1882,39 +2668,39 @@ sealed class Pet implements JsonModel {
     title: 'Pet',
     discriminatorProperty: 'kind',
     discriminatorMapping: {
-      'cat_type': UnionOptionDescriptor<Pet, dynamic>(
+      'cat_type': UnionOptionDescriptor<Pet, Cat>(
         Cat.descriptor,
-        (val) => PetOption0(val),
+        (val) => PetOption0(val as Cat),
       ),
-      'Cat': UnionOptionDescriptor<Pet, dynamic>(
+      'Cat': UnionOptionDescriptor<Pet, Cat>(
         Cat.descriptor,
-        (val) => PetOption0(val),
+        (val) => PetOption0(val as Cat),
       ),
-      'PetOption0': UnionOptionDescriptor<Pet, dynamic>(
+      'PetOption0': UnionOptionDescriptor<Pet, Cat>(
         Cat.descriptor,
-        (val) => PetOption0(val),
+        (val) => PetOption0(val as Cat),
       ),
-      'dog_type': UnionOptionDescriptor<Pet, dynamic>(
+      'dog_type': UnionOptionDescriptor<Pet, Dog>(
         Dog.descriptor,
-        (val) => PetOption1(val),
+        (val) => PetOption1(val as Dog),
       ),
-      'Dog': UnionOptionDescriptor<Pet, dynamic>(
+      'Dog': UnionOptionDescriptor<Pet, Dog>(
         Dog.descriptor,
-        (val) => PetOption1(val),
+        (val) => PetOption1(val as Dog),
       ),
-      'PetOption1': UnionOptionDescriptor<Pet, dynamic>(
+      'PetOption1': UnionOptionDescriptor<Pet, Dog>(
         Dog.descriptor,
-        (val) => PetOption1(val),
+        (val) => PetOption1(val as Dog),
       ),
     },
     activeOptions: [
-      UnionOptionDescriptor<Pet, dynamic>(
+      UnionOptionDescriptor<Pet, Cat>(
         Cat.descriptor,
-        (val) => PetOption0(val),
+        (val) => PetOption0(val as Cat),
       ),
-      UnionOptionDescriptor<Pet, dynamic>(
+      UnionOptionDescriptor<Pet, Dog>(
         Dog.descriptor,
-        (val) => PetOption1(val),
+        (val) => PetOption1(val as Dog),
       ),
     ],
   );
@@ -2024,9 +2810,12 @@ final class Cat implements JsonModel {
       kind: fields['kind'] as String,
       meowVolume: fields['meowVolume'] as num?,
     ),
-    getFields: (instance) => {
-      'kind': instance.kind,
-      'meowVolume': instance.meowVolume,
+    getFields: (instance) {
+      final typedInstance = instance as Cat;
+      return {
+        'kind': typedInstance.kind,
+        'meowVolume': typedInstance.meowVolume,
+      };
     },
     properties: {
       'kind': PropertyDescriptor(
@@ -2107,9 +2896,12 @@ final class Dog implements JsonModel {
       kind: fields['kind'] as String,
       barkVolume: fields['barkVolume'] as num?,
     ),
-    getFields: (instance) => {
-      'kind': instance.kind,
-      'barkVolume': instance.barkVolume,
+    getFields: (instance) {
+      final typedInstance = instance as Dog;
+      return {
+        'kind': typedInstance.kind,
+        'barkVolume': typedInstance.barkVolume,
+      };
     },
     properties: {
       'kind': PropertyDescriptor(
@@ -2211,10 +3003,9 @@ final class RestrictedObject implements JsonModel {
       b: fields['b'] as String?,
       c: fields['c'] as String?,
     ),
-    getFields: (instance) => {
-      'a': instance.a,
-      'b': instance.b,
-      'c': instance.c,
+    getFields: (instance) {
+      final typedInstance = instance as RestrictedObject;
+      return {'a': typedInstance.a, 'b': typedInstance.b, 'c': typedInstance.c};
     },
     properties: {
       'a': PropertyDescriptor(
@@ -2317,9 +3108,12 @@ final class DependentObject implements JsonModel {
       creditCard: fields['creditCard'] as num?,
       billingAddress: fields['billingAddress'] as String?,
     ),
-    getFields: (instance) => {
-      'creditCard': instance.creditCard,
-      'billingAddress': instance.billingAddress,
+    getFields: (instance) {
+      final typedInstance = instance as DependentObject;
+      return {
+        'creditCard': typedInstance.creditCard,
+        'billingAddress': typedInstance.billingAddress,
+      };
     },
     properties: {
       'creditCard': PropertyDescriptor(
@@ -2406,7 +3200,10 @@ final class DeprecatedObject implements JsonModel {
     matches: (instance) => instance is DeprecatedObject,
     instantiate: (fields) =>
         DeprecatedObject(value: fields['value'] as String?),
-    getFields: (instance) => {'value': instance.value},
+    getFields: (instance) {
+      final typedInstance = instance as DeprecatedObject;
+      return {'value': typedInstance.value};
+    },
     properties: {
       'value': PropertyDescriptor(
         name: 'value',
@@ -2430,6 +3227,129 @@ final class DeprecatedObject implements JsonModel {
 
   @override
   String toString() => 'DeprecatedObject(value: ${value})';
+}
+
+enum TestRootMixedEnum {
+  foo('foo'),
+  value42(42),
+  bar('bar'),
+  value100(100);
+
+  final dynamic value;
+  const TestRootMixedEnum(this.value);
+  static TestRootMixedEnum fromValue(dynamic val) =>
+      values.firstWhere((e) => e.value == val);
+  static final descriptor = EnumDescriptor<TestRootMixedEnum>(
+    values: values,
+    fromValue: (val) => fromValue(val as dynamic),
+    toValue: (e) => (e as TestRootMixedEnum).value,
+    base: const AnythingDescriptor(),
+  );
+}
+
+sealed class TestRootMixedEnumBase implements JsonModel {
+  const TestRootMixedEnumBase();
+
+  factory TestRootMixedEnumBase.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootMixedEnumBase;
+
+  /// Creates an instance of [TestRootMixedEnumBase] from a JSON-compatible Dart value.
+  factory TestRootMixedEnumBase.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => TestRootMixedEnumBase.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  static final descriptor = UnionDescriptor<TestRootMixedEnumBase>(
+    title: 'TestRootMixedEnumBase',
+
+    activeOptions: [
+      UnionOptionDescriptor<TestRootMixedEnumBase, String>(
+        const StringDescriptor(),
+        (val) => TestRootMixedEnumBaseOption0(val as String),
+      ),
+      UnionOptionDescriptor<TestRootMixedEnumBase, int>(
+        const IntDescriptor(),
+        (val) => TestRootMixedEnumBaseOption1(val as int),
+      ),
+    ],
+  );
+}
+
+final class TestRootMixedEnumBaseOption0 extends TestRootMixedEnumBase {
+  final String value;
+  const TestRootMixedEnumBaseOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootMixedEnumBaseOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootMixedEnumBaseOption0(value: $value)';
+}
+
+final class TestRootMixedEnumBaseOption1 extends TestRootMixedEnumBase {
+  final int value;
+  const TestRootMixedEnumBaseOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const IntDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootMixedEnumBaseOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'TestRootMixedEnumBaseOption1(value: $value)';
 }
 
 final class Merged implements JsonModel {
@@ -2484,10 +3404,9 @@ final class Merged implements JsonModel {
       b: fields['b'] as int?,
       c: fields['c'] as bool?,
     ),
-    getFields: (instance) => {
-      'a': instance.a,
-      'b': instance.b,
-      'c': instance.c,
+    getFields: (instance) {
+      final typedInstance = instance as Merged;
+      return {'a': typedInstance.a, 'b': typedInstance.b, 'c': typedInstance.c};
     },
     properties: {
       'a': PropertyDescriptor(
@@ -2578,18 +3497,18 @@ final class MapObject implements JsonModel {
     instantiate: (fields) => MapObject(
       name: fields['name'] as String?,
       additionalProperties: fields.entries
-          .where((e) {
-            if (const <String>{'name'}.contains(e.key)) return false;
-            return true;
-          })
+          .where((e) => !const <String>{'name'}.contains(e.key) && true)
           .fold<Map<String, String>>(
             {},
             (m, e) => m..[e.key] = e.value as String,
           ),
     ),
-    getFields: (instance) => {
-      'name': instance.name,
-      ...instance.additionalProperties,
+    getFields: (instance) {
+      final typedInstance = instance as MapObject;
+      return {
+        'name': typedInstance.name,
+        ...typedInstance.additionalProperties,
+      };
     },
     properties: {
       'name': PropertyDescriptor(
@@ -2609,20 +3528,15 @@ final class MapObject implements JsonModel {
       other is MapObject &&
           runtimeType == other.runtimeType &&
           name == other.name &&
-          additionalProperties.length == other.additionalProperties.length &&
-          additionalProperties.keys.every(
-            (k) =>
-                other.additionalProperties.containsKey(k) &&
-                other.additionalProperties[k] == additionalProperties[k],
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
           );
 
   @override
   int get hashCode => Object.hashAll([
     name,
-    additionalProperties.entries.fold<int>(
-      0,
-      (sum, entry) => sum ^ Object.hash(entry.key, entry.value),
-    ),
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override
@@ -2677,7 +3591,10 @@ final class StrictObject implements JsonModel {
     title: 'StrictObject',
     matches: (instance) => instance is StrictObject,
     instantiate: (fields) => StrictObject(name: fields['name'] as String?),
-    getFields: (instance) => {'name': instance.name},
+    getFields: (instance) {
+      final typedInstance = instance as StrictObject;
+      return {'name': typedInstance.name};
+    },
     properties: {
       'name': PropertyDescriptor(
         name: 'name',
@@ -2707,8 +3624,8 @@ final class StrictObject implements JsonModel {
 final class NotObject implements JsonModel {
   final String notPatternString;
   final int notEnumInt;
-  final dynamic notNullValue;
-  final dynamic notObjectValue;
+  final Object? notNullValue;
+  final Object? notObjectValue;
 
   const NotObject({
     required this.notPatternString,
@@ -2748,8 +3665,8 @@ final class NotObject implements JsonModel {
   NotObject copyWith({
     String? notPatternString,
     int? notEnumInt,
-    dynamic notNullValue,
-    dynamic notObjectValue,
+    Object? notNullValue,
+    Object? notObjectValue,
   }) => NotObject(
     notPatternString: notPatternString ?? this.notPatternString,
     notEnumInt: notEnumInt ?? this.notEnumInt,
@@ -2766,7 +3683,7 @@ final class NotObject implements JsonModel {
           ['notPatternString'],
         );
       }
-      if (!RegExp(r'forbidden').hasMatch(notPatternString)) {
+      if (!RegExp('forbidden').hasMatch(notPatternString)) {
         throw JsonValidationException(
           'Property "notPatternString" must match pattern "forbidden"',
           ['notPatternString'],
@@ -2783,7 +3700,12 @@ final class NotObject implements JsonModel {
     }
     bool notMatches_notEnumInt = true;
     try {
-      if (!const [13, 17].contains(notEnumInt)) {
+      if (!const [13, 17].any(
+        (v) => const DeepCollectionEquality().equals(
+          v,
+          notEnumInt is Enum ? (notEnumInt as dynamic).value : notEnumInt,
+        ),
+      )) {
         throw JsonValidationException(
           'Property "notEnumInt" must be one of [13, 17]',
           ['notEnumInt'],
@@ -2845,14 +3767,17 @@ final class NotObject implements JsonModel {
     instantiate: (fields) => NotObject(
       notPatternString: fields['notPatternString'] as String,
       notEnumInt: fields['notEnumInt'] as int,
-      notNullValue: fields['notNullValue'] as dynamic,
-      notObjectValue: fields['notObjectValue'] as dynamic,
+      notNullValue: fields['notNullValue'] as Object?,
+      notObjectValue: fields['notObjectValue'] as Object?,
     ),
-    getFields: (instance) => {
-      'notPatternString': instance.notPatternString,
-      'notEnumInt': instance.notEnumInt,
-      'notNullValue': instance.notNullValue,
-      'notObjectValue': instance.notObjectValue,
+    getFields: (instance) {
+      final typedInstance = instance as NotObject;
+      return {
+        'notPatternString': typedInstance.notPatternString,
+        'notEnumInt': typedInstance.notEnumInt,
+        'notNullValue': typedInstance.notNullValue,
+        'notObjectValue': typedInstance.notObjectValue,
+      };
     },
     properties: {
       'notPatternString': PropertyDescriptor(
@@ -2868,12 +3793,12 @@ final class NotObject implements JsonModel {
       'notNullValue': PropertyDescriptor(
         name: 'notNullValue',
         isRequired: true,
-        schema: NotDescriptor(const NullDescriptor()),
+        schema: const AnythingDescriptor(),
       ),
       'notObjectValue': PropertyDescriptor(
         name: 'notObjectValue',
         isRequired: false,
-        schema: NotDescriptor(NotObjectNotObjectValueNot.descriptor),
+        schema: const AnythingDescriptor(),
       ),
     },
 
@@ -2887,15 +3812,21 @@ final class NotObject implements JsonModel {
           runtimeType == other.runtimeType &&
           notPatternString == other.notPatternString &&
           notEnumInt == other.notEnumInt &&
-          notNullValue == other.notNullValue &&
-          notObjectValue == other.notObjectValue;
+          const DeepCollectionEquality().equals(
+            notNullValue,
+            other.notNullValue,
+          ) &&
+          const DeepCollectionEquality().equals(
+            notObjectValue,
+            other.notObjectValue,
+          );
 
   @override
   int get hashCode => Object.hashAll([
     notPatternString,
     notEnumInt,
-    notNullValue,
-    notObjectValue,
+    const DeepCollectionEquality().hash(notNullValue),
+    const DeepCollectionEquality().hash(notObjectValue),
   ]);
 
   @override
@@ -2904,8 +3835,8 @@ final class NotObject implements JsonModel {
 }
 
 enum NotObjectNotEnumIntNot {
-  val13(13),
-  val17(17);
+  value13(13),
+  value17(17);
 
   final int value;
   const NotObjectNotEnumIntNot(this.value);
@@ -2974,7 +3905,10 @@ final class NotObjectNotObjectValueNot implements JsonModel {
     instantiate: (fields) => NotObjectNotObjectValueNot(
       forbiddenProp: fields['forbiddenProp'] as String,
     ),
-    getFields: (instance) => {'forbiddenProp': instance.forbiddenProp},
+    getFields: (instance) {
+      final typedInstance = instance as NotObjectNotObjectValueNot;
+      return {'forbiddenProp': typedInstance.forbiddenProp};
+    },
     properties: {
       'forbiddenProp': PropertyDescriptor(
         name: 'forbiddenProp',
@@ -3042,13 +3976,13 @@ sealed class TestRootAnyOfValue implements JsonModel {
     title: 'TestRootAnyOfValue',
 
     activeOptions: [
-      UnionOptionDescriptor<TestRootAnyOfValue, dynamic>(
+      UnionOptionDescriptor<TestRootAnyOfValue, String>(
         const StringDescriptor(),
-        (val) => TestRootAnyOfValueOption0(val),
+        (val) => TestRootAnyOfValueOption0(val as String),
       ),
-      UnionOptionDescriptor<TestRootAnyOfValue, dynamic>(
+      UnionOptionDescriptor<TestRootAnyOfValue, int>(
         const IntDescriptor(),
-        (val) => TestRootAnyOfValueOption1(val),
+        (val) => TestRootAnyOfValueOption1(val as int),
       ),
     ],
   );
@@ -3176,7 +4110,7 @@ final class MergedAllOfObject implements JsonModel {
           'strVal',
         ]);
       }
-      if (!RegExp(r'^a').hasMatch(val_strVal)) {
+      if (!RegExp('^a').hasMatch(val_strVal)) {
         throw JsonValidationException(
           'Property "strVal" must match pattern "^a"',
           ['strVal'],
@@ -3217,9 +4151,9 @@ final class MergedAllOfObject implements JsonModel {
       strVal: fields['strVal'] as String?,
       numVal: fields['numVal'] as num?,
     ),
-    getFields: (instance) => {
-      'strVal': instance.strVal,
-      'numVal': instance.numVal,
+    getFields: (instance) {
+      final typedInstance = instance as MergedAllOfObject;
+      return {'strVal': typedInstance.strVal, 'numVal': typedInstance.numVal};
     },
     properties: {
       'strVal': PropertyDescriptor(
@@ -3345,18 +4279,18 @@ final class ComplexMergedObject implements JsonModel {
     instantiate: (fields) => ComplexMergedObject(
       numVal: fields['numVal'] as num?,
       additionalProperties: fields.entries
-          .where((e) {
-            if (const <String>{'numVal'}.contains(e.key)) return false;
-            return true;
-          })
+          .where((e) => !const <String>{'numVal'}.contains(e.key) && true)
           .fold<Map<String, String>>(
             {},
             (m, e) => m..[e.key] = e.value as String,
           ),
     ),
-    getFields: (instance) => {
-      'numVal': instance.numVal,
-      ...instance.additionalProperties,
+    getFields: (instance) {
+      final typedInstance = instance as ComplexMergedObject;
+      return {
+        'numVal': typedInstance.numVal,
+        ...typedInstance.additionalProperties,
+      };
     },
     properties: {
       'numVal': PropertyDescriptor(
@@ -3376,20 +4310,15 @@ final class ComplexMergedObject implements JsonModel {
       other is ComplexMergedObject &&
           runtimeType == other.runtimeType &&
           numVal == other.numVal &&
-          additionalProperties.length == other.additionalProperties.length &&
-          additionalProperties.keys.every(
-            (k) =>
-                other.additionalProperties.containsKey(k) &&
-                other.additionalProperties[k] == additionalProperties[k],
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
           );
 
   @override
   int get hashCode => Object.hashAll([
     numVal,
-    additionalProperties.entries.fold<int>(
-      0,
-      (sum, entry) => sum ^ Object.hash(entry.key, entry.value),
-    ),
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override
@@ -3455,17 +4384,17 @@ sealed class TestRootUnionContainsArrayContains implements JsonModel {
     title: 'TestRootUnionContainsArrayContains',
 
     activeOptions: [
-      UnionOptionDescriptor<TestRootUnionContainsArrayContains, dynamic>(
+      UnionOptionDescriptor<TestRootUnionContainsArrayContains, String>(
         const StringDescriptor(),
-        (val) => TestRootUnionContainsArrayContainsOption0(val),
+        (val) => TestRootUnionContainsArrayContainsOption0(val as String),
       ),
-      UnionOptionDescriptor<TestRootUnionContainsArrayContains, dynamic>(
+      UnionOptionDescriptor<TestRootUnionContainsArrayContains, int>(
         const IntDescriptor(),
-        (val) => TestRootUnionContainsArrayContainsOption1(val),
+        (val) => TestRootUnionContainsArrayContainsOption1(val as int),
       ),
-      UnionOptionDescriptor<TestRootUnionContainsArrayContains, dynamic>(
+      UnionOptionDescriptor<TestRootUnionContainsArrayContains, num>(
         const NumDescriptor(),
-        (val) => TestRootUnionContainsArrayContainsOption2(val),
+        (val) => TestRootUnionContainsArrayContainsOption2(val as num),
       ),
     ],
   );
@@ -3493,7 +4422,7 @@ final class TestRootUnionContainsArrayContainsOption0
         'value',
       ]);
     }
-    if (!RegExp(r'^a').hasMatch(value)) {
+    if (!RegExp('^a').hasMatch(value)) {
       throw JsonValidationException(
         'Property "value" must match pattern "^a"',
         ['value'],
@@ -3611,8 +4540,8 @@ final class TestRootUnionContainsArrayContainsOption2
 }
 
 final class ObjectWithDynamicProps implements JsonModel {
-  final dynamic notInt;
-  final dynamic notNum;
+  final Object? notInt;
+  final Object? notNum;
 
   const ObjectWithDynamicProps({this.notInt, this.notNum});
 
@@ -3653,7 +4582,7 @@ final class ObjectWithDynamicProps implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  ObjectWithDynamicProps copyWith({dynamic notInt, dynamic notNum}) =>
+  ObjectWithDynamicProps copyWith({Object? notInt, Object? notNum}) =>
       ObjectWithDynamicProps(
         notInt: notInt ?? this.notInt,
         notNum: notNum ?? this.notNum,
@@ -3700,23 +4629,23 @@ final class ObjectWithDynamicProps implements JsonModel {
     title: 'ObjectWithDynamicProps',
     matches: (instance) => instance is ObjectWithDynamicProps,
     instantiate: (fields) => ObjectWithDynamicProps(
-      notInt: fields['notInt'] as dynamic,
-      notNum: fields['notNum'] as dynamic,
+      notInt: fields['notInt'] as Object?,
+      notNum: fields['notNum'] as Object?,
     ),
-    getFields: (instance) => {
-      'notInt': instance.notInt,
-      'notNum': instance.notNum,
+    getFields: (instance) {
+      final typedInstance = instance as ObjectWithDynamicProps;
+      return {'notInt': typedInstance.notInt, 'notNum': typedInstance.notNum};
     },
     properties: {
       'notInt': PropertyDescriptor(
         name: 'notInt',
         isRequired: false,
-        schema: NotDescriptor(const IntDescriptor()),
+        schema: const AnythingDescriptor(),
       ),
       'notNum': PropertyDescriptor(
         name: 'notNum',
         isRequired: false,
-        schema: NotDescriptor(const NumDescriptor()),
+        schema: const AnythingDescriptor(),
       ),
     },
 
@@ -3728,11 +4657,14 @@ final class ObjectWithDynamicProps implements JsonModel {
       identical(this, other) ||
       other is ObjectWithDynamicProps &&
           runtimeType == other.runtimeType &&
-          notInt == other.notInt &&
-          notNum == other.notNum;
+          const DeepCollectionEquality().equals(notInt, other.notInt) &&
+          const DeepCollectionEquality().equals(notNum, other.notNum);
 
   @override
-  int get hashCode => Object.hashAll([notInt, notNum]);
+  int get hashCode => Object.hashAll([
+    const DeepCollectionEquality().hash(notInt),
+    const DeepCollectionEquality().hash(notNum),
+  ]);
 
   @override
   String toString() =>
@@ -3780,13 +4712,13 @@ sealed class TestRootUnionWithArrayOption implements JsonModel {
     title: 'TestRootUnionWithArrayOption',
 
     activeOptions: [
-      UnionOptionDescriptor<TestRootUnionWithArrayOption, dynamic>(
+      UnionOptionDescriptor<TestRootUnionWithArrayOption, String>(
         const StringDescriptor(),
-        (val) => TestRootUnionWithArrayOptionOption0(val),
+        (val) => TestRootUnionWithArrayOptionOption0(val as String),
       ),
-      UnionOptionDescriptor<TestRootUnionWithArrayOption, dynamic>(
+      UnionOptionDescriptor<TestRootUnionWithArrayOption, List<Address>>(
         ArrayDescriptor<Address>(Address.descriptor),
-        (val) => TestRootUnionWithArrayOptionOption1(val),
+        (val) => TestRootUnionWithArrayOptionOption1(val as List<Address>),
       ),
     ],
   );
@@ -3849,10 +4781,10 @@ final class TestRootUnionWithArrayOptionOption1
       identical(this, other) ||
       other is TestRootUnionWithArrayOptionOption1 &&
           runtimeType == other.runtimeType &&
-          value == other.value;
+          const DeepCollectionEquality().equals(value, other.value);
 
   @override
-  int get hashCode => value.hashCode;
+  int get hashCode => const DeepCollectionEquality().hash(value);
 
   @override
   String toString() => 'TestRootUnionWithArrayOptionOption1(value: $value)';
@@ -3916,7 +4848,10 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
       a: fields['a'] as String?,
       b: fields['b'] as int?,
     ),
-    getFields: (instance) => {'a': instance.a, 'b': instance.b},
+    getFields: (instance) {
+      final typedInstance = instance as TestRootArrayWithAllOfItemsItem;
+      return {'a': typedInstance.a, 'b': typedInstance.b};
+    },
     properties: {
       'a': PropertyDescriptor(
         name: 'a',
@@ -3989,13 +4924,18 @@ sealed class TestRootUnionWithAllOfOption implements JsonModel {
     title: 'TestRootUnionWithAllOfOption',
 
     activeOptions: [
-      UnionOptionDescriptor<TestRootUnionWithAllOfOption, dynamic>(
+      UnionOptionDescriptor<TestRootUnionWithAllOfOption, String>(
         const StringDescriptor(),
-        (val) => TestRootUnionWithAllOfOptionOption0(val),
+        (val) => TestRootUnionWithAllOfOptionOption0(val as String),
       ),
-      UnionOptionDescriptor<TestRootUnionWithAllOfOption, dynamic>(
+      UnionOptionDescriptor<
+        TestRootUnionWithAllOfOption,
+        TestRootUnionWithAllOfOptionOptionType1
+      >(
         TestRootUnionWithAllOfOptionOptionType1.descriptor,
-        (val) => TestRootUnionWithAllOfOptionOption1(val),
+        (val) => TestRootUnionWithAllOfOptionOption1(
+          val as TestRootUnionWithAllOfOptionOptionType1,
+        ),
       ),
     ],
   );
@@ -4121,7 +5061,11 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
           a: fields['a'] as String?,
           b: fields['b'] as int?,
         ),
-        getFields: (instance) => {'a': instance.a, 'b': instance.b},
+        getFields: (instance) {
+          final typedInstance =
+              instance as TestRootUnionWithAllOfOptionOptionType1;
+          return {'a': typedInstance.a, 'b': typedInstance.b};
+        },
         properties: {
           'a': PropertyDescriptor(
             name: 'a',
@@ -4259,9 +5203,9 @@ final class PatternPropertiesObject implements JsonModel {
           })
           .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value),
     ),
-    getFields: (instance) => {
-      'name': instance.name,
-      ...instance.patternProperties,
+    getFields: (instance) {
+      final typedInstance = instance as PatternPropertiesObject;
+      return {'name': typedInstance.name, ...typedInstance.patternProperties};
     },
     properties: {
       'name': PropertyDescriptor(
@@ -4285,20 +5229,15 @@ final class PatternPropertiesObject implements JsonModel {
       other is PatternPropertiesObject &&
           runtimeType == other.runtimeType &&
           name == other.name &&
-          patternProperties.length == other.patternProperties.length &&
-          patternProperties.keys.every(
-            (k) =>
-                other.patternProperties.containsKey(k) &&
-                other.patternProperties[k] == patternProperties[k],
+          const DeepCollectionEquality().equals(
+            patternProperties,
+            other.patternProperties,
           );
 
   @override
   int get hashCode => Object.hashAll([
     name,
-    patternProperties.entries.fold<int>(
-      0,
-      (sum, entry) => sum ^ Object.hash(entry.key, entry.value),
-    ),
+    const DeepCollectionEquality().hash(patternProperties),
   ]);
 
   @override
@@ -4347,13 +5286,13 @@ sealed class OverlappingUnion implements JsonModel {
     title: 'OverlappingUnion',
 
     activeOptions: [
-      UnionOptionDescriptor<OverlappingUnion, dynamic>(
+      UnionOptionDescriptor<OverlappingUnion, OptionA>(
         OptionA.descriptor,
-        (val) => OverlappingUnionOption0(val),
+        (val) => OverlappingUnionOption0(val as OptionA),
       ),
-      UnionOptionDescriptor<OverlappingUnion, dynamic>(
+      UnionOptionDescriptor<OverlappingUnion, OptionB>(
         OptionB.descriptor,
-        (val) => OverlappingUnionOption1(val),
+        (val) => OverlappingUnionOption1(val as OptionB),
       ),
     ],
   );
@@ -4462,7 +5401,10 @@ final class OptionA implements JsonModel {
     title: 'OptionA',
     matches: (instance) => instance is OptionA,
     instantiate: (fields) => OptionA(value: fields['value'] as String),
-    getFields: (instance) => {'value': instance.value},
+    getFields: (instance) {
+      final typedInstance = instance as OptionA;
+      return {'value': typedInstance.value};
+    },
     properties: {
       'value': PropertyDescriptor(
         name: 'value',
@@ -4535,7 +5477,10 @@ final class OptionB implements JsonModel {
     title: 'OptionB',
     matches: (instance) => instance is OptionB,
     instantiate: (fields) => OptionB(value: fields['value'] as String),
-    getFields: (instance) => {'value': instance.value},
+    getFields: (instance) {
+      final typedInstance = instance as OptionB;
+      return {'value': typedInstance.value};
+    },
     properties: {
       'value': PropertyDescriptor(
         name: 'value',
@@ -4559,4 +5504,1074 @@ final class OptionB implements JsonModel {
 
   @override
   String toString() => 'OptionB(value: ${value})';
+}
+
+final class MyCustomClassName implements JsonModel {
+  final String? foo;
+
+  const MyCustomClassName({this.foo});
+
+  factory MyCustomClassName.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as MyCustomClassName;
+
+  /// Creates an instance of [MyCustomClassName] from a JSON Map.
+  factory MyCustomClassName.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => MyCustomClassName.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  MyCustomClassName copyWith({String? foo}) =>
+      MyCustomClassName(foo: foo ?? this.foo);
+
+  void validate() {
+    final val_foo = foo;
+  }
+
+  static final descriptor = ObjectDescriptor<MyCustomClassName>(
+    title: 'MyCustomClassName',
+    matches: (instance) => instance is MyCustomClassName,
+    instantiate: (fields) => MyCustomClassName(foo: fields['foo'] as String?),
+    getFields: (instance) {
+      final typedInstance = instance as MyCustomClassName;
+      return {'foo': typedInstance.foo};
+    },
+    properties: {
+      'foo': PropertyDescriptor(
+        name: 'foo',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const [],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MyCustomClassName &&
+          runtimeType == other.runtimeType &&
+          foo == other.foo;
+
+  @override
+  int get hashCode => Object.hashAll([foo]);
+
+  @override
+  String toString() => 'MyCustomClassName(foo: ${foo})';
+}
+
+@Deprecated('This union is deprecated, use MyCustomUnionName2')
+sealed class MyCustomUnionName implements JsonModel {
+  const MyCustomUnionName();
+
+  factory MyCustomUnionName.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as MyCustomUnionName;
+
+  /// Creates an instance of [MyCustomUnionName] from a JSON-compatible Dart value.
+  factory MyCustomUnionName.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => MyCustomUnionName.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  static final descriptor = UnionDescriptor<MyCustomUnionName>(
+    title: 'MyCustomUnionName',
+
+    activeOptions: [
+      UnionOptionDescriptor<MyCustomUnionName, String>(
+        const StringDescriptor(),
+        (val) => MyCustomUnionNameOption0(val as String),
+      ),
+      UnionOptionDescriptor<MyCustomUnionName, int>(
+        const IntDescriptor(),
+        (val) => MyCustomUnionNameOption1(val as int),
+      ),
+    ],
+  );
+}
+
+final class MyCustomUnionNameOption0 extends MyCustomUnionName {
+  final String value;
+  const MyCustomUnionNameOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MyCustomUnionNameOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'MyCustomUnionNameOption0(value: $value)';
+}
+
+final class MyCustomUnionNameOption1 extends MyCustomUnionName {
+  final int value;
+  const MyCustomUnionNameOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const IntDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MyCustomUnionNameOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'MyCustomUnionNameOption1(value: $value)';
+}
+
+enum MyCustomEnumName {
+  one('one'),
+  two('two');
+
+  final String value;
+  const MyCustomEnumName(this.value);
+  static MyCustomEnumName fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
+  static final descriptor = EnumDescriptor<MyCustomEnumName>(
+    values: values,
+    fromValue: (val) => fromValue(val as String),
+    toValue: (e) => (e as MyCustomEnumName).value,
+    base: const StringDescriptor(),
+  );
+}
+
+final class TestRootCoverageTrigger implements JsonModel {
+  final List<String>? mergeArray;
+  final TestRootCoverageTriggerMergeObject? mergeObject;
+  final String? mergeString;
+  final int? mergeNumber;
+  final bool? mergeBoolean;
+  final Null mergeNull;
+  final Object? mergeAnything;
+  final TestRootCoverageTriggerMergeNever? mergeNever;
+  final MapObject? mergeRef;
+  final TestRootCoverageTriggerMergeEnum? mergeEnum;
+  final TestRootCoverageTriggerMergeUnion? mergeUnion;
+  final TestRootCoverageTriggerMergeObjectsWithNoAdditional?
+  mergeObjectsWithNoAdditional;
+
+  const TestRootCoverageTrigger({
+    this.mergeArray,
+    this.mergeObject,
+    this.mergeString,
+    this.mergeNumber,
+    this.mergeBoolean,
+    this.mergeNull,
+    this.mergeAnything,
+    this.mergeNever,
+    this.mergeRef,
+    this.mergeEnum,
+    this.mergeUnion,
+    this.mergeObjectsWithNoAdditional,
+  });
+
+  factory TestRootCoverageTrigger.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootCoverageTrigger;
+
+  /// Creates an instance of [TestRootCoverageTrigger] from a JSON Map.
+  factory TestRootCoverageTrigger.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => TestRootCoverageTrigger.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  TestRootCoverageTrigger copyWith({
+    List<String>? mergeArray,
+    TestRootCoverageTriggerMergeObject? mergeObject,
+    String? mergeString,
+    int? mergeNumber,
+    bool? mergeBoolean,
+    Null mergeNull,
+    Object? mergeAnything,
+    TestRootCoverageTriggerMergeNever? mergeNever,
+    MapObject? mergeRef,
+    TestRootCoverageTriggerMergeEnum? mergeEnum,
+    TestRootCoverageTriggerMergeUnion? mergeUnion,
+    TestRootCoverageTriggerMergeObjectsWithNoAdditional?
+    mergeObjectsWithNoAdditional,
+  }) => TestRootCoverageTrigger(
+    mergeArray: mergeArray ?? this.mergeArray,
+    mergeObject: mergeObject ?? this.mergeObject,
+    mergeString: mergeString ?? this.mergeString,
+    mergeNumber: mergeNumber ?? this.mergeNumber,
+    mergeBoolean: mergeBoolean ?? this.mergeBoolean,
+    mergeNull: mergeNull ?? this.mergeNull,
+    mergeAnything: mergeAnything ?? this.mergeAnything,
+    mergeNever: mergeNever ?? this.mergeNever,
+    mergeRef: mergeRef ?? this.mergeRef,
+    mergeEnum: mergeEnum ?? this.mergeEnum,
+    mergeUnion: mergeUnion ?? this.mergeUnion,
+    mergeObjectsWithNoAdditional:
+        mergeObjectsWithNoAdditional ?? this.mergeObjectsWithNoAdditional,
+  );
+
+  void validate() {
+    final val_mergeArray = mergeArray;
+    final val_mergeObject = mergeObject;
+    if (val_mergeObject != null) {
+      try {
+        val_mergeObject.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['mergeObject', ...e.path]);
+      }
+    }
+    final val_mergeString = mergeString;
+    if (val_mergeString != null) {
+      if (val_mergeString.length < 5) {
+        throw JsonValidationException(
+          'Property "mergeString" length must be >= 5',
+          ['mergeString'],
+        );
+      }
+      if (val_mergeString.length > 10) {
+        throw JsonValidationException(
+          'Property "mergeString" length must be <= 10',
+          ['mergeString'],
+        );
+      }
+    }
+    final val_mergeNumber = mergeNumber;
+    if (val_mergeNumber != null) {
+      if (val_mergeNumber < 5) {
+        throw JsonValidationException('Property "mergeNumber" must be >= 5', [
+          'mergeNumber',
+        ]);
+      }
+      if (val_mergeNumber > 10) {
+        throw JsonValidationException('Property "mergeNumber" must be <= 10', [
+          'mergeNumber',
+        ]);
+      }
+    }
+    final val_mergeBoolean = mergeBoolean;
+    final val_mergeAnything = mergeAnything;
+    final val_mergeNever = mergeNever;
+    if (val_mergeNever != null) {
+      try {
+        val_mergeNever.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['mergeNever', ...e.path]);
+      }
+    }
+    final val_mergeRef = mergeRef;
+    if (val_mergeRef != null) {
+      try {
+        val_mergeRef.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['mergeRef', ...e.path]);
+      }
+    }
+    final val_mergeEnum = mergeEnum;
+    if (val_mergeEnum != null) {
+      if (!const ['a', 'b'].any(
+        (v) => const DeepCollectionEquality().equals(
+          v,
+          val_mergeEnum is Enum
+              ? (val_mergeEnum as dynamic).value
+              : val_mergeEnum,
+        ),
+      )) {
+        throw JsonValidationException(
+          'Property "mergeEnum" must be one of [a, b]',
+          ['mergeEnum'],
+        );
+      }
+    }
+    final val_mergeUnion = mergeUnion;
+    if (val_mergeUnion != null) {
+      try {
+        val_mergeUnion.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, ['mergeUnion', ...e.path]);
+      }
+    }
+    final val_mergeObjectsWithNoAdditional = mergeObjectsWithNoAdditional;
+    if (val_mergeObjectsWithNoAdditional != null) {
+      try {
+        val_mergeObjectsWithNoAdditional.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'mergeObjectsWithNoAdditional',
+          ...e.path,
+        ]);
+      }
+    }
+  }
+
+  static final descriptor = ObjectDescriptor<TestRootCoverageTrigger>(
+    title: 'TestRootCoverageTrigger',
+    matches: (instance) => instance is TestRootCoverageTrigger,
+    instantiate: (fields) => TestRootCoverageTrigger(
+      mergeArray: fields['mergeArray'] as List<String>?,
+      mergeObject: fields['mergeObject'] as TestRootCoverageTriggerMergeObject?,
+      mergeString: fields['mergeString'] as String?,
+      mergeNumber: fields['mergeNumber'] as int?,
+      mergeBoolean: fields['mergeBoolean'] as bool?,
+      mergeNull: fields['mergeNull'] as Null,
+      mergeAnything: fields['mergeAnything'] as Object?,
+      mergeNever: fields['mergeNever'] as TestRootCoverageTriggerMergeNever?,
+      mergeRef: fields['mergeRef'] as MapObject?,
+      mergeEnum: fields['mergeEnum'] as TestRootCoverageTriggerMergeEnum?,
+      mergeUnion: fields['mergeUnion'] as TestRootCoverageTriggerMergeUnion?,
+      mergeObjectsWithNoAdditional:
+          fields['mergeObjectsWithNoAdditional']
+              as TestRootCoverageTriggerMergeObjectsWithNoAdditional?,
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as TestRootCoverageTrigger;
+      return {
+        'mergeArray': typedInstance.mergeArray,
+        'mergeObject': typedInstance.mergeObject,
+        'mergeString': typedInstance.mergeString,
+        'mergeNumber': typedInstance.mergeNumber,
+        'mergeBoolean': typedInstance.mergeBoolean,
+        'mergeNull': typedInstance.mergeNull,
+        'mergeAnything': typedInstance.mergeAnything,
+        'mergeNever': typedInstance.mergeNever,
+        'mergeRef': typedInstance.mergeRef,
+        'mergeEnum': typedInstance.mergeEnum,
+        'mergeUnion': typedInstance.mergeUnion,
+        'mergeObjectsWithNoAdditional':
+            typedInstance.mergeObjectsWithNoAdditional,
+      };
+    },
+    properties: {
+      'mergeArray': PropertyDescriptor(
+        name: 'mergeArray',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'mergeObject': PropertyDescriptor(
+        name: 'mergeObject',
+        isRequired: false,
+        schema: TestRootCoverageTriggerMergeObject.descriptor,
+      ),
+      'mergeString': PropertyDescriptor(
+        name: 'mergeString',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'mergeNumber': PropertyDescriptor(
+        name: 'mergeNumber',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'mergeBoolean': PropertyDescriptor(
+        name: 'mergeBoolean',
+        isRequired: false,
+        schema: const BoolDescriptor(),
+      ),
+      'mergeNull': PropertyDescriptor(
+        name: 'mergeNull',
+        isRequired: false,
+        schema: const NullDescriptor(),
+      ),
+      'mergeAnything': PropertyDescriptor(
+        name: 'mergeAnything',
+        isRequired: false,
+        schema: const AnythingDescriptor(),
+      ),
+      'mergeNever': PropertyDescriptor(
+        name: 'mergeNever',
+        isRequired: false,
+        schema: TestRootCoverageTriggerMergeNever.descriptor,
+      ),
+      'mergeRef': PropertyDescriptor(
+        name: 'mergeRef',
+        isRequired: false,
+        schema: MapObject.descriptor,
+      ),
+      'mergeEnum': PropertyDescriptor(
+        name: 'mergeEnum',
+        isRequired: false,
+        schema: TestRootCoverageTriggerMergeEnum.descriptor,
+      ),
+      'mergeUnion': PropertyDescriptor(
+        name: 'mergeUnion',
+        isRequired: false,
+        schema: TestRootCoverageTriggerMergeUnion.descriptor,
+      ),
+      'mergeObjectsWithNoAdditional': PropertyDescriptor(
+        name: 'mergeObjectsWithNoAdditional',
+        isRequired: false,
+        schema: TestRootCoverageTriggerMergeObjectsWithNoAdditional.descriptor,
+      ),
+    },
+
+    required: const [],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootCoverageTrigger &&
+          runtimeType == other.runtimeType &&
+          const DeepCollectionEquality().equals(mergeArray, other.mergeArray) &&
+          mergeObject == other.mergeObject &&
+          mergeString == other.mergeString &&
+          mergeNumber == other.mergeNumber &&
+          mergeBoolean == other.mergeBoolean &&
+          mergeNull == other.mergeNull &&
+          const DeepCollectionEquality().equals(
+            mergeAnything,
+            other.mergeAnything,
+          ) &&
+          mergeNever == other.mergeNever &&
+          const DeepCollectionEquality().equals(mergeRef, other.mergeRef) &&
+          mergeEnum == other.mergeEnum &&
+          mergeUnion == other.mergeUnion &&
+          mergeObjectsWithNoAdditional == other.mergeObjectsWithNoAdditional;
+
+  @override
+  int get hashCode => Object.hashAll([
+    const DeepCollectionEquality().hash(mergeArray),
+    mergeObject,
+    mergeString,
+    mergeNumber,
+    mergeBoolean,
+    mergeNull,
+    const DeepCollectionEquality().hash(mergeAnything),
+    mergeNever,
+    const DeepCollectionEquality().hash(mergeRef),
+    mergeEnum,
+    mergeUnion,
+    mergeObjectsWithNoAdditional,
+  ]);
+
+  @override
+  String toString() =>
+      'TestRootCoverageTrigger(mergeArray: ${mergeArray}, mergeObject: ${mergeObject}, mergeString: ${mergeString}, mergeNumber: ${mergeNumber}, mergeBoolean: ${mergeBoolean}, mergeNull: ${mergeNull}, mergeAnything: ${mergeAnything}, mergeNever: ${mergeNever}, mergeRef: ${mergeRef}, mergeEnum: ${mergeEnum}, mergeUnion: ${mergeUnion}, mergeObjectsWithNoAdditional: ${mergeObjectsWithNoAdditional})';
+}
+
+final class TestRootCoverageTriggerMergeObject implements JsonModel {
+  final String? a;
+  final int? b;
+
+  const TestRootCoverageTriggerMergeObject({this.a, this.b});
+
+  factory TestRootCoverageTriggerMergeObject.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootCoverageTriggerMergeObject;
+
+  /// Creates an instance of [TestRootCoverageTriggerMergeObject] from a JSON Map.
+  factory TestRootCoverageTriggerMergeObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => TestRootCoverageTriggerMergeObject.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  TestRootCoverageTriggerMergeObject copyWith({String? a, int? b}) =>
+      TestRootCoverageTriggerMergeObject(a: a ?? this.a, b: b ?? this.b);
+
+  void validate() {
+    final val_a = a;
+    final val_b = b;
+  }
+
+  static final descriptor =
+      ObjectDescriptor<TestRootCoverageTriggerMergeObject>(
+        title: 'TestRootCoverageTriggerMergeObject',
+        matches: (instance) => instance is TestRootCoverageTriggerMergeObject,
+        instantiate: (fields) => TestRootCoverageTriggerMergeObject(
+          a: fields['a'] as String?,
+          b: fields['b'] as int?,
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as TestRootCoverageTriggerMergeObject;
+          return {'a': typedInstance.a, 'b': typedInstance.b};
+        },
+        properties: {
+          'a': PropertyDescriptor(
+            name: 'a',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'b': PropertyDescriptor(
+            name: 'b',
+            isRequired: false,
+            schema: const IntDescriptor(),
+          ),
+        },
+
+        required: const [],
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootCoverageTriggerMergeObject &&
+          runtimeType == other.runtimeType &&
+          a == other.a &&
+          b == other.b;
+
+  @override
+  int get hashCode => Object.hashAll([a, b]);
+
+  @override
+  String toString() => 'TestRootCoverageTriggerMergeObject(a: ${a}, b: ${b})';
+}
+
+final class TestRootCoverageTriggerMergeNever implements JsonModel {
+  const TestRootCoverageTriggerMergeNever();
+
+  factory TestRootCoverageTriggerMergeNever.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootCoverageTriggerMergeNever;
+
+  /// Creates an instance of [TestRootCoverageTriggerMergeNever] from a JSON Map.
+  factory TestRootCoverageTriggerMergeNever.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => TestRootCoverageTriggerMergeNever.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  TestRootCoverageTriggerMergeNever copyWith() =>
+      TestRootCoverageTriggerMergeNever();
+
+  void validate() {}
+
+  static final descriptor = ObjectDescriptor<TestRootCoverageTriggerMergeNever>(
+    title: 'TestRootCoverageTriggerMergeNever',
+    matches: (instance) => instance is TestRootCoverageTriggerMergeNever,
+    instantiate: (fields) => TestRootCoverageTriggerMergeNever(),
+    getFields: (instance) {
+      final typedInstance = instance as TestRootCoverageTriggerMergeNever;
+      return {};
+    },
+    properties: {},
+
+    required: const [],
+    additionalProperties: const NeverDescriptor(),
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootCoverageTriggerMergeNever &&
+          runtimeType == other.runtimeType &&
+          true;
+
+  @override
+  int get hashCode => Object.hashAll([]);
+
+  @override
+  String toString() => 'TestRootCoverageTriggerMergeNever()';
+}
+
+enum TestRootCoverageTriggerMergeEnum {
+  a('a'),
+  b('b');
+
+  final String value;
+  const TestRootCoverageTriggerMergeEnum(this.value);
+  static TestRootCoverageTriggerMergeEnum fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
+  static final descriptor = EnumDescriptor<TestRootCoverageTriggerMergeEnum>(
+    values: values,
+    fromValue: (val) => fromValue(val as String),
+    toValue: (e) => (e as TestRootCoverageTriggerMergeEnum).value,
+    base: const StringDescriptor(),
+  );
+}
+
+sealed class TestRootCoverageTriggerMergeUnion implements JsonModel {
+  const TestRootCoverageTriggerMergeUnion();
+
+  factory TestRootCoverageTriggerMergeUnion.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootCoverageTriggerMergeUnion;
+
+  /// Creates an instance of [TestRootCoverageTriggerMergeUnion] from a JSON-compatible Dart value.
+  factory TestRootCoverageTriggerMergeUnion.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => TestRootCoverageTriggerMergeUnion.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  static final descriptor = UnionDescriptor<TestRootCoverageTriggerMergeUnion>(
+    title: 'TestRootCoverageTriggerMergeUnion',
+
+    activeOptions: [
+      UnionOptionDescriptor<TestRootCoverageTriggerMergeUnion, String>(
+        const StringDescriptor(),
+        (val) => TestRootCoverageTriggerMergeUnionOption0(val as String),
+      ),
+      UnionOptionDescriptor<TestRootCoverageTriggerMergeUnion, int>(
+        const IntDescriptor(),
+        (val) => TestRootCoverageTriggerMergeUnionOption1(val as int),
+      ),
+    ],
+  );
+}
+
+final class TestRootCoverageTriggerMergeUnionOption0
+    extends TestRootCoverageTriggerMergeUnion {
+  final String value;
+  const TestRootCoverageTriggerMergeUnionOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const StringDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootCoverageTriggerMergeUnionOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() =>
+      'TestRootCoverageTriggerMergeUnionOption0(value: $value)';
+}
+
+final class TestRootCoverageTriggerMergeUnionOption1
+    extends TestRootCoverageTriggerMergeUnion {
+  final int value;
+  const TestRootCoverageTriggerMergeUnionOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, const IntDescriptor());
+  }
+
+  @override
+  void validate() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootCoverageTriggerMergeUnionOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() =>
+      'TestRootCoverageTriggerMergeUnionOption1(value: $value)';
+}
+
+final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
+    implements JsonModel {
+  const TestRootCoverageTriggerMergeObjectsWithNoAdditional();
+
+  factory TestRootCoverageTriggerMergeObjectsWithNoAdditional.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as TestRootCoverageTriggerMergeObjectsWithNoAdditional;
+
+  /// Creates an instance of [TestRootCoverageTriggerMergeObjectsWithNoAdditional] from a JSON Map.
+  factory TestRootCoverageTriggerMergeObjectsWithNoAdditional.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => TestRootCoverageTriggerMergeObjectsWithNoAdditional.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  TestRootCoverageTriggerMergeObjectsWithNoAdditional copyWith() =>
+      TestRootCoverageTriggerMergeObjectsWithNoAdditional();
+
+  void validate() {}
+
+  static final descriptor =
+      ObjectDescriptor<TestRootCoverageTriggerMergeObjectsWithNoAdditional>(
+        title: 'TestRootCoverageTriggerMergeObjectsWithNoAdditional',
+        matches: (instance) =>
+            instance is TestRootCoverageTriggerMergeObjectsWithNoAdditional,
+        instantiate: (fields) =>
+            TestRootCoverageTriggerMergeObjectsWithNoAdditional(),
+        getFields: (instance) {
+          final typedInstance =
+              instance as TestRootCoverageTriggerMergeObjectsWithNoAdditional;
+          return {};
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties: const NeverDescriptor(),
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TestRootCoverageTriggerMergeObjectsWithNoAdditional &&
+          runtimeType == other.runtimeType &&
+          true;
+
+  @override
+  int get hashCode => Object.hashAll([]);
+
+  @override
+  String toString() => 'TestRootCoverageTriggerMergeObjectsWithNoAdditional()';
+}
+
+enum CollidingEnum {
+  values_1('values'),
+  value_1('value'),
+  fromValue_1('fromValue'),
+  descriptor_('descriptor'),
+  fooBar('foo-bar'),
+  fooBar_1('foo_bar'),
+  a1(const {'a': 1}),
+  a1_1(const {'a': '1'});
+
+  final dynamic value;
+  const CollidingEnum(this.value);
+  static CollidingEnum fromValue(dynamic val) =>
+      values.firstWhere((e) => e.value == val);
+  static final descriptor = EnumDescriptor<CollidingEnum>(
+    values: values,
+    fromValue: (val) => fromValue(val as dynamic),
+    toValue: (e) => (e as CollidingEnum).value,
+    base: const AnythingDescriptor(),
+  );
+}
+
+final class CollidingObject implements JsonModel {
+  final String? foo;
+  final String? foo_1;
+  final String? bar;
+  final String? bar1;
+  final String? validate_;
+
+  const CollidingObject({
+    this.foo,
+    this.foo_1,
+    this.bar,
+    this.bar1,
+    this.validate_,
+  });
+
+  factory CollidingObject.fromJson(JsonReader reader, {bool validate = true}) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as CollidingObject;
+
+  /// Creates an instance of [CollidingObject] from a JSON Map.
+  factory CollidingObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) =>
+      CollidingObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  CollidingObject copyWith({
+    String? foo,
+    String? foo_1,
+    String? bar,
+    String? bar1,
+    String? validate_,
+  }) => CollidingObject(
+    foo: foo ?? this.foo,
+    foo_1: foo_1 ?? this.foo_1,
+    bar: bar ?? this.bar,
+    bar1: bar1 ?? this.bar1,
+    validate_: validate_ ?? this.validate_,
+  );
+
+  void validate() {
+    final val_foo = foo;
+    final val_foo_1 = foo_1;
+    final val_bar = bar;
+    final val_bar1 = bar1;
+    final val_validate_ = validate_;
+  }
+
+  static final descriptor = ObjectDescriptor<CollidingObject>(
+    title: 'CollidingObject',
+    matches: (instance) => instance is CollidingObject,
+    instantiate: (fields) => CollidingObject(
+      foo: fields['foo'] as String?,
+      foo_1: fields['@foo'] as String?,
+      bar: fields['bar'] as String?,
+      bar1: fields['bar_1'] as String?,
+      validate_: fields['validate'] as String?,
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as CollidingObject;
+      return {
+        'foo': typedInstance.foo,
+        '@foo': typedInstance.foo_1,
+        'bar': typedInstance.bar,
+        'bar_1': typedInstance.bar1,
+        'validate': typedInstance.validate_,
+      };
+    },
+    properties: {
+      'foo': PropertyDescriptor(
+        name: 'foo',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '@foo': PropertyDescriptor(
+        name: '@foo',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'bar': PropertyDescriptor(
+        name: 'bar',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'bar_1': PropertyDescriptor(
+        name: 'bar_1',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'validate': PropertyDescriptor(
+        name: 'validate',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const [],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CollidingObject &&
+          runtimeType == other.runtimeType &&
+          foo == other.foo &&
+          foo_1 == other.foo_1 &&
+          bar == other.bar &&
+          bar1 == other.bar1 &&
+          validate_ == other.validate_;
+
+  @override
+  int get hashCode => Object.hashAll([foo, foo_1, bar, bar1, validate_]);
+
+  @override
+  String toString() =>
+      'CollidingObject(foo: ${foo}, foo_1: ${foo_1}, bar: ${bar}, bar1: ${bar1}, validate_: ${validate_})';
 }

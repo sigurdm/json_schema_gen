@@ -14,7 +14,7 @@
 
 import 'package:json_schema_gen/json_schema.dart';
 
-void main() {
+Future<void> main() async {
   // 1. Define a JSON Schema as a Dart Map.
   final schemaMap = {
     '\$schema': 'https://json-schema.org/draft/2020-12/schema',
@@ -33,7 +33,7 @@ void main() {
 
   // 2. Parse the schema manually.
   final parser = SchemaParser(schemaMap);
-  final schema = parser.parse();
+  final schema = await parser.parse();
 
   // Helper to validate and print results.
   void validateData(String label, Map<String, dynamic> data) {
@@ -56,9 +56,7 @@ void main() {
   });
 
   // Test Case 2: Missing Required Field (age)
-  validateData('Missing Age', {
-    'name': 'Bob',
-  });
+  validateData('Missing Age', {'name': 'Bob'});
 
   // Test Case 3: Invalid Type for Age
   validateData('Invalid Age Type (String)', {
@@ -67,16 +65,10 @@ void main() {
   });
 
   // Test Case 4: Constraint Violation (name minLength)
-  validateData('Short Name', {
-    'name': 'D',
-    'age': 20,
-  });
+  validateData('Short Name', {'name': 'D', 'age': 20});
 
   // Test Case 5: Constraint Violation (age minimum)
-  validateData('Negative Age', {
-    'name': 'Eve',
-    'age': -5,
-  });
+  validateData('Negative Age', {'name': 'Eve', 'age': -5});
 
   // Test Case 6: Constraint Violation (email format)
   validateData('Invalid Email Format', {

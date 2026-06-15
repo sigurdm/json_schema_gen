@@ -23,6 +23,9 @@ sealed class Schema {
   /// Whether this schema is deprecated.
   final bool isDeprecated;
 
+  /// The deprecation message, if specified.
+  final String? deprecatedMessage;
+
   /// Whether this schema has a default value.
   final bool hasDefault;
 
@@ -32,14 +35,19 @@ sealed class Schema {
   /// Schema that must not validate successfully.
   final Schema? not;
 
+  /// Custom name to use for generated Dart class, if specified via x-dart-name.
+  final String? dartName;
+
   /// Const constructor for subclass schemas.
   const Schema({
     this.title,
     this.description,
     this.isDeprecated = false,
+    this.deprecatedMessage,
     this.hasDefault = false,
     this.defaultValue,
     this.not,
+    this.dartName,
   });
 }
 
@@ -78,9 +86,11 @@ final class ObjectSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
+    super.dartName,
   });
 }
 
@@ -123,6 +133,7 @@ final class ArraySchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -152,6 +163,7 @@ final class StringSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -189,6 +201,7 @@ final class NumberSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -202,6 +215,7 @@ final class BooleanSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -215,6 +229,7 @@ final class NullSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -235,6 +250,7 @@ final class RefSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -247,7 +263,7 @@ final class Discriminator {
   final String propertyName;
 
   /// Optional explicit mapping of discriminator values to schema references.
-  final Map<String, String>? mapping;
+  final Map<String, Schema>? mapping;
 
   /// Const constructor for discriminator configuration.
   const Discriminator({required this.propertyName, this.mapping});
@@ -268,9 +284,11 @@ final class UnionSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
+    super.dartName,
   });
 }
 
@@ -285,6 +303,7 @@ final class AllOfSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -298,6 +317,7 @@ final class AnythingSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
@@ -319,9 +339,11 @@ final class EnumSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,
+    super.dartName,
   });
 }
 
@@ -332,6 +354,7 @@ final class NeverSchema extends Schema {
     super.title,
     super.description,
     super.isDeprecated,
+    super.deprecatedMessage,
     super.hasDefault,
     super.defaultValue,
     super.not,

@@ -154,9 +154,15 @@ final class NullDescriptor extends PrimitiveDescriptor<Null> {
 }
 
 /// Descriptor for any JSON value (fallback).
-final class AnythingDescriptor extends SchemaDescriptor<dynamic> {
+final class AnythingDescriptor extends PrimitiveDescriptor<dynamic> {
   /// Const constructor.
   const AnythingDescriptor();
+
+  @override
+  dynamic read(JsonReader reader) => readAny(reader);
+
+  @override
+  void write(JsonSink sink, dynamic value) => writeAny(sink, value);
 }
 
 /// Descriptor for schemas that never validate.
@@ -219,7 +225,7 @@ final class UnionOptionDescriptor<T, V> {
   final SchemaDescriptor<V> schema;
 
   /// Function to wrap the parsed value into the union type.
-  final T Function(V val) wrap;
+  final T Function(dynamic val) wrap;
 
   /// Creates a [UnionOptionDescriptor].
   const UnionOptionDescriptor(this.schema, this.wrap);

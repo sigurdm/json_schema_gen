@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:test/test.dart';
 import 'package:json_schema_gen/json_schema.dart';
+import 'package:json_schema_gen/src/generator.dart';
 import 'package:jsontool/jsontool.dart';
 
 void main() {
@@ -1165,11 +1166,12 @@ void main() {
     });
 
     test('not support', () {
-      final schema = const AnythingSchema(
-        not: StringSchema(),
-      );
+      final schema = const AnythingSchema(not: StringSchema());
       expect(() => schema.validate(1), returnsNormally);
-      expect(() => schema.validate('string'), throwsA(isA<JsonValidationException>()));
+      expect(
+        () => schema.validate('string'),
+        throwsA(isA<JsonValidationException>()),
+      );
     });
   });
 }

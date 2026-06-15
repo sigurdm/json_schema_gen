@@ -101,11 +101,12 @@ final class User implements JsonModel {
         throw JsonValidationException('Property "age" must be >= 0', ['age']);
       }
     }
-    if (!const [
-      UserRole.admin,
-      UserRole.editor,
-      UserRole.user,
-    ].any((v) => const DeepCollectionEquality().equals(v, role))) {
+    if (!const ['admin', 'editor', 'user'].any(
+      (v) => const DeepCollectionEquality().equals(
+        v,
+        role is Enum ? (role as dynamic).value : role,
+      ),
+    )) {
       throw JsonValidationException(
         'Property "role" must be one of [admin, editor, user]',
         ['role'],
@@ -550,10 +551,7 @@ final class UserPreferences implements JsonModel {
     matches: (instance) => instance is UserPreferences,
     instantiate: (fields) => UserPreferences(
       additionalProperties: fields.entries
-          .where((e) {
-            if (const <String>{}.contains(e.key)) return false;
-            return true;
-          })
+          .where((e) => !const <String>{}.contains(e.key) && true)
           .fold<Map<String, String>>(
             {},
             (m, e) => m..[e.key] = e.value as String,

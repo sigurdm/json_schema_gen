@@ -771,8 +771,6 @@
             "required": ["forbiddenProp"]
           }
         }
-          }
-        }
       },
       "required": [
         "notPatternString",

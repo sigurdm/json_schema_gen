@@ -12,28 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:convert';
+import 'dart:io' as io;
 import 'dart:math' as math;
+import 'package:path/path.dart' as p;
 import 'schema.dart';
 
 /// A parser to build a [Schema] AST from a decoded JSON schema.
-///
-/// {@example /example/lib/manual_validation.dart}
 final class SchemaParser {
   final Map<String, Schema> _cache = {};
   final Map<String, dynamic> _rootJson;
+  final String baseUri;
+  final Future<List<int>> Function(Uri uri)? uriResolver;
+  final Set<String> _loadedFiles = {};
+  bool _disallowExternalRefs = false;
 
   /// Creates a parser for the given [rootJson] schema definition.
-  SchemaParser(Map<String, dynamic> rootJson) : _rootJson = rootJson;
+  SchemaParser(
+    Map<String, dynamic> rootJson, {
+    this.baseUri = '',
+    this.uriResolver,
+  }) : _rootJson = rootJson {
+    _loadedFiles.add(baseUri);
+  }
 
   /// Parses the schema structure and resolves all internal references.
-  ///
-  /// Throws [ArgumentError] if a reference (`$ref`) cannot be resolved.
-  /// Throws [TypeError] or [StateError] if the schema JSON structure is invalid
-  /// or contains unsupported types for specific keywords.
-  ///
-  /// {@example /example/lib/manual_validation.dart}
-  Schema parse() {
-    final root = _parseSchema(_rootJson, '#');
+  Future<Schema> parse({bool disallowExternalRefs = true}) async {
+    _disallowExternalRefs = disallowExternalRefs;
+    final root = await _parseSchema(_rootJson, '$baseUri#');
     _resolveRefs(root);
     final flattenedRoot = _flatten(root);
 
@@ -43,75 +49,110 @@ final class SchemaParser {
       _cache[key] = _flatten(_cache[key]!);
     }
 
+    _updateResolvedRefs(flattenedRoot);
+    for (final key in _cache.keys) {
+      _updateResolvedRefs(_cache[key]!);
+    }
+
     return flattenedRoot;
   }
 
-  Schema _parseSchema(dynamic json, String path) {
+  String _getFileUri(String path) {
+    return path.split('#')[0];
+  }
+
+  Future<Schema> _parseSchema(dynamic json, String path) async {
     if (path.isNotEmpty && _cache.containsKey(path)) {
       return _cache[path]!;
     }
 
     if (json is! Map) {
+      if (json == false) {
+        return const NeverSchema();
+      }
       return const AnythingSchema();
     }
 
     final title = json['title'] as String?;
     final description = json['description'] as String?;
-    final isDeprecated = json['deprecated'] == true;
+    final deprecatedMessage = json['x-deprecated-message'] as String?;
+    final isDeprecated =
+        json['deprecated'] == true || deprecatedMessage != null;
     final hasDefault = json.containsKey('default');
     final defaultValue = json['default'];
     final notJson = json['not'];
-    final not = notJson != null ? _parseSchema(notJson, '$path/not') : null;
+    final not = notJson != null
+        ? await _parseSchema(notJson, '$path/not')
+        : null;
+    final dartName = json['x-dart-name'] as String?;
+
+    // Parse definitions under local scopes BEFORE ref check
+    if (json[r'$defs'] is Map) {
+      for (final entry in (json[r'$defs'] as Map).entries) {
+        await _parseSchema(entry.value, '$path/\$defs/${entry.key}');
+      }
+    }
+    if (json['definitions'] is Map) {
+      for (final entry in (json['definitions'] as Map).entries) {
+        await _parseSchema(entry.value, '$path/definitions/${entry.key}');
+      }
+    }
 
     if (json.containsKey(r'$ref')) {
       final ref = json[r'$ref'] as String;
+      final currentFile = _getFileUri(path);
+      final resolvedRefUri = Uri.parse(currentFile).resolve(ref).toString();
+
+      final refFile = _getFileUri(resolvedRefUri);
+      if (refFile != currentFile && refFile.isNotEmpty) {
+        if (_disallowExternalRefs) {
+          throw ArgumentError('External references are disallowed: $ref');
+        }
+        if (!_loadedFiles.contains(refFile)) {
+          _loadedFiles.add(refFile);
+          if (uriResolver == null) {
+            throw ArgumentError(
+              'Cannot resolve external ref $ref because no uriResolver was provided.',
+            );
+          }
+          final bytes = await uriResolver!(Uri.parse(refFile));
+          final externalJson =
+              jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>;
+          await _parseSchema(externalJson, '$refFile#');
+        }
+      }
+
       final refSchema = RefSchema(
-        ref,
+        resolvedRefUri,
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
+        not: not,
       );
-      if (not != null) {
-        return AllOfSchema(
-          subschemas: [refSchema],
-          not: not,
-          title: title,
-          description: description,
-          isDeprecated: isDeprecated,
-          hasDefault: hasDefault,
-          defaultValue: defaultValue,
-        );
+      if (path.isNotEmpty) {
+        _cache[path] = refSchema;
       }
       return refSchema;
-    }
-
-    // Parse definitions under local scopes
-    if (json[r'$defs'] is Map) {
-      (json[r'$defs'] as Map).forEach((key, value) {
-        _parseSchema(value, '$path/\$defs/$key');
-      });
-    }
-    if (json['definitions'] is Map) {
-      (json['definitions'] as Map).forEach((key, value) {
-        _parseSchema(value, '$path/definitions/$key');
-      });
     }
 
     if (json.containsKey('const')) {
       final constValue = json['const'];
       final jsonWithoutConst = Map<String, dynamic>.from(json)..remove('const');
-      final baseSchema = _parseSchema(jsonWithoutConst, '$path/base');
+      final baseSchema = await _parseSchema(jsonWithoutConst, '$path/base');
       final schema = EnumSchema(
         values: [constValue],
         baseSchema: baseSchema,
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
+        dartName: dartName,
       );
       if (path.isNotEmpty) {
         _cache[path] = schema;
@@ -122,16 +163,18 @@ final class SchemaParser {
     if (json.containsKey('enum')) {
       final enumValues = (json['enum'] as List).toList();
       final jsonWithoutEnum = Map<String, dynamic>.from(json)..remove('enum');
-      final baseSchema = _parseSchema(jsonWithoutEnum, '$path/base');
+      final baseSchema = await _parseSchema(jsonWithoutEnum, '$path/base');
       final schema = EnumSchema(
         values: enumValues,
         baseSchema: baseSchema,
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
+        dartName: dartName,
       );
       if (path.isNotEmpty) {
         _cache[path] = schema;
@@ -147,8 +190,20 @@ final class SchemaParser {
         final propName = discMap['propertyName'] as String?;
         if (propName != null) {
           final mappingJson = discMap['mapping'] as Map?;
+          final currentFile = _getFileUri(path);
           final mapping = mappingJson?.map(
-            (k, v) => MapEntry(k as String, v as String),
+            (k, v) => MapEntry(k as String, () {
+              final resolved = Uri.parse(
+                currentFile,
+              ).resolve(v as String).toString();
+              final refFile = _getFileUri(resolved);
+              if (refFile != currentFile && refFile.isNotEmpty) {
+                if (_disallowExternalRefs) {
+                  throw ArgumentError('External references are disallowed: $v');
+                }
+              }
+              return RefSchema(resolved) as Schema;
+            }()),
           );
           return Discriminator(propertyName: propName, mapping: mapping);
         }
@@ -158,11 +213,11 @@ final class SchemaParser {
 
     if (json.containsKey('allOf')) {
       final list = json['allOf'] as List;
-      final subschemas = list
-          .asMap()
-          .entries
-          .map((e) => _parseSchema(e.value, '$path/allOf/${e.key}'))
-          .toList();
+      final subschemas = await Future.wait(
+        list.asMap().entries.map(
+          (e) => _parseSchema(e.value, '$path/allOf/${e.key}'),
+        ),
+      );
 
       final copy = Map<String, dynamic>.from(json);
       copy.remove('allOf');
@@ -174,7 +229,7 @@ final class SchemaParser {
       copy.remove('definitions');
 
       if (copy.isNotEmpty) {
-        final restSchema = _parseSchema(copy, '$path/rest');
+        final restSchema = await _parseSchema(copy, '$path/rest');
         if (restSchema is! AnythingSchema) {
           subschemas.add(restSchema);
         }
@@ -185,64 +240,74 @@ final class SchemaParser {
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
       );
     } else if (json.containsKey('oneOf')) {
       final list = json['oneOf'] as List;
-      final subschemas = list
-          .asMap()
-          .entries
-          .map((e) => _parseSchema(e.value, '$path/oneOf/${e.key}'))
-          .toList();
+      final subschemas = await Future.wait(
+        list.asMap().entries.map(
+          (e) => _parseSchema(e.value, '$path/oneOf/${e.key}'),
+        ),
+      );
       schema = UnionSchema(
         subschemas: subschemas,
         discriminator: parseDiscriminator(json),
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
+        dartName: dartName,
       );
     } else if (json.containsKey('anyOf')) {
       final list = json['anyOf'] as List;
-      final subschemas = list
-          .asMap()
-          .entries
-          .map((e) => _parseSchema(e.value, '$path/anyOf/${e.key}'))
-          .toList();
+      final subschemas = await Future.wait(
+        list.asMap().entries.map(
+          (e) => _parseSchema(e.value, '$path/anyOf/${e.key}'),
+        ),
+      );
       schema = UnionSchema(
         subschemas: subschemas,
         discriminator: parseDiscriminator(json),
         title: title,
         description: description,
         isDeprecated: isDeprecated,
+        deprecatedMessage: deprecatedMessage,
         hasDefault: hasDefault,
         defaultValue: defaultValue,
         not: not,
+        dartName: dartName,
       );
     } else {
       final typeVal = json['type'];
       if (typeVal is List) {
-        final subschemas = typeVal.map((t) {
-          final singleJson = Map<String, dynamic>.from(json)..['type'] = t;
-          return _parseSchema(singleJson, '$path/type/$t');
-        }).toList();
+        final subschemas = await Future.wait(
+          typeVal.map((t) {
+            final singleJson = Map<String, dynamic>.from(json)..['type'] = t;
+            return _parseSchema(singleJson, '$path/type/$t');
+          }),
+        );
         schema = UnionSchema(
           subschemas: subschemas,
           title: title,
           description: description,
           isDeprecated: isDeprecated,
+          deprecatedMessage: deprecatedMessage,
           hasDefault: hasDefault,
           defaultValue: defaultValue,
           not: not,
+          dartName: dartName,
         );
       } else {
         var type = typeVal as String?;
         if (type == null) {
           if (json.containsKey('properties') ||
+              json.containsKey('patternProperties') ||
               json.containsKey('required') ||
               json.containsKey('additionalProperties') ||
               json.containsKey('dependentRequired')) {
@@ -267,18 +332,23 @@ final class SchemaParser {
           case 'object':
             final properties = <String, Schema>{};
             if (json['properties'] is Map) {
-              (json['properties'] as Map).forEach((key, value) {
-                properties[key] = _parseSchema(value, '$path/properties/$key');
-              });
+              for (final entry in (json['properties'] as Map).entries) {
+                properties[entry.key as String] = await _parseSchema(
+                  entry.value,
+                  '$path/properties/${entry.key}',
+                );
+              }
             }
             final patternProperties = <RegExp, Schema>{};
             if (json['patternProperties'] is Map) {
-              (json['patternProperties'] as Map).forEach((key, value) {
-                patternProperties[RegExp(key as String)] = _parseSchema(
-                  value,
-                  '$path/patternProperties/$key',
+              for (final entry in (json['patternProperties'] as Map).entries) {
+                patternProperties[RegExp(
+                  entry.key as String,
+                )] = await _parseSchema(
+                  entry.value,
+                  '$path/patternProperties/${entry.key}',
                 );
-              });
+              }
             }
             final required =
                 (json['required'] as List?)?.cast<String>().toSet() ?? {};
@@ -291,7 +361,7 @@ final class SchemaParser {
                 additionalProperties = const AnythingSchema();
               }
             } else if (addPropsVal is Map) {
-              additionalProperties = _parseSchema(
+              additionalProperties = await _parseSchema(
                 addPropsVal,
                 '$path/additionalProperties',
               );
@@ -308,8 +378,8 @@ final class SchemaParser {
             }
             schema = ObjectSchema(
               properties: properties,
-              required: required,
               patternProperties: patternProperties,
+              required: required,
               additionalProperties: additionalProperties,
               minProperties: json['minProperties'] as int?,
               maxProperties: json['maxProperties'] as int?,
@@ -317,15 +387,17 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
+              dartName: dartName,
             );
             break;
           case 'array':
             final itemsJson = json['items'];
             final items = itemsJson != null
-                ? _parseSchema(itemsJson, '$path/items')
+                ? await _parseSchema(itemsJson, '$path/items')
                 : const AnythingSchema();
 
             final prefixItemsJson = json['prefixItems'];
@@ -334,14 +406,17 @@ final class SchemaParser {
               prefixItems = [];
               for (var i = 0; i < prefixItemsJson.length; i++) {
                 prefixItems.add(
-                  _parseSchema(prefixItemsJson[i], '$path/prefixItems/$i'),
+                  await _parseSchema(
+                    prefixItemsJson[i],
+                    '$path/prefixItems/$i',
+                  ),
                 );
               }
             }
 
             final containsJson = json['contains'];
             final contains = containsJson != null
-                ? _parseSchema(containsJson, '$path/contains')
+                ? await _parseSchema(containsJson, '$path/contains')
                 : null;
             schema = ArraySchema(
               items: items,
@@ -355,6 +430,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -369,6 +445,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -385,6 +462,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -401,6 +479,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -411,6 +490,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -421,6 +501,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -431,6 +512,7 @@ final class SchemaParser {
               title: title,
               description: description,
               isDeprecated: isDeprecated,
+              deprecatedMessage: deprecatedMessage,
               hasDefault: hasDefault,
               defaultValue: defaultValue,
               not: not,
@@ -440,6 +522,7 @@ final class SchemaParser {
     }
 
     if (path.isNotEmpty) {
+      print('Caching path: $path');
       _cache[path] = schema;
     }
     return schema;
@@ -449,7 +532,6 @@ final class SchemaParser {
     final visited = <Schema>{};
     void visit(Schema s) {
       if (!visited.add(s)) return;
-      if (s.not != null) visit(s.not!);
       if (s is RefSchema) {
         final target = _cache[s.ref];
         if (target == null) {
@@ -466,15 +548,47 @@ final class SchemaParser {
         if (s.contains != null) visit(s.contains!);
       } else if (s is UnionSchema) {
         s.subschemas.forEach(visit);
+        if (s.discriminator?.mapping != null) {
+          s.discriminator!.mapping!.values.forEach(visit);
+        }
       } else if (s is AllOfSchema) {
         s.subschemas.forEach(visit);
-      } else if (s is EnumSchema) {
-        visit(s.baseSchema);
       }
     }
 
     visit(root);
     _cache.values.forEach(visit);
+  }
+
+  void _updateResolvedRefs(Schema root) {
+    final visited = <Schema>{};
+    void visit(Schema s) {
+      if (!visited.add(s)) return;
+      if (s is RefSchema) {
+        if (s.resolved != null) {
+          s.resolved = _flattenCache[s.resolved] ?? s.resolved;
+          visit(s.resolved!);
+        }
+      }
+      if (s is ObjectSchema) {
+        s.properties.values.forEach(visit);
+        s.patternProperties.values.forEach(visit);
+        if (s.additionalProperties != null) visit(s.additionalProperties!);
+      } else if (s is ArraySchema) {
+        visit(s.items);
+        s.prefixItems?.forEach(visit);
+        if (s.contains != null) visit(s.contains!);
+      } else if (s is UnionSchema) {
+        s.subschemas.forEach(visit);
+        if (s.discriminator?.mapping != null) {
+          s.discriminator!.mapping!.values.forEach(visit);
+        }
+      } else if (s is AllOfSchema) {
+        s.subschemas.forEach(visit);
+      }
+    }
+
+    visit(root);
   }
 
   final Map<Schema, Schema> _flattenCache = {};
@@ -494,6 +608,9 @@ final class SchemaParser {
       }
       return schema;
     }
+
+    // Cache the schema as itself initially to handle cyclic references
+    _flattenCache[schema] = schema;
 
     if (schema is ObjectSchema) {
       var changed = notChanged;
@@ -522,8 +639,8 @@ final class SchemaParser {
       if (changed) {
         final newSchema = ObjectSchema(
           properties: newProps,
-          required: schema.required,
           patternProperties: newPatternProps,
+          required: schema.required,
           additionalProperties: newAddProps,
           minProperties: schema.minProperties,
           maxProperties: schema.maxProperties,
@@ -531,9 +648,11 @@ final class SchemaParser {
           title: schema.title,
           description: schema.description,
           isDeprecated: schema.isDeprecated,
+          deprecatedMessage: schema.deprecatedMessage,
           hasDefault: schema.hasDefault,
           defaultValue: schema.defaultValue,
           not: newNot,
+          dartName: schema.dartName,
         );
         _flattenCache[schema] = newSchema;
         return newSchema;
@@ -576,6 +695,7 @@ final class SchemaParser {
           title: schema.title,
           description: schema.description,
           isDeprecated: schema.isDeprecated,
+          deprecatedMessage: schema.deprecatedMessage,
           hasDefault: schema.hasDefault,
           defaultValue: schema.defaultValue,
           not: newNot,
@@ -603,9 +723,11 @@ final class SchemaParser {
           title: schema.title,
           description: schema.description,
           isDeprecated: schema.isDeprecated,
+          deprecatedMessage: schema.deprecatedMessage,
           hasDefault: schema.hasDefault,
           defaultValue: schema.defaultValue,
           not: newNot,
+          dartName: schema.dartName,
         );
         _flattenCache[schema] = newSchema;
         return newSchema;
@@ -618,18 +740,15 @@ final class SchemaParser {
     if (schema is AllOfSchema) {
       final flattenedSubs = schema.subschemas.map(_flatten).toList();
       final merged = _mergeAll(flattenedSubs);
-      final combinedNot = _mergeNot(merged.not, newNot);
-      final mergedWithoutNot = _copyWithMetadata(merged, not: null);
-      final finalSchema = _attachNot(
-        _copyWithMetadata(
-          mergedWithoutNot,
-          title: schema.title,
-          description: schema.description,
-          isDeprecated: schema.isDeprecated,
-          hasDefault: schema.hasDefault,
-          defaultValue: schema.defaultValue,
-        ),
-        combinedNot,
+      final finalSchema = _copyWithMetadata(
+        merged,
+        title: schema.title,
+        description: schema.description,
+        isDeprecated: schema.isDeprecated,
+        deprecatedMessage: schema.deprecatedMessage,
+        hasDefault: schema.hasDefault,
+        defaultValue: schema.defaultValue,
+        not: newNot,
       );
       _flattenCache[schema] = finalSchema;
       return finalSchema;
@@ -644,9 +763,11 @@ final class SchemaParser {
           title: schema.title,
           description: schema.description,
           isDeprecated: schema.isDeprecated,
+          deprecatedMessage: schema.deprecatedMessage,
           hasDefault: schema.hasDefault,
           defaultValue: schema.defaultValue,
           not: newNot,
+          dartName: schema.dartName,
         );
         _flattenCache[schema] = newSchema;
         return newSchema;
@@ -656,10 +777,16 @@ final class SchemaParser {
       }
     }
 
+    // For other leaf schemas (Boolean, Null, Anything, Never), we only recreate them if 'not' changed.
     if (notChanged) {
-      final finalSchema = _copyWithMetadata(schema, not: newNot);
-      _flattenCache[schema] = finalSchema;
-      return finalSchema;
+      final newSchema = _copyWithMetadata(
+        schema,
+        not: newNot,
+        deprecatedMessage: schema.deprecatedMessage,
+        dartName: schema.dartName,
+      );
+      _flattenCache[schema] = newSchema;
+      return newSchema;
     }
 
     _flattenCache[schema] = schema;
@@ -677,8 +804,7 @@ final class SchemaParser {
 
   Schema _merge(Schema a, Schema b) {
     final merged = _mergeInner(a, b);
-    final mergedNot = _mergeNot(a.not, b.not);
-    return _attachNot(merged, mergedNot);
+    return _copyWithMetadata(merged, not: _mergeNot(a.not, b.not));
   }
 
   Schema? _mergeNot(Schema? a, Schema? b) {
@@ -773,8 +899,8 @@ final class SchemaParser {
 
       return ObjectSchema(
         properties: properties,
-        required: required,
         patternProperties: patternProperties,
+        required: required,
         additionalProperties: additionalProperties,
         minProperties: minProperties,
         maxProperties: maxProperties,
@@ -782,8 +908,10 @@ final class SchemaParser {
         title: realA.title ?? realB.title,
         description: realA.description ?? realB.description,
         isDeprecated: realA.isDeprecated || realB.isDeprecated,
+        deprecatedMessage: realA.deprecatedMessage ?? realB.deprecatedMessage,
         hasDefault: realA.hasDefault || realB.hasDefault,
         defaultValue: realA.defaultValue ?? realB.defaultValue,
+        dartName: realA.dartName ?? realB.dartName,
       );
     }
 
@@ -881,22 +1009,25 @@ Schema _copyWithMetadata(
   String? title,
   String? description,
   bool? isDeprecated,
+  String? deprecatedMessage,
   bool? hasDefault,
   Object? defaultValue,
   Schema? not,
+  String? dartName,
 }) {
   final t = title ?? schema.title;
   final d = description ?? schema.description;
   final dep = isDeprecated ?? schema.isDeprecated;
+  final dm = deprecatedMessage ?? schema.deprecatedMessage;
   final hd = hasDefault ?? schema.hasDefault;
   final dv = defaultValue ?? schema.defaultValue;
   final n = not ?? schema.not;
+  final dn = dartName ?? schema.dartName;
 
   return switch (schema) {
     ObjectSchema s => ObjectSchema(
       properties: s.properties,
       required: s.required,
-      patternProperties: s.patternProperties,
       additionalProperties: s.additionalProperties,
       minProperties: s.minProperties,
       maxProperties: s.maxProperties,
@@ -904,9 +1035,11 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
+      dartName: dn,
     ),
     ArraySchema s => ArraySchema(
       items: s.items,
@@ -920,6 +1053,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -932,6 +1066,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -946,6 +1081,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -954,6 +1090,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -962,6 +1099,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -970,6 +1108,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -978,6 +1117,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -987,6 +1127,7 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -997,15 +1138,18 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
+      dartName: dn,
     ),
     AllOfSchema s => AllOfSchema(
       subschemas: s.subschemas,
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
@@ -1016,17 +1160,41 @@ Schema _copyWithMetadata(
       title: t,
       description: d,
       isDeprecated: dep,
+      deprecatedMessage: dm,
       hasDefault: hd,
       defaultValue: dv,
       not: n,
+      dartName: dn,
     ),
   };
 }
 
-Schema _attachNot(Schema schema, Schema? not) {
-  if (not == null) return schema;
-  if (schema is RefSchema) {
-    return AllOfSchema(subschemas: [schema], not: not);
+/// A resolver that loads schemas from the local file system.
+///
+/// By default, it restricts access to files within [rootDirectory] (defaulting
+/// to the current working directory) to prevent path traversal attacks.
+/// To disable this restriction, set [restrictToRoot] to false.
+Future<List<int>> ioFileResolver(
+  Uri uri, {
+  io.Directory? rootDirectory,
+  bool restrictToRoot = true,
+}) async {
+  if (uri.scheme != 'file' && uri.scheme != '') {
+    throw ArgumentError(
+      'Unsupported scheme: ${uri.scheme}. Only file URIs are supported.',
+    );
   }
-  return _copyWithMetadata(schema, not: not);
+  final file = io.File.fromUri(uri);
+  if (restrictToRoot) {
+    final root = rootDirectory ?? io.Directory.current;
+    final rootPath = p.canonicalize(root.path);
+    final filePath = p.canonicalize(file.path);
+
+    if (!p.isWithin(rootPath, filePath) && !p.equals(rootPath, filePath)) {
+      throw ArgumentError(
+        'Access denied: $uri is outside of restricted root $rootPath',
+      );
+    }
+  }
+  return file.readAsBytes();
 }

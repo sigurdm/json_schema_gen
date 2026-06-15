@@ -32,4 +32,5 @@ export 'src/validator.dart'
         isValidIPv6,
         isValidTime,
         isValidUriReference,
-        isValidUri;
+        isValidUri,
+        ioFileResolver;
