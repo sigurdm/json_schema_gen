@@ -5,7 +5,7 @@ import 'package:pub_semver/pub_semver.dart';
 import 'package:json_schema_gen/json_schema.dart';
 
 /// A [Builder] that compiles JSON Schema files (.schema.json) to Dart models.
-class JsonSchemaBuilder implements Builder {
+final class JsonSchemaBuilder implements Builder {
   /// Default constructor.
   const JsonSchemaBuilder();
 
