@@ -183,14 +183,25 @@ final class _ObjectFrame extends JsonParseFrame {
           fields[key] = val;
           _currentKey = null;
         }, validate: validate);
-      } else if (desc.additionalProperties != null) {
-        _currentKey = key;
-        _pushSchemaFrame(reader, stack, desc.additionalProperties!, (val) {
-          fields[key] = val;
-          _currentKey = null;
-        }, validate: validate);
       } else {
-        reader.skipAnyValue();
+        final matchingPatterns = desc.patternProperties.entries
+            .where((e) => e.key.hasMatch(key))
+            .toList();
+        if (matchingPatterns.isNotEmpty) {
+          _currentKey = key;
+          _pushSchemaFrame(reader, stack, matchingPatterns.first.value, (val) {
+            fields[key] = val;
+            _currentKey = null;
+          }, validate: validate);
+        } else if (desc.additionalProperties != null) {
+          _currentKey = key;
+          _pushSchemaFrame(reader, stack, desc.additionalProperties!, (val) {
+            fields[key] = val;
+            _currentKey = null;
+          }, validate: validate);
+        } else {
+          reader.skipAnyValue();
+        }
       }
       return false;
     } else {
@@ -534,15 +545,22 @@ void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
         _writeSchemaValue(sink, val, prop.schema);
       }
     });
-    if (schema.additionalProperties != null &&
-        schema.additionalProperties is! NeverDescriptor) {
-      fields.forEach((key, val) {
-        if (!schema.properties.containsKey(key) && val != null) {
-          sink.addKey(key);
-          _writeSchemaValue(sink, val, schema.additionalProperties!);
-        }
-      });
-    }
+    fields.forEach((key, val) {
+      if (schema.properties.containsKey(key)) return;
+      if (val == null) return;
+
+      final matchingPatterns = schema.patternProperties.entries
+          .where((e) => e.key.hasMatch(key))
+          .toList();
+      if (matchingPatterns.isNotEmpty) {
+        sink.addKey(key);
+        _writeSchemaValue(sink, val, matchingPatterns.first.value);
+      } else if (schema.additionalProperties != null &&
+          schema.additionalProperties is! NeverDescriptor) {
+        sink.addKey(key);
+        _writeSchemaValue(sink, val, schema.additionalProperties!);
+      }
+    });
     sink.endObject();
   } else if (schema is UnionDescriptor) {
     if (value is JsonWritable) {
@@ -971,7 +989,17 @@ void _validateObject(dynamic value, ObjectSchema schema, List<String> path) {
     final propSchema = schema.properties[key];
     if (propSchema != null) {
       _validate(val, propSchema, [...path, key]);
-    } else {
+    }
+
+    var matchedPattern = false;
+    schema.patternProperties.forEach((pattern, patternSchema) {
+      if (pattern.hasMatch(key)) {
+        matchedPattern = true;
+        _validate(val, patternSchema, [...path, key]);
+      }
+    });
+
+    if (propSchema == null && !matchedPattern) {
       // Additional properties
       final addProps = schema.additionalProperties;
       if (addProps != null) {

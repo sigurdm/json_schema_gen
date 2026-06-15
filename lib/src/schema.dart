@@ -48,6 +48,9 @@ final class ObjectSchema extends Schema {
   /// Map of property names to their respective schemas.
   final Map<String, Schema> properties;
 
+  /// Map of patterns to their respective schemas.
+  final Map<RegExp, Schema> patternProperties;
+
   /// Set of required property names.
   final Set<String> required;
 
@@ -67,6 +70,7 @@ final class ObjectSchema extends Schema {
   const ObjectSchema({
     required this.properties,
     required this.required,
+    this.patternProperties = const {},
     this.additionalProperties,
     this.minProperties,
     this.maxProperties,

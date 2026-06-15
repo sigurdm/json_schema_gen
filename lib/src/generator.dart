@@ -603,6 +603,29 @@ String _generateObjectClass(
       schema.additionalProperties != null &&
       schema.additionalProperties is! NeverSchema;
 
+  final hasPatternProps = schema.patternProperties.isNotEmpty;
+  final patterns = schema.patternProperties.keys.toList();
+
+  if (hasPatternProps) {
+    for (var i = 0; i < patterns.length; i++) {
+      final pattern = patterns[i];
+      final escapedPattern = pattern.pattern.replaceAll("'", r"\'");
+      fields.writeln(
+        '  static final _patternRegex$i = RegExp(r\'$escapedPattern\');',
+      );
+    }
+    fields.writeln('  final Map<String, dynamic> patternProperties;');
+    constructorParams.writeln('    this.patternProperties = const {},');
+    copyWithParams.writeln('    Map<String, dynamic>? patternProperties,');
+    copyWithArgs.writeln(
+      '    patternProperties: patternProperties ?? this.patternProperties,',
+    );
+    equalityProps.add(
+      'patternProperties.length == other.patternProperties.length && patternProperties.keys.every((k) => other.patternProperties.containsKey(k) && other.patternProperties[k] == patternProperties[k])',
+    );
+    toStringProps.add('patternProperties: \${patternProperties}');
+  }
+
   if (hasAdditionalProps) {
     final addPropsType = dartType(schema.additionalProperties!, classNames);
     fields.writeln('  final Map<String, $addPropsType> additionalProperties;');
@@ -626,6 +649,11 @@ String _generateObjectClass(
   final hashFields = schema.properties.keys
       .map((name) => toCamelCase(name))
       .toList();
+  if (hasPatternProps) {
+    hashFields.add(
+      'patternProperties.entries.fold<int>(0, (sum, entry) => sum ^ Object.hash(entry.key, entry.value))',
+    );
+  }
   if (hasAdditionalProps) {
     hashFields.add(
       'additionalProperties.entries.fold<int>(0, (sum, entry) => sum ^ Object.hash(entry.key, entry.value))',
@@ -680,13 +708,37 @@ String _generateObjectClass(
     }
   });
 
+  final propKeysLiteral =
+      '<String>{${schema.properties.keys.map((k) => "'$k'").join(', ')}}';
+
+  String patternMatchExpr = 'false';
+  if (hasPatternProps) {
+    final patternMatches = <String>[];
+    for (var i = 0; i < patterns.length; i++) {
+      patternMatches.add('_patternRegex$i.hasMatch(e.key)');
+    }
+    patternMatchExpr = patternMatches.join(' || ');
+  }
+
+  if (hasPatternProps) {
+    getFieldsMap.writeln("      ...instance.patternProperties,");
+    instantiateArgs.writeln('''
+        patternProperties: fields.entries.where((e) {
+          if (const $propKeysLiteral.contains(e.key)) return false;
+          return $patternMatchExpr;
+        }).fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value),''');
+  }
+
   if (hasAdditionalProps) {
     getFieldsMap.writeln("      ...instance.additionalProperties,");
     final addPropsType = dartType(schema.additionalProperties!, classNames);
-    final propKeysLiteral =
-        '<String>{${schema.properties.keys.map((k) => "'$k'").join(', ')}}';
+    final condExpr = hasPatternProps ? '!($patternMatchExpr)' : 'true';
     instantiateArgs.writeln(
-      "        additionalProperties: fields.entries.where((e) => !const $propKeysLiteral.contains(e.key)).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),",
+      '''
+        additionalProperties: fields.entries.where((e) {
+          if (const $propKeysLiteral.contains(e.key)) return false;
+          return $condExpr;
+        }).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),''',
     );
   }
 
@@ -694,6 +746,17 @@ String _generateObjectClass(
   if (schema.additionalProperties != null) {
     addPropsExpr = _descriptorExpr(schema.additionalProperties!, classNames);
   }
+
+  final patternPropsExprs = <String>[];
+  var i = 0;
+  schema.patternProperties.forEach((pattern, patternSchema) {
+    final descExpr = _descriptorExpr(patternSchema, classNames);
+    patternPropsExprs.add('_patternRegex$i: $descExpr');
+    i++;
+  });
+  final patternPropsExpr = patternPropsExprs.isEmpty
+      ? ''
+      : 'patternProperties: {${patternPropsExprs.join(', ')}},';
 
   final descriptorString =
       '''
@@ -706,6 +769,7 @@ $instantiateArgs    ),
 $getFieldsMap    },
     properties: {
 $propDescriptors    },
+    $patternPropsExpr
     required: const [${schema.required.map((r) => "'$r'").join(', ')}],
     ${addPropsExpr != null ? 'additionalProperties: $addPropsExpr,' : ''}
   );''';
@@ -1029,6 +1093,29 @@ String _generateValidationMethod(
     }
   });
 
+  final hasPatternProps = schema.patternProperties.isNotEmpty;
+  if (hasPatternProps) {
+    buffer.writeln('    patternProperties.forEach((key, value) {');
+    var i = 0;
+    schema.patternProperties.forEach((pattern, patternSchema) {
+      buffer.writeln('      if (_patternRegex$i.hasMatch(key)) {');
+      final validations = StringBuffer();
+      _generateSchemaValidations(
+        validations,
+        patternSchema,
+        'value',
+        r'$key',
+        classNames,
+        checkType: true,
+        includeNot: true,
+      );
+      buffer.write(validations.toString());
+      buffer.writeln('      }');
+      i++;
+    });
+    buffer.writeln('    });');
+  }
+
   final hasAdditionalProps =
       schema.additionalProperties != null &&
       schema.additionalProperties is! NeverSchema;
@@ -1286,6 +1373,26 @@ void _generateSchemaValidations(
       "        throw JsonValidationException('Property \"$name\" must be one of ${real.values}', ['$name']);",
     );
     validations.writeln('      }');
+  } else if (real is ObjectSchema) {
+    if (checkType) {
+      final type = dartType(real, classNames);
+      validations.writeln('      if ($valueVar is! $type) {');
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must be a $type', ['$name']);",
+      );
+      validations.writeln('      }');
+    }
+  } else if (real is UnionSchema) {
+    if (checkType) {
+      final type = dartType(real, classNames);
+      if (type != 'dynamic') {
+        validations.writeln('      if ($valueVar is! $type) {');
+        validations.writeln(
+          "        throw JsonValidationException('Property \"$name\" must be a $type', ['$name']);",
+        );
+        validations.writeln('      }');
+      }
+    }
   } else if (real is AnythingSchema) {
     // Always succeeds, so do nothing.
   } else if (real is NeverSchema) {

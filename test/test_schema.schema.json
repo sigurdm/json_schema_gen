@@ -250,6 +250,9 @@
           ]
         }
       ]
+    },
+    "patternPropsField": {
+      "$ref": "#/$defs/PatternPropertiesObject"
     }
   },
   "required": ["name", "age", "isAwesome", "address"],
@@ -482,6 +485,19 @@
       "properties": {
         "c": { "type": "boolean" }
       }
+    },
+    "PatternPropertiesObject": {
+      "title": "PatternPropertiesObject",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      },
+      "patternProperties": {
+        "^S_": { "type": "string" },
+        "^I_": { "type": "integer", "minimum": 0 },
+        "^O_": { "$ref": "#/$defs/Address" }
+      },
+      "additionalProperties": false
     }
   }
 }

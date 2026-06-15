@@ -70,6 +70,7 @@ final class TestRoot implements JsonModel {
   final List<String>? tupleSameTypeArray;
   final List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems;
   final TestRootUnionWithAllOfOption? unionWithAllOfOption;
+  final PatternPropertiesObject? patternPropsField;
 
   const TestRoot({
     required this.name,
@@ -136,6 +137,7 @@ final class TestRoot implements JsonModel {
     this.tupleSameTypeArray,
     this.arrayWithAllOfItems,
     this.unionWithAllOfOption,
+    this.patternPropsField,
   });
 
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -231,6 +233,7 @@ final class TestRoot implements JsonModel {
     List<String>? tupleSameTypeArray,
     List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems,
     TestRootUnionWithAllOfOption? unionWithAllOfOption,
+    PatternPropertiesObject? patternPropsField,
   }) => TestRoot(
     name: name ?? this.name,
     constValue: constValue ?? this.constValue,
@@ -297,6 +300,7 @@ final class TestRoot implements JsonModel {
     tupleSameTypeArray: tupleSameTypeArray ?? this.tupleSameTypeArray,
     arrayWithAllOfItems: arrayWithAllOfItems ?? this.arrayWithAllOfItems,
     unionWithAllOfOption: unionWithAllOfOption ?? this.unionWithAllOfOption,
+    patternPropsField: patternPropsField ?? this.patternPropsField,
   );
 
   void validate() {
@@ -883,6 +887,17 @@ final class TestRoot implements JsonModel {
         ]);
       }
     }
+    final val_patternPropsField = patternPropsField;
+    if (val_patternPropsField != null) {
+      try {
+        val_patternPropsField.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'patternPropsField',
+          ...e.path,
+        ]);
+      }
+    }
   }
 
   static final descriptor = ObjectDescriptor<TestRoot>(
@@ -974,6 +989,8 @@ final class TestRoot implements JsonModel {
               as List<TestRootArrayWithAllOfItemsItem>?,
       unionWithAllOfOption:
           fields['unionWithAllOfOption'] as TestRootUnionWithAllOfOption?,
+      patternPropsField:
+          fields['patternPropsField'] as PatternPropertiesObject?,
     ),
     getFields: (instance) => {
       'name': instance.name,
@@ -1040,6 +1057,7 @@ final class TestRoot implements JsonModel {
       'tupleSameTypeArray': instance.tupleSameTypeArray,
       'arrayWithAllOfItems': instance.arrayWithAllOfItems,
       'unionWithAllOfOption': instance.unionWithAllOfOption,
+      'patternPropsField': instance.patternPropsField,
     },
     properties: {
       'name': PropertyDescriptor(
@@ -1373,7 +1391,13 @@ final class TestRoot implements JsonModel {
         isRequired: false,
         schema: TestRootUnionWithAllOfOption.descriptor,
       ),
+      'patternPropsField': PropertyDescriptor(
+        name: 'patternPropsField',
+        isRequired: false,
+        schema: PatternPropertiesObject.descriptor,
+      ),
     },
+
     required: const ['name', 'age', 'isAwesome', 'address'],
   );
 
@@ -1445,7 +1469,8 @@ final class TestRoot implements JsonModel {
           impossibleField == other.impossibleField &&
           tupleSameTypeArray == other.tupleSameTypeArray &&
           arrayWithAllOfItems == other.arrayWithAllOfItems &&
-          unionWithAllOfOption == other.unionWithAllOfOption;
+          unionWithAllOfOption == other.unionWithAllOfOption &&
+          patternPropsField == other.patternPropsField;
 
   @override
   int get hashCode => Object.hashAll([
@@ -1513,11 +1538,12 @@ final class TestRoot implements JsonModel {
     tupleSameTypeArray,
     arrayWithAllOfItems,
     unionWithAllOfOption,
+    patternPropsField,
   ]);
 
   @override
   String toString() =>
-      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption})';
+      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, patternPropsField: ${patternPropsField})';
 }
 
 enum TestRootConstValue {
@@ -1601,6 +1627,7 @@ final class Address implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const ['city'],
   );
 
@@ -1674,6 +1701,7 @@ final class Score implements JsonModel {
         schema: const NumDescriptor(),
       ),
     },
+
     required: const ['value'],
   );
 
@@ -1988,6 +2016,7 @@ final class Cat implements JsonModel {
         schema: const NumDescriptor(),
       ),
     },
+
     required: const ['kind'],
   );
 
@@ -2070,6 +2099,7 @@ final class Dog implements JsonModel {
         schema: const NumDescriptor(),
       ),
     },
+
     required: const ['kind'],
   );
 
@@ -2179,6 +2209,7 @@ final class RestrictedObject implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const [],
   );
 
@@ -2278,6 +2309,7 @@ final class DependentObject implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const [],
   );
 
@@ -2358,6 +2390,7 @@ final class DeprecatedObject implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const [],
   );
 
@@ -2449,6 +2482,7 @@ final class Merged implements JsonModel {
         schema: const BoolDescriptor(),
       ),
     },
+
     required: const [],
   );
 
@@ -2520,7 +2554,10 @@ final class MapObject implements JsonModel {
     instantiate: (fields) => MapObject(
       name: fields['name'] as String?,
       additionalProperties: fields.entries
-          .where((e) => !const <String>{'name'}.contains(e.key))
+          .where((e) {
+            if (const <String>{'name'}.contains(e.key)) return false;
+            return true;
+          })
           .fold<Map<String, String>>(
             {},
             (m, e) => m..[e.key] = e.value as String,
@@ -2537,6 +2574,7 @@ final class MapObject implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const [],
     additionalProperties: const StringDescriptor(),
   );
@@ -2623,6 +2661,7 @@ final class StrictObject implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const [],
     additionalProperties: const NeverDescriptor(),
   );
@@ -2780,6 +2819,7 @@ final class NotObject implements JsonModel {
         schema: const AnythingDescriptor(),
       ),
     },
+
     required: const ['notPatternString', 'notEnumInt', 'notNullValue'],
   );
 
@@ -3033,6 +3073,7 @@ final class MergedAllOfObject implements JsonModel {
         schema: const NumDescriptor(),
       ),
     },
+
     required: const [],
   );
 
@@ -3144,7 +3185,10 @@ final class ComplexMergedObject implements JsonModel {
     instantiate: (fields) => ComplexMergedObject(
       numVal: fields['numVal'] as num?,
       additionalProperties: fields.entries
-          .where((e) => !const <String>{'numVal'}.contains(e.key))
+          .where((e) {
+            if (const <String>{'numVal'}.contains(e.key)) return false;
+            return true;
+          })
           .fold<Map<String, String>>(
             {},
             (m, e) => m..[e.key] = e.value as String,
@@ -3161,6 +3205,7 @@ final class ComplexMergedObject implements JsonModel {
         schema: const NumDescriptor(),
       ),
     },
+
     required: const [],
     additionalProperties: const StringDescriptor(),
   );
@@ -3514,6 +3559,7 @@ final class ObjectWithDynamicProps implements JsonModel {
         schema: const AnythingDescriptor(),
       ),
     },
+
     required: const [],
   );
 
@@ -3723,6 +3769,7 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
         schema: const IntDescriptor(),
       ),
     },
+
     required: const [],
   );
 
@@ -3927,6 +3974,7 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
             schema: const IntDescriptor(),
           ),
         },
+
         required: const [],
       );
 
@@ -3944,4 +3992,156 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
   @override
   String toString() =>
       'TestRootUnionWithAllOfOptionOptionType1(a: ${a}, b: ${b})';
+}
+
+final class PatternPropertiesObject implements JsonModel {
+  final String? name;
+  static final _patternRegex0 = RegExp(r'^S_');
+  static final _patternRegex1 = RegExp(r'^I_');
+  static final _patternRegex2 = RegExp(r'^O_');
+  final Map<String, dynamic> patternProperties;
+
+  const PatternPropertiesObject({this.name, this.patternProperties = const {}});
+
+  factory PatternPropertiesObject.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as PatternPropertiesObject;
+
+  /// Creates an instance of [PatternPropertiesObject] from a JSON Map.
+  factory PatternPropertiesObject.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => PatternPropertiesObject.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  PatternPropertiesObject copyWith({
+    String? name,
+    Map<String, dynamic>? patternProperties,
+  }) => PatternPropertiesObject(
+    name: name ?? this.name,
+    patternProperties: patternProperties ?? this.patternProperties,
+  );
+
+  void validate() {
+    final val_name = name;
+    patternProperties.forEach((key, value) {
+      if (_patternRegex0.hasMatch(key)) {
+        if (value is! String) {
+          throw JsonValidationException('Property "$key" must be a string', [
+            '$key',
+          ]);
+        }
+      }
+      if (_patternRegex1.hasMatch(key)) {
+        if (value is! int) {
+          throw JsonValidationException('Property "$key" must be an integer', [
+            '$key',
+          ]);
+        }
+        if (value < 0) {
+          throw JsonValidationException('Property "$key" must be >= 0', [
+            '$key',
+          ]);
+        }
+      }
+      if (_patternRegex2.hasMatch(key)) {
+        if (value is! Address) {
+          throw JsonValidationException('Property "$key" must be a Address', [
+            '$key',
+          ]);
+        }
+        try {
+          value.validate();
+        } on JsonValidationException catch (e) {
+          throw JsonValidationException(e.message, ['$key', ...e.path]);
+        }
+      }
+    });
+  }
+
+  static final descriptor = ObjectDescriptor<PatternPropertiesObject>(
+    title: 'PatternPropertiesObject',
+    matches: (instance) => instance is PatternPropertiesObject,
+    instantiate: (fields) => PatternPropertiesObject(
+      name: fields['name'] as String?,
+      patternProperties: fields.entries
+          .where((e) {
+            if (const <String>{'name'}.contains(e.key)) return false;
+            return _patternRegex0.hasMatch(e.key) ||
+                _patternRegex1.hasMatch(e.key) ||
+                _patternRegex2.hasMatch(e.key);
+          })
+          .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value),
+    ),
+    getFields: (instance) => {
+      'name': instance.name,
+      ...instance.patternProperties,
+    },
+    properties: {
+      'name': PropertyDescriptor(
+        name: 'name',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+    patternProperties: {
+      _patternRegex0: const StringDescriptor(),
+      _patternRegex1: const IntDescriptor(),
+      _patternRegex2: Address.descriptor,
+    },
+    required: const [],
+    additionalProperties: const NeverDescriptor(),
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PatternPropertiesObject &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          patternProperties.length == other.patternProperties.length &&
+          patternProperties.keys.every(
+            (k) =>
+                other.patternProperties.containsKey(k) &&
+                other.patternProperties[k] == patternProperties[k],
+          );
+
+  @override
+  int get hashCode => Object.hashAll([
+    name,
+    patternProperties.entries.fold<int>(
+      0,
+      (sum, entry) => sum ^ Object.hash(entry.key, entry.value),
+    ),
+  ]);
+
+  @override
+  String toString() =>
+      'PatternPropertiesObject(name: ${name}, patternProperties: ${patternProperties})';
 }

@@ -39,7 +39,9 @@ void main() {
   print('  Role: ${user.role}');
   print('  Bio: ${user.profile?.bio}');
   print('  Avatar URL: ${user.profile?.avatarUrl}');
-  print('  Address: ${user.address?.street}, ${user.address?.city}, ${user.address?.zipCode}');
+  print(
+    '  Address: ${user.address?.street}, ${user.address?.city}, ${user.address?.zipCode}',
+  );
   print('  Tags: ${user.tags}');
   print('  Preferences: ${user.preferences?.additionalProperties}');
   print('  Created At: ${user.createdAt}');
@@ -57,9 +59,13 @@ void main() {
     "email": "jane.doe@example.com"
   }
   ''';
-  final userWithDefaults = User.fromJson(JsonReader.fromString(jsonWithDefaults));
+  final userWithDefaults = User.fromJson(
+    JsonReader.fromString(jsonWithDefaults),
+  );
   print('Successfully parsed User with defaults:');
-  print('  Role (default): ${userWithDefaults.role}'); // Should be UserRole.user
+  print(
+    '  Role (default): ${userWithDefaults.role}',
+  ); // Should be UserRole.user
 
   print('\n--- Parsing Invalid JSON (Triggering Constraint Validation) ---');
 
@@ -110,4 +116,3 @@ void main() {
     '{"id": 44, "name": "Alice", "email": "alice@example.com", "createdAt": "not-a-date"}',
   );
 }
-

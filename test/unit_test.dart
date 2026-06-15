@@ -4,7 +4,6 @@ import 'package:test/test.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
-
 void main() {
   group('SchemaExtensions', () {
     test('realSchema throws on unresolved reference', () {
@@ -381,6 +380,72 @@ void main() {
       );
       expect(
         () => schema.validate({'name': 123}),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('patternProperties', () {
+      final schema = ObjectSchema(
+        properties: {'name': const StringSchema()},
+        patternProperties: {
+          RegExp(r'^S_'): const StringSchema(),
+          RegExp(r'^I_'): const NumberSchema(isInteger: true),
+        },
+        required: {'name'},
+        additionalProperties: const NeverSchema(),
+      );
+
+      expect(
+        () => schema.validate({'name': 'Alice', 'S_foo': 'bar', 'I_bar': 42}),
+        returnsNormally,
+      );
+
+      expect(
+        () => schema.validate({'name': 'Alice', 'S_foo': 42}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      expect(
+        () => schema.validate({'name': 'Alice', 'I_bar': 'not-an-int'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      expect(
+        () => schema.validate({'name': 'Alice', 'invalid_extra': 'value'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+    });
+
+    test('patternProperties multi-match', () {
+      final schema = ObjectSchema(
+        properties: {},
+        required: const {},
+        patternProperties: {
+          RegExp(r'a'): const StringSchema(minLength: 3),
+          RegExp(r'b'): const StringSchema(pattern: r'^x'),
+        },
+        additionalProperties: const NeverSchema(),
+      );
+
+      expect(() => schema.validate({'a': 'abc'}), returnsNormally);
+      expect(
+        () => schema.validate({'a': 'ab'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      expect(() => schema.validate({'b': 'xyz'}), returnsNormally);
+      expect(
+        () => schema.validate({'b': 'yz'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+
+      expect(() => schema.validate({'ab': 'xyz'}), returnsNormally);
+      expect(
+        () => schema.validate({'ab': 'xy'}),
+        throwsA(isA<JsonValidationException>()),
+      );
+      expect(
+        () => schema.validate({'ab': 'yz'}),
         throwsA(isA<JsonValidationException>()),
       );
     });

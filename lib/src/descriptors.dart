@@ -34,6 +34,9 @@ final class ObjectDescriptor<T> extends SchemaDescriptor<T> {
   /// Map of property names to their descriptors.
   final Map<String, PropertyDescriptor> properties;
 
+  /// Map of patterns to their descriptors.
+  final Map<RegExp, SchemaDescriptor> patternProperties;
+
   /// List of required property names.
   final List<String> required;
 
@@ -51,6 +54,7 @@ final class ObjectDescriptor<T> extends SchemaDescriptor<T> {
     required this.title,
     required this.instantiate,
     required this.properties,
+    this.patternProperties = const {},
     this.required = const [],
     this.additionalProperties,
     required this.getFields,

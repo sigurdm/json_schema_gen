@@ -2264,5 +2264,139 @@ void main() {
         expect(unionVal2.toJsonValue(), {'city': 'Paris'});
       });
     });
+
+    group('Pattern Properties Integration', () {
+      test('Valid parsing and serialization', () {
+        final jsonMap = {
+          'name': 'RegularName',
+          'S_prop1': 'string value',
+          'I_prop2': 42,
+        };
+
+        final model = PatternPropertiesObject.fromMap(jsonMap);
+        expect(model.name, 'RegularName');
+        expect(model.patternProperties['S_prop1'], 'string value');
+        expect(model.patternProperties['I_prop2'], 42);
+
+        // Serialization
+        final map = model.toMap();
+        expect(map['name'], 'RegularName');
+        expect(map['S_prop1'], 'string value');
+        expect(map['I_prop2'], 42);
+      });
+
+      test('Validation - invalid type in pattern property', () {
+        final invalidMap = {
+          'name': 'RegularName',
+          'S_prop1': 123, // Should be string
+        };
+        expect(
+          () => PatternPropertiesObject.fromMap(invalidMap),
+          throwsA(
+            isA<JsonParseException>().having(
+              (e) => e.message,
+              'message',
+              contains('Not a string'),
+            ),
+          ),
+        );
+      });
+
+      test('Validation - invalid constraint in pattern property', () {
+        final invalidMap = {
+          'name': 'RegularName',
+          'I_prop1': -5, // Should be >= 0
+        };
+        expect(
+          () => PatternPropertiesObject.fromMap(invalidMap),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('Property "I_prop1" must be >= 0'),
+            ),
+          ),
+        );
+      });
+
+      test('Validation - additional properties false', () {
+        final invalidMap = {'name': 'RegularName', 'unmatched_prop': 'value'};
+        expect(
+          () => PatternPropertiesObject.fromMap(invalidMap),
+          throwsA(
+            isA<JsonParseException>().having(
+              (e) => e.message,
+              'message',
+              contains('Value is not allowed here'),
+            ),
+          ),
+        );
+      });
+
+      test('Validation - valid object in pattern property', () {
+        final jsonMap = {
+          'name': 'RegularName',
+          'O_address': {'city': 'New York', 'street': 'Broadway'},
+        };
+        final model = PatternPropertiesObject.fromMap(jsonMap);
+        expect(model.name, 'RegularName');
+        expect(model.patternProperties['O_address'], isA<Address>());
+        expect(
+          (model.patternProperties['O_address'] as Address).city,
+          'New York',
+        );
+      });
+
+      test(
+        'Validation - invalid type in object pattern property (parsing)',
+        () {
+          final invalidMap = {
+            'name': 'RegularName',
+            'O_address': 'not-an-object',
+          };
+          expect(
+            () => PatternPropertiesObject.fromMap(invalidMap),
+            throwsA(isA<JsonParseException>()),
+          );
+        },
+      );
+
+      test(
+        'Validation - invalid type in object pattern property (manual validate)',
+        () {
+          final model = PatternPropertiesObject(
+            name: 'RegularName',
+            patternProperties: {'O_address': 'not-an-address-object'},
+          );
+          expect(
+            () => model.validate(),
+            throwsA(
+              isA<JsonValidationException>().having(
+                (e) => e.message,
+                'message',
+                contains('must be a Address'),
+              ),
+            ),
+          );
+        },
+      );
+
+      test('Validation - nested validation in object pattern property', () {
+        final invalidMap = {
+          'name': 'RegularName',
+          'O_address': {'city': 'a', 'street': 'Broadway'}, // 'city' too short
+        };
+        expect(
+          () => PatternPropertiesObject.fromMap(invalidMap),
+          throwsA(
+            isA<JsonValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('length must be >= 3'),
+            ),
+          ),
+        );
+      });
+    });
   });
 }

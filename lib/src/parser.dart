@@ -252,6 +252,15 @@ final class SchemaParser {
                 properties[key] = _parseSchema(value, '$path/properties/$key');
               });
             }
+            final patternProperties = <RegExp, Schema>{};
+            if (json['patternProperties'] is Map) {
+              (json['patternProperties'] as Map).forEach((key, value) {
+                patternProperties[RegExp(key as String)] = _parseSchema(
+                  value,
+                  '$path/patternProperties/$key',
+                );
+              });
+            }
             final required =
                 (json['required'] as List?)?.cast<String>().toSet() ?? {};
             final addPropsVal = json['additionalProperties'];
@@ -281,6 +290,7 @@ final class SchemaParser {
             schema = ObjectSchema(
               properties: properties,
               required: required,
+              patternProperties: patternProperties,
               additionalProperties: additionalProperties,
               minProperties: json['minProperties'] as int?,
               maxProperties: json['maxProperties'] as int?,
@@ -429,6 +439,7 @@ final class SchemaParser {
       }
       if (s is ObjectSchema) {
         s.properties.values.forEach(visit);
+        s.patternProperties.values.forEach(visit);
       } else if (s is ArraySchema) {
         visit(s.items);
         s.prefixItems?.forEach(visit);
@@ -467,6 +478,12 @@ final class SchemaParser {
         newProps[k] = nv;
         if (nv != v) changed = true;
       });
+      final newPatternProps = <RegExp, Schema>{};
+      schema.patternProperties.forEach((k, v) {
+        final nv = _flatten(v);
+        newPatternProps[k] = nv;
+        if (nv != v) changed = true;
+      });
       final newAddProps = schema.additionalProperties != null
           ? _flatten(schema.additionalProperties!)
           : null;
@@ -481,6 +498,7 @@ final class SchemaParser {
         final newSchema = ObjectSchema(
           properties: newProps,
           required: schema.required,
+          patternProperties: newPatternProps,
           additionalProperties: newAddProps,
           minProperties: schema.minProperties,
           maxProperties: schema.maxProperties,
@@ -630,6 +648,29 @@ final class SchemaParser {
         ..addAll(realA.required)
         ..addAll(realB.required);
 
+      final patternProperties = <RegExp, Schema>{};
+      RegExp? findRegExp(Map<RegExp, Schema> map, String pattern) {
+        for (final key in map.keys) {
+          if (key.pattern == pattern) return key;
+        }
+        return null;
+      }
+
+      realA.patternProperties.forEach((k, v) {
+        patternProperties[k] = v;
+      });
+      realB.patternProperties.forEach((k, v) {
+        final existingKey = findRegExp(patternProperties, k.pattern);
+        if (existingKey != null) {
+          patternProperties[existingKey] = _merge(
+            patternProperties[existingKey]!,
+            v,
+          );
+        } else {
+          patternProperties[k] = v;
+        }
+      });
+
       Schema? additionalProperties;
       if (realA.additionalProperties == null) {
         additionalProperties = realB.additionalProperties;
@@ -671,6 +712,7 @@ final class SchemaParser {
       return ObjectSchema(
         properties: properties,
         required: required,
+        patternProperties: patternProperties,
         additionalProperties: additionalProperties,
         minProperties: minProperties,
         maxProperties: maxProperties,
@@ -792,6 +834,7 @@ Schema _copyWithMetadata(
     ObjectSchema s => ObjectSchema(
       properties: s.properties,
       required: s.required,
+      patternProperties: s.patternProperties,
       additionalProperties: s.additionalProperties,
       minProperties: s.minProperties,
       maxProperties: s.maxProperties,

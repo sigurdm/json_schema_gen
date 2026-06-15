@@ -233,6 +233,7 @@ final class User implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const ['id', 'name', 'email'],
   );
 
@@ -364,6 +365,7 @@ final class UserProfile implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const [],
   );
 
@@ -466,6 +468,7 @@ final class Address implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const ['city'],
   );
 
@@ -535,7 +538,10 @@ final class UserPreferences implements JsonModel {
     matches: (instance) => instance is UserPreferences,
     instantiate: (fields) => UserPreferences(
       additionalProperties: fields.entries
-          .where((e) => !const <String>{}.contains(e.key))
+          .where((e) {
+            if (const <String>{}.contains(e.key)) return false;
+            return true;
+          })
           .fold<Map<String, String>>(
             {},
             (m, e) => m..[e.key] = e.value as String,
@@ -543,6 +549,7 @@ final class UserPreferences implements JsonModel {
     ),
     getFields: (instance) => {...instance.additionalProperties},
     properties: {},
+
     required: const [],
     additionalProperties: const StringDescriptor(),
   );
