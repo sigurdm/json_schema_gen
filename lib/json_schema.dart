@@ -13,7 +13,23 @@
 // limitations under the License.
 
 export 'src/descriptors.dart';
-export 'src/generator.dart';
-export 'src/parser.dart';
+export 'src/generator.dart' show generateCode;
+export 'src/parser.dart' show SchemaParser;
 export 'src/schema.dart';
-export 'src/validator.dart' hide JsonParseFrame, ArrayFrame;
+export 'src/validator.dart'
+    show
+        parseWithDescriptor,
+        writeWithDescriptor,
+        JsonParseException,
+        JsonValidationException,
+        JsonModel,
+        createValidator,
+        SchemaValidationExtension,
+        wrapException,
+        readAny,
+        writeAny,
+        isValidHostname,
+        isValidIPv6,
+        isValidTime,
+        isValidUriReference,
+        isValidUri;

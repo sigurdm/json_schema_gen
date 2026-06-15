@@ -543,6 +543,12 @@ JsonParseFrame _createFrameForSchema(
 }
 
 /// Parses JSON from [reader] using the given [schema] descriptor.
+///
+/// If [validate] is true (default), it will validate the JSON against the
+/// schema constraints during parsing.
+///
+/// Throws [JsonParseException] if the JSON is malformed or cannot be parsed.
+/// Throws [JsonValidationException] if the JSON does not conform to the schema.
 dynamic parseWithDescriptor(
   JsonReader reader,
   SchemaDescriptor schema, {
@@ -552,6 +558,10 @@ dynamic parseWithDescriptor(
 }
 
 /// Writes [value] to [sink] using the given [schema] descriptor.
+///
+/// The [value] must match the structure expected by the [schema] descriptor.
+///
+/// Throws [ArgumentError] if the value cannot be serialized.
 void writeWithDescriptor<T>(
   JsonSink sink,
   T value,
@@ -724,10 +734,7 @@ void _validate(dynamic value, Schema schema, List<String> path) {
       matches = false;
     }
     if (matches) {
-      throw JsonValidationException(
-        'Value must not match the schema',
-        path,
-      );
+      throw JsonValidationException('Value must not match the schema', path);
     }
   }
 

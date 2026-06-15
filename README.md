@@ -28,11 +28,10 @@ This package supports schemas conforming to **JSON Schema Draft 2020-12**.
 - **Strings**: `minLength`, `maxLength`, `pattern`, `format` (supporting `date-time`, `date`, `time`, `email`, `ipv4`, `ipv6`, `hostname`, `uri`, `uri-reference`, `uuid`).
 - **Numbers/Integers**: `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`, `multipleOf`.
 - **Arrays**: `minItems`, `maxItems`, `uniqueItems`, `contains`, `minContains`, `maxContains`.
-- **Objects**: `required`, `minProperties`, `maxProperties`, `dependentRequired`.
+- **Objects**: `required`, `minProperties`, `maxProperties`, `dependentRequired`, `additionalProperties`, `patternProperties`.
 - **Defaults**: Supports `default` values in constructors and fallback values during parsing.
 
 ### Missing/Unsupported JSON Schema Features
-- `patternProperties`.
 - Non-discriminator object unions (overlapping schemas without explicit discriminator properties require distinct primitive types or simple structure speculative checks).
 
 ### The `not` Keyword & Typing Caveats

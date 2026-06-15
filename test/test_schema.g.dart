@@ -71,6 +71,7 @@ final class TestRoot implements JsonModel {
   final List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems;
   final TestRootUnionWithAllOfOption? unionWithAllOfOption;
   final PatternPropertiesObject? patternPropsField;
+  final OverlappingUnion? overlappingUnion;
 
   const TestRoot({
     required this.name,
@@ -138,6 +139,7 @@ final class TestRoot implements JsonModel {
     this.arrayWithAllOfItems,
     this.unionWithAllOfOption,
     this.patternPropsField,
+    this.overlappingUnion,
   });
 
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -234,6 +236,7 @@ final class TestRoot implements JsonModel {
     List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems,
     TestRootUnionWithAllOfOption? unionWithAllOfOption,
     PatternPropertiesObject? patternPropsField,
+    OverlappingUnion? overlappingUnion,
   }) => TestRoot(
     name: name ?? this.name,
     constValue: constValue ?? this.constValue,
@@ -301,6 +304,7 @@ final class TestRoot implements JsonModel {
     arrayWithAllOfItems: arrayWithAllOfItems ?? this.arrayWithAllOfItems,
     unionWithAllOfOption: unionWithAllOfOption ?? this.unionWithAllOfOption,
     patternPropsField: patternPropsField ?? this.patternPropsField,
+    overlappingUnion: overlappingUnion ?? this.overlappingUnion,
   );
 
   void validate() {
@@ -898,6 +902,17 @@ final class TestRoot implements JsonModel {
         ]);
       }
     }
+    final val_overlappingUnion = overlappingUnion;
+    if (val_overlappingUnion != null) {
+      try {
+        val_overlappingUnion.validate();
+      } on JsonValidationException catch (e) {
+        throw JsonValidationException(e.message, [
+          'overlappingUnion',
+          ...e.path,
+        ]);
+      }
+    }
   }
 
   static final descriptor = ObjectDescriptor<TestRoot>(
@@ -991,6 +1006,7 @@ final class TestRoot implements JsonModel {
           fields['unionWithAllOfOption'] as TestRootUnionWithAllOfOption?,
       patternPropsField:
           fields['patternPropsField'] as PatternPropertiesObject?,
+      overlappingUnion: fields['overlappingUnion'] as OverlappingUnion?,
     ),
     getFields: (instance) => {
       'name': instance.name,
@@ -1058,6 +1074,7 @@ final class TestRoot implements JsonModel {
       'arrayWithAllOfItems': instance.arrayWithAllOfItems,
       'unionWithAllOfOption': instance.unionWithAllOfOption,
       'patternPropsField': instance.patternPropsField,
+      'overlappingUnion': instance.overlappingUnion,
     },
     properties: {
       'name': PropertyDescriptor(
@@ -1396,6 +1413,11 @@ final class TestRoot implements JsonModel {
         isRequired: false,
         schema: PatternPropertiesObject.descriptor,
       ),
+      'overlappingUnion': PropertyDescriptor(
+        name: 'overlappingUnion',
+        isRequired: false,
+        schema: OverlappingUnion.descriptor,
+      ),
     },
 
     required: const ['name', 'age', 'isAwesome', 'address'],
@@ -1470,7 +1492,8 @@ final class TestRoot implements JsonModel {
           tupleSameTypeArray == other.tupleSameTypeArray &&
           arrayWithAllOfItems == other.arrayWithAllOfItems &&
           unionWithAllOfOption == other.unionWithAllOfOption &&
-          patternPropsField == other.patternPropsField;
+          patternPropsField == other.patternPropsField &&
+          overlappingUnion == other.overlappingUnion;
 
   @override
   int get hashCode => Object.hashAll([
@@ -1539,11 +1562,12 @@ final class TestRoot implements JsonModel {
     arrayWithAllOfItems,
     unionWithAllOfOption,
     patternPropsField,
+    overlappingUnion,
   ]);
 
   @override
   String toString() =>
-      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, patternPropsField: ${patternPropsField})';
+      'TestRoot(name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, patternPropsField: ${patternPropsField}, overlappingUnion: ${overlappingUnion})';
 }
 
 enum TestRootConstValue {
@@ -4280,4 +4304,259 @@ final class PatternPropertiesObject implements JsonModel {
   @override
   String toString() =>
       'PatternPropertiesObject(name: ${name}, patternProperties: ${patternProperties})';
+}
+
+sealed class OverlappingUnion implements JsonModel {
+  const OverlappingUnion();
+
+  factory OverlappingUnion.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as OverlappingUnion;
+
+  /// Creates an instance of [OverlappingUnion] from a JSON-compatible Dart value.
+  factory OverlappingUnion.fromJsonValue(
+    Object? value, {
+    bool validate = true,
+  }) => OverlappingUnion.fromJson(
+    JsonReader.fromObject(value),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  static final descriptor = UnionDescriptor<OverlappingUnion>(
+    title: 'OverlappingUnion',
+
+    activeOptions: [
+      UnionOptionDescriptor<OverlappingUnion, dynamic>(
+        OptionA.descriptor,
+        (val) => OverlappingUnionOption0(val),
+      ),
+      UnionOptionDescriptor<OverlappingUnion, dynamic>(
+        OptionB.descriptor,
+        (val) => OverlappingUnionOption1(val),
+      ),
+    ],
+  );
+}
+
+final class OverlappingUnionOption0 extends OverlappingUnion {
+  final OptionA value;
+  const OverlappingUnionOption0(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, OptionA.descriptor);
+  }
+
+  @override
+  void validate() {
+    value.validate();
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OverlappingUnionOption0 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'OverlappingUnionOption0(value: $value)';
+}
+
+final class OverlappingUnionOption1 extends OverlappingUnion {
+  final OptionB value;
+  const OverlappingUnionOption1(this.value);
+
+  @override
+  void writeJson(JsonSink target) {
+    writeWithDescriptor(target, value, OptionB.descriptor);
+  }
+
+  @override
+  void validate() {
+    value.validate();
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OverlappingUnionOption1 &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'OverlappingUnionOption1(value: $value)';
+}
+
+final class OptionA implements JsonModel {
+  final String value;
+
+  const OptionA({required this.value});
+
+  factory OptionA.fromJson(JsonReader reader, {bool validate = true}) =>
+      parseWithDescriptor(reader, descriptor, validate: validate) as OptionA;
+
+  /// Creates an instance of [OptionA] from a JSON Map.
+  factory OptionA.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      OptionA.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  OptionA copyWith({String? value}) => OptionA(value: value ?? this.value);
+
+  void validate() {
+    if (value.length < 5) {
+      throw JsonValidationException('Property "value" length must be >= 5', [
+        'value',
+      ]);
+    }
+  }
+
+  static final descriptor = ObjectDescriptor<OptionA>(
+    title: 'OptionA',
+    matches: (instance) => instance is OptionA,
+    instantiate: (fields) => OptionA(value: fields['value'] as String),
+    getFields: (instance) => {'value': instance.value},
+    properties: {
+      'value': PropertyDescriptor(
+        name: 'value',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const ['value'],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OptionA &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => Object.hashAll([value]);
+
+  @override
+  String toString() => 'OptionA(value: ${value})';
+}
+
+final class OptionB implements JsonModel {
+  final String value;
+
+  const OptionB({required this.value});
+
+  factory OptionB.fromJson(JsonReader reader, {bool validate = true}) =>
+      parseWithDescriptor(reader, descriptor, validate: validate) as OptionB;
+
+  /// Creates an instance of [OptionB] from a JSON Map.
+  factory OptionB.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
+      OptionB.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  OptionB copyWith({String? value}) => OptionB(value: value ?? this.value);
+
+  void validate() {
+    if (value.length < 2) {
+      throw JsonValidationException('Property "value" length must be >= 2', [
+        'value',
+      ]);
+    }
+  }
+
+  static final descriptor = ObjectDescriptor<OptionB>(
+    title: 'OptionB',
+    matches: (instance) => instance is OptionB,
+    instantiate: (fields) => OptionB(value: fields['value'] as String),
+    getFields: (instance) => {'value': instance.value},
+    properties: {
+      'value': PropertyDescriptor(
+        name: 'value',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const ['value'],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OptionB &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => Object.hashAll([value]);
+
+  @override
+  String toString() => 'OptionB(value: ${value})';
 }

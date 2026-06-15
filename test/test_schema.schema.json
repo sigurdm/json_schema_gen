@@ -253,10 +253,34 @@
     },
     "patternPropsField": {
       "$ref": "#/$defs/PatternPropertiesObject"
+    },
+    "overlappingUnion": {
+      "$ref": "#/$defs/OverlappingUnion"
     }
   },
   "required": ["name", "age", "isAwesome", "address"],
   "$defs": {
+    "OverlappingUnion": {
+      "title": "OverlappingUnion",
+      "oneOf": [
+        {
+          "title": "OptionA",
+          "type": "object",
+          "properties": {
+            "value": { "type": "string", "minLength": 5 }
+          },
+          "required": ["value"]
+        },
+        {
+          "title": "OptionB",
+          "type": "object",
+          "properties": {
+            "value": { "type": "string", "minLength": 2 }
+          },
+          "required": ["value"]
+        }
+      ]
+    },
     "ObjectWithDynamicProps": {
       "title": "ObjectWithDynamicProps",
       "type": "object",

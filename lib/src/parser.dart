@@ -24,6 +24,10 @@ final class SchemaParser {
   SchemaParser(Map<String, dynamic> rootJson) : _rootJson = rootJson;
 
   /// Parses the schema structure and resolves all internal references.
+  ///
+  /// Throws [ArgumentError] if a reference (`$ref`) cannot be resolved.
+  /// Throws [TypeError] or [StateError] if the schema JSON structure is invalid
+  /// or contains unsupported types for specific keywords.
   Schema parse() {
     final root = _parseSchema(_rootJson, '#');
     _resolveRefs(root);

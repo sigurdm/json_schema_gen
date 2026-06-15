@@ -2477,5 +2477,43 @@ void main() {
         );
       });
     });
+
+    group('OverlappingUnion validation (speculative parsing limitation)', () {
+      test(
+        'fails to parse valid OptionB because OptionA matches structurally first',
+        () {
+          final data = {
+            'value': 'abc',
+          }; // Length 3. OptionA minLength 5, OptionB minLength 2.
+
+          // This should theoretically succeed as OptionB, but fails because
+          // speculative parsing commits to OptionA based on structure.
+          expect(
+            () => OverlappingUnion.fromJsonValue(data),
+            throwsA(
+              isA<JsonValidationException>().having(
+                (e) => e.message,
+                'message',
+                contains('length must be >= 5'), // OptionA's error
+              ),
+            ),
+          );
+        },
+      );
+
+      test('succeeds for OptionA when constraints are met', () {
+        final data = {'value': 'abcdef'}; // Length 6.
+        final parsed = OverlappingUnion.fromJsonValue(data);
+        expect(parsed, isA<OverlappingUnionOption0>());
+        expect((parsed as OverlappingUnionOption0).value.value, 'abcdef');
+      });
+
+      test('succeeds with validate: false and picks OptionA', () {
+        final data = {'value': 'abc'};
+        final parsed = OverlappingUnion.fromJsonValue(data, validate: false);
+        expect(parsed, isA<OverlappingUnionOption0>());
+        expect((parsed as OverlappingUnionOption0).value.value, 'abc');
+      });
+    });
   });
 }
