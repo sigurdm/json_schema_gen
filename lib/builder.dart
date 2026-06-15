@@ -7,8 +7,11 @@ import 'package:path/path.dart' as p;
 
 /// A [Builder] that compiles JSON Schema files (.schema.json) to Dart models.
 final class JsonSchemaBuilder implements Builder {
-  /// Default constructor.
-  const JsonSchemaBuilder();
+  /// The options configured for this builder.
+  final BuilderOptions options;
+
+  /// Creates a [JsonSchemaBuilder] with the given [options].
+  JsonSchemaBuilder(this.options);
 
   @override
   Map<String, List<String>> get buildExtensions => const {
@@ -17,6 +20,8 @@ final class JsonSchemaBuilder implements Builder {
 
   @override
   Future<void> build(BuildStep buildStep) async {
+    final allowExternalRefs =
+        options.config['allow_external_refs'] as bool? ?? true;
     final inputId = buildStep.inputId;
 
     // Read the schema JSON string
@@ -38,7 +43,9 @@ final class JsonSchemaBuilder implements Builder {
         return buildStep.readAsBytes(resolvedId);
       },
     );
-    final rootSchema = await parser.parse(disallowExternalRefs: false);
+    final rootSchema = await parser.parse(
+      disallowExternalRefs: !allowExternalRefs,
+    );
 
     // Determine the root name based on the schema title or the file name
     final baseName = inputId.pathSegments.last.replaceAll('.schema.json', '');
@@ -66,4 +73,4 @@ final class JsonSchemaBuilder implements Builder {
 }
 
 /// Factory function to construct the builder for build_runner.
-Builder jsonSchemaBuilder(BuilderOptions options) => const JsonSchemaBuilder();
+Builder jsonSchemaBuilder(BuilderOptions options) => JsonSchemaBuilder(options);
