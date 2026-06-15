@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:io';
 import 'schema.dart';
 
 /// Formats a name string into PascalCase for Dart class names.
@@ -156,6 +157,9 @@ String dartType(Schema schema, Map<Schema, String> classNames) {
   } else if (real is NullSchema) {
     return 'Null';
   } else if (real is AnythingSchema) {
+    if (schema.not != null || real.not != null) {
+      return 'dynamic';
+    }
     return 'Object?';
   } else if (real is UnionSchema) {
     final analysis = UnionAnalysis.analyze(real);
@@ -169,6 +173,11 @@ String dartType(Schema schema, Map<Schema, String> classNames) {
     return classNames[real] ?? 'dynamic';
   } else if (real is NeverSchema) {
     return 'Never';
+  } else if (real is AllOfSchema) {
+    if (real.subschemas.length == 1) {
+      return dartType(real.subschemas.first, classNames);
+    }
+    return 'dynamic';
   }
   return 'dynamic';
 }
@@ -257,6 +266,10 @@ String generateCode(Schema rootSchema, String rootName) {
       usedNames.add(candidate);
       classNames[real] = candidate;
       discoverClasses(real.baseSchema, '${candidate}_Base');
+    }
+    _checkAndWarnNot(preferredName, schema);
+    if (schema.not != null) {
+      discoverClasses(schema.not!, '${preferredName}_Not');
     }
   }
 
@@ -407,6 +420,9 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
   } else if (real is NullSchema) {
     return 'const NullDescriptor()';
   } else if (real is AnythingSchema) {
+    if (real.not != null) {
+      return 'NotDescriptor(${_descriptorExpr(real.not!, classNames)})';
+    }
     return 'const AnythingDescriptor()';
   } else if (real is NeverSchema) {
     return 'const NeverDescriptor()';
@@ -433,6 +449,10 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
   } else if (real is ObjectSchema) {
     final name = classNames[real]!;
     return '$name.descriptor';
+  } else if (real is AllOfSchema) {
+    if (real.subschemas.length == 1) {
+      return _descriptorExpr(real.subschemas.first, classNames);
+    }
   }
   throw UnsupportedError(
     'Unsupported schema type for descriptor generation: ${real.runtimeType}',
@@ -475,16 +495,17 @@ bool _isNullable(
 String? _toDartLiteral(
   Object? value,
   Schema schema,
-  Map<Schema, String> classNames,
-) {
+  Map<Schema, String> classNames, {
+  bool raw = false,
+}) {
   final real = schema.realSchema;
   if (real is EnumSchema) {
     final className = classNames[real];
-    if (className != null) {
+    if (className != null && !raw) {
       final constName = _toEnumConstantName(value);
       return '$className.$constName';
     } else {
-      return _toDartLiteral(value, real.baseSchema, classNames);
+      return _toDartLiteral(value, real.baseSchema, classNames, raw: raw);
     }
   }
   if (value == null) return 'null';
@@ -506,7 +527,7 @@ String? _toDartLiteral(
       final itemType = dartType(real.items, classNames);
       final elements = <String>[];
       for (final val in value) {
-        final lit = _toDartLiteral(val, real.items, classNames);
+        final lit = _toDartLiteral(val, real.items, classNames, raw: raw);
         if (lit == null) return null;
         elements.add(lit);
       }
@@ -534,7 +555,7 @@ String? _toDartLiteral(
             ok = false;
             return;
           }
-          final lit = _toDartLiteral(v, propSchema, classNames);
+          final lit = _toDartLiteral(v, propSchema, classNames, raw: raw);
           if (lit == null) {
             ok = false;
             return;
@@ -591,7 +612,10 @@ String _generateObjectClass(
       constructorParams.writeln('    this.$fieldName,');
     }
 
-    final copyWithType = baseType.endsWith('?') ? baseType : '$baseType?';
+    final copyWithType =
+        (baseType.endsWith('?') || baseType == 'dynamic')
+            ? baseType
+            : '$baseType?';
     copyWithParams.writeln('    $copyWithType $fieldName,');
     copyWithArgs.writeln('    $fieldName: $fieldName ?? this.$fieldName,');
 
@@ -1007,6 +1031,7 @@ String _generateValidationMethod(
           classNames,
           checkType: true,
           includeNot: true,
+          rawEnum: true,
         );
         if (notValBuf.isNotEmpty) {
           buffer.writeln('    bool notMatches_$fieldName = true;');
@@ -1022,9 +1047,21 @@ String _generateValidationMethod(
           buffer.writeln('    }');
         }
       } else {
-        throw UnsupportedError(
-          'Complex "not" schemas (object/union) are not supported yet.',
+        final descExpr = _descriptorExpr(propSchema.not!, classNames);
+        buffer.writeln('    bool notMatches_$fieldName = true;');
+        buffer.writeln('    try {');
+        buffer.writeln('      final rawValue = $valueVar is JsonModel ? $valueVar.toJsonValue() : $valueVar;');
+        buffer.writeln('      parseWithDescriptor(JsonReader.fromObject(rawValue), $descExpr, validate: true);');
+        buffer.writeln('    } on JsonValidationException {');
+        buffer.writeln('      notMatches_$fieldName = false;');
+        buffer.writeln('    } on FormatException {');
+        buffer.writeln('      notMatches_$fieldName = false;');
+        buffer.writeln('    }');
+        buffer.writeln('    if (notMatches_$fieldName) {');
+        buffer.writeln(
+          "      throw JsonValidationException('Property \"$name\" must not match the schema', ['$name']);",
         );
+        buffer.writeln('    }');
       }
     }
   });
@@ -1074,6 +1111,7 @@ void _generateSchemaValidations(
   Map<Schema, String> classNames, {
   bool checkType = false,
   bool includeNot = true,
+  bool rawEnum = false,
 }) {
   final real = schema.realSchema;
   if (real is StringSchema) {
@@ -1274,10 +1312,11 @@ void _generateSchemaValidations(
         name,
         classNames,
         checkType: true,
+        rawEnum: rawEnum,
       );
     }
     final valuesLiterals = real.values
-        .map((v) => _toDartLiteral(v, real, classNames))
+        .map((v) => _toDartLiteral(v, real, classNames, raw: rawEnum))
         .join(', ');
     validations.writeln(
       '      if (!const [$valuesLiterals].contains($valueVar)) {',
@@ -1318,6 +1357,7 @@ void _generateSchemaValidations(
         classNames,
         checkType: true,
         includeNot: true,
+        rawEnum: true,
       );
       if (notValBuf.isNotEmpty) {
         validations.writeln('      bool notMatches = true;');
@@ -1333,9 +1373,21 @@ void _generateSchemaValidations(
         validations.writeln('      }');
       }
     } else {
-      throw UnsupportedError(
-        'Complex "not" schemas (object/union) are not supported yet.',
+      final descExpr = _descriptorExpr(schema.not!, classNames);
+      validations.writeln('      bool notMatches = true;');
+      validations.writeln('      try {');
+      validations.writeln('        final rawValue = $valueVar is JsonModel ? $valueVar.toJsonValue() : $valueVar;');
+      validations.writeln('        parseWithDescriptor(JsonReader.fromObject(rawValue), $descExpr, validate: true);');
+      validations.writeln('      } on JsonValidationException {');
+      validations.writeln('        notMatches = false;');
+      validations.writeln('      } on FormatException {');
+      validations.writeln('        notMatches = false;');
+      validations.writeln('      }');
+      validations.writeln('      if (notMatches) {');
+      validations.writeln(
+        "        throw JsonValidationException('Property \"$name\" must not match the schema', ['$name']);",
       );
+      validations.writeln('      }');
     }
   }
 }
@@ -1611,4 +1663,42 @@ $descriptorString
 
 $subclasses
 ''';
+}
+
+void _checkAndWarnNot(String fieldName, Schema propSchema) {
+  if (propSchema.not != null) {
+    var real = propSchema.realSchema;
+    if (real is AllOfSchema && real.subschemas.length == 1) {
+      real = real.subschemas.first.realSchema;
+    }
+    final notReal = propSchema.not!.realSchema;
+    
+    if (real is AnythingSchema) {
+      stderr.writeln('WARNING: Field "$fieldName" has "not" constraint but no explicit type. It will fall back to dynamic.');
+    } else if (notReal is! AnythingSchema && _isTypeOnlySchema(notReal)) {
+      if (real.runtimeType == notReal.runtimeType) {
+        if (real is NumberSchema && notReal is NumberSchema) {
+          if (real.isInteger == notReal.isInteger) {
+            stderr.writeln('WARNING: Field "$fieldName" negates its own type. It will always fail validation.');
+          }
+        } else {
+          stderr.writeln('WARNING: Field "$fieldName" negates its own type. It will always fail validation.');
+        }
+      }
+    }
+  }
+}
+
+bool _isTypeOnlySchema(Schema schema) {
+  return _hasNoConstraints(schema) && schema.not == null;
+}
+
+bool _hasNoConstraints(Schema schema) {
+  return switch (schema) {
+    StringSchema s => s.minLength == null && s.maxLength == null && s.pattern == null && s.format == null,
+    NumberSchema s => s.minimum == null && s.maximum == null && s.exclusiveMinimum == null && s.exclusiveMaximum == null && s.multipleOf == null,
+    ArraySchema s => s.minItems == null && s.maxItems == null && s.uniqueItems == null && s.contains == null && s.prefixItems == null,
+    ObjectSchema s => s.properties.isEmpty && s.required.isEmpty && s.additionalProperties == null && s.minProperties == null && s.maxProperties == null,
+    _ => true,
+  };
 }

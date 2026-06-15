@@ -1287,6 +1287,85 @@ void main() {
         ),
       );
     });
+
+    test('not validation - complex success (primitive)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'notObject': {
+          'notPatternString': 'allowed string',
+          'notEnumInt': 10,
+          'notNullValue': 42,
+          'notObjectValue': 'primitive_is_ok',
+        },
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.notObject!.notObjectValue, 'primitive_is_ok');
+    });
+
+    test('not validation - complex success (empty object)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'notObject': {
+          'notPatternString': 'allowed string',
+          'notEnumInt': 10,
+          'notNullValue': 42,
+          'notObjectValue': <String, dynamic>{},
+        },
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.notObject!.notObjectValue, <String, dynamic>{});
+    });
+
+    test('not validation - complex success (wrong type for forbiddenProp)', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'notObject': {
+          'notPatternString': 'allowed string',
+          'notEnumInt': 10,
+          'notNullValue': 42,
+          'notObjectValue': {'forbiddenProp': 42},
+        },
+      };
+      final model = TestRoot.fromJson(JsonReader.fromObject(jsonObject));
+      expect(model.notObject!.notObjectValue, {'forbiddenProp': 42});
+    });
+
+    test('not validation - complex failure', () {
+      final jsonObject = {
+        'name': 'John',
+        'age': 35,
+        'isAwesome': true,
+        'address': {'city': 'London'},
+        'notObject': {
+          'notPatternString': 'allowed string',
+          'notEnumInt': 10,
+          'notNullValue': 42,
+          'notObjectValue': {'forbiddenProp': 'forbidden_string'},
+        },
+      };
+      expect(
+        () => TestRoot.fromJson(JsonReader.fromObject(jsonObject)),
+        throwsA(
+          isA<JsonValidationException>()
+              .having(
+                (e) => e.message,
+                'message',
+                contains('must not match the schema'),
+              )
+              .having((e) => e.path, 'path', ['notObject', 'notObjectValue']),
+        ),
+      );
+    });
+
     test('anyOfValue - success (string)', () {
       final jsonObject = {
         'name': 'John',

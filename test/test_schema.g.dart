@@ -2644,12 +2644,14 @@ final class StrictObject implements JsonModel {
 final class NotObject implements JsonModel {
   final String notPatternString;
   final int notEnumInt;
-  final Object? notNullValue;
+  final dynamic notNullValue;
+  final dynamic notObjectValue;
 
   const NotObject({
     required this.notPatternString,
     required this.notEnumInt,
     required this.notNullValue,
+    this.notObjectValue,
   });
 
   factory NotObject.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -2683,11 +2685,13 @@ final class NotObject implements JsonModel {
   NotObject copyWith({
     String? notPatternString,
     int? notEnumInt,
-    Object? notNullValue,
+    dynamic notNullValue,
+    dynamic notObjectValue,
   }) => NotObject(
     notPatternString: notPatternString ?? this.notPatternString,
     notEnumInt: notEnumInt ?? this.notEnumInt,
     notNullValue: notNullValue ?? this.notNullValue,
+    notObjectValue: notObjectValue ?? this.notObjectValue,
   );
 
   void validate() {
@@ -2748,6 +2752,28 @@ final class NotObject implements JsonModel {
         ['notNullValue'],
       );
     }
+    final val_notObjectValue = notObjectValue;
+    bool notMatches_notObjectValue = true;
+    try {
+      final rawValue = val_notObjectValue is JsonModel
+          ? val_notObjectValue.toJsonValue()
+          : val_notObjectValue;
+      parseWithDescriptor(
+        JsonReader.fromObject(rawValue),
+        NotObjectNotObjectValueNot.descriptor,
+        validate: true,
+      );
+    } on JsonValidationException {
+      notMatches_notObjectValue = false;
+    } on FormatException {
+      notMatches_notObjectValue = false;
+    }
+    if (notMatches_notObjectValue) {
+      throw JsonValidationException(
+        'Property "notObjectValue" must not match the schema',
+        ['notObjectValue'],
+      );
+    }
   }
 
   static final descriptor = ObjectDescriptor<NotObject>(
@@ -2756,12 +2782,14 @@ final class NotObject implements JsonModel {
     instantiate: (fields) => NotObject(
       notPatternString: fields['notPatternString'] as String,
       notEnumInt: fields['notEnumInt'] as int,
-      notNullValue: fields['notNullValue'] as Object?,
+      notNullValue: fields['notNullValue'] as dynamic,
+      notObjectValue: fields['notObjectValue'] as dynamic,
     ),
     getFields: (instance) => {
       'notPatternString': instance.notPatternString,
       'notEnumInt': instance.notEnumInt,
       'notNullValue': instance.notNullValue,
+      'notObjectValue': instance.notObjectValue,
     },
     properties: {
       'notPatternString': PropertyDescriptor(
@@ -2777,7 +2805,12 @@ final class NotObject implements JsonModel {
       'notNullValue': PropertyDescriptor(
         name: 'notNullValue',
         isRequired: true,
-        schema: const AnythingDescriptor(),
+        schema: NotDescriptor(const NullDescriptor()),
+      ),
+      'notObjectValue': PropertyDescriptor(
+        name: 'notObjectValue',
+        isRequired: false,
+        schema: NotDescriptor(NotObjectNotObjectValueNot.descriptor),
       ),
     },
     required: const ['notPatternString', 'notEnumInt', 'notNullValue'],
@@ -2790,15 +2823,117 @@ final class NotObject implements JsonModel {
           runtimeType == other.runtimeType &&
           notPatternString == other.notPatternString &&
           notEnumInt == other.notEnumInt &&
-          notNullValue == other.notNullValue;
+          notNullValue == other.notNullValue &&
+          notObjectValue == other.notObjectValue;
 
   @override
-  int get hashCode =>
-      Object.hashAll([notPatternString, notEnumInt, notNullValue]);
+  int get hashCode => Object.hashAll([
+    notPatternString,
+    notEnumInt,
+    notNullValue,
+    notObjectValue,
+  ]);
 
   @override
   String toString() =>
-      'NotObject(notPatternString: ${notPatternString}, notEnumInt: ${notEnumInt}, notNullValue: ${notNullValue})';
+      'NotObject(notPatternString: ${notPatternString}, notEnumInt: ${notEnumInt}, notNullValue: ${notNullValue}, notObjectValue: ${notObjectValue})';
+}
+
+enum NotObjectNotEnumIntNot {
+  val13(13),
+  val17(17);
+
+  final int value;
+  const NotObjectNotEnumIntNot(this.value);
+  static NotObjectNotEnumIntNot fromValue(int val) =>
+      values.firstWhere((e) => e.value == val);
+  static final descriptor = EnumDescriptor<NotObjectNotEnumIntNot>(
+    values: values,
+    fromValue: (val) => fromValue(val as int),
+    toValue: (e) => (e as NotObjectNotEnumIntNot).value,
+    base: const IntDescriptor(),
+  );
+}
+
+final class NotObjectNotObjectValueNot implements JsonModel {
+  final String forbiddenProp;
+
+  const NotObjectNotObjectValueNot({required this.forbiddenProp});
+
+  factory NotObjectNotObjectValueNot.fromJson(
+    JsonReader reader, {
+    bool validate = true,
+  }) =>
+      parseWithDescriptor(reader, descriptor, validate: validate)
+          as NotObjectNotObjectValueNot;
+
+  /// Creates an instance of [NotObjectNotObjectValueNot] from a JSON Map.
+  factory NotObjectNotObjectValueNot.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => NotObjectNotObjectValueNot.fromJson(
+    JsonReader.fromObject(map),
+    validate: validate,
+  );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  NotObjectNotObjectValueNot copyWith({String? forbiddenProp}) =>
+      NotObjectNotObjectValueNot(
+        forbiddenProp: forbiddenProp ?? this.forbiddenProp,
+      );
+
+  void validate() {}
+
+  static final descriptor = ObjectDescriptor<NotObjectNotObjectValueNot>(
+    title: 'NotObjectNotObjectValueNot',
+    matches: (instance) => instance is NotObjectNotObjectValueNot,
+    instantiate: (fields) => NotObjectNotObjectValueNot(
+      forbiddenProp: fields['forbiddenProp'] as String,
+    ),
+    getFields: (instance) => {'forbiddenProp': instance.forbiddenProp},
+    properties: {
+      'forbiddenProp': PropertyDescriptor(
+        name: 'forbiddenProp',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+    },
+    required: const ['forbiddenProp'],
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NotObjectNotObjectValueNot &&
+          runtimeType == other.runtimeType &&
+          forbiddenProp == other.forbiddenProp;
+
+  @override
+  int get hashCode => Object.hashAll([forbiddenProp]);
+
+  @override
+  String toString() =>
+      'NotObjectNotObjectValueNot(forbiddenProp: ${forbiddenProp})';
 }
 
 sealed class TestRootAnyOfValue implements JsonModel {
@@ -3406,8 +3541,8 @@ final class TestRootUnionContainsArrayContainsOption2
 }
 
 final class ObjectWithDynamicProps implements JsonModel {
-  final Object? notInt;
-  final Object? notNum;
+  final dynamic notInt;
+  final dynamic notNum;
 
   const ObjectWithDynamicProps({this.notInt, this.notNum});
 
@@ -3448,7 +3583,7 @@ final class ObjectWithDynamicProps implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  ObjectWithDynamicProps copyWith({Object? notInt, Object? notNum}) =>
+  ObjectWithDynamicProps copyWith({dynamic notInt, dynamic notNum}) =>
       ObjectWithDynamicProps(
         notInt: notInt ?? this.notInt,
         notNum: notNum ?? this.notNum,
@@ -3495,8 +3630,8 @@ final class ObjectWithDynamicProps implements JsonModel {
     title: 'ObjectWithDynamicProps',
     matches: (instance) => instance is ObjectWithDynamicProps,
     instantiate: (fields) => ObjectWithDynamicProps(
-      notInt: fields['notInt'] as Object?,
-      notNum: fields['notNum'] as Object?,
+      notInt: fields['notInt'] as dynamic,
+      notNum: fields['notNum'] as dynamic,
     ),
     getFields: (instance) => {
       'notInt': instance.notInt,
@@ -3506,12 +3641,12 @@ final class ObjectWithDynamicProps implements JsonModel {
       'notInt': PropertyDescriptor(
         name: 'notInt',
         isRequired: false,
-        schema: const AnythingDescriptor(),
+        schema: NotDescriptor(const IntDescriptor()),
       ),
       'notNum': PropertyDescriptor(
         name: 'notNum',
         isRequired: false,
-        schema: const AnythingDescriptor(),
+        schema: NotDescriptor(const NumDescriptor()),
       ),
     },
     required: const [],

@@ -296,6 +296,15 @@
         },
         "notNullValue": {
           "not": { "type": "null" }
+        },
+        "notObjectValue": {
+          "not": {
+            "type": "object",
+            "properties": {
+              "forbiddenProp": { "type": "string" }
+            },
+            "required": ["forbiddenProp"]
+          }
         }
       },
       "required": ["notPatternString", "notEnumInt", "notNullValue"]

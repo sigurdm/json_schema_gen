@@ -360,6 +360,52 @@ final class _UnionFrame extends JsonParseFrame {
   }
 }
 
+final class _NotFrame extends JsonParseFrame {
+  final NotDescriptor desc;
+  final bool validate;
+  dynamic _result;
+
+  _NotFrame(this.desc, {this.validate = true});
+
+  @override
+  dynamic get result => _result;
+
+  @override
+  String? get currentPathSegment => null;
+
+  @override
+  void resume(dynamic value) {
+    // Speculative parsing is done synchronously, so this should not be called.
+  }
+
+  @override
+  bool execute(JsonReader reader, List<JsonParseFrame> stack) {
+    if (validate) {
+      final rCopy = reader.copy();
+      bool matched = false;
+      try {
+        _runNonRecursiveWithDescriptor(rCopy, desc.inner, validate: validate);
+        matched = true;
+      } on JsonValidationException {
+        // OK
+      } on FormatException {
+        // OK
+      }
+
+      if (matched) {
+        throw JsonValidationException('Value must not match the schema');
+      }
+    }
+
+    _result = readAny(reader);
+    stack.removeLast();
+    if (stack.isNotEmpty) {
+      stack.last.resume(_result);
+    }
+    return false;
+  }
+}
+
 void _pushSchemaFrame(
   JsonReader reader,
   List<JsonParseFrame> stack,
@@ -397,6 +443,8 @@ void _pushSchemaFrame(
     stack.add(schema.createFrame(validate: validate));
   } else if (schema is UnionDescriptor) {
     stack.add(_UnionFrame(schema, validate: validate));
+  } else if (schema is NotDescriptor) {
+    stack.add(_NotFrame(schema, validate: validate));
   } else if (schema is NeverDescriptor) {
     throw reader.fail('Value is not allowed here');
   }
@@ -450,7 +498,11 @@ dynamic _runNonRecursiveWithDescriptor(
         path.add(segment);
       }
     }
-    throw JsonValidationException(e.message, [...path, ...e.path]);
+    final propName = path.isNotEmpty ? path.last : null;
+    final message = (propName != null && e.message.startsWith('Value '))
+        ? e.message.replaceFirst('Value ', 'Property "$propName" ')
+        : e.message;
+    throw JsonValidationException(message, [...path, ...e.path]);
   } on FormatException catch (e) {
     final path = <String>[];
     for (final frame in stack) {
@@ -473,6 +525,8 @@ JsonParseFrame _createFrameForSchema(
     return schema.createFrame(validate: validate);
   } else if (schema is UnionDescriptor) {
     return _UnionFrame(schema, validate: validate);
+  } else if (schema is NotDescriptor) {
+    return _NotFrame(schema, validate: validate);
   }
   throw UnsupportedError('Primitive schemas do not require frame creation.');
 }
@@ -507,6 +561,8 @@ void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
   if (schema is PrimitiveDescriptor) {
     schema.write(sink, value);
   } else if (schema is AnythingDescriptor) {
+    writeAny(sink, value);
+  } else if (schema is NotDescriptor) {
     writeAny(sink, value);
   } else if (schema is EnumDescriptor) {
     final backingVal = schema.toValue(value);
@@ -651,7 +707,7 @@ void _validate(dynamic value, Schema schema, List<String> path) {
     }
     if (matches) {
       throw JsonValidationException(
-        'Value must not match the "not" schema',
+        'Value must not match the schema',
         path,
       );
     }
