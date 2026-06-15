@@ -2958,6 +2958,7 @@ final class NotObjectNotObjectValueNot implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
+
     required: const ['forbiddenProp'],
   );
 
