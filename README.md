@@ -42,6 +42,57 @@ The `not` keyword inverts the validation logic of a subschema.
 
 ---
 
+## Mapping JSON Schema to Dart
+
+This section details how various JSON Schema features map to the generated Dart code.
+
+### Objects
+JSON Schema `object` types map to Dart `final class` definitions.
+*   **Properties**: Each defined property maps to a final field in the Dart class.
+*   **Nullability**: A field is non-nullable if it is listed in the schema's `required` array. Otherwise, it is nullable (e.g., `String?`).
+*   **Constructors and Defaults**: Generated classes have a const constructor. Schema `default` values are used as default values in the Dart constructor if they are constant.
+*   **Additional Properties**:
+    *   If `"additionalProperties": false` is specified, no additional fields are generated, and the parser will throw an exception if it encounters any extra properties.
+    *   If `"additionalProperties"` has a schema (e.g., `{"type": "string"}`), it maps to a `final Map<String, T> additionalProperties;` field, where `T` is the mapped Dart type.
+    *   If not specified (defaults to `true`), additional properties are ignored during parsing and not stored.
+*   **Pattern Properties**: Map to a `final Map<String, dynamic> patternProperties;` field if defined in the schema.
+
+### Arrays
+JSON Schema `array` types map to Dart `List<T>`.
+*   **Items**: The type `T` is determined by the `items` schema.
+*   **Prefix Items (Tuples)**: If `prefixItems` is used, the list element type `T` is determined by finding a common type among all prefix items and the base item schema. If the types differ, it falls back to `List<dynamic>`.
+
+### Primitives
+JSON Schema primitive types map to standard Dart types:
+*   `string` $\rightarrow$ `String`
+*   `integer` $\rightarrow$ `int`
+*   `number` $\rightarrow$ `num`
+*   `boolean` $\rightarrow$ `bool`
+*   `null` $\rightarrow$ `Null`
+
+### Unions (oneOf / anyOf)
+Unions of different types map to a `sealed class` hierarchy.
+*   **Sealed Class**: A base `sealed class ClassName implements JsonModel` is generated.
+*   **Option Classes**: For each active subschema in the union, a `final class ClassNameOptionN extends ClassName` is generated, which wraps the actual value in a `value` field.
+*   **Nullable Unions**: Simple unions with `null` (e.g., `["string", "null"]`) are optimized to nullable types (e.g., `String?`) instead of generating a sealed class hierarchy.
+*   **Discriminators**: If a `discriminator` object is specified, the generator uses the defined `propertyName` and `mapping` to route JSON payloads to the subclass during parsing.
+
+### AllOf
+JSON Schema `allOf` subschemas are merged and flattened into a single Dart class during parsing. If the subschemas are incompatible, the generator may fail or fall back to `dynamic`.
+
+### Not
+The `not` keyword inverts validation logic.
+*   **Type Fallback**: If a schema only contains `not` constraints without an explicit `type`, the generator cannot infer a type and falls back to `dynamic`.
+*   **Validation**: The generator produces code that attempts to validate the value against the negated schema; if it succeeds, validation fails.
+
+### Validation Constraints
+Validation constraints (like `minLength`, `minimum`, `uniqueItems`, etc.) are validated at runtime.
+*   **Generated Classes**: The `validate()` method in generated classes performs these checks on the field values.
+*   **Nested Validation**: The `validate()` method recursively calls `validate()` on nested objects and list items that implement `JsonModel`.
+*   **Manual Validation**: You can also validate raw Dart maps/lists against a parsed schema using `SchemaValidationExtension.validate(value)`.
+
+---
+
 ## Setup & Code Generation
 
 Add `json_schema_gen` and `build_runner` to your `pubspec.yaml`:

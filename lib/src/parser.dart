@@ -16,6 +16,8 @@ import 'dart:math' as math;
 import 'schema.dart';
 
 /// A parser to build a [Schema] AST from a decoded JSON schema.
+///
+/// {@example /example/lib/manual_validation.dart}
 final class SchemaParser {
   final Map<String, Schema> _cache = {};
   final Map<String, dynamic> _rootJson;
@@ -28,6 +30,8 @@ final class SchemaParser {
   /// Throws [ArgumentError] if a reference (`$ref`) cannot be resolved.
   /// Throws [TypeError] or [StateError] if the schema JSON structure is invalid
   /// or contains unsupported types for specific keywords.
+  ///
+  /// {@example /example/lib/manual_validation.dart}
   Schema parse() {
     final root = _parseSchema(_rootJson, '#');
     _resolveRefs(root);

@@ -705,10 +705,14 @@ bool isValidUri(String s) {
 }
 
 /// Extension on [Schema] to support runtime validation.
+///
+/// {@example /example/lib/manual_validation.dart}
 extension SchemaValidationExtension on Schema {
   /// Validates [value] against this schema.
   ///
   /// Throws [JsonValidationException] if validation fails.
+  ///
+  /// {@example /example/lib/manual_validation.dart}
   void validate(dynamic value) {
     _validate(value, this, []);
   }
