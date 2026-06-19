@@ -49,10 +49,6 @@ The `not` keyword inverts the validation logic of a subschema.
 Validation of the `multipleOf` keyword on fractional numbers (floats) is subject to IEEE 754 double-precision limitations.
 Because binary floating-point representation cannot exactly represent all decimal fractions (e.g., `19.9`), the validator uses a relative precision tolerance of `1e-14` to determine if a value is a multiple.
 
-If you require absolute mathematical precision (e.g., for financial transactions or high-precision scientific data), it is recommended to:
-- Represent and validate the values as integers (e.g., storing cents instead of dollars).
-- Or represent the values as `string` and validate them using `pattern` (regex).
-
 ---
 
 ## Mapping JSON Schema to Dart
