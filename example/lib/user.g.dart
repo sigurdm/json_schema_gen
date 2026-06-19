@@ -101,17 +101,6 @@ final class User implements JsonModel {
         throw JsonValidationException('Property "age" must be >= 0', ['age']);
       }
     }
-    if (!const ['admin', 'editor', 'user'].any(
-      (v) => const DeepCollectionEquality().equals(
-        v,
-        role is Enum ? (role as dynamic).value : role,
-      ),
-    )) {
-      throw JsonValidationException(
-        'Property "role" must be one of [admin, editor, user]',
-        ['role'],
-      );
-    }
     final val_profile = profile;
     if (val_profile != null) {
       try {

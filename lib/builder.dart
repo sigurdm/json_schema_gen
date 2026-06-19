@@ -42,10 +42,9 @@ final class JsonSchemaBuilder implements Builder {
         );
         return buildStep.readAsBytes(resolvedId);
       },
-    );
-    final rootSchema = await parser.parse(
       disallowExternalRefs: !allowExternalRefs,
     );
+    final rootSchema = await parser.parse();
 
     // Determine the root name based on the schema title or the file name
     final baseName = inputId.pathSegments.last.replaceAll('.schema.json', '');

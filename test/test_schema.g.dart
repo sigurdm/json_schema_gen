@@ -81,10 +81,8 @@ final class TestRoot implements JsonModel {
   final TestRootUnionWithAllOfOption? unionWithAllOfOption;
   final PatternPropertiesObject? patternPropsField;
   final OverlappingUnion? overlappingUnion;
-  @Deprecated('Use newAwesomeField instead')
   final String? deprecatedFieldWithMessage;
   final MyCustomClassName? customNamedObject;
-  @Deprecated('This union is deprecated, use MyCustomUnionName2')
   final MyCustomUnionName? customNamedUnion;
   final MyCustomEnumName? customNamedEnum;
   final TestRootCoverageTrigger? coverageTrigger;
@@ -606,21 +604,6 @@ final class TestRoot implements JsonModel {
     }
     final val_singleQuoteKey = singleQuoteKey;
     final val_mixedEnum = mixedEnum;
-    if (val_mixedEnum != null) {
-      if (!const ['foo', 42, 'bar', 100].any(
-        (v) => const DeepCollectionEquality().equals(
-          v,
-          val_mixedEnum is Enum
-              ? (val_mixedEnum as dynamic).value
-              : val_mixedEnum,
-        ),
-      )) {
-        throw JsonValidationException(
-          'Property "mixedEnum" must be one of [foo, 42, bar, 100]',
-          ['mixedEnum'],
-        );
-      }
-    }
     try {
       defaultObject.validate();
     } on JsonValidationException catch (e) {
@@ -752,21 +735,6 @@ final class TestRoot implements JsonModel {
       }
     }
     final val_myEnumField = myEnumField;
-    if (val_myEnumField != null) {
-      if (!const ['alpha', 'beta', 'gamma'].any(
-        (v) => const DeepCollectionEquality().equals(
-          v,
-          val_myEnumField is Enum
-              ? (val_myEnumField as dynamic).value
-              : val_myEnumField,
-        ),
-      )) {
-        throw JsonValidationException(
-          'Property "myEnumField" must be one of [alpha, beta, gamma]',
-          ['myEnumField'],
-        );
-      }
-    }
     final val_unionContainsArray = unionContainsArray;
     if (val_unionContainsArray != null) {
       var containsCount = 0;
@@ -828,13 +796,8 @@ final class TestRoot implements JsonModel {
       var containsCount = 0;
       for (final dynamic item in val_enumContainsArray) {
         bool matches = false;
-        if (item is MyEnum) {
+        if (item is String) {
           matches = true;
-        } else {
-          try {
-            MyEnum.fromValue(item as String);
-            matches = true;
-          } catch (_) {}
         }
         if (matches) containsCount++;
       }
@@ -1116,21 +1079,6 @@ final class TestRoot implements JsonModel {
       }
     }
     final val_customNamedEnum = customNamedEnum;
-    if (val_customNamedEnum != null) {
-      if (!const ['one', 'two'].any(
-        (v) => const DeepCollectionEquality().equals(
-          v,
-          val_customNamedEnum is Enum
-              ? (val_customNamedEnum as dynamic).value
-              : val_customNamedEnum,
-        ),
-      )) {
-        throw JsonValidationException(
-          'Property "customNamedEnum" must be one of [one, two]',
-          ['customNamedEnum'],
-        );
-      }
-    }
     final val_coverageTrigger = coverageTrigger;
     if (val_coverageTrigger != null) {
       try {
@@ -3624,8 +3572,8 @@ final class StrictObject implements JsonModel {
 final class NotObject implements JsonModel {
   final String notPatternString;
   final int notEnumInt;
-  final Object? notNullValue;
-  final Object? notObjectValue;
+  final dynamic notNullValue;
+  final dynamic notObjectValue;
 
   const NotObject({
     required this.notPatternString,
@@ -3665,8 +3613,8 @@ final class NotObject implements JsonModel {
   NotObject copyWith({
     String? notPatternString,
     int? notEnumInt,
-    Object? notNullValue,
-    Object? notObjectValue,
+    dynamic? notNullValue,
+    dynamic? notObjectValue,
   }) => NotObject(
     notPatternString: notPatternString ?? this.notPatternString,
     notEnumInt: notEnumInt ?? this.notEnumInt,
@@ -3767,8 +3715,8 @@ final class NotObject implements JsonModel {
     instantiate: (fields) => NotObject(
       notPatternString: fields['notPatternString'] as String,
       notEnumInt: fields['notEnumInt'] as int,
-      notNullValue: fields['notNullValue'] as Object?,
-      notObjectValue: fields['notObjectValue'] as Object?,
+      notNullValue: fields['notNullValue'] as dynamic,
+      notObjectValue: fields['notObjectValue'] as dynamic,
     ),
     getFields: (instance) {
       final typedInstance = instance as NotObject;
@@ -4135,7 +4083,13 @@ final class MergedAllOfObject implements JsonModel {
           'numVal',
         ]);
       }
-      if ((val_numVal / 5 - (val_numVal / 5).round()).abs() > 1e-9) {
+      if (() {
+        final div = val_numVal / 5;
+        final rounded = div.round();
+        final absError = (div - rounded).abs();
+        final relError = absError / (div.abs() > 1.0 ? div.abs() : 1.0);
+        return relError > 1e-14;
+      }()) {
         throw JsonValidationException(
           'Property "numVal" must be a multiple of 5',
           ['numVal'],
@@ -4516,7 +4470,13 @@ final class TestRootUnionContainsArrayContainsOption2
         'value',
       ]);
     }
-    if ((value / 0.5 - (value / 0.5).round()).abs() > 1e-9) {
+    if (() {
+      final div = value / 0.5;
+      final rounded = div.round();
+      final absError = (div - rounded).abs();
+      final relError = absError / (div.abs() > 1.0 ? div.abs() : 1.0);
+      return relError > 1e-14;
+    }()) {
       throw JsonValidationException(
         'Property "value" must be a multiple of 0.5',
         ['value'],
@@ -4540,8 +4500,8 @@ final class TestRootUnionContainsArrayContainsOption2
 }
 
 final class ObjectWithDynamicProps implements JsonModel {
-  final Object? notInt;
-  final Object? notNum;
+  final dynamic notInt;
+  final dynamic notNum;
 
   const ObjectWithDynamicProps({this.notInt, this.notNum});
 
@@ -4582,7 +4542,7 @@ final class ObjectWithDynamicProps implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  ObjectWithDynamicProps copyWith({Object? notInt, Object? notNum}) =>
+  ObjectWithDynamicProps copyWith({dynamic? notInt, dynamic? notNum}) =>
       ObjectWithDynamicProps(
         notInt: notInt ?? this.notInt,
         notNum: notNum ?? this.notNum,
@@ -4629,8 +4589,8 @@ final class ObjectWithDynamicProps implements JsonModel {
     title: 'ObjectWithDynamicProps',
     matches: (instance) => instance is ObjectWithDynamicProps,
     instantiate: (fields) => ObjectWithDynamicProps(
-      notInt: fields['notInt'] as Object?,
-      notNum: fields['notNum'] as Object?,
+      notInt: fields['notInt'] as dynamic,
+      notNum: fields['notNum'] as dynamic,
     ),
     getFields: (instance) {
       final typedInstance = instance as ObjectWithDynamicProps;
@@ -5588,7 +5548,6 @@ final class MyCustomClassName implements JsonModel {
   String toString() => 'MyCustomClassName(foo: ${foo})';
 }
 
-@Deprecated('This union is deprecated, use MyCustomUnionName2')
 sealed class MyCustomUnionName implements JsonModel {
   const MyCustomUnionName();
 
@@ -5714,12 +5673,12 @@ final class TestRootCoverageTrigger implements JsonModel {
   final List<String>? mergeArray;
   final TestRootCoverageTriggerMergeObject? mergeObject;
   final String? mergeString;
-  final int? mergeNumber;
+  final Never? mergeNumber;
   final bool? mergeBoolean;
   final Null mergeNull;
   final Object? mergeAnything;
   final TestRootCoverageTriggerMergeNever? mergeNever;
-  final MapObject? mergeRef;
+  final MapObject1? mergeRef;
   final TestRootCoverageTriggerMergeEnum? mergeEnum;
   final TestRootCoverageTriggerMergeUnion? mergeUnion;
   final TestRootCoverageTriggerMergeObjectsWithNoAdditional?
@@ -5781,12 +5740,12 @@ final class TestRootCoverageTrigger implements JsonModel {
     List<String>? mergeArray,
     TestRootCoverageTriggerMergeObject? mergeObject,
     String? mergeString,
-    int? mergeNumber,
+    Never? mergeNumber,
     bool? mergeBoolean,
     Null mergeNull,
     Object? mergeAnything,
     TestRootCoverageTriggerMergeNever? mergeNever,
-    MapObject? mergeRef,
+    MapObject1? mergeRef,
     TestRootCoverageTriggerMergeEnum? mergeEnum,
     TestRootCoverageTriggerMergeUnion? mergeUnion,
     TestRootCoverageTriggerMergeObjectsWithNoAdditional?
@@ -5834,16 +5793,9 @@ final class TestRootCoverageTrigger implements JsonModel {
     }
     final val_mergeNumber = mergeNumber;
     if (val_mergeNumber != null) {
-      if (val_mergeNumber < 5) {
-        throw JsonValidationException('Property "mergeNumber" must be >= 5', [
-          'mergeNumber',
-        ]);
-      }
-      if (val_mergeNumber > 10) {
-        throw JsonValidationException('Property "mergeNumber" must be <= 10', [
-          'mergeNumber',
-        ]);
-      }
+      throw JsonValidationException('Property "mergeNumber" matches nothing', [
+        'mergeNumber',
+      ]);
     }
     final val_mergeBoolean = mergeBoolean;
     final val_mergeAnything = mergeAnything;
@@ -5864,21 +5816,6 @@ final class TestRootCoverageTrigger implements JsonModel {
       }
     }
     final val_mergeEnum = mergeEnum;
-    if (val_mergeEnum != null) {
-      if (!const ['a', 'b'].any(
-        (v) => const DeepCollectionEquality().equals(
-          v,
-          val_mergeEnum is Enum
-              ? (val_mergeEnum as dynamic).value
-              : val_mergeEnum,
-        ),
-      )) {
-        throw JsonValidationException(
-          'Property "mergeEnum" must be one of [a, b]',
-          ['mergeEnum'],
-        );
-      }
-    }
     final val_mergeUnion = mergeUnion;
     if (val_mergeUnion != null) {
       try {
@@ -5907,12 +5844,12 @@ final class TestRootCoverageTrigger implements JsonModel {
       mergeArray: fields['mergeArray'] as List<String>?,
       mergeObject: fields['mergeObject'] as TestRootCoverageTriggerMergeObject?,
       mergeString: fields['mergeString'] as String?,
-      mergeNumber: fields['mergeNumber'] as int?,
+      mergeNumber: fields['mergeNumber'] as Never?,
       mergeBoolean: fields['mergeBoolean'] as bool?,
       mergeNull: fields['mergeNull'] as Null,
       mergeAnything: fields['mergeAnything'] as Object?,
       mergeNever: fields['mergeNever'] as TestRootCoverageTriggerMergeNever?,
-      mergeRef: fields['mergeRef'] as MapObject?,
+      mergeRef: fields['mergeRef'] as MapObject1?,
       mergeEnum: fields['mergeEnum'] as TestRootCoverageTriggerMergeEnum?,
       mergeUnion: fields['mergeUnion'] as TestRootCoverageTriggerMergeUnion?,
       mergeObjectsWithNoAdditional:
@@ -5956,7 +5893,7 @@ final class TestRootCoverageTrigger implements JsonModel {
       'mergeNumber': PropertyDescriptor(
         name: 'mergeNumber',
         isRequired: false,
-        schema: const IntDescriptor(),
+        schema: const NeverDescriptor(),
       ),
       'mergeBoolean': PropertyDescriptor(
         name: 'mergeBoolean',
@@ -5981,7 +5918,7 @@ final class TestRootCoverageTrigger implements JsonModel {
       'mergeRef': PropertyDescriptor(
         name: 'mergeRef',
         isRequired: false,
-        schema: MapObject.descriptor,
+        schema: MapObject1.descriptor,
       ),
       'mergeEnum': PropertyDescriptor(
         name: 'mergeEnum',
@@ -6210,6 +6147,107 @@ final class TestRootCoverageTriggerMergeNever implements JsonModel {
 
   @override
   String toString() => 'TestRootCoverageTriggerMergeNever()';
+}
+
+final class MapObject1 implements JsonModel {
+  final String? name;
+  final Map<String, String> additionalProperties;
+
+  const MapObject1({this.name, this.additionalProperties = const {}});
+
+  factory MapObject1.fromJson(JsonReader reader, {bool validate = true}) =>
+      parseWithDescriptor(reader, descriptor, validate: validate) as MapObject1;
+
+  /// Creates an instance of [MapObject1] from a JSON Map.
+  factory MapObject1.fromMap(
+    Map<String, dynamic> map, {
+    bool validate = true,
+  }) => MapObject1.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  /// Converts this instance to a JSON Map.
+  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+
+  MapObject1 copyWith({
+    String? name,
+    Map<String, String>? additionalProperties,
+  }) => MapObject1(
+    name: name ?? this.name,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
+
+  void validate() {
+    final val_name = name;
+  }
+
+  static final descriptor = ObjectDescriptor<MapObject1>(
+    title: 'MapObject1',
+    matches: (instance) => instance is MapObject1,
+    instantiate: (fields) => MapObject1(
+      name: fields['name'] as String?,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'name'}.contains(e.key) && true)
+          .fold<Map<String, String>>(
+            {},
+            (m, e) => m..[e.key] = e.value as String,
+          ),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as MapObject1;
+      return {
+        'name': typedInstance.name,
+        ...typedInstance.additionalProperties,
+      };
+    },
+    properties: {
+      'name': PropertyDescriptor(
+        name: 'name',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const [],
+    additionalProperties: const StringDescriptor(),
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MapObject1 &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
+
+  @override
+  int get hashCode => Object.hashAll([
+    name,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
+
+  @override
+  String toString() =>
+      'MapObject1(name: ${name}, additionalProperties: ${additionalProperties})';
 }
 
 enum TestRootCoverageTriggerMergeEnum {

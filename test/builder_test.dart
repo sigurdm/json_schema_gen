@@ -78,40 +78,52 @@ void main() {
       });
 
       await builder.build(buildStep);
-      expect(buildStep.outputs, contains(mainSchemaId.changeExtension('.g.dart')));
-    });
-
-    test('fails when allow_external_refs is false and external ref is present', () async {
-      final builder = jsonSchemaBuilder(
-        const BuilderOptions({'allow_external_refs': false}),
-      );
-      final buildStep = FakeBuildStep(mainSchemaId, {
-        mainSchemaId: schemaWithExternalRef,
-        otherSchemaId: otherSchema,
-      });
-
       expect(
-        () => builder.build(buildStep),
-        throwsA(
-          isA<ArgumentError>().having(
-            (e) => e.message,
-            'message',
-            contains('External reference'),
+        buildStep.outputs,
+        contains(mainSchemaId.changeExtension('.g.dart')),
+      );
+    });
+
+    test(
+      'fails when allow_external_refs is false and external ref is present',
+      () async {
+        final builder = jsonSchemaBuilder(
+          const BuilderOptions({'allow_external_refs': false}),
+        );
+        final buildStep = FakeBuildStep(mainSchemaId, {
+          mainSchemaId: schemaWithExternalRef,
+          otherSchemaId: otherSchema,
+        });
+
+        expect(
+          () => builder.build(buildStep),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              'message',
+              contains('External reference'),
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
 
-    test('succeeds when allow_external_refs is false and no external ref is present', () async {
-      final builder = jsonSchemaBuilder(
-        const BuilderOptions({'allow_external_refs': false}),
-      );
-      final buildStep = FakeBuildStep(mainSchemaId, {
-        mainSchemaId: schemaWithoutExternalRef,
-      });
+    test(
+      'succeeds when allow_external_refs is false and no external ref is present',
+      () async {
+        final builder = jsonSchemaBuilder(
+          const BuilderOptions({'allow_external_refs': false}),
+        );
+        final buildStep = FakeBuildStep(mainSchemaId, {
+          mainSchemaId: schemaWithoutExternalRef,
+        });
 
-      await builder.build(buildStep);
-      expect(buildStep.outputs, contains(mainSchemaId.changeExtension('.g.dart')));
-    });
+        await builder.build(buildStep);
+        expect(
+          buildStep.outputs,
+          contains(mainSchemaId.changeExtension('.g.dart')),
+        );
+      },
+    );
   });
 }

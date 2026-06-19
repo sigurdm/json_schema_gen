@@ -186,6 +186,10 @@ void main() {
 
 ---
 
+## Compliance & Testing
+
+This generator is tested against the official [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for Draft 2020-12 to ensure compliance with the specification.
+
 ## Performance & Implementation Characteristics
 
 The generator employs an **interpreted descriptor-based runtime strategy** combined with a non-recursive frame-based state machine.

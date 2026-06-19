@@ -7,4 +7,4 @@ pubspec.lock
 .idea/
 *.iml
 coverage/
-
+third_party/JSON-Schema-Test-Suite/

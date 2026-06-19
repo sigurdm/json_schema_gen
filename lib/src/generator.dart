@@ -138,15 +138,15 @@ const _dartKeywords = {
   'yield',
 };
 
-String _arrayElementType(ArraySchema schema, Map<Schema, String> classNames) {
+String _arrayElementType(Schema schema, Map<Schema, String> classNames) {
   if (schema.prefixItems == null || schema.prefixItems!.isEmpty) {
-    return dartType(schema.items, classNames);
+    return dartType(schema.items ?? Schema.anything, classNames);
   }
   final types = <String>{};
   for (final item in schema.prefixItems!) {
     types.add(dartType(item, classNames));
   }
-  types.add(dartType(schema.items, classNames));
+  types.add(dartType(schema.items ?? Schema.anything, classNames));
   if (types.length == 1) {
     return types.first;
   }
@@ -156,54 +156,46 @@ String _arrayElementType(ArraySchema schema, Map<Schema, String> classNames) {
 /// Computes the Dart type string for the given [schema].
 String dartType(Schema schema, Map<Schema, String> classNames) {
   final real = schema.realSchema;
-  if (real is ObjectSchema) {
-    return classNames[real] ?? 'dynamic';
-  } else if (real is ArraySchema) {
-    return 'List<${_arrayElementType(real, classNames)}>';
-  } else if (real is StringSchema) {
-    return 'String';
-  } else if (real is NumberSchema) {
-    return real.isInteger ? 'int' : 'num';
-  } else if (real is BooleanSchema) {
-    return 'bool';
-  } else if (real is NullSchema) {
-    return 'Null';
-  } else if (real is AnythingSchema) {
-    return 'Object?';
-  } else if (real is NeverSchema) {
-    return 'Never';
-  } else if (real is EnumSchema) {
-    return classNames[real] ?? _enumBackingType(real);
-  } else if (real is UnionSchema) {
+  if (real.isUnion) {
     final analysis = UnionAnalysis.analyze(real);
-    if (analysis.isNullable && analysis.nonNullSchema != null) {
-      final baseType = dartType(analysis.nonNullSchema!, classNames);
-      return (baseType == 'dynamic' ||
-              baseType == 'Object?' ||
-              baseType.endsWith('?'))
-          ? baseType
-          : '$baseType?';
-    }
-    final name = classNames[real];
-    if (name == null) return 'dynamic';
-    return analysis.isNullable ? '$name?' : name;
-  } else if (real is AllOfSchema) {
+    final baseType = analysis.nonNullSchema != null
+        ? dartType(analysis.nonNullSchema!, classNames)
+        : (classNames[real] ?? 'dynamic');
+    return analysis.isNullable ? '$baseType?' : baseType;
+  } else if (real.enumValues != null) {
+    return classNames[real] ?? _enumBackingType(real);
+  } else if (real.isObject) {
+    return classNames[real] ?? 'Map<String, dynamic>';
+  } else if (real.isArray) {
+    final elementType = _arrayElementType(real, classNames);
+    return 'List<$elementType>';
+  } else if (real.isString) {
+    return 'String';
+  } else if (real.isNumber) {
+    return real.isInteger ? 'int' : 'num';
+  } else if (real.isBoolean) {
+    return 'bool';
+  } else if (real.isNull) {
+    return 'Null';
+  } else if (real.isAnything) {
+    return 'Object?';
+  } else if (real.isNever) {
+    return 'Never';
+  } else if (real.allOf != null) {
     return 'dynamic';
   }
-  throw UnsupportedError(
-    'Unsupported schema type for type generation: ${real.runtimeType}',
-  );
+  return 'dynamic';
 }
 
 /// Entry point to generate code for a parsed JSON Schema.
-Map<EnumSchema, Map<dynamic, String>>? _currentEnumConstantNames;
-Map<ObjectSchema, Map<String, String>>? _currentObjectFieldNames;
+Map<Schema, Map<dynamic, String>>? _currentEnumConstantNames;
+Map<Schema, Map<String, String>>? _currentObjectFieldNames;
 
-Map<dynamic, String> _calculateEnumConstantNames(EnumSchema schema) {
+Map<dynamic, String> _calculateEnumConstantNames(Schema schema) {
   final names = <dynamic, String>{};
   final used = <String>{'values', 'value', 'fromValue', 'descriptor'};
 
-  for (final val in schema.values) {
+  for (final val in schema.enumValues!) {
     var baseName = _toEnumConstantName(val, null);
     var name = baseName;
     int counter = 1;
@@ -217,12 +209,12 @@ Map<dynamic, String> _calculateEnumConstantNames(EnumSchema schema) {
   return names;
 }
 
-Map<String, String> _calculateFieldNames(ObjectSchema schema) {
+Map<String, String> _calculateFieldNames(Schema schema) {
   final fieldNames = <String, String>{};
   final usedFieldNames = <String>{};
   usedFieldNames.addAll(_reservedMemberNames);
 
-  schema.properties.forEach((name, propSchema) {
+  schema.properties?.forEach((name, propSchema) {
     final baseName = toCamelCase(name);
     var fieldName = baseName;
     int counter = 1;
@@ -242,7 +234,23 @@ String generateCode(Schema rootSchema, String rootName) {
 
   void discoverClasses(Schema schema, String preferredName) {
     final real = schema.realSchema;
-    if (real is ObjectSchema) {
+    if (real.enumValues != null) {
+      if (classNames.containsKey(real)) return;
+      final name = real.dartName ?? real.title ?? preferredName;
+      var className = toPascalCase(name);
+      if (className.isEmpty) className = 'Enum';
+      var candidate = className;
+      int counter = 1;
+      while (usedNames.contains(candidate) ||
+          _dartKeywords.contains(candidate) ||
+          _dartKeywords.contains(candidate.toLowerCase())) {
+        candidate = '$className$counter';
+        counter++;
+      }
+      usedNames.add(candidate);
+      classNames[real] = candidate;
+      discoverClasses(real.removeEnum(), '${candidate}_Base');
+    } else if (real.isObject) {
       if (classNames.containsKey(real)) return;
       final name = real.dartName ?? real.title ?? preferredName;
       var className = toPascalCase(name);
@@ -258,7 +266,7 @@ String generateCode(Schema rootSchema, String rootName) {
       usedNames.add(candidate);
       classNames[real] = candidate;
 
-      real.properties.forEach((propName, propSchema) {
+      real.properties?.forEach((propName, propSchema) {
         discoverClasses(propSchema, '${candidate}_$propName');
       });
       if (real.additionalProperties != null) {
@@ -267,8 +275,8 @@ String generateCode(Schema rootSchema, String rootName) {
           '${candidate}_AdditionalProperty',
         );
       }
-    } else if (real is ArraySchema) {
-      discoverClasses(real.items, '${preferredName}Item');
+    } else if (real.isArray) {
+      discoverClasses(real.items ?? Schema.anything, '${preferredName}Item');
       if (real.contains != null) {
         discoverClasses(real.contains!, '${preferredName}Contains');
       }
@@ -277,7 +285,7 @@ String generateCode(Schema rootSchema, String rootName) {
           discoverClasses(real.prefixItems![i], '${preferredName}Prefix$i');
         }
       }
-    } else if (real is UnionSchema) {
+    } else if (real.isUnion) {
       final analysis = UnionAnalysis.analyze(real);
       if (analysis.isNullable && analysis.nonNullSchema != null) {
         discoverClasses(analysis.nonNullSchema!, preferredName);
@@ -303,22 +311,6 @@ String generateCode(Schema rootSchema, String rootName) {
         discoverClasses(sub, '${candidate}_OptionType$index');
         index++;
       }
-    } else if (real is EnumSchema) {
-      if (classNames.containsKey(real)) return;
-      final name = real.dartName ?? real.title ?? preferredName;
-      var className = toPascalCase(name);
-      if (className.isEmpty) className = 'Enum';
-      var candidate = className;
-      int counter = 1;
-      while (usedNames.contains(candidate) ||
-          _dartKeywords.contains(candidate) ||
-          _dartKeywords.contains(candidate.toLowerCase())) {
-        candidate = '$className$counter';
-        counter++;
-      }
-      usedNames.add(candidate);
-      classNames[real] = candidate;
-      discoverClasses(real.baseSchema, '${candidate}_Base');
     }
     if (schema.not != null) {
       discoverClasses(schema.not!, '${preferredName}_Not');
@@ -330,9 +322,9 @@ String generateCode(Schema rootSchema, String rootName) {
   _currentEnumConstantNames = {};
   _currentObjectFieldNames = {};
   classNames.forEach((schema, name) {
-    if (schema is EnumSchema) {
+    if (schema.enumValues != null) {
       _currentEnumConstantNames![schema] = _calculateEnumConstantNames(schema);
-    } else if (schema is ObjectSchema) {
+    } else if (schema.isObject) {
       _currentObjectFieldNames![schema] = _calculateFieldNames(schema);
     }
   });
@@ -350,12 +342,12 @@ import 'package:jsontool/jsontool.dart';
 ''');
 
     classNames.forEach((schema, name) {
-      if (schema is ObjectSchema) {
-        buffer.writeln(_generateObjectClass(schema, name, classNames));
-      } else if (schema is UnionSchema) {
-        buffer.writeln(_generateUnionClass(schema, name, classNames));
-      } else if (schema is EnumSchema) {
+      if (schema.enumValues != null) {
         buffer.writeln(_generateEnumClass(schema, name));
+      } else if (schema.isUnion) {
+        buffer.writeln(_generateUnionClass(schema, name, classNames));
+      } else if (schema.isObject) {
+        buffer.writeln(_generateObjectClass(schema, name, classNames));
       }
     });
 
@@ -366,7 +358,7 @@ import 'package:jsontool/jsontool.dart';
   }
 }
 
-String _toEnumConstantName(Object? val, [EnumSchema? schema]) {
+String _toEnumConstantName(Object? val, [Schema? schema]) {
   if (schema != null && _currentEnumConstantNames != null) {
     final names = _currentEnumConstantNames![schema];
     if (names != null) {
@@ -381,14 +373,15 @@ String _toEnumConstantName(Object? val, [EnumSchema? schema]) {
   return enumName;
 }
 
-String _enumBackingType(EnumSchema schema) {
-  final isString = schema.values.every((v) => v is String);
-  final isInt = schema.values.every((v) => v is int);
+String _enumBackingType(Schema schema) {
+  if (schema.enumValues == null) return 'dynamic';
+  final isString = schema.enumValues!.every((v) => v is String);
+  final isInt = schema.enumValues!.every((v) => v is int);
   return isString ? 'String' : (isInt ? 'int' : 'dynamic');
 }
 
 /// Generates a Dart enum class representation for an EnumSchema.
-String _generateEnumClass(EnumSchema schema, String className) {
+String _generateEnumClass(Schema schema, String className) {
   final buffer = StringBuffer();
 
   final backingType = _enumBackingType(schema);
@@ -403,7 +396,7 @@ String _generateEnumClass(EnumSchema schema, String className) {
     }
   }
   buffer.writeln('enum $className {');
-  for (final val in schema.values) {
+  for (final val in schema.enumValues!) {
     final enumName = _toEnumConstantName(val, schema);
     final formattedValue = _toBasicDartLiteral(val);
     buffer.writeln("  $enumName($formattedValue),");
@@ -433,32 +426,7 @@ bool isKeyword(String s) {
 
 String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
   final real = schema.realSchema;
-  if (real is StringSchema) {
-    return 'const StringDescriptor()';
-  } else if (real is NumberSchema) {
-    return real.isInteger ? 'const IntDescriptor()' : 'const NumDescriptor()';
-  } else if (real is BooleanSchema) {
-    return 'const BoolDescriptor()';
-  } else if (real is NullSchema) {
-    return 'const NullDescriptor()';
-  } else if (real is AnythingSchema) {
-    return 'const AnythingDescriptor()';
-  } else if (real is NeverSchema) {
-    return 'const NeverDescriptor()';
-  } else if (real is ArraySchema) {
-    final elementType = _arrayElementType(real, classNames);
-    if (real.prefixItems == null || real.prefixItems!.isEmpty) {
-      return 'ArrayDescriptor<$elementType>(${_descriptorExpr(real.items, classNames)})';
-    } else {
-      final prefixExprs = real.prefixItems!
-          .map((s) => _descriptorExpr(s, classNames))
-          .join(', ');
-      return 'ArrayDescriptor<$elementType>(${_descriptorExpr(real.items, classNames)}, prefixItems: [$prefixExprs])';
-    }
-  } else if (real is EnumSchema) {
-    final name = classNames[real]!;
-    return '$name.descriptor';
-  } else if (real is UnionSchema) {
+  if (real.isUnion) {
     final analysis = UnionAnalysis.analyze(real);
     final baseDesc = analysis.nonNullSchema != null
         ? _descriptorExpr(analysis.nonNullSchema!, classNames)
@@ -467,13 +435,36 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
       return 'NullableDescriptor($baseDesc)';
     }
     return baseDesc;
-  } else if (real is ObjectSchema) {
+  } else if (real.enumValues != null) {
+    final name = classNames[real]!;
+    return '$name.descriptor';
+  } else if (real.isString) {
+    return 'const StringDescriptor()';
+  } else if (real.isNumber) {
+    return real.isInteger ? 'const IntDescriptor()' : 'const NumDescriptor()';
+  } else if (real.isBoolean) {
+    return 'const BoolDescriptor()';
+  } else if (real.isNull) {
+    return 'const NullDescriptor()';
+  } else if (real.isAnything) {
+    return 'const AnythingDescriptor()';
+  } else if (real.isNever) {
+    return 'const NeverDescriptor()';
+  } else if (real.isArray) {
+    final elementType = _arrayElementType(real, classNames);
+    if (real.prefixItems == null || real.prefixItems!.isEmpty) {
+      return 'ArrayDescriptor<$elementType>(${_descriptorExpr(real.items ?? Schema.anything, classNames)})';
+    } else {
+      final prefixExprs = real.prefixItems!
+          .map((s) => _descriptorExpr(s, classNames))
+          .join(', ');
+      return 'ArrayDescriptor<$elementType>(${_descriptorExpr(real.items ?? Schema.anything, classNames)}, prefixItems: [$prefixExprs])';
+    }
+  } else if (real.isObject) {
     final name = classNames[real]!;
     return '$name.descriptor';
   }
-  throw UnsupportedError(
-    'Unsupported schema type for descriptor generation: ${real.runtimeType}',
-  );
+  return 'const AnythingDescriptor()';
 }
 
 String _fieldType(
@@ -540,13 +531,13 @@ String? _toDartLiteral(
   Map<Schema, String> classNames,
 ) {
   final real = schema.realSchema;
-  if (real is EnumSchema) {
+  if (real.enumValues != null) {
     final className = classNames[real];
     if (className != null) {
       final constName = _toEnumConstantName(value, real);
       return '$className.$constName';
     } else {
-      return _toDartLiteral(value, real.baseSchema, classNames);
+      return _toDartLiteral(value, real.removeEnum(), classNames);
     }
   }
   if (value == null) return 'null';
@@ -558,17 +549,21 @@ String? _toDartLiteral(
   }
   if (value is List) {
     if (value.isEmpty) {
-      if (real is ArraySchema) {
-        final itemType = dartType(real.items, classNames);
+      if (real.isArray) {
+        final itemType = dartType(real.items ?? Schema.anything, classNames);
         return 'const <$itemType>[]';
       }
       return 'const []';
     }
-    if (real is ArraySchema) {
-      final itemType = dartType(real.items, classNames);
+    if (real.isArray) {
+      final itemType = dartType(real.items ?? Schema.anything, classNames);
       final elements = <String>[];
       for (final val in value) {
-        final lit = _toDartLiteral(val, real.items, classNames);
+        final lit = _toDartLiteral(
+          val,
+          real.items ?? Schema.anything,
+          classNames,
+        );
         if (lit == null) return null;
         elements.add(lit);
       }
@@ -577,7 +572,7 @@ String? _toDartLiteral(
   }
   if (value is Map) {
     if (value.isEmpty) {
-      if (real is ObjectSchema) {
+      if (real.isObject) {
         final className = classNames[real];
         if (className != null) {
           return 'const $className()';
@@ -585,7 +580,7 @@ String? _toDartLiteral(
       }
       return 'const {}';
     }
-    if (real is ObjectSchema) {
+    if (real.isObject) {
       final className = classNames[real];
       if (className != null) {
         final args = <String>[];
@@ -593,7 +588,7 @@ String? _toDartLiteral(
         final fieldNames =
             _currentObjectFieldNames?[real] ?? _calculateFieldNames(real);
         value.forEach((k, v) {
-          final propSchema = real.properties[k];
+          final propSchema = real.properties?[k];
           if (propSchema == null) {
             ok = false;
             return;
@@ -616,7 +611,7 @@ String? _toDartLiteral(
 }
 
 String _generateObjectClass(
-  ObjectSchema schema,
+  Schema schema,
   String className,
   Map<Schema, String> classNames,
 ) {
@@ -630,9 +625,9 @@ String _generateObjectClass(
   final copyWithParams = StringBuffer();
   final copyWithArgs = StringBuffer();
 
-  schema.properties.forEach((name, propSchema) {
+  schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
-    final isRequired = schema.required.contains(name);
+    final isRequired = schema.required?.contains(name) == true;
     final baseType = dartType(propSchema, classNames);
 
     final hasDefault = propSchema.hasDefault;
@@ -688,10 +683,10 @@ String _generateObjectClass(
 
   final hasAdditionalProps =
       schema.additionalProperties != null &&
-      schema.additionalProperties is! NeverSchema;
+      !schema.additionalProperties!.isNever;
 
-  final hasPatternProps = schema.patternProperties.isNotEmpty;
-  final patterns = schema.patternProperties.keys.toList();
+  final hasPatternProps = schema.patternProperties?.isNotEmpty == true;
+  final patterns = schema.patternProperties?.keys.toList() ?? [];
 
   if (hasPatternProps) {
     for (var i = 0; i < patterns.length; i++) {
@@ -746,10 +741,10 @@ String _generateObjectClass(
   final getFieldsMap = StringBuffer();
   final instantiateArgs = StringBuffer();
 
-  schema.properties.forEach((name, propSchema) {
+  schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
     final nameEscaped = name.replaceAll("'", r"\'");
-    final isRequired = schema.required.contains(name);
+    final isRequired = schema.required?.contains(name) == true;
     final descExpr = _descriptorExpr(propSchema, classNames);
 
     propDescriptors.writeln(
@@ -786,7 +781,7 @@ String _generateObjectClass(
   });
 
   final propKeysLiteral =
-      '<String>{${schema.properties.keys.map((k) => "'${k.replaceAll("'", r"\'")}'").join(', ')}}';
+      '<String>{${(schema.properties?.keys ?? []).map((k) => "'${k.replaceAll("'", r"\'")}'").join(', ')}}';
 
   String patternMatchExpr = 'false';
   if (hasPatternProps) {
@@ -822,7 +817,7 @@ String _generateObjectClass(
 
   final patternPropsExprs = <String>[];
   var i = 0;
-  schema.patternProperties.forEach((pattern, patternSchema) {
+  schema.patternProperties?.forEach((pattern, patternSchema) {
     final descExpr = _descriptorExpr(patternSchema, classNames);
     patternPropsExprs.add('_patternRegex$i: $descExpr');
     i++;
@@ -846,7 +841,7 @@ $getFieldsMap      };
     properties: {
 $propDescriptors    },
     $patternPropsExpr
-    required: const [${schema.required.map((r) => "'${r.replaceAll("'", r"\'")}'").join(', ')}],
+    required: const [${(schema.required ?? const <String>{}).map((r) => "'${r.replaceAll("'", r"\'")}'").join(', ')}],
     ${addPropsExpr != null ? 'additionalProperties: $addPropsExpr,' : ''}
   );''';
 
@@ -935,7 +930,7 @@ String _generateMatchBlock(
   final buffer = StringBuffer();
   final real = schema.realSchema;
   buffer.writeln('    bool $resultVar = false;');
-  if (real is StringSchema) {
+  if (real.isString) {
     buffer.writeln('    if ($valueVar is String) {');
     buffer.writeln('      $resultVar = true;');
     if (real.minLength != null) {
@@ -967,7 +962,7 @@ String _generateMatchBlock(
       buffer.writeln('      }');
     }
     buffer.writeln('    }');
-  } else if (real is NumberSchema) {
+  } else if (real.isNumber) {
     final typeCheck = real.isInteger ? 'is int' : 'is num';
     buffer.writeln('    if ($valueVar $typeCheck) {');
     buffer.writeln('      $resultVar = true;');
@@ -1003,13 +998,13 @@ String _generateMatchBlock(
       }
     }
     buffer.writeln('    }');
-  } else if (real is BooleanSchema) {
+  } else if (real.isBoolean) {
     buffer.writeln('    if ($valueVar is bool) $resultVar = true;');
-  } else if (real is NullSchema) {
+  } else if (real.isNull) {
     buffer.writeln('    if ($valueVar == null) $resultVar = true;');
-  } else if (real is AnythingSchema) {
+  } else if (real.isAnything) {
     buffer.writeln('    $resultVar = true;');
-  } else if (real is ObjectSchema) {
+  } else if (real.isObject) {
     final className = classNames[real]!;
     buffer.writeln('    if ($valueVar is $className) {');
     buffer.writeln('      $resultVar = true;');
@@ -1024,7 +1019,7 @@ String _generateMatchBlock(
     buffer.writeln('        $resultVar = true;');
     buffer.writeln('      } catch (_) {}');
     buffer.writeln('    }');
-  } else if (real is UnionSchema) {
+  } else if (real.isUnion) {
     final className = classNames[real]!;
     buffer.writeln('    if ($valueVar is $className) {');
     buffer.writeln('      $resultVar = true;');
@@ -1039,7 +1034,7 @@ String _generateMatchBlock(
     buffer.writeln('        $resultVar = true;');
     buffer.writeln('      } catch (_) {}');
     buffer.writeln('    }');
-  } else if (real is EnumSchema) {
+  } else if (real.enumValues != null) {
     final className = classNames[real]!;
     final backingType = _enumBackingType(real);
     buffer.writeln('    if ($valueVar is $className) {');
@@ -1063,18 +1058,21 @@ String _generateMatchBlock(
 /// Helper checking if the given schema generates a class type that implements validate().
 bool _hasValidationMethod(Schema schema) {
   final real = schema.realSchema;
-  if (real is ObjectSchema) {
+  if (real.enumValues != null) {
+    return false;
+  }
+  if (real.isObject) {
     return true;
   }
-  if (real is UnionSchema) {
+  if (real.isUnion) {
     final analysis = UnionAnalysis.analyze(real);
     if (analysis.isNullable && analysis.nonNullSchema != null) {
       return _hasValidationMethod(analysis.nonNullSchema!);
     }
     return true; // Sealed union classes always have validate()
   }
-  if (real is ArraySchema) {
-    return _hasValidationMethod(real.items);
+  if (real.isArray) {
+    return _hasValidationMethod(real.items ?? Schema.anything);
   }
   return false;
 }
@@ -1082,14 +1080,14 @@ bool _hasValidationMethod(Schema schema) {
 bool _hasItemValidation(Schema schema) {
   final real = schema.realSchema;
   if (_hasValidationMethod(real)) return true;
-  if (real is StringSchema) {
+  if (real.isString) {
     return real.minLength != null ||
         real.maxLength != null ||
         real.pattern != null ||
         real.format != null ||
         real.not != null;
   }
-  if (real is NumberSchema) {
+  if (real.isNumber) {
     return real.minimum != null ||
         real.maximum != null ||
         real.exclusiveMinimum != null ||
@@ -1097,10 +1095,10 @@ bool _hasItemValidation(Schema schema) {
         real.multipleOf != null ||
         real.not != null;
   }
-  if (real is EnumSchema) {
+  if (real.enumValues != null) {
     return true;
   }
-  if (real is ArraySchema) {
+  if (real.isArray) {
     if (real.minItems != null ||
         real.maxItems != null ||
         real.uniqueItems == true ||
@@ -1110,7 +1108,7 @@ bool _hasItemValidation(Schema schema) {
     if (real.prefixItems != null && real.prefixItems!.any(_hasItemValidation)) {
       return true;
     }
-    return _hasItemValidation(real.items);
+    return _hasItemValidation(real.items ?? Schema.anything);
   }
   if (real.not != null) return true;
   return false;
@@ -1118,7 +1116,7 @@ bool _hasItemValidation(Schema schema) {
 
 /// Generates validation method body checking constraints on class fields.
 String _generateValidationMethod(
-  ObjectSchema schema,
+  Schema schema,
   String className,
   Map<Schema, String> classNames,
   Map<String, String> fieldNames,
@@ -1127,9 +1125,9 @@ String _generateValidationMethod(
   buffer.writeln('  void validate() {');
   if (schema.minProperties != null || schema.maxProperties != null) {
     buffer.writeln('    var count = 0;');
-    schema.properties.forEach((key, propSchema) {
+    schema.properties?.forEach((key, propSchema) {
       final fieldName = fieldNames[key]!;
-      final isRequired = schema.required.contains(key);
+      final isRequired = schema.required?.contains(key) == true;
       final isNullable = _isNullable(propSchema, isRequired, classNames);
       if (isNullable) {
         buffer.writeln('    if ($fieldName != null) count++;');
@@ -1139,7 +1137,7 @@ String _generateValidationMethod(
     });
     final hasAdditionalProps =
         schema.additionalProperties != null &&
-        schema.additionalProperties is! NeverSchema;
+        !schema.additionalProperties!.isNever;
     if (hasAdditionalProps) {
       buffer.writeln('    count += additionalProperties.length;');
     }
@@ -1158,7 +1156,7 @@ String _generateValidationMethod(
       buffer.writeln('    }');
     }
   }
-  schema.dependentRequired.forEach((key, deps) {
+  schema.dependentRequired?.forEach((key, deps) {
     final escapedKey = key.replaceAll("'", "\\'");
     final fieldName = fieldNames[key]!;
     buffer.writeln('    if ($fieldName != null) {');
@@ -1173,9 +1171,9 @@ String _generateValidationMethod(
     }
     buffer.writeln('    }');
   });
-  schema.properties.forEach((name, propSchema) {
+  schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
-    final isRequired = schema.required.contains(name);
+    final isRequired = schema.required?.contains(name) == true;
     final isNullable = _isNullable(propSchema, isRequired, classNames);
 
     final valueVar = isNullable ? 'val_$fieldName' : fieldName;
@@ -1204,7 +1202,7 @@ String _generateValidationMethod(
 
     if (propSchema.not != null) {
       final notReal = propSchema.not!.realSchema;
-      if (notReal is! ObjectSchema && notReal is! UnionSchema) {
+      if (!notReal.isObject && !notReal.isUnion) {
         final notValBuf = StringBuffer();
         _generateSchemaValidations(
           notValBuf,
@@ -1253,11 +1251,11 @@ String _generateValidationMethod(
     }
   });
 
-  final hasPatternProps = schema.patternProperties.isNotEmpty;
+  final hasPatternProps = schema.patternProperties?.isNotEmpty == true;
   if (hasPatternProps) {
     buffer.writeln('    patternProperties.forEach((key, value) {');
     var i = 0;
-    schema.patternProperties.forEach((pattern, patternSchema) {
+    schema.patternProperties?.forEach((pattern, patternSchema) {
       buffer.writeln('      if (_patternRegex$i.hasMatch(key)) {');
       final validations = StringBuffer();
       _generateSchemaValidations(
@@ -1278,7 +1276,7 @@ String _generateValidationMethod(
 
   final hasAdditionalProps =
       schema.additionalProperties != null &&
-      schema.additionalProperties is! NeverSchema;
+      !schema.additionalProperties!.isNever;
   if (hasAdditionalProps) {
     final addSchema = schema.additionalProperties!;
     final hasAddValidation = _hasValidationMethod(addSchema);
@@ -1326,17 +1324,17 @@ void _generateArrayItemValidation(
   Map<Schema, String> classNames,
 ) {
   final real = itemSchema.realSchema;
-  if (real is ObjectSchema || real is UnionSchema) {
+  if (real.isObject || real.isUnion) {
     validations.writeln('''
         try {
           $valueVar.validate();
         } on JsonValidationException catch (e) {
           throw JsonValidationException(e.message, [${path.map((p) => "'${p.replaceAll("'", "\\'")}'").join(', ')}, ...e.path]);
         }''');
-  } else if (real is ArraySchema) {
+  } else if (real.isArray) {
     final itemVar = 'item$depth';
     final indexVar = 'i$depth';
-    final hasItemValidation = _hasItemValidation(real.items);
+    final hasItemValidation = _hasItemValidation(real.items ?? Schema.anything);
     if (hasItemValidation) {
       final startIndex = real.prefixItems?.length ?? 0;
       validations.writeln(
@@ -1345,7 +1343,7 @@ void _generateArrayItemValidation(
       validations.writeln('          final $itemVar = $valueVar[$indexVar];');
       _generateArrayItemValidation(
         validations,
-        real.items,
+        real.items ?? Schema.anything,
         itemVar,
         name,
         [...path, '[\$$indexVar]'],
@@ -1396,7 +1394,7 @@ void _generateSchemaValidations(
   final effectivePath = path ?? [unescapedName];
   final effectivePathExpr =
       '[${effectivePath.map((p) => "'${p.replaceAll("'", "\\'")}'").join(', ')}]';
-  if (real is StringSchema) {
+  if (real.isString) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! String) {');
       validations.writeln(
@@ -1442,7 +1440,7 @@ void _generateSchemaValidations(
         pathExpr: effectivePathExpr,
       );
     }
-  } else if (real is NumberSchema) {
+  } else if (real.isNumber) {
     if (checkType) {
       final typeCheck = real.isInteger ? 'is! int' : 'is! num';
       final typeName = real.isInteger ? 'an integer' : 'a number';
@@ -1483,17 +1481,24 @@ void _generateSchemaValidations(
     if (real.multipleOf != null) {
       if (real.isInteger) {
         validations.writeln('      if ($valueVar % ${real.multipleOf} != 0) {');
-      } else {
         validations.writeln(
-          '      if (($valueVar / ${real.multipleOf} - ($valueVar / ${real.multipleOf}).round()).abs() > 1e-9) {',
+          "        throw JsonValidationException('Property \"$name\" must be a multiple of ${real.multipleOf}', $effectivePathExpr);",
         );
+        validations.writeln('      }');
+      } else {
+        validations.writeln('''
+      if (() {
+        final div = $valueVar / ${real.multipleOf};
+        final rounded = div.round();
+        final absError = (div - rounded).abs();
+        final relError = absError / (div.abs() > 1.0 ? div.abs() : 1.0);
+        return relError > 1e-14;
+      }()) {
+        throw JsonValidationException('Property "$name" must be a multiple of ${real.multipleOf}', $effectivePathExpr);
+      }''');
       }
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a multiple of ${real.multipleOf}', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
     }
-  } else if (real is ArraySchema) {
+  } else if (real.isArray) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! List) {');
       validations.writeln(
@@ -1570,7 +1575,7 @@ void _generateSchemaValidations(
         }
       }
     }
-    final hasItemValidation = _hasItemValidation(real.items);
+    final hasItemValidation = _hasItemValidation(real.items ?? Schema.anything);
     if (hasItemValidation) {
       final startIndex = real.prefixItems?.length ?? 0;
       validations.writeln(
@@ -1578,7 +1583,7 @@ void _generateSchemaValidations(
       );
       _generateArrayItemValidation(
         validations,
-        real.items,
+        real.items ?? Schema.anything,
         '$valueVar[i]',
         name,
         [...effectivePath, '[\$i]'],
@@ -1587,7 +1592,7 @@ void _generateSchemaValidations(
       );
       validations.writeln('      }');
     }
-  } else if (real is BooleanSchema) {
+  } else if (real.isBoolean) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! bool) {');
       validations.writeln(
@@ -1595,7 +1600,7 @@ void _generateSchemaValidations(
       );
       validations.writeln('      }');
     }
-  } else if (real is NullSchema) {
+  } else if (real.isNull) {
     if (checkType) {
       validations.writeln('      if ($valueVar != null) {');
       validations.writeln(
@@ -1603,11 +1608,12 @@ void _generateSchemaValidations(
       );
       validations.writeln('      }');
     }
-  } else if (real is EnumSchema) {
+  } else if (real.enumValues != null) {
+    final baseSchema = real.removeEnum();
     if (checkType) {
       _generateSchemaValidations(
         validations,
-        real.baseSchema,
+        baseSchema,
         valueVar,
         unescapedName,
         classNames,
@@ -1615,8 +1621,8 @@ void _generateSchemaValidations(
         path: effectivePath,
       );
     }
-    final valuesLiterals = real.values
-        .map((v) => _toDartLiteral(v, real.baseSchema, classNames))
+    final valuesLiterals = real.enumValues!
+        .map((v) => _toDartLiteral(v, baseSchema, classNames))
         .join(', ');
     final effectiveValue =
         '$valueVar is Enum ? ($valueVar as dynamic).value : $valueVar';
@@ -1624,10 +1630,10 @@ void _generateSchemaValidations(
       '      if (!const [$valuesLiterals].any((v) => const DeepCollectionEquality().equals(v, $effectiveValue))) {',
     );
     validations.writeln(
-      "        throw JsonValidationException('Property \"$name\" must be one of ${real.values}', $effectivePathExpr);",
+      "        throw JsonValidationException('Property \"$name\" must be one of ${real.enumValues}', $effectivePathExpr);",
     );
     validations.writeln('      }');
-  } else if (real is ObjectSchema || real is UnionSchema) {
+  } else if (real.isObject || real.isUnion) {
     if (checkType) {
       final className = classNames[real]!;
       validations.writeln('      if ($valueVar is! $className) {');
@@ -1636,17 +1642,16 @@ void _generateSchemaValidations(
       );
       validations.writeln('      }');
     }
-  } else if (real is AnythingSchema) {
+  } else if (real.isAnything) {
     // Always succeeds, so do nothing.
-  } else if (real is NeverSchema) {
+  } else if (real.isNever) {
     validations.writeln(
       "      throw JsonValidationException('Property \"$name\" matches nothing', $effectivePathExpr);",
     );
   }
 
   final hasNestedValidation =
-      (real is ObjectSchema || real is UnionSchema) &&
-      _hasValidationMethod(real);
+      (real.isObject || real.isUnion) && _hasValidationMethod(real);
   if (hasNestedValidation) {
     validations.writeln('''
       try {
@@ -1658,7 +1663,7 @@ void _generateSchemaValidations(
 
   if (includeNot && schema.not != null) {
     final notReal = schema.not!.realSchema;
-    if (notReal is! ObjectSchema && notReal is! UnionSchema) {
+    if (!notReal.isObject && !notReal.isUnion) {
       final notValBuf = StringBuffer();
       _generateSchemaValidations(
         notValBuf,
@@ -1798,7 +1803,7 @@ void _generateFormatValidation(
 }
 
 String _generateUnionClass(
-  UnionSchema schema,
+  Schema schema,
   String className,
   Map<Schema, String> classNames,
 ) {
@@ -1811,20 +1816,17 @@ String _generateUnionClass(
     final subClassName = '${className}Option$index';
 
     final hasNestedValidation =
-        sub.realSchema is ObjectSchema || sub.realSchema is UnionSchema;
+        sub.realSchema.isObject || sub.realSchema.isUnion;
     final validationBody = StringBuffer();
     if (hasNestedValidation) {
       validationBody.writeln('  @override');
       validationBody.writeln('  void validate() {');
       validationBody.writeln('    value.validate();');
       validationBody.writeln('  }');
-    } else if (sub.realSchema is ArraySchema) {
-      final arraySchema = sub.realSchema as ArraySchema;
-      final itemReal = arraySchema.items.realSchema;
+    } else if (sub.realSchema.isArray) {
+      final itemReal = sub.realSchema.items?.realSchema ?? Schema.anything;
       final hasItemValidation =
-          itemReal is ObjectSchema ||
-          itemReal is UnionSchema ||
-          itemReal is ArraySchema;
+          itemReal.isObject || itemReal.isUnion || itemReal.isArray;
       validationBody.writeln('  @override');
       validationBody.writeln('  void validate() {');
       if (hasItemValidation) {
@@ -1909,7 +1911,7 @@ $validationBody
   final disc = schema.discriminator;
   final useDiscriminator =
       disc != null &&
-      analysis.activeSchemas.every((s) => s.realSchema is ObjectSchema);
+      analysis.activeSchemas.every((s) => s.realSchema.isObject);
 
   final optionDescriptors = StringBuffer();
   final mappingEntries = StringBuffer();

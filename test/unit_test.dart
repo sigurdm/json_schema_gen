@@ -8,7 +8,7 @@ import 'package:jsontool/jsontool.dart';
 void main() {
   group('SchemaExtensions', () {
     test('realSchema throws on unresolved reference', () {
-      final refSchema = RefSchema(r'#/$defs/NonExistent');
+      final refSchema = Schema(ref: r'#/$defs/NonExistent');
       expect(
         () => refSchema.realSchema,
         throwsA(
@@ -22,10 +22,10 @@ void main() {
     });
 
     test('realSchema throws on cyclic reference', () {
-      final refA = RefSchema(r'#/$defs/A');
-      final refB = RefSchema(r'#/$defs/B');
-      refA.resolved = refB;
-      refB.resolved = refA;
+      final refA = Schema(ref: r'#/$defs/A');
+      final refB = Schema(ref: r'#/$defs/B');
+      refA.resolvedRef = refB;
+      refB.resolvedRef = refA;
 
       expect(
         () => refA.realSchema,
@@ -328,8 +328,9 @@ void main() {
 
   group('Validation Edge Cases', () {
     test('uniqueItems with nested collections', () {
-      final schema = const ArraySchema(
-        items: AnythingSchema(),
+      final schema = Schema(
+        type: ['array'],
+        items: Schema.anything,
         uniqueItems: true,
       );
       final list1 = [1, 2];
@@ -348,12 +349,11 @@ void main() {
     });
 
     test('EnumSchema with collection values', () {
-      final schema = const EnumSchema(
-        values: [
+      final schema = Schema(
+        enumValues: const [
           [1, 2],
           [3, 4],
         ],
-        baseSchema: AnythingSchema(),
       );
       expect(() => schema.validate([1, 2]), returnsNormally);
       expect(
@@ -383,11 +383,11 @@ void main() {
       final parser = SchemaParser(jsonSchema);
       final schema = await parser.parse();
       expect(schema, isNotNull);
-      final objectSchema = schema.realSchema as ObjectSchema;
-      final propB = objectSchema.properties['b']!;
-      final bSchema = propB.realSchema as ObjectSchema;
-      final propA = bSchema.properties['a']!;
-      expect(propA.realSchema, isA<ObjectSchema>());
+      final objectSchema = schema.realSchema;
+      final propB = objectSchema.properties!['b']!;
+      final bSchema = propB.realSchema;
+      final propA = bSchema.properties!['a']!;
+      expect(propA.realSchema.isObject, isTrue);
     });
 
     test(
@@ -478,11 +478,11 @@ void main() {
         final parser = SchemaParser(jsonSchema);
         final schema = await parser.parse();
 
-        final rootRef = schema as RefSchema;
-        final node1 = rootRef.resolved as ObjectSchema;
+        final rootRef = schema;
+        final node1 = rootRef.resolvedRef!;
 
-        final childRef = node1.properties['child'] as RefSchema;
-        final node2 = childRef.resolved as ObjectSchema;
+        final childRef = node1.properties!['child']!;
+        final node2 = childRef.resolvedRef!;
 
         expect(identical(node1, node2), isTrue);
       },
@@ -494,9 +494,9 @@ void main() {
         'properties': {'blocked': false, 'allowed': true},
       };
       final parser = SchemaParser(jsonSchema);
-      final schema = await parser.parse() as ObjectSchema;
-      expect(schema.properties['blocked']!.realSchema, isA<NeverSchema>());
-      expect(schema.properties['allowed']!.realSchema, isA<AnythingSchema>());
+      final schema = await parser.parse();
+      expect(schema.properties!['blocked']!.realSchema.isNever, isTrue);
+      expect(schema.properties!['allowed']!.realSchema.isAnything, isTrue);
     });
 
     test('resolves relative external refs when allowed', () async {
@@ -523,11 +523,10 @@ void main() {
         },
       );
 
-      final schema =
-          await parser.parse(disallowExternalRefs: false) as ObjectSchema;
-      final extRef = schema.properties['externalRef'] as RefSchema;
-      expect(extRef.resolved, isNotNull);
-      expect(extRef.resolved!.realSchema, isA<StringSchema>());
+      final schema = await parser.parse();
+      final extRef = schema.properties!['externalRef']!;
+      expect(extRef.resolvedRef, isNotNull);
+      expect(extRef.resolvedRef!.realSchema.isString, isTrue);
     });
 
     test('throws by default on external refs', () async {
@@ -548,8 +547,12 @@ void main() {
           'externalRef': {r'$ref': 'other.json#/definitions/External'},
         },
       };
-      final parser = SchemaParser(mainSchema, baseUri: 'main.json');
-      expect(parser.parse(disallowExternalRefs: true), throwsArgumentError);
+      final parser = SchemaParser(
+        mainSchema,
+        baseUri: 'main.json',
+        disallowExternalRefs: true,
+      );
+      expect(parser.parse(), throwsArgumentError);
     });
 
     test('ioFileResolver resolves local files', () async {
@@ -583,11 +586,10 @@ void main() {
           uriResolver: (uri) => ioFileResolver(uri, rootDirectory: tempDir),
         );
 
-        final schema =
-            await parser.parse(disallowExternalRefs: false) as ObjectSchema;
-        final extRef = schema.properties['externalRef'] as RefSchema;
-        expect(extRef.resolved, isNotNull);
-        expect(extRef.resolved!.realSchema, isA<StringSchema>());
+        final schema = await parser.parse();
+        final extRef = schema.properties!['externalRef']!;
+        expect(extRef.resolvedRef, isNotNull);
+        expect(extRef.resolvedRef!.realSchema.isString, isTrue);
       } finally {
         tempDir.deleteSync(recursive: true);
       }
@@ -615,7 +617,7 @@ void main() {
         );
 
         expect(
-          () => parser.parse(disallowExternalRefs: false),
+          () => parser.parse(),
           throwsA(
             isA<ArgumentError>().having(
               (e) => e.message,
@@ -632,35 +634,31 @@ void main() {
 
   group('Runtime Validation', () {
     test('AnythingSchema', () {
-      final schema = const AnythingSchema();
+      final schema = Schema.anything;
       expect(() => schema.validate(1), returnsNormally);
       expect(() => schema.validate('string'), returnsNormally);
       expect(() => schema.validate(null), returnsNormally);
     });
 
     test('NeverSchema', () {
-      final schema = const NeverSchema();
+      final schema = Schema.never;
       expect(() => schema.validate(1), throwsA(isA<JsonValidationException>()));
     });
 
     test('NullSchema', () {
-      final schema = const NullSchema();
+      final schema = Schema(type: ['null']);
       expect(() => schema.validate(null), returnsNormally);
       expect(() => schema.validate(1), throwsA(isA<JsonValidationException>()));
     });
 
     test('BooleanSchema', () {
-      final schema = const BooleanSchema();
+      final schema = Schema(type: ['boolean']);
       expect(() => schema.validate(true), returnsNormally);
       expect(() => schema.validate(1), throwsA(isA<JsonValidationException>()));
     });
 
     test('NumberSchema', () {
-      final schema = const NumberSchema(
-        isInteger: false,
-        minimum: 5,
-        maximum: 10,
-      );
+      final schema = Schema(type: ['number'], minimum: 5, maximum: 10);
       expect(() => schema.validate(7), returnsNormally);
       expect(
         () => schema.validate(4.9),
@@ -671,7 +669,7 @@ void main() {
         throwsA(isA<JsonValidationException>()),
       );
 
-      final intSchema = const NumberSchema(isInteger: true);
+      final intSchema = Schema(type: ['integer']);
       expect(() => intSchema.validate(5), returnsNormally);
       expect(
         () => intSchema.validate(5.5),
@@ -680,7 +678,8 @@ void main() {
     });
 
     test('StringSchema', () {
-      final schema = const StringSchema(
+      final schema = Schema(
+        type: ['string'],
         minLength: 3,
         maxLength: 5,
         pattern: r'^[a-z]+$',
@@ -701,8 +700,9 @@ void main() {
     });
 
     test('ArraySchema', () {
-      final schema = const ArraySchema(
-        items: StringSchema(),
+      final schema = Schema(
+        type: ['array'],
+        items: Schema(type: ['string']),
         minItems: 1,
         maxItems: 3,
       );
@@ -722,10 +722,11 @@ void main() {
     });
 
     test('ObjectSchema', () {
-      final schema = const ObjectSchema(
+      final schema = Schema(
+        type: ['object'],
         properties: {
-          'name': StringSchema(),
-          'age': NumberSchema(isInteger: true),
+          'name': Schema(type: ['string']),
+          'age': Schema(type: ['integer']),
         },
         required: {'name'},
       );
@@ -744,14 +745,17 @@ void main() {
     });
 
     test('patternProperties', () {
-      final schema = ObjectSchema(
-        properties: {'name': const StringSchema()},
+      final schema = Schema(
+        type: ['object'],
+        properties: {
+          'name': Schema(type: ['string']),
+        },
         patternProperties: {
-          RegExp(r'^S_'): const StringSchema(),
-          RegExp(r'^I_'): const NumberSchema(isInteger: true),
+          RegExp(r'^S_'): Schema(type: ['string']),
+          RegExp(r'^I_'): Schema(type: ['integer']),
         },
         required: {'name'},
-        additionalProperties: const NeverSchema(),
+        additionalProperties: Schema(booleanValue: false),
       );
 
       expect(
@@ -776,14 +780,15 @@ void main() {
     });
 
     test('patternProperties multi-match', () {
-      final schema = ObjectSchema(
-        properties: {},
+      final schema = Schema(
+        type: ['object'],
+        properties: const {},
         required: const {},
         patternProperties: {
-          RegExp(r'a'): const StringSchema(minLength: 3),
-          RegExp(r'b'): const StringSchema(pattern: r'^x'),
+          RegExp(r'a'): Schema(type: ['string'], minLength: 3),
+          RegExp(r'b'): Schema(type: ['string'], pattern: r'^x'),
         },
-        additionalProperties: const NeverSchema(),
+        additionalProperties: Schema(booleanValue: false),
       );
 
       expect(() => schema.validate({'a': 'abc'}), returnsNormally);
@@ -810,8 +815,11 @@ void main() {
     });
 
     test('AllOfSchema', () {
-      final schema = const AllOfSchema(
-        subschemas: [StringSchema(minLength: 3), StringSchema(maxLength: 5)],
+      final schema = Schema(
+        allOf: [
+          Schema(type: ['string'], minLength: 3),
+          Schema(type: ['string'], maxLength: 5),
+        ],
       );
       expect(() => schema.validate('abcd'), returnsNormally);
       expect(
@@ -825,8 +833,11 @@ void main() {
     });
 
     test('UnionSchema', () {
-      final schema = const UnionSchema(
-        subschemas: [StringSchema(), NumberSchema(isInteger: true)],
+      final schema = Schema(
+        anyOf: [
+          Schema(type: ['string']),
+          Schema(type: ['integer']),
+        ],
       );
       expect(() => schema.validate('hello'), returnsNormally);
       expect(() => schema.validate(42), returnsNormally);
@@ -837,9 +848,9 @@ void main() {
     });
 
     test('EnumSchema', () {
-      final schema = const EnumSchema(
-        values: ['red', 'green', 'blue'],
-        baseSchema: StringSchema(),
+      final schema = Schema(
+        type: ['string'],
+        enumValues: ['red', 'green', 'blue'],
       );
       expect(() => schema.validate('red'), returnsNormally);
       expect(
@@ -849,8 +860,9 @@ void main() {
     });
 
     test('not constraint', () {
-      final schema = const StringSchema(
-        not: StringSchema(pattern: r'^forbidden'),
+      final schema = Schema(
+        type: ['string'],
+        not: Schema(type: ['string'], pattern: r'^forbidden'),
       );
       expect(() => schema.validate('allowed'), returnsNormally);
       expect(
@@ -876,7 +888,7 @@ void main() {
       final schemaFile = File('test/test_schema.schema.json');
       final jsonStr = schemaFile.readAsStringSync();
       final decoded = json.decode(jsonStr) as Map<String, dynamic>;
-      final validator = await createValidator(decoded);
+      final validator = await createValidator(decoded, validateFormats: true);
 
       // Valid object
       final validObject = {
@@ -1166,7 +1178,7 @@ void main() {
     });
 
     test('not support', () {
-      final schema = const AnythingSchema(not: StringSchema());
+      final schema = Schema(not: Schema(type: ['string']));
       expect(() => schema.validate(1), returnsNormally);
       expect(
         () => schema.validate('string'),
