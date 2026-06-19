@@ -148,7 +148,7 @@ final class User implements JsonModel {
     }
   }
 
-  static final descriptor = ObjectDescriptor<User>(
+  static final ObjectDescriptor<User> descriptor = ObjectDescriptor<User>(
     title: 'User',
     matches: (instance) => instance is User,
     instantiate: (fields) => User(
@@ -209,12 +209,12 @@ final class User implements JsonModel {
       'profile': PropertyDescriptor(
         name: 'profile',
         isRequired: false,
-        schema: UserProfile.descriptor,
+        schema: RefDescriptor<UserProfile>(() => UserProfile.descriptor),
       ),
       'address': PropertyDescriptor(
         name: 'address',
         isRequired: false,
-        schema: Address.descriptor,
+        schema: RefDescriptor<Address>(() => Address.descriptor),
       ),
       'tags': PropertyDescriptor(
         name: 'tags',
@@ -224,7 +224,9 @@ final class User implements JsonModel {
       'preferences': PropertyDescriptor(
         name: 'preferences',
         isRequired: false,
-        schema: UserPreferences.descriptor,
+        schema: RefDescriptor<UserPreferences>(
+          () => UserPreferences.descriptor,
+        ),
       ),
       'createdAt': PropertyDescriptor(
         name: 'createdAt',
@@ -280,7 +282,7 @@ enum UserRole {
   const UserRole(this.value);
   static UserRole fromValue(String val) =>
       values.firstWhere((e) => e.value == val);
-  static final descriptor = EnumDescriptor<UserRole>(
+  static final EnumDescriptor<UserRole> descriptor = EnumDescriptor<UserRole>(
     values: values,
     fromValue: (val) => fromValue(val as String),
     toValue: (e) => (e as UserRole).value,
@@ -341,32 +343,36 @@ final class UserProfile implements JsonModel {
     final val_bio = bio;
   }
 
-  static final descriptor = ObjectDescriptor<UserProfile>(
-    title: 'UserProfile',
-    matches: (instance) => instance is UserProfile,
-    instantiate: (fields) => UserProfile(
-      avatarUrl: fields['avatarUrl'] as String?,
-      bio: fields['bio'] as String?,
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as UserProfile;
-      return {'avatarUrl': typedInstance.avatarUrl, 'bio': typedInstance.bio};
-    },
-    properties: {
-      'avatarUrl': PropertyDescriptor(
-        name: 'avatarUrl',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'bio': PropertyDescriptor(
-        name: 'bio',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-    },
+  static final ObjectDescriptor<UserProfile> descriptor =
+      ObjectDescriptor<UserProfile>(
+        title: 'UserProfile',
+        matches: (instance) => instance is UserProfile,
+        instantiate: (fields) => UserProfile(
+          avatarUrl: fields['avatarUrl'] as String?,
+          bio: fields['bio'] as String?,
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as UserProfile;
+          return {
+            'avatarUrl': typedInstance.avatarUrl,
+            'bio': typedInstance.bio,
+          };
+        },
+        properties: {
+          'avatarUrl': PropertyDescriptor(
+            name: 'avatarUrl',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'bio': PropertyDescriptor(
+            name: 'bio',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
 
-    required: const [],
-  );
+        required: const [],
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -437,7 +443,7 @@ final class Address implements JsonModel {
     }
   }
 
-  static final descriptor = ObjectDescriptor<Address>(
+  static final ObjectDescriptor<Address> descriptor = ObjectDescriptor<Address>(
     title: 'Address',
     matches: (instance) => instance is Address,
     instantiate: (fields) => Address(
@@ -535,26 +541,27 @@ final class UserPreferences implements JsonModel {
 
   void validate() {}
 
-  static final descriptor = ObjectDescriptor<UserPreferences>(
-    title: 'UserPreferences',
-    matches: (instance) => instance is UserPreferences,
-    instantiate: (fields) => UserPreferences(
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{}.contains(e.key) && true)
-          .fold<Map<String, String>>(
-            {},
-            (m, e) => m..[e.key] = e.value as String,
-          ),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as UserPreferences;
-      return {...typedInstance.additionalProperties};
-    },
-    properties: {},
+  static final ObjectDescriptor<UserPreferences> descriptor =
+      ObjectDescriptor<UserPreferences>(
+        title: 'UserPreferences',
+        matches: (instance) => instance is UserPreferences,
+        instantiate: (fields) => UserPreferences(
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{}.contains(e.key) && true)
+              .fold<Map<String, String>>(
+                {},
+                (m, e) => m..[e.key] = e.value as String,
+              ),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as UserPreferences;
+          return {...typedInstance.additionalProperties};
+        },
+        properties: {},
 
-    required: const [],
-    additionalProperties: const StringDescriptor(),
-  );
+        required: const [],
+        additionalProperties: const StringDescriptor(),
+      );
 
   @override
   bool operator ==(Object other) =>

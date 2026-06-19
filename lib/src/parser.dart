@@ -44,7 +44,10 @@ final class SchemaParser {
     if (flatten) {
       final flattened = _flatten(root);
       _updateResolvedRefs(flattened);
-      return flattened.copyWith(dynamicAnchors: _dynamicAnchors);
+      final flattenedDynamicAnchors = _dynamicAnchors.map(
+        (k, v) => MapEntry(k, _flattenCache[v] ?? v),
+      );
+      return flattened.copyWith(dynamicAnchors: flattenedDynamicAnchors);
     } else {
       _updateResolvedRefs(root);
       return root.copyWith(dynamicAnchors: _dynamicAnchors);
@@ -966,6 +969,10 @@ final class SchemaParser {
         defaultValue: schema.defaultValue,
         not: newNot,
         dartName: schema.dartName,
+        id: schema.id,
+        anchor: schema.anchor,
+        dynamicAnchor: schema.dynamicAnchor,
+        resourceUri: schema.resourceUri,
       );
       _flattenCache[schema] = finalSchemaWithMetadata;
       return finalSchemaWithMetadata;

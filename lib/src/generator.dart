@@ -229,6 +229,7 @@ Map<String, String> _calculateFieldNames(Schema schema) {
 }
 
 String generateCode(Schema rootSchema, String rootName) {
+  _resolveDynamicRefs(rootSchema, rootSchema);
   final classNames = Map<Schema, String>.identity();
   final usedNames = <String>{};
 
@@ -250,6 +251,32 @@ String generateCode(Schema rootSchema, String rootName) {
       usedNames.add(candidate);
       classNames[real] = candidate;
       discoverClasses(real.removeEnum(), '${candidate}_Base');
+    } else if (real.isUnion) {
+      final analysis = UnionAnalysis.analyze(real);
+      if (analysis.isNullable && analysis.nonNullSchema != null) {
+        discoverClasses(analysis.nonNullSchema!, preferredName);
+        return;
+      }
+      if (classNames.containsKey(real)) return;
+      final name = real.dartName ?? real.title ?? preferredName;
+      var className = toPascalCase(name);
+      if (className.isEmpty) className = 'Union';
+      var candidate = className;
+      int counter = 1;
+      while (usedNames.contains(candidate) ||
+          _dartKeywords.contains(candidate) ||
+          _dartKeywords.contains(candidate.toLowerCase())) {
+        candidate = '$className$counter';
+        counter++;
+      }
+      usedNames.add(candidate);
+      classNames[real] = candidate;
+
+      int index = 0;
+      for (final sub in analysis.activeSchemas) {
+        discoverClasses(sub, '${candidate}_OptionType$index');
+        index++;
+      }
     } else if (real.isObject) {
       if (classNames.containsKey(real)) return;
       final name = real.dartName ?? real.title ?? preferredName;
@@ -284,32 +311,6 @@ String generateCode(Schema rootSchema, String rootName) {
         for (var i = 0; i < real.prefixItems!.length; i++) {
           discoverClasses(real.prefixItems![i], '${preferredName}Prefix$i');
         }
-      }
-    } else if (real.isUnion) {
-      final analysis = UnionAnalysis.analyze(real);
-      if (analysis.isNullable && analysis.nonNullSchema != null) {
-        discoverClasses(analysis.nonNullSchema!, preferredName);
-        return;
-      }
-      if (classNames.containsKey(real)) return;
-      final name = real.dartName ?? real.title ?? preferredName;
-      var className = toPascalCase(name);
-      if (className.isEmpty) className = 'Union';
-      var candidate = className;
-      int counter = 1;
-      while (usedNames.contains(candidate) ||
-          _dartKeywords.contains(candidate) ||
-          _dartKeywords.contains(candidate.toLowerCase())) {
-        candidate = '$className$counter';
-        counter++;
-      }
-      usedNames.add(candidate);
-      classNames[real] = candidate;
-
-      int index = 0;
-      for (final sub in analysis.activeSchemas) {
-        discoverClasses(sub, '${candidate}_OptionType$index');
-        index++;
       }
     }
     if (schema.not != null) {
@@ -392,7 +393,7 @@ String _generateEnumClass(Schema schema, String className) {
     if (schema.deprecatedMessage != null) {
       buffer.writeln("@Deprecated('${schema.deprecatedMessage}')");
     } else {
-      buffer.writeln('@deprecated');
+      buffer.writeln("@Deprecated('deprecated')");
     }
   }
   buffer.writeln('enum $className {');
@@ -409,7 +410,9 @@ String _generateEnumClass(Schema schema, String className) {
   final baseDescriptor = isString
       ? 'const StringDescriptor()'
       : (isInt ? 'const IntDescriptor()' : 'const AnythingDescriptor()');
-  buffer.writeln('  static final descriptor = EnumDescriptor<$className>(');
+  buffer.writeln(
+    '  static final EnumDescriptor<$className> descriptor = EnumDescriptor<$className>(',
+  );
   buffer.writeln('    values: values,');
   buffer.writeln('    fromValue: (val) => fromValue(val as $backingType),');
   buffer.writeln('    toValue: (e) => (e as $className).value,');
@@ -430,7 +433,7 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
     final analysis = UnionAnalysis.analyze(real);
     final baseDesc = analysis.nonNullSchema != null
         ? _descriptorExpr(analysis.nonNullSchema!, classNames)
-        : '${classNames[real]!}.descriptor';
+        : 'RefDescriptor<${classNames[real]!}>(() => ${classNames[real]!}.descriptor)';
     if (analysis.isNullable) {
       return 'NullableDescriptor($baseDesc)';
     }
@@ -462,7 +465,7 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
     }
   } else if (real.isObject) {
     final name = classNames[real]!;
-    return '$name.descriptor';
+    return 'RefDescriptor<$name>(() => $name.descriptor)';
   }
   return 'const AnythingDescriptor()';
 }
@@ -646,7 +649,7 @@ String _generateObjectClass(
       if (propSchema.deprecatedMessage != null) {
         fields.writeln("  @Deprecated('${propSchema.deprecatedMessage}')");
       } else {
-        fields.writeln('  @deprecated');
+        fields.writeln("  @Deprecated('deprecated')");
       }
     }
     fields.writeln('  final $fieldType $fieldName;');
@@ -743,7 +746,7 @@ String _generateObjectClass(
 
   schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
-    final nameEscaped = name.replaceAll("'", r"\'");
+    final nameEscaped = name.replaceAll("'", r"\'").replaceAll(r'$', r'\$');
     final isRequired = schema.required?.contains(name) == true;
     final descExpr = _descriptorExpr(propSchema, classNames);
 
@@ -781,7 +784,7 @@ String _generateObjectClass(
   });
 
   final propKeysLiteral =
-      '<String>{${(schema.properties?.keys ?? []).map((k) => "'${k.replaceAll("'", r"\'")}'").join(', ')}}';
+      '<String>{${(schema.properties?.keys ?? []).map((k) => "'${k.replaceAll("'", r"\'").replaceAll(r'$', r'\$')}'").join(', ')}}';
 
   String patternMatchExpr = 'false';
   if (hasPatternProps) {
@@ -828,7 +831,7 @@ String _generateObjectClass(
 
   final descriptorString =
       '''
-  static final descriptor = ObjectDescriptor<$className>(
+  static final ObjectDescriptor<$className> descriptor = ObjectDescriptor<$className>(
     title: '$className',
     matches: (instance) => instance is $className,
     instantiate: (fields) => $className(
@@ -841,14 +844,14 @@ $getFieldsMap      };
     properties: {
 $propDescriptors    },
     $patternPropsExpr
-    required: const [${(schema.required ?? const <String>{}).map((r) => "'${r.replaceAll("'", r"\'")}'").join(', ')}],
+    required: const [${(schema.required ?? const <String>{}).map((r) => "'${r.replaceAll("'", r"\'").replaceAll(r'$', r'\$')}'").join(', ')}],
     ${addPropsExpr != null ? 'additionalProperties: $addPropsExpr,' : ''}
   );''';
 
   final deprecatedAttr = schema.isDeprecated
       ? (schema.deprecatedMessage != null
             ? "@Deprecated('${schema.deprecatedMessage}')\n"
-            : '@deprecated\n')
+            : "@Deprecated('deprecated')\n")
       : '';
 
   final constructorStr = constructorParams.isEmpty
@@ -1863,7 +1866,7 @@ String _generateUnionClass(
     final optDeprecatedAttr = sub.isDeprecated
         ? (sub.deprecatedMessage != null
               ? "@Deprecated('${sub.deprecatedMessage}')\n"
-              : '@deprecated\n')
+              : "@Deprecated('deprecated')\n")
         : '';
 
     final isColl =
@@ -1956,7 +1959,7 @@ $validationBody
 
   final descriptorString =
       '''
-  static final descriptor = UnionDescriptor<$className>(
+  static final UnionDescriptor<$className> descriptor = UnionDescriptor<$className>(
     title: '$className',
     ${useDiscriminator ? "discriminatorProperty: '${disc.propertyName}'," : ''}
     ${useDiscriminator ? 'discriminatorMapping: {\n$mappingEntries    },' : ''}
@@ -1967,7 +1970,7 @@ $optionDescriptors    ],
   final deprecatedAttr = schema.isDeprecated
       ? (schema.deprecatedMessage != null
             ? "@Deprecated('${schema.deprecatedMessage}')\n"
-            : '@deprecated\n')
+            : "@Deprecated('deprecated')\n")
       : '';
   return '''
 ${deprecatedAttr}sealed class $className implements JsonModel {
@@ -2003,4 +2006,114 @@ $descriptorString
 
 $subclasses
 ''';
+}
+
+bool _isSameSchemaResource(Schema a, Schema b) {
+  if (a.id != null && b.id != null) {
+    final idA = a.id!.endsWith('#')
+        ? a.id!.substring(0, a.id!.length - 1)
+        : a.id!;
+    final idB = b.id!.endsWith('#')
+        ? b.id!.substring(0, b.id!.length - 1)
+        : b.id!;
+    return idA == idB;
+  }
+  if (a.resourceUri != null && b.resourceUri != null) {
+    return a.resourceUri == b.resourceUri;
+  }
+  return false;
+}
+
+void _resolveDynamicRefs(Schema root, Schema current, [Set<Schema>? seen]) {
+  seen ??= <Schema>{};
+  if (!seen.add(current)) return;
+
+  if (current.dynamicRef != null) {
+    final uri = Uri.parse(current.dynamicRef!);
+    final fragment = uri.fragment;
+    if (fragment.isNotEmpty) {
+      final rootId = root.id ?? root.resourceUri ?? 'http://localhost/';
+      final normalizedRootId = rootId.endsWith('#')
+          ? rootId.substring(0, rootId.length - 1)
+          : rootId;
+      final rootAnchorUri = '$normalizedRootId#$fragment';
+      if (root.dynamicAnchors != null &&
+          root.dynamicAnchors!.containsKey(rootAnchorUri)) {
+        var target = root.dynamicAnchors![rootAnchorUri]!;
+        if (target != root && _isSameSchemaResource(target, root)) {
+          target = root;
+        }
+        current.resolvedRef = target;
+      }
+    }
+  }
+
+  if (current.properties != null) {
+    for (final s in current.properties!.values) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
+  if (current.patternProperties != null) {
+    for (final s in current.patternProperties!.values) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
+  if (current.additionalProperties != null) {
+    _resolveDynamicRefs(root, current.additionalProperties!, seen);
+  }
+  if (current.unevaluatedProperties != null) {
+    _resolveDynamicRefs(root, current.unevaluatedProperties!, seen);
+  }
+  if (current.propertyNames != null) {
+    _resolveDynamicRefs(root, current.propertyNames!, seen);
+  }
+  if (current.items != null) {
+    _resolveDynamicRefs(root, current.items!, seen);
+  }
+  if (current.prefixItems != null) {
+    for (final s in current.prefixItems!) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
+  if (current.contains != null) {
+    _resolveDynamicRefs(root, current.contains!, seen);
+  }
+  if (current.unevaluatedItems != null) {
+    _resolveDynamicRefs(root, current.unevaluatedItems!, seen);
+  }
+  if (current.allOf != null) {
+    for (final s in current.allOf!) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
+  if (current.anyOf != null) {
+    for (final s in current.anyOf!) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
+  if (current.oneOf != null) {
+    for (final s in current.oneOf!) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
+  if (current.not != null) {
+    _resolveDynamicRefs(root, current.not!, seen);
+  }
+  if (current.ifSchema != null) {
+    _resolveDynamicRefs(root, current.ifSchema!, seen);
+  }
+  if (current.thenSchema != null) {
+    _resolveDynamicRefs(root, current.thenSchema!, seen);
+  }
+  if (current.elseSchema != null) {
+    _resolveDynamicRefs(root, current.elseSchema!, seen);
+  }
+  if (current.dependentSchemas != null) {
+    for (final s in current.dependentSchemas!.values) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
+  if (current.resolvedRef != null) {
+    _resolveDynamicRefs(root, current.resolvedRef!, seen);
+  }
 }

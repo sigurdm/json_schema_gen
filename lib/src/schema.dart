@@ -601,9 +601,13 @@ final class UnionAnalysis {
     required this.activeSchemas,
   });
 
+  static final Expando<UnionAnalysis> _cache = Expando();
+
   /// Analyzes a [Schema] (which must be a union) to extract nullability information.
   factory UnionAnalysis.analyze(Schema schema) {
     final real = schema.realSchema;
+    final cached = _cache[real];
+    if (cached != null) return cached;
     final active = <Schema>[];
     bool nullable = false;
 
@@ -612,7 +616,7 @@ final class UnionAnalysis {
         if (t == 'null') {
           nullable = true;
         } else {
-          active.add(Schema(type: [t]));
+          active.add(real.copyWith(type: [t]));
         }
       }
     } else if (real.anyOf != null) {
@@ -635,17 +639,18 @@ final class UnionAnalysis {
       }
     }
 
-    if (nullable && active.length == 1) {
-      return UnionAnalysis(
-        isNullable: true,
-        nonNullSchema: active.first,
-        activeSchemas: active,
-      );
-    }
-    return UnionAnalysis(
-      isNullable: nullable,
-      nonNullSchema: null,
-      activeSchemas: active,
-    );
+    final result = (nullable && active.length == 1)
+        ? UnionAnalysis(
+            isNullable: true,
+            nonNullSchema: active.first,
+            activeSchemas: active,
+          )
+        : UnionAnalysis(
+            isNullable: nullable,
+            nonNullSchema: null,
+            activeSchemas: active,
+          );
+    _cache[real] = result;
+    return result;
   }
 }

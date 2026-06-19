@@ -262,3 +262,16 @@ final class NotDescriptor extends SchemaDescriptor<dynamic> {
   /// Creates a [NotDescriptor] wrapping [inner].
   const NotDescriptor(this.inner);
 }
+
+/// A descriptor that lazily references another descriptor.
+/// Used to break circularity in recursive schemas.
+final class RefDescriptor<T> extends SchemaDescriptor<T> {
+  /// Function returning the target descriptor.
+  final SchemaDescriptor<T> Function() getTarget;
+
+  /// Creates a [RefDescriptor] wrapping [getTarget].
+  const RefDescriptor(this.getTarget);
+
+  /// Resolves and returns the target descriptor.
+  SchemaDescriptor<T> get target => getTarget();
+}

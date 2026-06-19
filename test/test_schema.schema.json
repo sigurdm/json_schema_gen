@@ -8,6 +8,22 @@
     }
   },
   "properties": {
+    "deprecated": {
+      "type": "string",
+      "deprecated": true
+    },
+    "$idField": {
+      "type": "string"
+    },
+    "unionWithObjectAndBoolean": {
+      "type": ["object", "boolean"],
+      "properties": {
+        "foo": { "type": "string" }
+      }
+    },
+    "recursiveNodeField": {
+      "$ref": "#/$defs/RecursiveNode"
+    },
     "name": {
       "type": "string",
       "minLength": 2
@@ -659,6 +675,24 @@
     "address"
   ],
   "$defs": {
+    "RecursiveNode": {
+      "title": "RecursiveNode",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "parent": {
+          "$ref": "#/$defs/RecursiveNode"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RecursiveNode"
+          }
+        }
+      }
+    },
     "OverlappingUnion": {
       "title": "OverlappingUnion",
       "oneOf": [

@@ -427,13 +427,22 @@ final class _NotFrame extends JsonParseFrame {
   }
 }
 
+SchemaDescriptor _resolve(SchemaDescriptor schema) {
+  var current = schema;
+  while (current is RefDescriptor) {
+    current = current.target;
+  }
+  return current;
+}
+
 void _pushSchemaFrame(
   JsonReader reader,
   List<JsonParseFrame> stack,
-  SchemaDescriptor schema,
+  SchemaDescriptor rawSchema,
   void Function(dynamic value) onComplete, {
   required bool validate,
 }) {
+  final schema = _resolve(rawSchema);
   if (schema is NullableDescriptor) {
     if (reader.checkNull()) {
       reader.expectNull();
@@ -473,9 +482,10 @@ void _pushSchemaFrame(
 
 dynamic _runNonRecursiveWithDescriptor(
   JsonReader reader,
-  SchemaDescriptor rootSchema, {
+  SchemaDescriptor rawRootSchema, {
   bool validate = true,
 }) {
+  final rootSchema = _resolve(rawRootSchema);
   if (rootSchema is NullableDescriptor) {
     if (reader.checkNull()) {
       reader.expectNull();
@@ -537,9 +547,10 @@ dynamic _runNonRecursiveWithDescriptor(
 }
 
 JsonParseFrame _createFrameForSchema(
-  SchemaDescriptor schema, {
+  SchemaDescriptor rawSchema, {
   required bool validate,
 }) {
+  final schema = _resolve(rawSchema);
   if (schema is ObjectDescriptor) {
     return _ObjectFrame(schema, validate: validate);
   } else if (schema is ArrayDescriptor) {
@@ -580,7 +591,12 @@ void writeWithDescriptor<T>(
   _writeSchemaValue(sink, value, schema);
 }
 
-void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
+void _writeSchemaValue(
+  JsonSink sink,
+  Object? value,
+  SchemaDescriptor rawSchema,
+) {
+  final schema = _resolve(rawSchema);
   if (schema is NullableDescriptor) {
     if (value == null) {
       sink.addNull();
@@ -659,7 +675,8 @@ void _writeSchemaValue(JsonSink sink, Object? value, SchemaDescriptor schema) {
   }
 }
 
-bool _descriptorMatches(SchemaDescriptor schema, Object? value) {
+bool _descriptorMatches(SchemaDescriptor rawSchema, Object? value) {
+  final schema = _resolve(rawSchema);
   if (schema is NullableDescriptor) {
     if (value == null) return true;
     return _descriptorMatches(schema.inner, value);

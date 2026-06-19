@@ -2716,5 +2716,102 @@ void main() {
         expect(map['validate'], '5');
       });
     });
+
+    group('Regression Tests for Metaschema Bugs', () {
+      test(
+        'deprecated property does not conflict with @Deprecated annotation',
+        () {
+          final json = {
+            'name': 'John',
+            'age': 35,
+            'isAwesome': true,
+            'address': {'city': 'London'},
+            'deprecated': 'old-way',
+          };
+          final model = TestRoot.fromMap(json);
+          expect(model.deprecated, 'old-way');
+        },
+      );
+
+      test(
+        'property starting with dollar sign (\$idField) is escaped correctly',
+        () {
+          final json = {
+            'name': 'John',
+            'age': 35,
+            'isAwesome': true,
+            'address': {'city': 'London'},
+            '\$idField': 'my-id',
+          };
+          final model = TestRoot.fromMap(json);
+          expect(model.idField, 'my-id');
+          expect(model.toMap()['\$idField'], 'my-id');
+        },
+      );
+
+      test(
+        'recursive union types compile and parse without circularity errors',
+        () {
+          final json = {
+            'name': 'John',
+            'age': 35,
+            'isAwesome': true,
+            'address': {'city': 'London'},
+            'recursiveNodeField': {
+              'name': 'root',
+              'children': [
+                {
+                  'name': 'child1',
+                  'parent': {'name': 'root'},
+                },
+              ],
+            },
+          };
+          final model = TestRoot.fromMap(json);
+          expect(model.recursiveNodeField?.name, 'root');
+          expect(model.recursiveNodeField?.children?[0].name, 'child1');
+          expect(model.recursiveNodeField?.children?[0].parent?.name, 'root');
+        },
+      );
+
+      test(
+        'multi-type union with object option preserves properties during splitting',
+        () {
+          final json = {
+            'name': 'John',
+            'age': 35,
+            'isAwesome': true,
+            'address': {'city': 'London'},
+            'unionWithObjectAndBoolean': {'foo': 'bar'},
+          };
+          final model = TestRoot.fromMap(json);
+          expect(
+            model.unionWithObjectAndBoolean,
+            isA<TestRootUnionWithObjectAndBooleanOption0>(),
+          );
+          final opt =
+              model.unionWithObjectAndBoolean
+                  as TestRootUnionWithObjectAndBooleanOption0;
+          expect(opt.value.foo, 'bar');
+
+          final jsonBool = {
+            'name': 'John',
+            'age': 35,
+            'isAwesome': true,
+            'address': {'city': 'London'},
+            'unionWithObjectAndBoolean': true,
+          };
+          final modelBool = TestRoot.fromMap(jsonBool);
+          expect(
+            modelBool.unionWithObjectAndBoolean,
+            isA<TestRootUnionWithObjectAndBooleanOption1>(),
+          );
+          final optBool =
+              modelBool.unionWithObjectAndBoolean
+                  as TestRootUnionWithObjectAndBooleanOption1;
+          expect(optBool.value, true);
+        },
+      );
+    });
   });
 }
