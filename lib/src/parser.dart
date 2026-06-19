@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:collection/collection.dart';
 import 'schema.dart';
 import 'utils.dart';
+import 'generated/schema_202012.g.dart';
 
 /// A parser to build a [Schema] AST from a decoded JSON schema.
 final class SchemaParser {
@@ -15,8 +16,8 @@ final class SchemaParser {
   final Future<List<int>> Function(Uri uri)? uriResolver;
   final Set<String> _loadedFiles = {};
   final bool flatten;
-  bool _disallowExternalRefs = false;
-  final Map<String, dynamic> _inlineSchemas = {};
+  final bool _disallowExternalRefs;
+  final Map<String, _InlineSchema> _inlineSchemas = {};
   final Set<String> _parsingPaths = {};
   Set<String>? _currentVocabularies;
   final Map<String, Set<String>?> _metaschemaVocabularies = {};
@@ -27,10 +28,10 @@ final class SchemaParser {
     this._rootJson, {
     this.baseUri = 'http://localhost/',
     this.uriResolver,
-    bool disallowExternalRefs = false,
+    this._disallowExternalRefs = false,
     this.flatten = true,
-  }) : _disallowExternalRefs = disallowExternalRefs {
-    _findInlineIds(_rootJson, baseUri);
+  }) {
+    _findInlineIds(_rootJson, baseUri, '$baseUri#');
   }
 
   /// Parses the schema and returns the resolved [Schema] AST.
@@ -108,7 +109,17 @@ final class SchemaParser {
       throw ArgumentError('Schema must be a boolean or a Map');
     }
 
-    final pathToTrack = path;
+    var pathToTrack = path;
+    if (json.containsKey(r'$id')) {
+      final id = json[r'$id'] as String;
+      final currentFile = _getFileUri(path);
+      pathToTrack = normalizeSchemaUri(
+        Uri.parse(currentFile).resolve(id).toString(),
+      );
+      if (!pathToTrack.contains('#')) {
+        pathToTrack = '$pathToTrack#';
+      }
+    }
     _parsingPaths.add(pathToTrack);
 
     final savedVocabs = _currentVocabularies;
@@ -121,556 +132,15 @@ final class SchemaParser {
     }
 
     try {
-      final originalPath = path;
-      final hasExplicitType = json.containsKey('type');
-      String? idUrl;
-      if (json.containsKey(r'$id')) {
-        final id = json[r'$id'] as String;
-        final currentFile = _getFileUri(path);
-        idUrl = Uri.parse(currentFile).resolve(id).toString();
-        path = normalizeSchemaUri(idUrl);
-        if (!path.contains('#')) {
-          path = '$path#';
-        }
-      }
-
-      final currentResourceUri = idUrl ?? parentResourceUri;
-
-      String? anchorUrl;
-      if (json.containsKey(r'$anchor')) {
-        final anchor = json[r'$anchor'] as String;
-        final currentFile = _getFileUri(path);
-        anchorUrl = Uri.parse(currentFile).resolve('#$anchor').toString();
-      }
-      String? dynamicAnchorUrl;
-      if (json.containsKey(r'$dynamicAnchor')) {
-        final dynamicAnchor = json[r'$dynamicAnchor'] as String;
-        final currentFile = _getFileUri(path);
-        dynamicAnchorUrl = Uri.parse(
-          currentFile,
-        ).resolve('#$dynamicAnchor').toString();
-      }
-
-      // Extract metadata
-      final title = json['title'] as String?;
-      final description = json['description'] as String?;
-      final isDeprecated = json['deprecated'] as bool? ?? false;
-      final deprecatedMessage = json['x-deprecated-message'] as String?;
-      final hasDefault = json.containsKey('default');
-      final defaultValue = json['default'];
-      final notJson = json['not'];
-      final not = notJson != null
-          ? await _parseSchema(
-              notJson,
-              '$path/not',
-              parentResourceUri: currentResourceUri,
-            )
-          : null;
-      final dartName = json['x-dart-name'] as String?;
-
-      // defs
-      if (json[r'$defs'] is Map) {
-        for (final entry in (json[r'$defs'] as Map).entries) {
-          await _parseSchema(
-            entry.value,
-            '$path/\$defs/${entry.key}',
-            parentResourceUri: currentResourceUri,
-          );
-        }
-      }
-      if (json['definitions'] is Map) {
-        for (final entry in (json['definitions'] as Map).entries) {
-          await _parseSchema(
-            entry.value,
-            '$path/definitions/${entry.key}',
-            parentResourceUri: currentResourceUri,
-          );
-        }
-      }
-
-      // Resolve refs (do NOT return early)
-      String? resolvedRefUri;
-      if (json.containsKey(r'$ref')) {
-        final ref = json[r'$ref'] as String;
-        final currentFile = _getFileUri(path);
-        resolvedRefUri = normalizeSchemaUri(
-          Uri.parse(currentFile).resolve(ref).toString(),
-        );
-        if (!resolvedRefUri.contains('#')) {
-          resolvedRefUri = '$resolvedRefUri#';
-        }
-
-        final refFile = _getFileUri(resolvedRefUri);
-        if (refFile != currentFile && refFile.isNotEmpty) {
-          if (_disallowExternalRefs) {
-            throw ArgumentError('External references are disallowed: $ref');
-          }
-          if (!_cache.containsKey(refFile) &&
-              !_cache.containsKey(resolvedRefUri)) {
-            if (_parsingPaths.contains('$refFile#') ||
-                _parsingPaths.contains(resolvedRefUri)) {
-              print('Cycle detected for $resolvedRefUri, skipping parsing');
-            } else if (_inlineSchemas.containsKey(refFile)) {
-              await _parseSchema(
-                _inlineSchemas[refFile],
-                '$refFile#',
-                parentResourceUri: refFile,
-              );
-            } else if (_inlineSchemas.containsKey(resolvedRefUri)) {
-              await _parseSchema(
-                _inlineSchemas[resolvedRefUri],
-                resolvedRefUri,
-                parentResourceUri: refFile,
-              );
-            } else if (!_loadedFiles.contains(refFile)) {
-              _loadedFiles.add(refFile);
-              if (uriResolver == null) {
-                throw ArgumentError(
-                  'Cannot resolve external ref $ref because no uriResolver was provided.',
-                );
-              }
-              final bytes = await uriResolver!(Uri.parse(refFile));
-              final externalJson =
-                  jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>;
-              await _parseSchema(
-                externalJson,
-                '$refFile#',
-                isExternal: true,
-                parentResourceUri: refFile,
-              );
-            }
-          }
-        }
-      }
-
-      String? resolvedDynamicRefUri;
-      if (json.containsKey(r'$dynamicRef')) {
-        final dynamicRef = json[r'$dynamicRef'] as String;
-        final currentFile = _getFileUri(path);
-        resolvedDynamicRefUri = normalizeSchemaUri(
-          Uri.parse(currentFile).resolve(dynamicRef).toString(),
-        );
-        if (!resolvedDynamicRefUri.contains('#')) {
-          resolvedDynamicRefUri = '$resolvedDynamicRefUri#';
-        }
-
-        final refFile = _getFileUri(resolvedDynamicRefUri);
-        if (refFile != currentFile && refFile.isNotEmpty) {
-          if (_disallowExternalRefs) {
-            throw ArgumentError(
-              'External references are disallowed: $dynamicRef',
-            );
-          }
-          if (!_cache.containsKey(refFile) &&
-              !_cache.containsKey(resolvedDynamicRefUri)) {
-            if (_parsingPaths.contains('$refFile#') ||
-                _parsingPaths.contains(resolvedDynamicRefUri)) {
-              print(
-                'Cycle detected for $resolvedDynamicRefUri, skipping parsing',
-              );
-            } else if (_inlineSchemas.containsKey(refFile)) {
-              await _parseSchema(
-                _inlineSchemas[refFile],
-                '$refFile#',
-                parentResourceUri: refFile,
-              );
-            } else if (_inlineSchemas.containsKey(resolvedDynamicRefUri)) {
-              await _parseSchema(
-                _inlineSchemas[resolvedDynamicRefUri],
-                resolvedDynamicRefUri,
-                parentResourceUri: refFile,
-              );
-            } else if (!_loadedFiles.contains(refFile)) {
-              _loadedFiles.add(refFile);
-              if (uriResolver == null) {
-                throw ArgumentError(
-                  'Cannot resolve external ref $dynamicRef because no uriResolver was provided.',
-                );
-              }
-              final bytes = await uriResolver!(Uri.parse(refFile));
-              final externalJson =
-                  jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>;
-              await _parseSchema(
-                externalJson,
-                '$refFile#',
-                isExternal: true,
-                parentResourceUri: refFile,
-              );
-            }
-          }
-        }
-      }
-
-      // Parse const and enum
-      dynamic constValue;
-      List<dynamic>? enumValues;
-      if (json.containsKey('const')) {
-        constValue = json['const'];
-        enumValues = [constValue];
-      }
-      if (json.containsKey('enum')) {
-        enumValues = (json['enum'] as List).toList();
-      }
-
-      // Parse type
-      List<String>? type;
-      final typeVal = json['type'];
-      if (typeVal is String) {
-        type = [typeVal];
-      } else if (typeVal is List) {
-        type = typeVal.cast<String>();
-      } else if (typeVal == null) {
-        if (json.containsKey('properties') ||
-            json.containsKey('patternProperties') ||
-            json.containsKey('required') ||
-            json.containsKey('additionalProperties') ||
-            json.containsKey('dependentRequired') ||
-            json.containsKey('minProperties') ||
-            json.containsKey('maxProperties') ||
-            json.containsKey('propertyNames')) {
-          type = ['object'];
-        } else if (json.containsKey('items') ||
-            json.containsKey('prefixItems') ||
-            json.containsKey('minItems') ||
-            json.containsKey('maxItems') ||
-            json.containsKey('uniqueItems') ||
-            json.containsKey('contains')) {
-          type = ['array'];
-        } else if (json.containsKey('minLength') ||
-            json.containsKey('maxLength') ||
-            json.containsKey('pattern') ||
-            json.containsKey('format')) {
-          type = ['string'];
-        } else if (json.containsKey('minimum') ||
-            json.containsKey('maximum') ||
-            json.containsKey('exclusiveMinimum') ||
-            json.containsKey('exclusiveMaximum') ||
-            json.containsKey('multipleOf')) {
-          type = ['number'];
-        }
-      }
-
-      // Parse constraints
-      Map<String, Schema>? properties;
-      Map<RegExp, Schema>? patternProperties;
-      Set<String>? required;
-      Schema? additionalProperties;
-      int? minProperties;
-      int? maxProperties;
-      Map<String, Set<String>>? dependentRequired;
-      Map<String, Schema>? dependentSchemas;
-      Schema? unevaluatedProperties;
-      Schema? propertyNames;
-
-      if (json['properties'] is Map) {
-        properties = {};
-        for (final entry in (json['properties'] as Map).entries) {
-          properties[entry.key as String] = await _parseSchema(
-            entry.value,
-            '$path/properties/${entry.key}',
-            parentResourceUri: currentResourceUri,
-          );
-        }
-      }
-      if (json['patternProperties'] is Map) {
-        patternProperties = {};
-        for (final entry in (json['patternProperties'] as Map).entries) {
-          patternProperties[RegExp(
-            entry.key as String,
-            unicode: true,
-          )] = await _parseSchema(
-            entry.value,
-            '$path/patternProperties/${entry.key}',
-            parentResourceUri: currentResourceUri,
-          );
-        }
-      }
-      if (json['required'] is List) {
-        required = (json['required'] as List).cast<String>().toSet();
-      }
-      final addPropsVal = json['additionalProperties'];
-      if (addPropsVal is bool) {
-        additionalProperties = addPropsVal ? Schema.anything : Schema.never;
-      } else if (addPropsVal is Map) {
-        additionalProperties = await _parseSchema(
-          addPropsVal,
-          '$path/additionalProperties',
-          parentResourceUri: currentResourceUri,
-        );
-      }
-      minProperties = parseInt(json['minProperties']);
-      maxProperties = parseInt(json['maxProperties']);
-
-      if (json['dependentRequired'] is Map) {
-        dependentRequired = {};
-        (json['dependentRequired'] as Map).forEach((key, value) {
-          if (value is List) {
-            dependentRequired![key as String] = value.cast<String>().toSet();
-          }
-        });
-      }
-
-      if (json['dependentSchemas'] is Map) {
-        dependentSchemas = {};
-        for (final entry in (json['dependentSchemas'] as Map).entries) {
-          dependentSchemas[entry.key as String] = await _parseSchema(
-            entry.value,
-            '$path/dependentSchemas/${entry.key}',
-            parentResourceUri: currentResourceUri,
-          );
-        }
-      }
-
-      final unevalPropsVal = json['unevaluatedProperties'];
-      if (unevalPropsVal is bool) {
-        unevaluatedProperties = unevalPropsVal ? Schema.anything : Schema.never;
-      } else if (unevalPropsVal is Map) {
-        unevaluatedProperties = await _parseSchema(
-          unevalPropsVal,
-          '$path/unevaluatedProperties',
-          parentResourceUri: currentResourceUri,
-        );
-      }
-
-      final propNamesVal = json['propertyNames'];
-      if (propNamesVal is Map) {
-        propertyNames = await _parseSchema(
-          propNamesVal,
-          '$path/propertyNames',
-          parentResourceUri: currentResourceUri,
-        );
-      } else if (propNamesVal is bool) {
-        propertyNames = propNamesVal ? Schema.anything : Schema.never;
-      }
-
-      // Array constraints
-      Schema? items;
-      List<Schema>? prefixItems;
-      int? minItems;
-      int? maxItems;
-      bool? uniqueItems;
-      Schema? contains;
-      int? minContains;
-      int? maxContains;
-      Schema? unevaluatedItems;
-
-      final itemsJson = json['items'];
-      if (itemsJson != null) {
-        items = await _parseSchema(
-          itemsJson,
-          '$path/items',
-          parentResourceUri: currentResourceUri,
-        );
-      }
-      final prefixItemsJson = json['prefixItems'];
-      if (prefixItemsJson is List) {
-        prefixItems = [];
-        for (var i = 0; i < prefixItemsJson.length; i++) {
-          prefixItems.add(
-            await _parseSchema(
-              prefixItemsJson[i],
-              '$path/prefixItems/$i',
-              parentResourceUri: currentResourceUri,
-            ),
-          );
-        }
-      }
-      minItems = parseInt(json['minItems']);
-      maxItems = parseInt(json['maxItems']);
-      uniqueItems = json['uniqueItems'] as bool?;
-      final containsJson = json['contains'];
-      if (containsJson != null) {
-        contains = await _parseSchema(
-          containsJson,
-          '$path/contains',
-          parentResourceUri: currentResourceUri,
-        );
-      }
-      minContains = parseInt(json['minContains']);
-      maxContains = parseInt(json['maxContains']);
-
-      final unevalItemsVal = json['unevaluatedItems'];
-      if (unevalItemsVal is bool) {
-        unevaluatedItems = unevalItemsVal ? Schema.anything : Schema.never;
-      } else if (unevalItemsVal is Map) {
-        unevaluatedItems = await _parseSchema(
-          unevalItemsVal,
-          '$path/unevaluatedItems',
-          parentResourceUri: currentResourceUri,
-        );
-      }
-
-      // String constraints
-      int? minLength = parseInt(json['minLength']);
-      int? maxLength = parseInt(json['maxLength']);
-      String? pattern = json['pattern'] as String?;
-      String? format = json['format'] as String?;
-
-      // Number constraints
-      num? minimum = json['minimum'] as num?;
-      num? maximum = json['maximum'] as num?;
-      num? exclusiveMinimum = json['exclusiveMinimum'] as num?;
-      num? exclusiveMaximum = json['exclusiveMaximum'] as num?;
-      num? multipleOf = json['multipleOf'] as num?;
-
-      // Parse combinators
-      List<Schema>? allOf;
-      if (json['allOf'] is List) {
-        allOf = await Future.wait(
-          (json['allOf'] as List).asMap().entries.map(
-            (e) => _parseSchema(
-              e.value,
-              '$path/allOf/${e.key}',
-              parentResourceUri: currentResourceUri,
-            ),
-          ),
-        );
-      }
-      List<Schema>? anyOf;
-      if (json['anyOf'] is List) {
-        anyOf = await Future.wait(
-          (json['anyOf'] as List).asMap().entries.map(
-            (e) => _parseSchema(
-              e.value,
-              '$path/anyOf/${e.key}',
-              parentResourceUri: currentResourceUri,
-            ),
-          ),
-        );
-      }
-      List<Schema>? oneOf;
-      if (json['oneOf'] is List) {
-        oneOf = await Future.wait(
-          (json['oneOf'] as List).asMap().entries.map(
-            (e) => _parseSchema(
-              e.value,
-              '$path/oneOf/${e.key}',
-              parentResourceUri: currentResourceUri,
-            ),
-          ),
-        );
-      }
-
-      Schema? ifSchema;
-      if (json.containsKey('if')) {
-        ifSchema = await _parseSchema(
-          json['if'],
-          '$path/if',
-          parentResourceUri: currentResourceUri,
-        );
-      }
-      Schema? thenSchema;
-      if (json.containsKey('then')) {
-        thenSchema = await _parseSchema(
-          json['then'],
-          '$path/then',
-          parentResourceUri: currentResourceUri,
-        );
-      }
-      Schema? elseSchema;
-      if (json.containsKey('else')) {
-        elseSchema = await _parseSchema(
-          json['else'],
-          '$path/else',
-          parentResourceUri: currentResourceUri,
-        );
-      }
-
-      Discriminator? parseDiscriminator(dynamic json) {
-        if (json['discriminator'] is Map) {
-          final discMap = json['discriminator'] as Map;
-          final propName = discMap['propertyName'] as String?;
-          if (propName != null) {
-            final mappingJson = discMap['mapping'] as Map?;
-            final currentFile = _getFileUri(path);
-            final mapping = mappingJson?.map(
-              (k, v) => MapEntry(k as String, () {
-                final resolved = Uri.parse(
-                  currentFile,
-                ).resolve(v as String).toString();
-                final refFile = _getFileUri(resolved);
-                if (refFile != currentFile && refFile.isNotEmpty) {
-                  if (_disallowExternalRefs) {
-                    throw ArgumentError(
-                      'External references are disallowed: $v',
-                    );
-                  }
-                }
-                return Schema(ref: resolved);
-              }()),
-            );
-            return Discriminator(propertyName: propName, mapping: mapping);
-          }
-        }
-        return null;
-      }
-
-      final schema = Schema(
-        hasExplicitType: hasExplicitType,
-        title: title,
-        description: description,
-        isDeprecated: isDeprecated,
-        deprecatedMessage: deprecatedMessage,
-        hasDefault: hasDefault,
-        defaultValue: defaultValue,
-        not: not,
-        dartName: dartName,
-        id: idUrl ?? json[r'$id'] as String?,
-        anchor: json[r'$anchor'] as String?,
-        dynamicAnchor: json[r'$dynamicAnchor'] as String?,
-        ref: resolvedRefUri,
-        dynamicRef: resolvedDynamicRefUri,
-        type: type,
-        enumValues: enumValues,
-        constValue: constValue,
-        properties: properties,
-        patternProperties: patternProperties,
-        required: required,
-        additionalProperties: additionalProperties,
-        minProperties: minProperties,
-        maxProperties: maxProperties,
-        dependentRequired: dependentRequired,
-        dependentSchemas: dependentSchemas,
-        unevaluatedProperties: unevaluatedProperties,
-        propertyNames: propertyNames,
-        items: items,
-        prefixItems: prefixItems,
-        minItems: minItems,
-        maxItems: maxItems,
-        uniqueItems: uniqueItems,
-        contains: contains,
-        minContains: minContains,
-        maxContains: maxContains,
-        unevaluatedItems: unevaluatedItems,
-        minLength: minLength,
-        maxLength: maxLength,
-        pattern: pattern,
-        format: format,
-        minimum: minimum,
-        maximum: maximum,
-        exclusiveMinimum: exclusiveMinimum,
-        exclusiveMaximum: exclusiveMaximum,
-        multipleOf: multipleOf,
-        allOf: allOf,
-        anyOf: anyOf,
-        oneOf: oneOf,
-        ifSchema: ifSchema,
-        thenSchema: thenSchema,
-        elseSchema: elseSchema,
-        discriminator: parseDiscriminator(json),
-        vocabularies: _currentVocabularies,
-        resourceUri: currentResourceUri,
+      final generated = CoreAndValidationSpecificationsMetaSchema.fromJsonValue(
+        json,
       );
-
-      _cacheSchema(
-        schema,
+      return await _mapGenerated(
+        generated,
         path,
-        originalPath,
-        idUrl,
-        anchorUrl,
-        dynamicAnchorUrl: dynamicAnchorUrl,
+        json,
+        parentResourceUri: parentResourceUri,
       );
-      return schema;
     } finally {
       _currentVocabularies = savedVocabs;
       _parsingPaths.remove(pathToTrack);
@@ -853,8 +323,9 @@ final class SchemaParser {
     Schema? newUnevaluatedProperties;
     if (schema.unevaluatedProperties != null) {
       newUnevaluatedProperties = _flatten(schema.unevaluatedProperties!);
-      if (newUnevaluatedProperties != schema.unevaluatedProperties)
+      if (newUnevaluatedProperties != schema.unevaluatedProperties) {
         changed = true;
+      }
     }
 
     Schema? newItems;
@@ -1306,23 +777,503 @@ final class SchemaParser {
     return [...a, ...b];
   }
 
-  void _findInlineIds(dynamic json, String currentUri) {
+  void _findInlineIds(dynamic json, String currentUri, String path) {
     if (json is Map) {
       var nextUri = currentUri;
-      if (json.containsKey(r'$id')) {
+      var nextPath = path;
+      if (json.containsKey(r'$id') && json[r'$id'] is String) {
         final id = json[r'$id'] as String;
         nextUri = Uri.parse(currentUri).resolve(id).toString();
-        _inlineSchemas[nextUri] = json;
-        _inlineSchemas['$nextUri#'] = json;
+        _inlineSchemas[nextUri] = _InlineSchema(json, path);
+        _inlineSchemas['$nextUri#'] = _InlineSchema(json, path);
+        nextPath = '$nextUri#';
       }
       json.forEach((key, value) {
-        _findInlineIds(value, nextUri);
+        final escapedKey = Uri.encodeComponent(key as String);
+        _findInlineIds(value, nextUri, '$nextPath/$escapedKey');
       });
     } else if (json is List) {
-      for (final item in json) {
-        _findInlineIds(item, currentUri);
+      for (var i = 0; i < json.length; i++) {
+        _findInlineIds(json[i], currentUri, '$path/$i');
       }
     }
+  }
+
+  List<String>? _mapType(CoreAndValidationSpecificationsMetaSchema1Type? type) {
+    if (type == null) return null;
+    if (type is CoreAndValidationSpecificationsMetaSchema1TypeOption0) {
+      return [type.value.value];
+    }
+    if (type is CoreAndValidationSpecificationsMetaSchema1TypeOption1) {
+      return type.value.map((e) => e.value).toList();
+    }
+    return null;
+  }
+
+  Future<void> _checkAndLoadExternalRef(
+    String ref,
+    String path,
+    String? currentResourceUri,
+  ) async {
+    final currentFile = _getFileUri(path);
+    var resolvedRefUri = normalizeSchemaUri(
+      Uri.parse(currentFile).resolve(ref).toString(),
+    );
+    if (!resolvedRefUri.contains('#')) {
+      resolvedRefUri = '$resolvedRefUri#';
+    }
+
+    final refFile = _getFileUri(resolvedRefUri);
+    if (refFile != currentFile && refFile.isNotEmpty) {
+      if (_disallowExternalRefs) {
+        throw ArgumentError('External references are disallowed: $ref');
+      }
+      if (!_cache.containsKey(refFile) && !_cache.containsKey(resolvedRefUri)) {
+        if (_parsingPaths.contains('$refFile#') ||
+            _parsingPaths.contains(resolvedRefUri)) {
+          print('Cycle detected for $resolvedRefUri, skipping parsing');
+        } else if (_inlineSchemas.containsKey(refFile)) {
+          final inline = _inlineSchemas[refFile]!;
+          await _parseSchema(
+            inline.json,
+            inline.path,
+            parentResourceUri: _getFileUri(inline.path),
+          );
+        } else if (_inlineSchemas.containsKey(resolvedRefUri)) {
+          final inline = _inlineSchemas[resolvedRefUri]!;
+          await _parseSchema(
+            inline.json,
+            inline.path,
+            parentResourceUri: _getFileUri(inline.path),
+          );
+        } else if (!_loadedFiles.contains(refFile)) {
+          _loadedFiles.add(refFile);
+          if (uriResolver == null) {
+            throw ArgumentError(
+              'Cannot resolve external ref $ref because no uriResolver was provided.',
+            );
+          }
+          final bytes = await uriResolver!(Uri.parse(refFile));
+          final externalJson =
+              jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>;
+          _findInlineIds(externalJson, refFile, '$refFile#');
+          await _parseSchema(
+            externalJson,
+            '$refFile#',
+            isExternal: true,
+            parentResourceUri: refFile,
+          );
+        }
+      }
+    }
+  }
+
+  Discriminator? _parseDiscriminator(dynamic json, String path) {
+    if (json is Map && json['discriminator'] is Map) {
+      final discMap = json['discriminator'] as Map;
+      final propName = discMap['propertyName'] as String?;
+      if (propName != null) {
+        final mappingJson = discMap['mapping'] as Map?;
+        final currentFile = _getFileUri(path);
+        final mapping = mappingJson?.map(
+          (k, v) => MapEntry(k as String, () {
+            final resolved = Uri.parse(
+              currentFile,
+            ).resolve(v as String).toString();
+            final refFile = _getFileUri(resolved);
+            if (refFile != currentFile && refFile.isNotEmpty) {
+              if (_disallowExternalRefs) {
+                throw ArgumentError('External references are disallowed: $v');
+              }
+            }
+            return Schema(ref: resolved);
+          }()),
+        );
+        return Discriminator(propertyName: propName, mapping: mapping);
+      }
+    }
+    return null;
+  }
+
+  Future<Schema> _mapGenerated(
+    CoreAndValidationSpecificationsMetaSchema gen,
+    String path,
+    dynamic json, {
+    String? parentResourceUri,
+  }) async {
+    if (gen is CoreAndValidationSpecificationsMetaSchemaOption1) {
+      final schema = gen.value ? Schema.anything : Schema.never;
+      _cacheSchema(schema, path, path, null, null);
+      return schema;
+    }
+
+    final obj = (gen as CoreAndValidationSpecificationsMetaSchemaOption0).value;
+    print('Mapping schema at $path. obj.defs: ${obj.defs}');
+    if (obj.defs != null) {
+      print('  defs keys: ${obj.defs!.additionalProperties.keys}');
+    }
+
+    final originalPath = path;
+    String? idUrl;
+    if (obj.id != null) {
+      final currentFile = _getFileUri(path);
+      idUrl = Uri.parse(currentFile).resolve(obj.id!).toString();
+      path = normalizeSchemaUri(idUrl);
+      if (!path.contains('#')) {
+        path = '$path#';
+      }
+    }
+    final currentResourceUri = idUrl ?? parentResourceUri;
+
+    String? anchorUrl;
+    if (obj.anchor != null) {
+      final currentFile = _getFileUri(path);
+      anchorUrl = Uri.parse(currentFile).resolve('#${obj.anchor}').toString();
+    }
+    String? dynamicAnchorUrl;
+    if (obj.dynamicAnchor != null) {
+      final currentFile = _getFileUri(path);
+      dynamicAnchorUrl = Uri.parse(
+        currentFile,
+      ).resolve('#${obj.dynamicAnchor}').toString();
+    }
+
+    String? resolvedRef;
+    if (obj.ref != null) {
+      final currentFile = _getFileUri(path);
+      resolvedRef = normalizeSchemaUri(
+        Uri.parse(currentFile).resolve(obj.ref!).toString(),
+      );
+      if (!resolvedRef.contains('#')) {
+        resolvedRef = '$resolvedRef#';
+      }
+      await _checkAndLoadExternalRef(obj.ref!, path, currentResourceUri);
+    }
+    String? resolvedDynamicRef;
+    if (obj.dynamicRef != null) {
+      final currentFile = _getFileUri(path);
+      resolvedDynamicRef = normalizeSchemaUri(
+        Uri.parse(currentFile).resolve(obj.dynamicRef!).toString(),
+      );
+      if (!resolvedDynamicRef.contains('#')) {
+        resolvedDynamicRef = '$resolvedDynamicRef#';
+      }
+      await _checkAndLoadExternalRef(obj.dynamicRef!, path, currentResourceUri);
+    }
+
+    final jsonMap = json as Map;
+    final hasExplicitType = jsonMap.containsKey('type');
+    final hasConst = jsonMap.containsKey('const');
+    final hasDefault = jsonMap.containsKey('default');
+
+    final constValue = hasConst ? obj.const_ : null;
+    final defaultValue = hasDefault ? obj.default_ : null;
+
+    List<Object?>? enumValues = obj.enum_;
+    if (hasConst && enumValues == null) {
+      enumValues = [constValue];
+    }
+
+    // Map subschemas recursively
+    Map<String, Schema>? properties;
+    if (obj.properties.additionalProperties.isNotEmpty) {
+      properties = {};
+      for (final entry in obj.properties.additionalProperties.entries) {
+        properties[entry.key] = await _mapGenerated(
+          entry.value,
+          '$path/properties/${entry.key}',
+          jsonMap['properties']?[entry.key],
+          parentResourceUri: currentResourceUri,
+        );
+      }
+    }
+
+    Map<RegExp, Schema>? patternProperties;
+    if (obj.patternProperties_.additionalProperties.isNotEmpty) {
+      patternProperties = {};
+      for (final entry in obj.patternProperties_.additionalProperties.entries) {
+        patternProperties[RegExp(
+          entry.key,
+          unicode: true,
+        )] = await _mapGenerated(
+          entry.value,
+          '$path/patternProperties/${entry.key}',
+          jsonMap['patternProperties']?[entry.key],
+          parentResourceUri: currentResourceUri,
+        );
+      }
+    }
+
+    Map<String, Schema>? dependentSchemas;
+    if (obj.dependentSchemas.additionalProperties.isNotEmpty) {
+      dependentSchemas = {};
+      for (final entry in obj.dependentSchemas.additionalProperties.entries) {
+        dependentSchemas[entry.key] = await _mapGenerated(
+          entry.value,
+          '$path/dependentSchemas/${entry.key}',
+          jsonMap['dependentSchemas']?[entry.key],
+          parentResourceUri: currentResourceUri,
+        );
+      }
+    }
+
+    if (obj.defs != null && obj.defs!.additionalProperties.isNotEmpty) {
+      for (final entry in obj.defs!.additionalProperties.entries) {
+        await _mapGenerated(
+          entry.value,
+          '$path/\$defs/${entry.key}',
+          jsonMap[r'$defs']?[entry.key],
+          parentResourceUri: currentResourceUri,
+        );
+      }
+    }
+
+    if (obj.definitions.additionalProperties.isNotEmpty) {
+      for (final entry in obj.definitions.additionalProperties.entries) {
+        await _mapGenerated(
+          entry.value,
+          '$path/definitions/${entry.key}',
+          jsonMap['definitions']?[entry.key],
+          parentResourceUri: currentResourceUri,
+        );
+      }
+    }
+
+    List<Schema>? allOf;
+    if (obj.allOf != null) {
+      allOf = [];
+      for (var i = 0; i < obj.allOf!.length; i++) {
+        allOf.add(
+          await _mapGenerated(
+            obj.allOf![i],
+            '$path/allOf/$i',
+            jsonMap['allOf']?[i],
+            parentResourceUri: currentResourceUri,
+          ),
+        );
+      }
+    }
+    List<Schema>? anyOf;
+    if (obj.anyOf != null) {
+      anyOf = [];
+      for (var i = 0; i < obj.anyOf!.length; i++) {
+        anyOf.add(
+          await _mapGenerated(
+            obj.anyOf![i],
+            '$path/anyOf/$i',
+            jsonMap['anyOf']?[i],
+            parentResourceUri: currentResourceUri,
+          ),
+        );
+      }
+    }
+    List<Schema>? oneOf;
+    if (obj.oneOf != null) {
+      oneOf = [];
+      for (var i = 0; i < obj.oneOf!.length; i++) {
+        oneOf.add(
+          await _mapGenerated(
+            obj.oneOf![i],
+            '$path/oneOf/$i',
+            jsonMap['oneOf']?[i],
+            parentResourceUri: currentResourceUri,
+          ),
+        );
+      }
+    }
+
+    final not = obj.not != null
+        ? await _mapGenerated(
+            obj.not!,
+            '$path/not',
+            jsonMap['not'],
+            parentResourceUri: currentResourceUri,
+          )
+        : null;
+    final ifSchema = obj.if_ != null
+        ? await _mapGenerated(
+            obj.if_!,
+            '$path/if',
+            jsonMap['if'],
+            parentResourceUri: currentResourceUri,
+          )
+        : null;
+    final thenSchema = obj.then != null
+        ? await _mapGenerated(
+            obj.then!,
+            '$path/then',
+            jsonMap['then'],
+            parentResourceUri: currentResourceUri,
+          )
+        : null;
+    final elseSchema = obj.else_ != null
+        ? await _mapGenerated(
+            obj.else_!,
+            '$path/else',
+            jsonMap['else'],
+            parentResourceUri: currentResourceUri,
+          )
+        : null;
+    final items = obj.items != null
+        ? await _mapGenerated(
+            obj.items!,
+            '$path/items',
+            jsonMap['items'],
+            parentResourceUri: currentResourceUri,
+          )
+        : null;
+    final contains = obj.contains != null
+        ? await _mapGenerated(
+            obj.contains!,
+            '$path/contains',
+            jsonMap['contains'],
+            parentResourceUri: currentResourceUri,
+          )
+        : null;
+
+    List<Schema>? prefixItems;
+    if (obj.prefixItems != null) {
+      prefixItems = [];
+      for (var i = 0; i < obj.prefixItems!.length; i++) {
+        prefixItems.add(
+          await _mapGenerated(
+            obj.prefixItems![i],
+            '$path/prefixItems/$i',
+            jsonMap['prefixItems']?[i],
+            parentResourceUri: currentResourceUri,
+          ),
+        );
+      }
+    }
+
+    Schema? additionalProperties;
+    if (obj.additionalProperties_ != null) {
+      additionalProperties = await _mapGenerated(
+        obj.additionalProperties_!,
+        '$path/additionalProperties',
+        jsonMap['additionalProperties'],
+        parentResourceUri: currentResourceUri,
+      );
+    }
+    Schema? unevaluatedProperties;
+    if (obj.unevaluatedProperties != null) {
+      unevaluatedProperties = await _mapGenerated(
+        obj.unevaluatedProperties!,
+        '$path/unevaluatedProperties',
+        jsonMap['unevaluatedProperties'],
+        parentResourceUri: currentResourceUri,
+      );
+    }
+    Schema? unevaluatedItems;
+    if (obj.unevaluatedItems != null) {
+      unevaluatedItems = await _mapGenerated(
+        obj.unevaluatedItems!,
+        '$path/unevaluatedItems',
+        jsonMap['unevaluatedItems'],
+        parentResourceUri: currentResourceUri,
+      );
+    }
+    Schema? propertyNames;
+    if (obj.propertyNames != null) {
+      propertyNames = await _mapGenerated(
+        obj.propertyNames!,
+        '$path/propertyNames',
+        jsonMap['propertyNames'],
+        parentResourceUri: currentResourceUri,
+      );
+    }
+
+    final dartName = obj.additionalProperties['x-dart-name'] as String?;
+    final deprecatedMessage =
+        obj.additionalProperties['x-deprecated-message'] as String?;
+
+    Set<String>? vocabularies = _currentVocabularies;
+    if (obj.vocabulary != null) {
+      vocabularies = obj.vocabulary!.additionalProperties.keys.toSet();
+    }
+
+    final type = _mapType(obj.type_);
+    final required = obj.required_?.toSet();
+
+    Map<String, Set<String>>? dependentRequired;
+    if (obj.dependentRequired != null) {
+      dependentRequired = obj.dependentRequired!.additionalProperties.map(
+        (k, v) => MapEntry(k, v.toSet()),
+      );
+    }
+    final uniqueItems = jsonMap.containsKey('uniqueItems')
+        ? obj.uniqueItems
+        : null;
+    final minContains = jsonMap.containsKey('minContains')
+        ? obj.minContains
+        : null;
+
+    final schema = Schema(
+      hasExplicitType: hasExplicitType,
+      title: obj.title,
+      description: obj.description,
+      isDeprecated: obj.deprecated,
+      deprecatedMessage: deprecatedMessage,
+      hasDefault: hasDefault,
+      defaultValue: defaultValue,
+      not: not,
+      dartName: dartName,
+      id: obj.id,
+      anchor: obj.anchor,
+      dynamicAnchor: obj.dynamicAnchor,
+      ref: resolvedRef,
+      dynamicRef: resolvedDynamicRef,
+      type: type,
+      enumValues: enumValues,
+      constValue: constValue,
+      properties: properties,
+      patternProperties: patternProperties,
+      required: required,
+      additionalProperties: additionalProperties,
+      minProperties: obj.minProperties,
+      maxProperties: obj.maxProperties,
+      dependentRequired: dependentRequired,
+      dependentSchemas: dependentSchemas,
+      unevaluatedProperties: unevaluatedProperties,
+      propertyNames: propertyNames,
+      discriminator: _parseDiscriminator(json, path),
+      items: items,
+      prefixItems: prefixItems,
+      minItems: obj.minItems,
+      maxItems: obj.maxItems,
+      uniqueItems: uniqueItems,
+      contains: contains,
+      minContains: minContains,
+      maxContains: obj.maxContains,
+      unevaluatedItems: unevaluatedItems,
+      minLength: obj.minLength,
+      maxLength: obj.maxLength,
+      pattern: obj.pattern,
+      format: obj.format,
+      minimum: obj.minimum,
+      maximum: obj.maximum,
+      exclusiveMinimum: obj.exclusiveMinimum,
+      exclusiveMaximum: obj.exclusiveMaximum,
+      multipleOf: obj.multipleOf,
+      allOf: allOf,
+      anyOf: anyOf,
+      oneOf: oneOf,
+      ifSchema: ifSchema,
+      thenSchema: thenSchema,
+      elseSchema: elseSchema,
+      vocabularies: vocabularies,
+      resourceUri: currentResourceUri,
+    );
+
+    _cacheSchema(
+      schema,
+      path,
+      originalPath,
+      idUrl,
+      anchorUrl,
+      dynamicAnchorUrl: dynamicAnchorUrl,
+    );
+    return schema;
   }
 }
 
@@ -1370,4 +1321,10 @@ class _MergePair {
       other is _MergePair && identical(a, other.a) && identical(b, other.b);
   @override
   int get hashCode => identityHashCode(a) ^ identityHashCode(b);
+}
+
+class _InlineSchema {
+  final dynamic json;
+  final String path;
+  _InlineSchema(this.json, this.path);
 }

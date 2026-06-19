@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
 
 import 'dart:collection';
 import 'package:collection/collection.dart';
@@ -93,6 +93,7 @@ final class TestRoot implements JsonModel {
   final TestRootCoverageTrigger? coverageTrigger;
   final CollidingEnum? collidingEnumField;
   final CollidingObject? collidingObjectField;
+  final Map<String, Object?> additionalProperties;
 
   const TestRoot({
     this.deprecated,
@@ -179,6 +180,7 @@ final class TestRoot implements JsonModel {
     this.coverageTrigger,
     this.collidingEnumField,
     this.collidingObjectField,
+    this.additionalProperties = const {},
   });
 
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -294,6 +296,7 @@ final class TestRoot implements JsonModel {
     TestRootCoverageTrigger? coverageTrigger,
     CollidingEnum? collidingEnumField,
     CollidingObject? collidingObjectField,
+    Map<String, Object?>? additionalProperties,
   }) => TestRoot(
     deprecated: deprecated ?? this.deprecated,
     idField: idField ?? this.idField,
@@ -384,6 +387,7 @@ final class TestRoot implements JsonModel {
     coverageTrigger: coverageTrigger ?? this.coverageTrigger,
     collidingEnumField: collidingEnumField ?? this.collidingEnumField,
     collidingObjectField: collidingObjectField ?? this.collidingObjectField,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
   void validate() {
@@ -1289,6 +1293,101 @@ final class TestRoot implements JsonModel {
       coverageTrigger: fields['coverageTrigger'] as TestRootCoverageTrigger?,
       collidingEnumField: fields['collidingEnumField'] as CollidingEnum?,
       collidingObjectField: fields['collidingObjectField'] as CollidingObject?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{
+                  'deprecated',
+                  '\$idField',
+                  'unionWithObjectAndBoolean',
+                  'recursiveNodeField',
+                  'name',
+                  'constValue',
+                  'age',
+                  'exclusiveAge',
+                  'height',
+                  'email',
+                  'uuid',
+                  'isAwesome',
+                  'class',
+                  'reader',
+                  'stack',
+                  'validate',
+                  'result',
+                  'address',
+                  'tags',
+                  'scores',
+                  'unionValue',
+                  'nullableUnionValue',
+                  'requiredNullableUnionObject',
+                  'nullableString',
+                  'pet',
+                  'restrictedObject',
+                  'dependentObject',
+                  'primitiveArrayWithValidation',
+                  'restrictedArray',
+                  'deprecatedField',
+                  'deprecatedRef',
+                  'defaultString',
+                  'defaultBackslash',
+                  'nestedArray',
+                  'single\'quote\'key',
+                  'mixedEnum',
+                  'defaultInt',
+                  'defaultBool',
+                  'defaultList',
+                  'defaultObject',
+                  'defaultNullableString',
+                  'mergedValue',
+                  'tupleArray',
+                  'tupleObjectArray',
+                  'ipv6Value',
+                  'hostnameValue',
+                  'timeValue',
+                  'uriReferenceValue',
+                  'additionalPropertiesObject',
+                  'strictObject',
+                  'notObject',
+                  'anyOfValue',
+                  'mergedAllOfObject',
+                  'complexMerged',
+                  'myEnumField',
+                  'unionContainsArray',
+                  'objectContainsArray',
+                  'enumContainsArray',
+                  'booleanContainsArray',
+                  'nullContainsArray',
+                  'anyContainsArray',
+                  'stringContainsArray',
+                  'numberContainsArray',
+                  'dynamicProps',
+                  'dateTimeField',
+                  'dateField',
+                  'ipv4Field',
+                  'uriField',
+                  'defaultEmptyList',
+                  'defaultEmptyObject',
+                  'unionWithArrayOption',
+                  'impossibleField',
+                  'tupleSameTypeArray',
+                  'arrayWithAllOfItems',
+                  'unionWithAllOfOption',
+                  'patternPropsField',
+                  'overlappingUnion',
+                  'deprecatedFieldWithMessage',
+                  'customNamedObject',
+                  'customNamedUnion',
+                  'customNamedEnum',
+                  'coverageTrigger',
+                  'collidingEnumField',
+                  'collidingObjectField',
+                }.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as TestRoot;
@@ -1379,6 +1478,7 @@ final class TestRoot implements JsonModel {
         'coverageTrigger': typedInstance.coverageTrigger,
         'collidingEnumField': typedInstance.collidingEnumField,
         'collidingObjectField': typedInstance.collidingObjectField,
+        ...typedInstance.additionalProperties,
       };
     },
     properties: {
@@ -1869,6 +1969,7 @@ final class TestRoot implements JsonModel {
     },
 
     required: const ['name', 'age', 'isAwesome', 'address'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -2013,7 +2114,11 @@ final class TestRoot implements JsonModel {
           customNamedEnum == other.customNamedEnum &&
           coverageTrigger == other.coverageTrigger &&
           collidingEnumField == other.collidingEnumField &&
-          collidingObjectField == other.collidingObjectField;
+          collidingObjectField == other.collidingObjectField &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
   int get hashCode => Object.hashAll([
@@ -2101,11 +2206,12 @@ final class TestRoot implements JsonModel {
     coverageTrigger,
     collidingEnumField,
     collidingObjectField,
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override
   String toString() =>
-      'TestRoot(deprecated: ${deprecated}, idField: ${idField}, unionWithObjectAndBoolean: ${unionWithObjectAndBoolean}, recursiveNodeField: ${recursiveNodeField}, name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableUnionValue: ${nullableUnionValue}, requiredNullableUnionObject: ${requiredNullableUnionObject}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, primitiveArrayWithValidation: ${primitiveArrayWithValidation}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultBackslash: ${defaultBackslash}, nestedArray: ${nestedArray}, singleQuoteKey: ${singleQuoteKey}, mixedEnum: ${mixedEnum}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, patternPropsField: ${patternPropsField}, overlappingUnion: ${overlappingUnion}, deprecatedFieldWithMessage: ${deprecatedFieldWithMessage}, customNamedObject: ${customNamedObject}, customNamedUnion: ${customNamedUnion}, customNamedEnum: ${customNamedEnum}, coverageTrigger: ${coverageTrigger}, collidingEnumField: ${collidingEnumField}, collidingObjectField: ${collidingObjectField})';
+      'TestRoot(deprecated: ${deprecated}, idField: ${idField}, unionWithObjectAndBoolean: ${unionWithObjectAndBoolean}, recursiveNodeField: ${recursiveNodeField}, name: ${name}, constValue: ${constValue}, age: ${age}, exclusiveAge: ${exclusiveAge}, height: ${height}, email: ${email}, uuid: ${uuid}, isAwesome: ${isAwesome}, class_: ${class_}, reader: ${reader}, stack: ${stack}, validate_: ${validate_}, result: ${result}, address: ${address}, tags: ${tags}, scores: ${scores}, unionValue: ${unionValue}, nullableUnionValue: ${nullableUnionValue}, requiredNullableUnionObject: ${requiredNullableUnionObject}, nullableString: ${nullableString}, pet: ${pet}, restrictedObject: ${restrictedObject}, dependentObject: ${dependentObject}, primitiveArrayWithValidation: ${primitiveArrayWithValidation}, restrictedArray: ${restrictedArray}, deprecatedField: ${deprecatedField}, deprecatedRef: ${deprecatedRef}, defaultString: ${defaultString}, defaultBackslash: ${defaultBackslash}, nestedArray: ${nestedArray}, singleQuoteKey: ${singleQuoteKey}, mixedEnum: ${mixedEnum}, defaultInt: ${defaultInt}, defaultBool: ${defaultBool}, defaultList: ${defaultList}, defaultObject: ${defaultObject}, defaultNullableString: ${defaultNullableString}, mergedValue: ${mergedValue}, tupleArray: ${tupleArray}, tupleObjectArray: ${tupleObjectArray}, ipv6Value: ${ipv6Value}, hostnameValue: ${hostnameValue}, timeValue: ${timeValue}, uriReferenceValue: ${uriReferenceValue}, additionalPropertiesObject: ${additionalPropertiesObject}, strictObject: ${strictObject}, notObject: ${notObject}, anyOfValue: ${anyOfValue}, mergedAllOfObject: ${mergedAllOfObject}, complexMerged: ${complexMerged}, myEnumField: ${myEnumField}, unionContainsArray: ${unionContainsArray}, objectContainsArray: ${objectContainsArray}, enumContainsArray: ${enumContainsArray}, booleanContainsArray: ${booleanContainsArray}, nullContainsArray: ${nullContainsArray}, anyContainsArray: ${anyContainsArray}, stringContainsArray: ${stringContainsArray}, numberContainsArray: ${numberContainsArray}, dynamicProps: ${dynamicProps}, dateTimeField: ${dateTimeField}, dateField: ${dateField}, ipv4Field: ${ipv4Field}, uriField: ${uriField}, defaultEmptyList: ${defaultEmptyList}, defaultEmptyObject: ${defaultEmptyObject}, unionWithArrayOption: ${unionWithArrayOption}, impossibleField: ${impossibleField}, tupleSameTypeArray: ${tupleSameTypeArray}, arrayWithAllOfItems: ${arrayWithAllOfItems}, unionWithAllOfOption: ${unionWithAllOfOption}, patternPropsField: ${patternPropsField}, overlappingUnion: ${overlappingUnion}, deprecatedFieldWithMessage: ${deprecatedFieldWithMessage}, customNamedObject: ${customNamedObject}, customNamedUnion: ${customNamedUnion}, customNamedEnum: ${customNamedEnum}, coverageTrigger: ${coverageTrigger}, collidingEnumField: ${collidingEnumField}, collidingObjectField: ${collidingObjectField}, additionalProperties: ${additionalProperties})';
 }
 
 sealed class TestRootUnionWithObjectAndBoolean implements JsonModel {
@@ -2235,8 +2341,12 @@ final class TestRootUnionWithObjectAndBooleanOption1
 
 final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
   final String? foo;
+  final Map<String, Object?> additionalProperties;
 
-  const TestRootUnionWithObjectAndBooleanOptionType0({this.foo});
+  const TestRootUnionWithObjectAndBooleanOptionType0({
+    this.foo,
+    this.additionalProperties = const {},
+  });
 
   factory TestRootUnionWithObjectAndBooleanOptionType0.fromJson(
     JsonReader reader, {
@@ -2275,8 +2385,13 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  TestRootUnionWithObjectAndBooleanOptionType0 copyWith({String? foo}) =>
-      TestRootUnionWithObjectAndBooleanOptionType0(foo: foo ?? this.foo);
+  TestRootUnionWithObjectAndBooleanOptionType0 copyWith({
+    String? foo,
+    Map<String, Object?>? additionalProperties,
+  }) => TestRootUnionWithObjectAndBooleanOptionType0(
+    foo: foo ?? this.foo,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_foo = foo;
@@ -2289,11 +2404,17 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
         instance is TestRootUnionWithObjectAndBooleanOptionType0,
     instantiate: (fields) => TestRootUnionWithObjectAndBooleanOptionType0(
       foo: fields['foo'] as String?,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'foo'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance =
           instance as TestRootUnionWithObjectAndBooleanOptionType0;
-      return {'foo': typedInstance.foo};
+      return {'foo': typedInstance.foo, ...typedInstance.additionalProperties};
     },
     properties: {
       'foo': PropertyDescriptor(
@@ -2304,6 +2425,7 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
     },
 
     required: const [],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -2311,22 +2433,35 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
       identical(this, other) ||
       other is TestRootUnionWithObjectAndBooleanOptionType0 &&
           runtimeType == other.runtimeType &&
-          foo == other.foo;
+          foo == other.foo &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([foo]);
+  int get hashCode => Object.hashAll([
+    foo,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
   String toString() =>
-      'TestRootUnionWithObjectAndBooleanOptionType0(foo: ${foo})';
+      'TestRootUnionWithObjectAndBooleanOptionType0(foo: ${foo}, additionalProperties: ${additionalProperties})';
 }
 
 final class RecursiveNode implements JsonModel {
   final String? name;
   final RecursiveNode? parent;
   final List<RecursiveNode>? children;
+  final Map<String, Object?> additionalProperties;
 
-  const RecursiveNode({this.name, this.parent, this.children});
+  const RecursiveNode({
+    this.name,
+    this.parent,
+    this.children,
+    this.additionalProperties = const {},
+  });
 
   factory RecursiveNode.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -2363,10 +2498,12 @@ final class RecursiveNode implements JsonModel {
     String? name,
     RecursiveNode? parent,
     List<RecursiveNode>? children,
+    Map<String, Object?>? additionalProperties,
   }) => RecursiveNode(
     name: name ?? this.name,
     parent: parent ?? this.parent,
     children: children ?? this.children,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
   void validate() {
@@ -2395,47 +2532,57 @@ final class RecursiveNode implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<RecursiveNode> descriptor =
-      ObjectDescriptor<RecursiveNode>(
-        title: 'RecursiveNode',
-        matches: (instance) => instance is RecursiveNode,
-        instantiate: (fields) => RecursiveNode(
-          name: fields['name'] as String?,
-          parent: fields['parent'] as RecursiveNode?,
-          children: fields['children'] as List<RecursiveNode>?,
+  static final ObjectDescriptor<RecursiveNode>
+  descriptor = ObjectDescriptor<RecursiveNode>(
+    title: 'RecursiveNode',
+    matches: (instance) => instance is RecursiveNode,
+    instantiate: (fields) => RecursiveNode(
+      name: fields['name'] as String?,
+      parent: fields['parent'] as RecursiveNode?,
+      children: fields['children'] as List<RecursiveNode>?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'name', 'parent', 'children'}.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as RecursiveNode;
+      return {
+        'name': typedInstance.name,
+        'parent': typedInstance.parent,
+        'children': typedInstance.children,
+        ...typedInstance.additionalProperties,
+      };
+    },
+    properties: {
+      'name': PropertyDescriptor(
+        name: 'name',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'parent': PropertyDescriptor(
+        name: 'parent',
+        isRequired: false,
+        schema: RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
+      ),
+      'children': PropertyDescriptor(
+        name: 'children',
+        isRequired: false,
+        schema: ArrayDescriptor<RecursiveNode>(
+          RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
         ),
-        getFields: (instance) {
-          final typedInstance = instance as RecursiveNode;
-          return {
-            'name': typedInstance.name,
-            'parent': typedInstance.parent,
-            'children': typedInstance.children,
-          };
-        },
-        properties: {
-          'name': PropertyDescriptor(
-            name: 'name',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'parent': PropertyDescriptor(
-            name: 'parent',
-            isRequired: false,
-            schema: RefDescriptor<RecursiveNode>(
-              () => RecursiveNode.descriptor,
-            ),
-          ),
-          'children': PropertyDescriptor(
-            name: 'children',
-            isRequired: false,
-            schema: ArrayDescriptor<RecursiveNode>(
-              RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
-            ),
-          ),
-        },
+      ),
+    },
 
-        required: const [],
-      );
+    required: const [],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -2444,18 +2591,23 @@ final class RecursiveNode implements JsonModel {
           runtimeType == other.runtimeType &&
           name == other.name &&
           parent == other.parent &&
-          const DeepCollectionEquality().equals(children, other.children);
+          const DeepCollectionEquality().equals(children, other.children) &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
   int get hashCode => Object.hashAll([
     name,
     parent,
     const DeepCollectionEquality().hash(children),
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override
   String toString() =>
-      'RecursiveNode(name: ${name}, parent: ${parent}, children: ${children})';
+      'RecursiveNode(name: ${name}, parent: ${parent}, children: ${children}, additionalProperties: ${additionalProperties})';
 }
 
 enum TestRootConstValue {
@@ -2477,8 +2629,13 @@ enum TestRootConstValue {
 final class Address implements JsonModel {
   final String city;
   final String? street;
+  final Map<String, Object?> additionalProperties;
 
-  const Address({required this.city, this.street});
+  const Address({
+    required this.city,
+    this.street,
+    this.additionalProperties = const {},
+  });
 
   factory Address.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Address;
@@ -2508,8 +2665,15 @@ final class Address implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  Address copyWith({String? city, String? street}) =>
-      Address(city: city ?? this.city, street: street ?? this.street);
+  Address copyWith({
+    String? city,
+    String? street,
+    Map<String, Object?>? additionalProperties,
+  }) => Address(
+    city: city ?? this.city,
+    street: street ?? this.street,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     if (city.length < 3) {
@@ -2526,10 +2690,22 @@ final class Address implements JsonModel {
     instantiate: (fields) => Address(
       city: fields['city'] as String,
       street: fields['street'] as String?,
+      additionalProperties: fields.entries
+          .where(
+            (e) => !const <String>{'city', 'street'}.contains(e.key) && true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as Address;
-      return {'city': typedInstance.city, 'street': typedInstance.street};
+      return {
+        'city': typedInstance.city,
+        'street': typedInstance.street,
+        ...typedInstance.additionalProperties,
+      };
     },
     properties: {
       'city': PropertyDescriptor(
@@ -2545,6 +2721,7 @@ final class Address implements JsonModel {
     },
 
     required: const ['city'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -2553,19 +2730,29 @@ final class Address implements JsonModel {
       other is Address &&
           runtimeType == other.runtimeType &&
           city == other.city &&
-          street == other.street;
+          street == other.street &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([city, street]);
+  int get hashCode => Object.hashAll([
+    city,
+    street,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'Address(city: ${city}, street: ${street})';
+  String toString() =>
+      'Address(city: ${city}, street: ${street}, additionalProperties: ${additionalProperties})';
 }
 
 final class Score implements JsonModel {
   final num value;
+  final Map<String, Object?> additionalProperties;
 
-  const Score({required this.value});
+  const Score({required this.value, this.additionalProperties = const {}});
 
   factory Score.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Score;
@@ -2595,7 +2782,11 @@ final class Score implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  Score copyWith({num? value}) => Score(value: value ?? this.value);
+  Score copyWith({num? value, Map<String, Object?>? additionalProperties}) =>
+      Score(
+        value: value ?? this.value,
+        additionalProperties: additionalProperties ?? this.additionalProperties,
+      );
 
   void validate() {
     if (value < 0.0) {
@@ -2608,10 +2799,21 @@ final class Score implements JsonModel {
   static final ObjectDescriptor<Score> descriptor = ObjectDescriptor<Score>(
     title: 'Score',
     matches: (instance) => instance is Score,
-    instantiate: (fields) => Score(value: fields['value'] as num),
+    instantiate: (fields) => Score(
+      value: fields['value'] as num,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'value'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+    ),
     getFields: (instance) {
       final typedInstance = instance as Score;
-      return {'value': typedInstance.value};
+      return {
+        'value': typedInstance.value,
+        ...typedInstance.additionalProperties,
+      };
     },
     properties: {
       'value': PropertyDescriptor(
@@ -2622,6 +2824,7 @@ final class Score implements JsonModel {
     },
 
     required: const ['value'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -2629,13 +2832,21 @@ final class Score implements JsonModel {
       identical(this, other) ||
       other is Score &&
           runtimeType == other.runtimeType &&
-          value == other.value;
+          value == other.value &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([value]);
+  int get hashCode => Object.hashAll([
+    value,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'Score(value: ${value})';
+  String toString() =>
+      'Score(value: ${value}, additionalProperties: ${additionalProperties})';
 }
 
 sealed class TestRootUnionValue implements JsonModel {
@@ -2866,8 +3077,12 @@ final class TestRootNullableUnionValueOption1
 
 final class RequiredNullableUnionObject implements JsonModel {
   final RequiredNullableUnionObjectNullableUnion? nullableUnion;
+  final Map<String, Object?> additionalProperties;
 
-  const RequiredNullableUnionObject({required this.nullableUnion});
+  const RequiredNullableUnionObject({
+    required this.nullableUnion,
+    this.additionalProperties = const {},
+  });
 
   factory RequiredNullableUnionObject.fromJson(
     JsonReader reader, {
@@ -2908,8 +3123,10 @@ final class RequiredNullableUnionObject implements JsonModel {
 
   RequiredNullableUnionObject copyWith({
     RequiredNullableUnionObjectNullableUnion? nullableUnion,
+    Map<String, Object?>? additionalProperties,
   }) => RequiredNullableUnionObject(
     nullableUnion: nullableUnion ?? this.nullableUnion,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
   void validate() {
@@ -2931,10 +3148,21 @@ final class RequiredNullableUnionObject implements JsonModel {
           nullableUnion:
               fields['nullableUnion']
                   as RequiredNullableUnionObjectNullableUnion?,
+          additionalProperties: fields.entries
+              .where(
+                (e) => !const <String>{'nullableUnion'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as RequiredNullableUnionObject;
-          return {'nullableUnion': typedInstance.nullableUnion};
+          return {
+            'nullableUnion': typedInstance.nullableUnion,
+            ...typedInstance.additionalProperties,
+          };
         },
         properties: {
           'nullableUnion': PropertyDescriptor(
@@ -2949,6 +3177,7 @@ final class RequiredNullableUnionObject implements JsonModel {
         },
 
         required: const ['nullableUnion'],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -2956,14 +3185,21 @@ final class RequiredNullableUnionObject implements JsonModel {
       identical(this, other) ||
       other is RequiredNullableUnionObject &&
           runtimeType == other.runtimeType &&
-          nullableUnion == other.nullableUnion;
+          nullableUnion == other.nullableUnion &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([nullableUnion]);
+  int get hashCode => Object.hashAll([
+    nullableUnion,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
   String toString() =>
-      'RequiredNullableUnionObject(nullableUnion: ${nullableUnion})';
+      'RequiredNullableUnionObject(nullableUnion: ${nullableUnion}, additionalProperties: ${additionalProperties})';
 }
 
 sealed class RequiredNullableUnionObjectNullableUnion implements JsonModel {
@@ -3213,8 +3449,13 @@ final class PetOption1 extends Pet {
 final class Cat implements JsonModel {
   final String kind;
   final num? meowVolume;
+  final Map<String, Object?> additionalProperties;
 
-  const Cat({required this.kind, this.meowVolume});
+  const Cat({
+    required this.kind,
+    this.meowVolume,
+    this.additionalProperties = const {},
+  });
 
   factory Cat.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Cat;
@@ -3244,8 +3485,15 @@ final class Cat implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  Cat copyWith({String? kind, num? meowVolume}) =>
-      Cat(kind: kind ?? this.kind, meowVolume: meowVolume ?? this.meowVolume);
+  Cat copyWith({
+    String? kind,
+    num? meowVolume,
+    Map<String, Object?>? additionalProperties,
+  }) => Cat(
+    kind: kind ?? this.kind,
+    meowVolume: meowVolume ?? this.meowVolume,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_meowVolume = meowVolume;
@@ -3257,12 +3505,22 @@ final class Cat implements JsonModel {
     instantiate: (fields) => Cat(
       kind: fields['kind'] as String,
       meowVolume: fields['meowVolume'] as num?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'kind', 'meowVolume'}.contains(e.key) && true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as Cat;
       return {
         'kind': typedInstance.kind,
         'meowVolume': typedInstance.meowVolume,
+        ...typedInstance.additionalProperties,
       };
     },
     properties: {
@@ -3279,6 +3537,7 @@ final class Cat implements JsonModel {
     },
 
     required: const ['kind'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -3287,20 +3546,34 @@ final class Cat implements JsonModel {
       other is Cat &&
           runtimeType == other.runtimeType &&
           kind == other.kind &&
-          meowVolume == other.meowVolume;
+          meowVolume == other.meowVolume &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([kind, meowVolume]);
+  int get hashCode => Object.hashAll([
+    kind,
+    meowVolume,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'Cat(kind: ${kind}, meowVolume: ${meowVolume})';
+  String toString() =>
+      'Cat(kind: ${kind}, meowVolume: ${meowVolume}, additionalProperties: ${additionalProperties})';
 }
 
 final class Dog implements JsonModel {
   final String kind;
   final num? barkVolume;
+  final Map<String, Object?> additionalProperties;
 
-  const Dog({required this.kind, this.barkVolume});
+  const Dog({
+    required this.kind,
+    this.barkVolume,
+    this.additionalProperties = const {},
+  });
 
   factory Dog.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Dog;
@@ -3330,8 +3603,15 @@ final class Dog implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  Dog copyWith({String? kind, num? barkVolume}) =>
-      Dog(kind: kind ?? this.kind, barkVolume: barkVolume ?? this.barkVolume);
+  Dog copyWith({
+    String? kind,
+    num? barkVolume,
+    Map<String, Object?>? additionalProperties,
+  }) => Dog(
+    kind: kind ?? this.kind,
+    barkVolume: barkVolume ?? this.barkVolume,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_barkVolume = barkVolume;
@@ -3343,12 +3623,22 @@ final class Dog implements JsonModel {
     instantiate: (fields) => Dog(
       kind: fields['kind'] as String,
       barkVolume: fields['barkVolume'] as num?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'kind', 'barkVolume'}.contains(e.key) && true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as Dog;
       return {
         'kind': typedInstance.kind,
         'barkVolume': typedInstance.barkVolume,
+        ...typedInstance.additionalProperties,
       };
     },
     properties: {
@@ -3365,6 +3655,7 @@ final class Dog implements JsonModel {
     },
 
     required: const ['kind'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -3373,21 +3664,36 @@ final class Dog implements JsonModel {
       other is Dog &&
           runtimeType == other.runtimeType &&
           kind == other.kind &&
-          barkVolume == other.barkVolume;
+          barkVolume == other.barkVolume &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([kind, barkVolume]);
+  int get hashCode => Object.hashAll([
+    kind,
+    barkVolume,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'Dog(kind: ${kind}, barkVolume: ${barkVolume})';
+  String toString() =>
+      'Dog(kind: ${kind}, barkVolume: ${barkVolume}, additionalProperties: ${additionalProperties})';
 }
 
 final class RestrictedObject implements JsonModel {
   final String? a;
   final String? b;
   final String? c;
+  final Map<String, Object?> additionalProperties;
 
-  const RestrictedObject({this.a, this.b, this.c});
+  const RestrictedObject({
+    this.a,
+    this.b,
+    this.c,
+    this.additionalProperties = const {},
+  });
 
   factory RestrictedObject.fromJson(
     JsonReader reader, {
@@ -3424,14 +3730,24 @@ final class RestrictedObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  RestrictedObject copyWith({String? a, String? b, String? c}) =>
-      RestrictedObject(a: a ?? this.a, b: b ?? this.b, c: c ?? this.c);
+  RestrictedObject copyWith({
+    String? a,
+    String? b,
+    String? c,
+    Map<String, Object?>? additionalProperties,
+  }) => RestrictedObject(
+    a: a ?? this.a,
+    b: b ?? this.b,
+    c: c ?? this.c,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     var count = 0;
     if (a != null) count++;
     if (b != null) count++;
     if (c != null) count++;
+    count += additionalProperties.length;
     if (count < 1) {
       throw JsonValidationException('Object must have >= 1 properties', []);
     }
@@ -3451,6 +3767,14 @@ final class RestrictedObject implements JsonModel {
           a: fields['a'] as String?,
           b: fields['b'] as String?,
           c: fields['c'] as String?,
+          additionalProperties: fields.entries
+              .where(
+                (e) => !const <String>{'a', 'b', 'c'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as RestrictedObject;
@@ -3458,6 +3782,7 @@ final class RestrictedObject implements JsonModel {
             'a': typedInstance.a,
             'b': typedInstance.b,
             'c': typedInstance.c,
+            ...typedInstance.additionalProperties,
           };
         },
         properties: {
@@ -3479,6 +3804,7 @@ final class RestrictedObject implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -3488,20 +3814,35 @@ final class RestrictedObject implements JsonModel {
           runtimeType == other.runtimeType &&
           a == other.a &&
           b == other.b &&
-          c == other.c;
+          c == other.c &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([a, b, c]);
+  int get hashCode => Object.hashAll([
+    a,
+    b,
+    c,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'RestrictedObject(a: ${a}, b: ${b}, c: ${c})';
+  String toString() =>
+      'RestrictedObject(a: ${a}, b: ${b}, c: ${c}, additionalProperties: ${additionalProperties})';
 }
 
 final class DependentObject implements JsonModel {
   final num? creditCard;
   final String? billingAddress;
+  final Map<String, Object?> additionalProperties;
 
-  const DependentObject({this.creditCard, this.billingAddress});
+  const DependentObject({
+    this.creditCard,
+    this.billingAddress,
+    this.additionalProperties = const {},
+  });
 
   factory DependentObject.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -3535,11 +3876,15 @@ final class DependentObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  DependentObject copyWith({num? creditCard, String? billingAddress}) =>
-      DependentObject(
-        creditCard: creditCard ?? this.creditCard,
-        billingAddress: billingAddress ?? this.billingAddress,
-      );
+  DependentObject copyWith({
+    num? creditCard,
+    String? billingAddress,
+    Map<String, Object?>? additionalProperties,
+  }) => DependentObject(
+    creditCard: creditCard ?? this.creditCard,
+    billingAddress: billingAddress ?? this.billingAddress,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     if (creditCard != null) {
@@ -3561,12 +3906,26 @@ final class DependentObject implements JsonModel {
         instantiate: (fields) => DependentObject(
           creditCard: fields['creditCard'] as num?,
           billingAddress: fields['billingAddress'] as String?,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{
+                      'creditCard',
+                      'billingAddress',
+                    }.contains(e.key) &&
+                    true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as DependentObject;
           return {
             'creditCard': typedInstance.creditCard,
             'billingAddress': typedInstance.billingAddress,
+            ...typedInstance.additionalProperties,
           };
         },
         properties: {
@@ -3583,6 +3942,7 @@ final class DependentObject implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -3591,21 +3951,30 @@ final class DependentObject implements JsonModel {
       other is DependentObject &&
           runtimeType == other.runtimeType &&
           creditCard == other.creditCard &&
-          billingAddress == other.billingAddress;
+          billingAddress == other.billingAddress &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([creditCard, billingAddress]);
+  int get hashCode => Object.hashAll([
+    creditCard,
+    billingAddress,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
   String toString() =>
-      'DependentObject(creditCard: ${creditCard}, billingAddress: ${billingAddress})';
+      'DependentObject(creditCard: ${creditCard}, billingAddress: ${billingAddress}, additionalProperties: ${additionalProperties})';
 }
 
 @Deprecated('deprecated')
 final class DeprecatedObject implements JsonModel {
   final String? value;
+  final Map<String, Object?> additionalProperties;
 
-  const DeprecatedObject({this.value});
+  const DeprecatedObject({this.value, this.additionalProperties = const {}});
 
   factory DeprecatedObject.fromJson(
     JsonReader reader, {
@@ -3642,8 +4011,13 @@ final class DeprecatedObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  DeprecatedObject copyWith({String? value}) =>
-      DeprecatedObject(value: value ?? this.value);
+  DeprecatedObject copyWith({
+    String? value,
+    Map<String, Object?>? additionalProperties,
+  }) => DeprecatedObject(
+    value: value ?? this.value,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_value = value;
@@ -3653,11 +4027,21 @@ final class DeprecatedObject implements JsonModel {
       ObjectDescriptor<DeprecatedObject>(
         title: 'DeprecatedObject',
         matches: (instance) => instance is DeprecatedObject,
-        instantiate: (fields) =>
-            DeprecatedObject(value: fields['value'] as String?),
+        instantiate: (fields) => DeprecatedObject(
+          value: fields['value'] as String?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'value'}.contains(e.key) && true)
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+        ),
         getFields: (instance) {
           final typedInstance = instance as DeprecatedObject;
-          return {'value': typedInstance.value};
+          return {
+            'value': typedInstance.value,
+            ...typedInstance.additionalProperties,
+          };
         },
         properties: {
           'value': PropertyDescriptor(
@@ -3668,6 +4052,7 @@ final class DeprecatedObject implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -3675,13 +4060,21 @@ final class DeprecatedObject implements JsonModel {
       identical(this, other) ||
       other is DeprecatedObject &&
           runtimeType == other.runtimeType &&
-          value == other.value;
+          value == other.value &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([value]);
+  int get hashCode => Object.hashAll([
+    value,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'DeprecatedObject(value: ${value})';
+  String toString() =>
+      'DeprecatedObject(value: ${value}, additionalProperties: ${additionalProperties})';
 }
 
 enum TestRootMixedEnum {
@@ -3813,8 +4206,9 @@ final class Merged implements JsonModel {
   final String? a;
   final int? b;
   final bool? c;
+  final Map<String, Object?> additionalProperties;
 
-  const Merged({this.a, this.b, this.c});
+  const Merged({this.a, this.b, this.c, this.additionalProperties = const {}});
 
   factory Merged.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Merged;
@@ -3844,8 +4238,17 @@ final class Merged implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  Merged copyWith({String? a, int? b, bool? c}) =>
-      Merged(a: a ?? this.a, b: b ?? this.b, c: c ?? this.c);
+  Merged copyWith({
+    String? a,
+    int? b,
+    bool? c,
+    Map<String, Object?>? additionalProperties,
+  }) => Merged(
+    a: a ?? this.a,
+    b: b ?? this.b,
+    c: c ?? this.c,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_a = a;
@@ -3860,10 +4263,21 @@ final class Merged implements JsonModel {
       a: fields['a'] as String?,
       b: fields['b'] as int?,
       c: fields['c'] as bool?,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'a', 'b', 'c'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as Merged;
-      return {'a': typedInstance.a, 'b': typedInstance.b, 'c': typedInstance.c};
+      return {
+        'a': typedInstance.a,
+        'b': typedInstance.b,
+        'c': typedInstance.c,
+        ...typedInstance.additionalProperties,
+      };
     },
     properties: {
       'a': PropertyDescriptor(
@@ -3884,6 +4298,7 @@ final class Merged implements JsonModel {
     },
 
     required: const [],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -3893,13 +4308,23 @@ final class Merged implements JsonModel {
           runtimeType == other.runtimeType &&
           a == other.a &&
           b == other.b &&
-          c == other.c;
+          c == other.c &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([a, b, c]);
+  int get hashCode => Object.hashAll([
+    a,
+    b,
+    c,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'Merged(a: ${a}, b: ${b}, c: ${c})';
+  String toString() =>
+      'Merged(a: ${a}, b: ${b}, c: ${c}, additionalProperties: ${additionalProperties})';
 }
 
 final class MapObject implements JsonModel {
@@ -4085,12 +4510,14 @@ final class NotObject implements JsonModel {
   final int notEnumInt;
   final dynamic notNullValue;
   final dynamic notObjectValue;
+  final Map<String, Object?> additionalProperties;
 
   const NotObject({
     required this.notPatternString,
     required this.notEnumInt,
     required this.notNullValue,
     this.notObjectValue,
+    this.additionalProperties = const {},
   });
 
   factory NotObject.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -4126,11 +4553,13 @@ final class NotObject implements JsonModel {
     int? notEnumInt,
     dynamic? notNullValue,
     dynamic? notObjectValue,
+    Map<String, Object?>? additionalProperties,
   }) => NotObject(
     notPatternString: notPatternString ?? this.notPatternString,
     notEnumInt: notEnumInt ?? this.notEnumInt,
     notNullValue: notNullValue ?? this.notNullValue,
     notObjectValue: notObjectValue ?? this.notObjectValue,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
   void validate() {
@@ -4200,7 +4629,7 @@ final class NotObject implements JsonModel {
     bool notMatches_notObjectValue = true;
     try {
       final rawValue = val_notObjectValue is JsonModel
-          ? val_notObjectValue.toJsonValue()
+          ? (val_notObjectValue as JsonModel).toJsonValue()
           : val_notObjectValue;
       parseWithDescriptor(
         JsonReader.fromObject(rawValue),
@@ -4231,6 +4660,21 @@ final class NotObject implements JsonModel {
           notEnumInt: fields['notEnumInt'] as int,
           notNullValue: fields['notNullValue'] as dynamic,
           notObjectValue: fields['notObjectValue'] as dynamic,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{
+                      'notPatternString',
+                      'notEnumInt',
+                      'notNullValue',
+                      'notObjectValue',
+                    }.contains(e.key) &&
+                    true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as NotObject;
@@ -4239,6 +4683,7 @@ final class NotObject implements JsonModel {
             'notEnumInt': typedInstance.notEnumInt,
             'notNullValue': typedInstance.notNullValue,
             'notObjectValue': typedInstance.notObjectValue,
+            ...typedInstance.additionalProperties,
           };
         },
         properties: {
@@ -4265,6 +4710,7 @@ final class NotObject implements JsonModel {
         },
 
         required: const ['notPatternString', 'notEnumInt', 'notNullValue'],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -4281,6 +4727,10 @@ final class NotObject implements JsonModel {
           const DeepCollectionEquality().equals(
             notObjectValue,
             other.notObjectValue,
+          ) &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
           );
 
   @override
@@ -4289,11 +4739,12 @@ final class NotObject implements JsonModel {
     notEnumInt,
     const DeepCollectionEquality().hash(notNullValue),
     const DeepCollectionEquality().hash(notObjectValue),
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override
   String toString() =>
-      'NotObject(notPatternString: ${notPatternString}, notEnumInt: ${notEnumInt}, notNullValue: ${notNullValue}, notObjectValue: ${notObjectValue})';
+      'NotObject(notPatternString: ${notPatternString}, notEnumInt: ${notEnumInt}, notNullValue: ${notNullValue}, notObjectValue: ${notObjectValue}, additionalProperties: ${additionalProperties})';
 }
 
 enum NotObjectNotEnumIntNot {
@@ -4315,8 +4766,12 @@ enum NotObjectNotEnumIntNot {
 
 final class NotObjectNotObjectValueNot implements JsonModel {
   final String forbiddenProp;
+  final Map<String, Object?> additionalProperties;
 
-  const NotObjectNotObjectValueNot({required this.forbiddenProp});
+  const NotObjectNotObjectValueNot({
+    required this.forbiddenProp,
+    this.additionalProperties = const {},
+  });
 
   factory NotObjectNotObjectValueNot.fromJson(
     JsonReader reader, {
@@ -4355,10 +4810,13 @@ final class NotObjectNotObjectValueNot implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  NotObjectNotObjectValueNot copyWith({String? forbiddenProp}) =>
-      NotObjectNotObjectValueNot(
-        forbiddenProp: forbiddenProp ?? this.forbiddenProp,
-      );
+  NotObjectNotObjectValueNot copyWith({
+    String? forbiddenProp,
+    Map<String, Object?>? additionalProperties,
+  }) => NotObjectNotObjectValueNot(
+    forbiddenProp: forbiddenProp ?? this.forbiddenProp,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {}
 
@@ -4368,10 +4826,21 @@ final class NotObjectNotObjectValueNot implements JsonModel {
         matches: (instance) => instance is NotObjectNotObjectValueNot,
         instantiate: (fields) => NotObjectNotObjectValueNot(
           forbiddenProp: fields['forbiddenProp'] as String,
+          additionalProperties: fields.entries
+              .where(
+                (e) => !const <String>{'forbiddenProp'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as NotObjectNotObjectValueNot;
-          return {'forbiddenProp': typedInstance.forbiddenProp};
+          return {
+            'forbiddenProp': typedInstance.forbiddenProp,
+            ...typedInstance.additionalProperties,
+          };
         },
         properties: {
           'forbiddenProp': PropertyDescriptor(
@@ -4382,6 +4851,7 @@ final class NotObjectNotObjectValueNot implements JsonModel {
         },
 
         required: const ['forbiddenProp'],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -4389,14 +4859,21 @@ final class NotObjectNotObjectValueNot implements JsonModel {
       identical(this, other) ||
       other is NotObjectNotObjectValueNot &&
           runtimeType == other.runtimeType &&
-          forbiddenProp == other.forbiddenProp;
+          forbiddenProp == other.forbiddenProp &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([forbiddenProp]);
+  int get hashCode => Object.hashAll([
+    forbiddenProp,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
   String toString() =>
-      'NotObjectNotObjectValueNot(forbiddenProp: ${forbiddenProp})';
+      'NotObjectNotObjectValueNot(forbiddenProp: ${forbiddenProp}, additionalProperties: ${additionalProperties})';
 }
 
 sealed class TestRootAnyOfValue implements JsonModel {
@@ -4508,8 +4985,13 @@ final class TestRootAnyOfValueOption1 extends TestRootAnyOfValue {
 final class MergedAllOfObject implements JsonModel {
   final String? strVal;
   final num? numVal;
+  final Map<String, Object?> additionalProperties;
 
-  const MergedAllOfObject({this.strVal, this.numVal});
+  const MergedAllOfObject({
+    this.strVal,
+    this.numVal,
+    this.additionalProperties = const {},
+  });
 
   factory MergedAllOfObject.fromJson(
     JsonReader reader, {
@@ -4548,11 +5030,15 @@ final class MergedAllOfObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  MergedAllOfObject copyWith({String? strVal, num? numVal}) =>
-      MergedAllOfObject(
-        strVal: strVal ?? this.strVal,
-        numVal: numVal ?? this.numVal,
-      );
+  MergedAllOfObject copyWith({
+    String? strVal,
+    num? numVal,
+    Map<String, Object?>? additionalProperties,
+  }) => MergedAllOfObject(
+    strVal: strVal ?? this.strVal,
+    numVal: numVal ?? this.numVal,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     if (strVal != null) {
@@ -4622,12 +5108,22 @@ final class MergedAllOfObject implements JsonModel {
         instantiate: (fields) => MergedAllOfObject(
           strVal: fields['strVal'] as String?,
           numVal: fields['numVal'] as num?,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{'strVal', 'numVal'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as MergedAllOfObject;
           return {
             'strVal': typedInstance.strVal,
             'numVal': typedInstance.numVal,
+            ...typedInstance.additionalProperties,
           };
         },
         properties: {
@@ -4644,6 +5140,7 @@ final class MergedAllOfObject implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -4652,14 +5149,22 @@ final class MergedAllOfObject implements JsonModel {
       other is MergedAllOfObject &&
           runtimeType == other.runtimeType &&
           strVal == other.strVal &&
-          numVal == other.numVal;
+          numVal == other.numVal &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([strVal, numVal]);
+  int get hashCode => Object.hashAll([
+    strVal,
+    numVal,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
   String toString() =>
-      'MergedAllOfObject(strVal: ${strVal}, numVal: ${numVal})';
+      'MergedAllOfObject(strVal: ${strVal}, numVal: ${numVal}, additionalProperties: ${additionalProperties})';
 }
 
 final class ComplexMergedObject implements JsonModel {
@@ -5025,8 +5530,13 @@ final class TestRootUnionContainsArrayContainsOption2
 final class ObjectWithDynamicProps implements JsonModel {
   final dynamic notInt;
   final dynamic notNum;
+  final Map<String, Object?> additionalProperties;
 
-  const ObjectWithDynamicProps({this.notInt, this.notNum});
+  const ObjectWithDynamicProps({
+    this.notInt,
+    this.notNum,
+    this.additionalProperties = const {},
+  });
 
   factory ObjectWithDynamicProps.fromJson(
     JsonReader reader, {
@@ -5065,11 +5575,15 @@ final class ObjectWithDynamicProps implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  ObjectWithDynamicProps copyWith({dynamic? notInt, dynamic? notNum}) =>
-      ObjectWithDynamicProps(
-        notInt: notInt ?? this.notInt,
-        notNum: notNum ?? this.notNum,
-      );
+  ObjectWithDynamicProps copyWith({
+    dynamic? notInt,
+    dynamic? notNum,
+    Map<String, Object?>? additionalProperties,
+  }) => ObjectWithDynamicProps(
+    notInt: notInt ?? this.notInt,
+    notNum: notNum ?? this.notNum,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_notInt = notInt;
@@ -5115,12 +5629,22 @@ final class ObjectWithDynamicProps implements JsonModel {
         instantiate: (fields) => ObjectWithDynamicProps(
           notInt: fields['notInt'] as dynamic,
           notNum: fields['notNum'] as dynamic,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{'notInt', 'notNum'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as ObjectWithDynamicProps;
           return {
             'notInt': typedInstance.notInt,
             'notNum': typedInstance.notNum,
+            ...typedInstance.additionalProperties,
           };
         },
         properties: {
@@ -5137,6 +5661,7 @@ final class ObjectWithDynamicProps implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -5145,17 +5670,22 @@ final class ObjectWithDynamicProps implements JsonModel {
       other is ObjectWithDynamicProps &&
           runtimeType == other.runtimeType &&
           const DeepCollectionEquality().equals(notInt, other.notInt) &&
-          const DeepCollectionEquality().equals(notNum, other.notNum);
+          const DeepCollectionEquality().equals(notNum, other.notNum) &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
   int get hashCode => Object.hashAll([
     const DeepCollectionEquality().hash(notInt),
     const DeepCollectionEquality().hash(notNum),
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override
   String toString() =>
-      'ObjectWithDynamicProps(notInt: ${notInt}, notNum: ${notNum})';
+      'ObjectWithDynamicProps(notInt: ${notInt}, notNum: ${notNum}, additionalProperties: ${additionalProperties})';
 }
 
 sealed class TestRootUnionWithArrayOption implements JsonModel {
@@ -5285,8 +5815,13 @@ final class TestRootUnionWithArrayOptionOption1
 final class TestRootArrayWithAllOfItemsItem implements JsonModel {
   final String? a;
   final int? b;
+  final Map<String, Object?> additionalProperties;
 
-  const TestRootArrayWithAllOfItemsItem({this.a, this.b});
+  const TestRootArrayWithAllOfItemsItem({
+    this.a,
+    this.b,
+    this.additionalProperties = const {},
+  });
 
   factory TestRootArrayWithAllOfItemsItem.fromJson(
     JsonReader reader, {
@@ -5325,8 +5860,15 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  TestRootArrayWithAllOfItemsItem copyWith({String? a, int? b}) =>
-      TestRootArrayWithAllOfItemsItem(a: a ?? this.a, b: b ?? this.b);
+  TestRootArrayWithAllOfItemsItem copyWith({
+    String? a,
+    int? b,
+    Map<String, Object?>? additionalProperties,
+  }) => TestRootArrayWithAllOfItemsItem(
+    a: a ?? this.a,
+    b: b ?? this.b,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_a = a;
@@ -5340,10 +5882,20 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
         instantiate: (fields) => TestRootArrayWithAllOfItemsItem(
           a: fields['a'] as String?,
           b: fields['b'] as int?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as TestRootArrayWithAllOfItemsItem;
-          return {'a': typedInstance.a, 'b': typedInstance.b};
+          return {
+            'a': typedInstance.a,
+            'b': typedInstance.b,
+            ...typedInstance.additionalProperties,
+          };
         },
         properties: {
           'a': PropertyDescriptor(
@@ -5359,6 +5911,7 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -5367,13 +5920,22 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
       other is TestRootArrayWithAllOfItemsItem &&
           runtimeType == other.runtimeType &&
           a == other.a &&
-          b == other.b;
+          b == other.b &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([a, b]);
+  int get hashCode => Object.hashAll([
+    a,
+    b,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'TestRootArrayWithAllOfItemsItem(a: ${a}, b: ${b})';
+  String toString() =>
+      'TestRootArrayWithAllOfItemsItem(a: ${a}, b: ${b}, additionalProperties: ${additionalProperties})';
 }
 
 sealed class TestRootUnionWithAllOfOption implements JsonModel {
@@ -5502,8 +6064,13 @@ final class TestRootUnionWithAllOfOptionOption1
 final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
   final String? a;
   final int? b;
+  final Map<String, Object?> additionalProperties;
 
-  const TestRootUnionWithAllOfOptionOptionType1({this.a, this.b});
+  const TestRootUnionWithAllOfOptionOptionType1({
+    this.a,
+    this.b,
+    this.additionalProperties = const {},
+  });
 
   factory TestRootUnionWithAllOfOptionOptionType1.fromJson(
     JsonReader reader, {
@@ -5542,8 +6109,15 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  TestRootUnionWithAllOfOptionOptionType1 copyWith({String? a, int? b}) =>
-      TestRootUnionWithAllOfOptionOptionType1(a: a ?? this.a, b: b ?? this.b);
+  TestRootUnionWithAllOfOptionOptionType1 copyWith({
+    String? a,
+    int? b,
+    Map<String, Object?>? additionalProperties,
+  }) => TestRootUnionWithAllOfOptionOptionType1(
+    a: a ?? this.a,
+    b: b ?? this.b,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_a = a;
@@ -5557,10 +6131,20 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
     instantiate: (fields) => TestRootUnionWithAllOfOptionOptionType1(
       a: fields['a'] as String?,
       b: fields['b'] as int?,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as TestRootUnionWithAllOfOptionOptionType1;
-      return {'a': typedInstance.a, 'b': typedInstance.b};
+      return {
+        'a': typedInstance.a,
+        'b': typedInstance.b,
+        ...typedInstance.additionalProperties,
+      };
     },
     properties: {
       'a': PropertyDescriptor(
@@ -5576,6 +6160,7 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
     },
 
     required: const [],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -5584,14 +6169,22 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
       other is TestRootUnionWithAllOfOptionOptionType1 &&
           runtimeType == other.runtimeType &&
           a == other.a &&
-          b == other.b;
+          b == other.b &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([a, b]);
+  int get hashCode => Object.hashAll([
+    a,
+    b,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
   String toString() =>
-      'TestRootUnionWithAllOfOptionOptionType1(a: ${a}, b: ${b})';
+      'TestRootUnionWithAllOfOptionOptionType1(a: ${a}, b: ${b}, additionalProperties: ${additionalProperties})';
 }
 
 final class PatternPropertiesObject implements JsonModel {
@@ -5865,8 +6458,9 @@ final class OverlappingUnionOption1 extends OverlappingUnion {
 
 final class OptionA implements JsonModel {
   final String value;
+  final Map<String, Object?> additionalProperties;
 
-  const OptionA({required this.value});
+  const OptionA({required this.value, this.additionalProperties = const {}});
 
   factory OptionA.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as OptionA;
@@ -5896,7 +6490,13 @@ final class OptionA implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  OptionA copyWith({String? value}) => OptionA(value: value ?? this.value);
+  OptionA copyWith({
+    String? value,
+    Map<String, Object?>? additionalProperties,
+  }) => OptionA(
+    value: value ?? this.value,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     if (value.length < 5) {
@@ -5909,10 +6509,21 @@ final class OptionA implements JsonModel {
   static final ObjectDescriptor<OptionA> descriptor = ObjectDescriptor<OptionA>(
     title: 'OptionA',
     matches: (instance) => instance is OptionA,
-    instantiate: (fields) => OptionA(value: fields['value'] as String),
+    instantiate: (fields) => OptionA(
+      value: fields['value'] as String,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'value'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+    ),
     getFields: (instance) {
       final typedInstance = instance as OptionA;
-      return {'value': typedInstance.value};
+      return {
+        'value': typedInstance.value,
+        ...typedInstance.additionalProperties,
+      };
     },
     properties: {
       'value': PropertyDescriptor(
@@ -5923,6 +6534,7 @@ final class OptionA implements JsonModel {
     },
 
     required: const ['value'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -5930,19 +6542,28 @@ final class OptionA implements JsonModel {
       identical(this, other) ||
       other is OptionA &&
           runtimeType == other.runtimeType &&
-          value == other.value;
+          value == other.value &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([value]);
+  int get hashCode => Object.hashAll([
+    value,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'OptionA(value: ${value})';
+  String toString() =>
+      'OptionA(value: ${value}, additionalProperties: ${additionalProperties})';
 }
 
 final class OptionB implements JsonModel {
   final String value;
+  final Map<String, Object?> additionalProperties;
 
-  const OptionB({required this.value});
+  const OptionB({required this.value, this.additionalProperties = const {}});
 
   factory OptionB.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as OptionB;
@@ -5972,7 +6593,13 @@ final class OptionB implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  OptionB copyWith({String? value}) => OptionB(value: value ?? this.value);
+  OptionB copyWith({
+    String? value,
+    Map<String, Object?>? additionalProperties,
+  }) => OptionB(
+    value: value ?? this.value,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     if (value.length < 2) {
@@ -5985,10 +6612,21 @@ final class OptionB implements JsonModel {
   static final ObjectDescriptor<OptionB> descriptor = ObjectDescriptor<OptionB>(
     title: 'OptionB',
     matches: (instance) => instance is OptionB,
-    instantiate: (fields) => OptionB(value: fields['value'] as String),
+    instantiate: (fields) => OptionB(
+      value: fields['value'] as String,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'value'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+    ),
     getFields: (instance) {
       final typedInstance = instance as OptionB;
-      return {'value': typedInstance.value};
+      return {
+        'value': typedInstance.value,
+        ...typedInstance.additionalProperties,
+      };
     },
     properties: {
       'value': PropertyDescriptor(
@@ -5999,6 +6637,7 @@ final class OptionB implements JsonModel {
     },
 
     required: const ['value'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -6006,19 +6645,28 @@ final class OptionB implements JsonModel {
       identical(this, other) ||
       other is OptionB &&
           runtimeType == other.runtimeType &&
-          value == other.value;
+          value == other.value &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([value]);
+  int get hashCode => Object.hashAll([
+    value,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'OptionB(value: ${value})';
+  String toString() =>
+      'OptionB(value: ${value}, additionalProperties: ${additionalProperties})';
 }
 
 final class MyCustomClassName implements JsonModel {
   final String? foo;
+  final Map<String, Object?> additionalProperties;
 
-  const MyCustomClassName({this.foo});
+  const MyCustomClassName({this.foo, this.additionalProperties = const {}});
 
   factory MyCustomClassName.fromJson(
     JsonReader reader, {
@@ -6057,8 +6705,13 @@ final class MyCustomClassName implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  MyCustomClassName copyWith({String? foo}) =>
-      MyCustomClassName(foo: foo ?? this.foo);
+  MyCustomClassName copyWith({
+    String? foo,
+    Map<String, Object?>? additionalProperties,
+  }) => MyCustomClassName(
+    foo: foo ?? this.foo,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_foo = foo;
@@ -6068,11 +6721,21 @@ final class MyCustomClassName implements JsonModel {
       ObjectDescriptor<MyCustomClassName>(
         title: 'MyCustomClassName',
         matches: (instance) => instance is MyCustomClassName,
-        instantiate: (fields) =>
-            MyCustomClassName(foo: fields['foo'] as String?),
+        instantiate: (fields) => MyCustomClassName(
+          foo: fields['foo'] as String?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'foo'}.contains(e.key) && true)
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+        ),
         getFields: (instance) {
           final typedInstance = instance as MyCustomClassName;
-          return {'foo': typedInstance.foo};
+          return {
+            'foo': typedInstance.foo,
+            ...typedInstance.additionalProperties,
+          };
         },
         properties: {
           'foo': PropertyDescriptor(
@@ -6083,6 +6746,7 @@ final class MyCustomClassName implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -6090,13 +6754,21 @@ final class MyCustomClassName implements JsonModel {
       identical(this, other) ||
       other is MyCustomClassName &&
           runtimeType == other.runtimeType &&
-          foo == other.foo;
+          foo == other.foo &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([foo]);
+  int get hashCode => Object.hashAll([
+    foo,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'MyCustomClassName(foo: ${foo})';
+  String toString() =>
+      'MyCustomClassName(foo: ${foo}, additionalProperties: ${additionalProperties})';
 }
 
 sealed class MyCustomUnionName implements JsonModel {
@@ -6236,6 +6908,7 @@ final class TestRootCoverageTrigger implements JsonModel {
   final TestRootCoverageTriggerMergeUnion? mergeUnion;
   final TestRootCoverageTriggerMergeObjectsWithNoAdditional?
   mergeObjectsWithNoAdditional;
+  final Map<String, Object?> additionalProperties;
 
   const TestRootCoverageTrigger({
     this.mergeArray,
@@ -6250,6 +6923,7 @@ final class TestRootCoverageTrigger implements JsonModel {
     this.mergeEnum,
     this.mergeUnion,
     this.mergeObjectsWithNoAdditional,
+    this.additionalProperties = const {},
   });
 
   factory TestRootCoverageTrigger.fromJson(
@@ -6303,6 +6977,7 @@ final class TestRootCoverageTrigger implements JsonModel {
     TestRootCoverageTriggerMergeUnion? mergeUnion,
     TestRootCoverageTriggerMergeObjectsWithNoAdditional?
     mergeObjectsWithNoAdditional,
+    Map<String, Object?>? additionalProperties,
   }) => TestRootCoverageTrigger(
     mergeArray: mergeArray ?? this.mergeArray,
     mergeObject: mergeObject ?? this.mergeObject,
@@ -6317,6 +6992,7 @@ final class TestRootCoverageTrigger implements JsonModel {
     mergeUnion: mergeUnion ?? this.mergeUnion,
     mergeObjectsWithNoAdditional:
         mergeObjectsWithNoAdditional ?? this.mergeObjectsWithNoAdditional,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
   void validate() {
@@ -6409,6 +7085,29 @@ final class TestRootCoverageTrigger implements JsonModel {
       mergeObjectsWithNoAdditional:
           fields['mergeObjectsWithNoAdditional']
               as TestRootCoverageTriggerMergeObjectsWithNoAdditional?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{
+                  'mergeArray',
+                  'mergeObject',
+                  'mergeString',
+                  'mergeNumber',
+                  'mergeBoolean',
+                  'mergeNull',
+                  'mergeAnything',
+                  'mergeNever',
+                  'mergeRef',
+                  'mergeEnum',
+                  'mergeUnion',
+                  'mergeObjectsWithNoAdditional',
+                }.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as TestRootCoverageTrigger;
@@ -6426,6 +7125,7 @@ final class TestRootCoverageTrigger implements JsonModel {
         'mergeUnion': typedInstance.mergeUnion,
         'mergeObjectsWithNoAdditional':
             typedInstance.mergeObjectsWithNoAdditional,
+        ...typedInstance.additionalProperties,
       };
     },
     properties: {
@@ -6502,6 +7202,7 @@ final class TestRootCoverageTrigger implements JsonModel {
     },
 
     required: const [],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -6523,7 +7224,11 @@ final class TestRootCoverageTrigger implements JsonModel {
           const DeepCollectionEquality().equals(mergeRef, other.mergeRef) &&
           mergeEnum == other.mergeEnum &&
           mergeUnion == other.mergeUnion &&
-          mergeObjectsWithNoAdditional == other.mergeObjectsWithNoAdditional;
+          mergeObjectsWithNoAdditional == other.mergeObjectsWithNoAdditional &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
   int get hashCode => Object.hashAll([
@@ -6539,18 +7244,24 @@ final class TestRootCoverageTrigger implements JsonModel {
     mergeEnum,
     mergeUnion,
     mergeObjectsWithNoAdditional,
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override
   String toString() =>
-      'TestRootCoverageTrigger(mergeArray: ${mergeArray}, mergeObject: ${mergeObject}, mergeString: ${mergeString}, mergeNumber: ${mergeNumber}, mergeBoolean: ${mergeBoolean}, mergeNull: ${mergeNull}, mergeAnything: ${mergeAnything}, mergeNever: ${mergeNever}, mergeRef: ${mergeRef}, mergeEnum: ${mergeEnum}, mergeUnion: ${mergeUnion}, mergeObjectsWithNoAdditional: ${mergeObjectsWithNoAdditional})';
+      'TestRootCoverageTrigger(mergeArray: ${mergeArray}, mergeObject: ${mergeObject}, mergeString: ${mergeString}, mergeNumber: ${mergeNumber}, mergeBoolean: ${mergeBoolean}, mergeNull: ${mergeNull}, mergeAnything: ${mergeAnything}, mergeNever: ${mergeNever}, mergeRef: ${mergeRef}, mergeEnum: ${mergeEnum}, mergeUnion: ${mergeUnion}, mergeObjectsWithNoAdditional: ${mergeObjectsWithNoAdditional}, additionalProperties: ${additionalProperties})';
 }
 
 final class TestRootCoverageTriggerMergeObject implements JsonModel {
   final String? a;
   final int? b;
+  final Map<String, Object?> additionalProperties;
 
-  const TestRootCoverageTriggerMergeObject({this.a, this.b});
+  const TestRootCoverageTriggerMergeObject({
+    this.a,
+    this.b,
+    this.additionalProperties = const {},
+  });
 
   factory TestRootCoverageTriggerMergeObject.fromJson(
     JsonReader reader, {
@@ -6589,8 +7300,15 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  TestRootCoverageTriggerMergeObject copyWith({String? a, int? b}) =>
-      TestRootCoverageTriggerMergeObject(a: a ?? this.a, b: b ?? this.b);
+  TestRootCoverageTriggerMergeObject copyWith({
+    String? a,
+    int? b,
+    Map<String, Object?>? additionalProperties,
+  }) => TestRootCoverageTriggerMergeObject(
+    a: a ?? this.a,
+    b: b ?? this.b,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_a = a;
@@ -6604,10 +7322,20 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
         instantiate: (fields) => TestRootCoverageTriggerMergeObject(
           a: fields['a'] as String?,
           b: fields['b'] as int?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as TestRootCoverageTriggerMergeObject;
-          return {'a': typedInstance.a, 'b': typedInstance.b};
+          return {
+            'a': typedInstance.a,
+            'b': typedInstance.b,
+            ...typedInstance.additionalProperties,
+          };
         },
         properties: {
           'a': PropertyDescriptor(
@@ -6623,6 +7351,7 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -6631,13 +7360,22 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
       other is TestRootCoverageTriggerMergeObject &&
           runtimeType == other.runtimeType &&
           a == other.a &&
-          b == other.b;
+          b == other.b &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([a, b]);
+  int get hashCode => Object.hashAll([
+    a,
+    b,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'TestRootCoverageTriggerMergeObject(a: ${a}, b: ${b})';
+  String toString() =>
+      'TestRootCoverageTriggerMergeObject(a: ${a}, b: ${b}, additionalProperties: ${additionalProperties})';
 }
 
 final class TestRootCoverageTriggerMergeNever implements JsonModel {
@@ -7053,6 +7791,7 @@ final class CollidingObject implements JsonModel {
   final String? bar;
   final String? bar1;
   final String? validate_;
+  final Map<String, Object?> additionalProperties;
 
   const CollidingObject({
     this.foo,
@@ -7060,6 +7799,7 @@ final class CollidingObject implements JsonModel {
     this.bar,
     this.bar1,
     this.validate_,
+    this.additionalProperties = const {},
   });
 
   factory CollidingObject.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -7100,12 +7840,14 @@ final class CollidingObject implements JsonModel {
     String? bar,
     String? bar1,
     String? validate_,
+    Map<String, Object?>? additionalProperties,
   }) => CollidingObject(
     foo: foo ?? this.foo,
     foo_1: foo_1 ?? this.foo_1,
     bar: bar ?? this.bar,
     bar1: bar1 ?? this.bar1,
     validate_: validate_ ?? this.validate_,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
   void validate() {
@@ -7126,6 +7868,22 @@ final class CollidingObject implements JsonModel {
           bar: fields['bar'] as String?,
           bar1: fields['bar_1'] as String?,
           validate_: fields['validate'] as String?,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{
+                      'foo',
+                      '@foo',
+                      'bar',
+                      'bar_1',
+                      'validate',
+                    }.contains(e.key) &&
+                    true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as CollidingObject;
@@ -7135,6 +7893,7 @@ final class CollidingObject implements JsonModel {
             'bar': typedInstance.bar,
             'bar_1': typedInstance.bar1,
             'validate': typedInstance.validate_,
+            ...typedInstance.additionalProperties,
           };
         },
         properties: {
@@ -7166,6 +7925,7 @@ final class CollidingObject implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -7177,12 +7937,23 @@ final class CollidingObject implements JsonModel {
           foo_1 == other.foo_1 &&
           bar == other.bar &&
           bar1 == other.bar1 &&
-          validate_ == other.validate_;
+          validate_ == other.validate_ &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([foo, foo_1, bar, bar1, validate_]);
+  int get hashCode => Object.hashAll([
+    foo,
+    foo_1,
+    bar,
+    bar1,
+    validate_,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
   String toString() =>
-      'CollidingObject(foo: ${foo}, foo_1: ${foo_1}, bar: ${bar}, bar1: ${bar1}, validate_: ${validate_})';
+      'CollidingObject(foo: ${foo}, foo_1: ${foo_1}, bar: ${bar}, bar1: ${bar1}, validate_: ${validate_}, additionalProperties: ${additionalProperties})';
 }

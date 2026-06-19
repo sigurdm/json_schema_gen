@@ -334,7 +334,7 @@ String generateCode(Schema rootSchema, String rootName) {
     final buffer = StringBuffer();
     buffer.writeln('''
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
 
 import 'dart:collection';
 import 'package:collection/collection.dart';
@@ -685,7 +685,7 @@ String _generateObjectClass(
   });
 
   final hasAdditionalProps =
-      schema.additionalProperties != null &&
+      schema.additionalProperties == null ||
       !schema.additionalProperties!.isNever;
 
   final hasPatternProps = schema.patternProperties?.isNotEmpty == true;
@@ -713,7 +713,10 @@ String _generateObjectClass(
   }
 
   if (hasAdditionalProps) {
-    final addPropsType = dartType(schema.additionalProperties!, classNames);
+    final addPropsType = dartType(
+      schema.additionalProperties ?? Schema.anything,
+      classNames,
+    );
     fields.writeln('  final Map<String, $addPropsType> additionalProperties;');
     constructorParams.writeln('    this.additionalProperties = const {},');
     copyWithParams.writeln(
@@ -806,17 +809,20 @@ String _generateObjectClass(
 
   if (hasAdditionalProps) {
     getFieldsMap.writeln("      ...typedInstance.additionalProperties,");
-    final addPropsType = dartType(schema.additionalProperties!, classNames);
+    final addPropsType = dartType(
+      schema.additionalProperties ?? Schema.anything,
+      classNames,
+    );
     final condExpr = hasPatternProps ? '!($patternMatchExpr)' : 'true';
     instantiateArgs.writeln(
       "        additionalProperties: fields.entries.where((e) => !const $propKeysLiteral.contains(e.key) && $condExpr).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),",
     );
   }
 
-  String? addPropsExpr;
-  if (schema.additionalProperties != null) {
-    addPropsExpr = _descriptorExpr(schema.additionalProperties!, classNames);
-  }
+  final addPropsExpr = _descriptorExpr(
+    schema.additionalProperties ?? Schema.anything,
+    classNames,
+  );
 
   final patternPropsExprs = <String>[];
   var i = 0;
@@ -845,7 +851,7 @@ $getFieldsMap      };
 $propDescriptors    },
     $patternPropsExpr
     required: const [${(schema.required ?? const <String>{}).map((r) => "'${r.replaceAll("'", r"\'").replaceAll(r'$', r'\$')}'").join(', ')}],
-    ${addPropsExpr != null ? 'additionalProperties: $addPropsExpr,' : ''}
+    additionalProperties: $addPropsExpr,
   );''';
 
   final deprecatedAttr = schema.isDeprecated
@@ -1139,7 +1145,7 @@ String _generateValidationMethod(
       }
     });
     final hasAdditionalProps =
-        schema.additionalProperties != null &&
+        schema.additionalProperties == null ||
         !schema.additionalProperties!.isNever;
     if (hasAdditionalProps) {
       buffer.writeln('    count += additionalProperties.length;');
@@ -1235,7 +1241,7 @@ String _generateValidationMethod(
         buffer.writeln('    bool notMatches_$fieldName = true;');
         buffer.writeln('    try {');
         buffer.writeln(
-          '      final rawValue = $valueVar is JsonModel ? $valueVar.toJsonValue() : $valueVar;',
+          '      final rawValue = $valueVar is JsonModel ? ($valueVar as JsonModel).toJsonValue() : $valueVar;',
         );
         buffer.writeln(
           '      parseWithDescriptor(JsonReader.fromObject(rawValue), $descExpr, validate: true);',
@@ -1278,10 +1284,10 @@ String _generateValidationMethod(
   }
 
   final hasAdditionalProps =
-      schema.additionalProperties != null &&
+      schema.additionalProperties == null ||
       !schema.additionalProperties!.isNever;
   if (hasAdditionalProps) {
-    final addSchema = schema.additionalProperties!;
+    final addSchema = schema.additionalProperties ?? Schema.anything;
     final hasAddValidation = _hasValidationMethod(addSchema);
     if (hasAddValidation) {
       buffer.writeln('    additionalProperties.forEach((key, value) {');
@@ -1695,7 +1701,7 @@ void _generateSchemaValidations(
       validations.writeln('      bool notMatches = true;');
       validations.writeln('      try {');
       validations.writeln(
-        '        final rawValue = $valueVar is JsonModel ? $valueVar.toJsonValue() : $valueVar;',
+        '        final rawValue = $valueVar is JsonModel ? ($valueVar as JsonModel).toJsonValue() : $valueVar;',
       );
       validations.writeln(
         '        parseWithDescriptor(JsonReader.fromObject(rawValue), $descExpr, validate: true);',

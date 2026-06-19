@@ -111,7 +111,13 @@ final class IntDescriptor extends PrimitiveDescriptor<int> {
   const IntDescriptor();
 
   @override
-  int read(JsonReader reader) => reader.expectInt();
+  int read(JsonReader reader) {
+    final value = reader.expectNum();
+    if (value is int) return value;
+    final integer = value.toInt();
+    if (value == integer) return integer;
+    throw FormatException('Not an integer: $value');
+  }
 
   @override
   void write(JsonSink sink, int value) => sink.addNumber(value);

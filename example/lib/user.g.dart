@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides
+// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
 
 import 'dart:collection';
 import 'package:collection/collection.dart';
@@ -17,6 +17,7 @@ final class User implements JsonModel {
   final List<String>? tags;
   final UserPreferences? preferences;
   final String? createdAt;
+  final Map<String, Object?> additionalProperties;
 
   const User({
     required this.id,
@@ -29,6 +30,7 @@ final class User implements JsonModel {
     this.tags,
     this.preferences,
     this.createdAt,
+    this.additionalProperties = const {},
   });
 
   factory User.fromJson(JsonReader reader, {bool validate = true}) =>
@@ -70,6 +72,7 @@ final class User implements JsonModel {
     List<String>? tags,
     UserPreferences? preferences,
     String? createdAt,
+    Map<String, Object?>? additionalProperties,
   }) => User(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -81,6 +84,7 @@ final class User implements JsonModel {
     tags: tags ?? this.tags,
     preferences: preferences ?? this.preferences,
     createdAt: createdAt ?? this.createdAt,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
   void validate() {
@@ -164,6 +168,27 @@ final class User implements JsonModel {
       tags: fields['tags'] as List<String>?,
       preferences: fields['preferences'] as UserPreferences?,
       createdAt: fields['createdAt'] as String?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{
+                  'id',
+                  'name',
+                  'email',
+                  'age',
+                  'role',
+                  'profile',
+                  'address',
+                  'tags',
+                  'preferences',
+                  'createdAt',
+                }.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as User;
@@ -178,6 +203,7 @@ final class User implements JsonModel {
         'tags': typedInstance.tags,
         'preferences': typedInstance.preferences,
         'createdAt': typedInstance.createdAt,
+        ...typedInstance.additionalProperties,
       };
     },
     properties: {
@@ -236,6 +262,7 @@ final class User implements JsonModel {
     },
 
     required: const ['id', 'name', 'email'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -252,7 +279,11 @@ final class User implements JsonModel {
           address == other.address &&
           const DeepCollectionEquality().equals(tags, other.tags) &&
           preferences == other.preferences &&
-          createdAt == other.createdAt;
+          createdAt == other.createdAt &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
   int get hashCode => Object.hashAll([
@@ -266,11 +297,12 @@ final class User implements JsonModel {
     const DeepCollectionEquality().hash(tags),
     preferences,
     createdAt,
+    const DeepCollectionEquality().hash(additionalProperties),
   ]);
 
   @override
   String toString() =>
-      'User(id: ${id}, name: ${name}, email: ${email}, age: ${age}, role: ${role}, profile: ${profile}, address: ${address}, tags: ${tags}, preferences: ${preferences}, createdAt: ${createdAt})';
+      'User(id: ${id}, name: ${name}, email: ${email}, age: ${age}, role: ${role}, profile: ${profile}, address: ${address}, tags: ${tags}, preferences: ${preferences}, createdAt: ${createdAt}, additionalProperties: ${additionalProperties})';
 }
 
 enum UserRole {
@@ -293,8 +325,13 @@ enum UserRole {
 final class UserProfile implements JsonModel {
   final String? avatarUrl;
   final String? bio;
+  final Map<String, Object?> additionalProperties;
 
-  const UserProfile({this.avatarUrl, this.bio});
+  const UserProfile({
+    this.avatarUrl,
+    this.bio,
+    this.additionalProperties = const {},
+  });
 
   factory UserProfile.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -327,8 +364,15 @@ final class UserProfile implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  UserProfile copyWith({String? avatarUrl, String? bio}) =>
-      UserProfile(avatarUrl: avatarUrl ?? this.avatarUrl, bio: bio ?? this.bio);
+  UserProfile copyWith({
+    String? avatarUrl,
+    String? bio,
+    Map<String, Object?>? additionalProperties,
+  }) => UserProfile(
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    bio: bio ?? this.bio,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
+  );
 
   void validate() {
     final val_avatarUrl = avatarUrl;
@@ -350,12 +394,22 @@ final class UserProfile implements JsonModel {
         instantiate: (fields) => UserProfile(
           avatarUrl: fields['avatarUrl'] as String?,
           bio: fields['bio'] as String?,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{'avatarUrl', 'bio'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
         ),
         getFields: (instance) {
           final typedInstance = instance as UserProfile;
           return {
             'avatarUrl': typedInstance.avatarUrl,
             'bio': typedInstance.bio,
+            ...typedInstance.additionalProperties,
           };
         },
         properties: {
@@ -372,6 +426,7 @@ final class UserProfile implements JsonModel {
         },
 
         required: const [],
+        additionalProperties: const AnythingDescriptor(),
       );
 
   @override
@@ -380,21 +435,36 @@ final class UserProfile implements JsonModel {
       other is UserProfile &&
           runtimeType == other.runtimeType &&
           avatarUrl == other.avatarUrl &&
-          bio == other.bio;
+          bio == other.bio &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([avatarUrl, bio]);
+  int get hashCode => Object.hashAll([
+    avatarUrl,
+    bio,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
-  String toString() => 'UserProfile(avatarUrl: ${avatarUrl}, bio: ${bio})';
+  String toString() =>
+      'UserProfile(avatarUrl: ${avatarUrl}, bio: ${bio}, additionalProperties: ${additionalProperties})';
 }
 
 final class Address implements JsonModel {
   final String? street;
   final String city;
   final String? zipCode;
+  final Map<String, Object?> additionalProperties;
 
-  const Address({this.street, required this.city, this.zipCode});
+  const Address({
+    this.street,
+    required this.city,
+    this.zipCode,
+    this.additionalProperties = const {},
+  });
 
   factory Address.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Address;
@@ -424,10 +494,16 @@ final class Address implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  Address copyWith({String? street, String? city, String? zipCode}) => Address(
+  Address copyWith({
+    String? street,
+    String? city,
+    String? zipCode,
+    Map<String, Object?>? additionalProperties,
+  }) => Address(
     street: street ?? this.street,
     city: city ?? this.city,
     zipCode: zipCode ?? this.zipCode,
+    additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
   void validate() {
@@ -450,6 +526,16 @@ final class Address implements JsonModel {
       street: fields['street'] as String?,
       city: fields['city'] as String,
       zipCode: fields['zipCode'] as String?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'street', 'city', 'zipCode'}.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
     ),
     getFields: (instance) {
       final typedInstance = instance as Address;
@@ -457,6 +543,7 @@ final class Address implements JsonModel {
         'street': typedInstance.street,
         'city': typedInstance.city,
         'zipCode': typedInstance.zipCode,
+        ...typedInstance.additionalProperties,
       };
     },
     properties: {
@@ -478,6 +565,7 @@ final class Address implements JsonModel {
     },
 
     required: const ['city'],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -487,14 +575,23 @@ final class Address implements JsonModel {
           runtimeType == other.runtimeType &&
           street == other.street &&
           city == other.city &&
-          zipCode == other.zipCode;
+          zipCode == other.zipCode &&
+          const DeepCollectionEquality().equals(
+            additionalProperties,
+            other.additionalProperties,
+          );
 
   @override
-  int get hashCode => Object.hashAll([street, city, zipCode]);
+  int get hashCode => Object.hashAll([
+    street,
+    city,
+    zipCode,
+    const DeepCollectionEquality().hash(additionalProperties),
+  ]);
 
   @override
   String toString() =>
-      'Address(street: ${street}, city: ${city}, zipCode: ${zipCode})';
+      'Address(street: ${street}, city: ${city}, zipCode: ${zipCode}, additionalProperties: ${additionalProperties})';
 }
 
 final class UserPreferences implements JsonModel {
