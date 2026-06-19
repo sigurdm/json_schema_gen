@@ -186,14 +186,72 @@ void main() {
 
 ---
 
+## Dynamic Runtime Validation (Without Code Generation)
+
+You can also use this package at runtime to dynamically parse a JSON Schema and validate JSON payloads against it, without generating Dart classes.
+
+### Example
+
+```dart
+import 'dart:convert';
+import 'package:json_schema_gen/json_schema.dart';
+
+void main() async {
+  final schemaJson = '''
+  {
+    "\$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Product",
+    "type": "object",
+    "properties": {
+      "id": { "type": "integer" },
+      "price": { "type": "number", "minimum": 0 }
+    },
+    "required": ["id", "price"]
+  }
+  ''';
+
+  final schemaMap = jsonDecode(schemaJson) as Map<String, dynamic>;
+
+  // 1. Create a validator function
+  final validator = await createValidator(schemaMap, validateFormats: true);
+
+  // 2. Validate valid data (returns normally)
+  final validProduct = {'id': 101, 'price': 12.99};
+  validator(validProduct); 
+  print('Product is valid!');
+
+  // 3. Validate invalid data (throws JsonValidationException)
+  final invalidProduct = {'id': 101, 'price': -5.00}; // price < 0
+  try {
+    validator(invalidProduct);
+  } on JsonValidationException catch (e) {
+    print('Validation failed at path: \${e.path}'); // Output: [price]
+    print('Error: \${e.message}');                  // Output: Value must be >= 0
+  }
+}
+```
+
+For more advanced use cases (like resolving external references), you can use `SchemaParser` directly and provide a custom `uriResolver`:
+
+```dart
+final parser = SchemaParser(
+  schemaMap,
+  uriResolver: (uri) async {
+    // Load reference schema from file, network, etc.
+    final file = File(uri.path);
+    return file.readAsBytes();
+  },
+);
+final schema = await parser.parse();
+schema.validate(payload);
+```
+
+---
+
 ## Compliance & Testing
 
 This generator is tested against the official [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for Draft 2020-12 to ensure compliance with the specification.
 
-## Performance & Implementation Characteristics
+## Implementation Details
 
-The generator employs an **interpreted descriptor-based runtime strategy** combined with a non-recursive frame-based state machine.
-*   **Stack-Overflow Safety**: Deserialization does not use recursion. Deeply nested JSON payloads that would crash standard recursive parsers will parse safely without throwing stack overflow errors.
-*   **Overhead**: To achieve stack safety, the parser allocates state frames on the heap during traversal. This results in a performance penalty compared to standard recursive call-stack parsing:
-    *   Parsing with validation enabled is **~2.9x slower** than a raw recursive parser.
-    *   Parsing with validation disabled is **~1.15x slower**.
+- **Stack-Overflow Safety**: The parser uses a non-recursive, frame-based state machine, allowing it to safely parse deeply nested JSON documents that would cause stack overflow errors in standard recursive parsers.
