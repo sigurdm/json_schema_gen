@@ -264,6 +264,14 @@ final class SchemaParser {
 
   final Map<Schema, Schema> _flattenCache = {};
 
+  /// Recursively flattens the schema by resolving and merging `allOf` constraints.
+  /// For schemas containing `allOf`, it:
+  /// 1. Recursively flattens all sub-schemas in `allOf`.
+  /// 2. Merges all these flattened sub-schemas into a single schema using [_mergeAll].
+  /// 3. Merges this combined schema with the local schema constraints (excluding `allOf` itself) using [_merge].
+  /// 4. Preserves metadata (title, description, etc.) from the original schema.
+  ///
+  /// It uses [_flattenCache] to avoid infinite loops on self-referential schemas.
   Schema _flatten(Schema schema) {
     if (_flattenCache.containsKey(schema)) {
       return _flattenCache[schema]!;
@@ -470,6 +478,13 @@ final class SchemaParser {
       return _mergeCache[pair]!;
     }
 
+    // To prevent infinite recursion when merging self-referential (cyclic) schemas,
+    // we immediately cache a placeholder schema for the current pair.
+    // The placeholder uses a unique URI based on the identity hash code of the pair.
+    // If the merge algorithm encounters the same pair again during recursive traversal,
+    // it will return this placeholder from the cache instead of recursing infinitely.
+    // Once the actual merge is complete, we resolve the placeholder's reference to the
+    // fully merged schema.
     final placeholder = Schema(ref: 'urn:merge:${identityHashCode(pair)}');
     _mergeCache[pair] = placeholder;
 
@@ -670,6 +685,9 @@ final class SchemaParser {
       if (realA.pattern == realB.pattern) {
         pattern = realA.pattern;
       } else {
+        // If the patterns are different, we combine them using positive lookaheads.
+        // This ensures that the generated RegExp will only match if the input matches
+        // both pattern constraints (logical AND).
         pattern = '(?=${realA.pattern})(?=${realB.pattern})';
       }
     } else {
@@ -694,6 +712,10 @@ final class SchemaParser {
       if (realA.multipleOf == realB.multipleOf) {
         multipleOf = realA.multipleOf;
       } else {
+        // To satisfy both `multipleOf` constraints, the merged schema must be a multiple
+        // of the Least Common Multiple (LCM) of the two constraints.
+        // For example, if a value must be multiple of 2 AND multiple of 3, it must be
+        // a multiple of 6.
         multipleOf = lcm(realA.multipleOf!, realB.multipleOf!);
       }
     } else {
@@ -777,6 +799,12 @@ final class SchemaParser {
     return [...a, ...b];
   }
 
+  /// A recursive pre-pass that scans the raw JSON structure to find all inline `$id` declarations.
+  ///
+  /// This populates [_inlineSchemas] with their absolute URIs mapping to their JSON content
+  /// and JSON pointer paths. Doing this before actual parsing ensures that absolute `$ref`
+  /// lookup targets can be resolved correctly even if they are referenced before they are parsed
+  /// lexically.
   void _findInlineIds(dynamic json, String currentUri, String path) {
     if (json is Map) {
       var nextUri = currentUri;

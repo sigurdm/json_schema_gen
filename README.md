@@ -255,3 +255,7 @@ The generator is verified against the [JSON Schema Test Suite](https://github.co
 ## Implementation Details
 
 - **Stack Safety**: The parser uses a non-recursive, frame-based state machine. This avoids stack overflows when parsing deeply nested JSON.
+
+## Disclaimer
+
+This is not an official Google product.

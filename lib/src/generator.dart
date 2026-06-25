@@ -187,7 +187,6 @@ String dartType(Schema schema, Map<Schema, String> classNames) {
   return 'dynamic';
 }
 
-/// Entry point to generate code for a parsed JSON Schema.
 Map<Schema, Map<dynamic, String>>? _currentEnumConstantNames;
 Map<Schema, Map<String, String>>? _currentObjectFieldNames;
 
@@ -228,11 +227,25 @@ Map<String, String> _calculateFieldNames(Schema schema) {
   return fieldNames;
 }
 
+/// Entry point to generate code for a parsed JSON Schema.
 String generateCode(Schema rootSchema, String rootName) {
   _resolveDynamicRefs(rootSchema, rootSchema);
   final classNames = Map<Schema, String>.identity();
   final usedNames = <String>{};
 
+  /// Recursively traverses the schema to discover all subschemas that need to be
+  /// generated as separate Dart classes (e.g., objects, enums, unions).
+  ///
+  /// It assigns unique, valid Dart class names to these schemas, storing them in
+  /// the [classNames] map.
+  ///
+  /// Name resolution and deduplication process:
+  /// 1. A candidate name is derived from `x-dart-name`, the schema `title`, or a `preferredName` passed from the parent.
+  /// 2. The name is normalized to PascalCase.
+  /// 3. If the candidate name is empty, a fallback (like 'Enum' or 'Object') is used.
+  /// 4. To avoid name collisions, the candidate name is checked against [usedNames] (already assigned class names)
+  ///    and Dart keywords. If a collision is found, a counter is appended (e.g., `ClassName1`, `ClassName2`) until a unique name is found.
+  /// 5. The resolved unique name is added to [usedNames] to reserve it.
   void discoverClasses(Schema schema, String preferredName) {
     final real = schema.realSchema;
     if (real.enumValues != null) {
@@ -1123,7 +1136,18 @@ bool _hasItemValidation(Schema schema) {
   return false;
 }
 
-/// Generates validation method body checking constraints on class fields.
+/// Generates the `validate()` method body for a generated Dart class.
+///
+/// The generated method validates the class instance's fields against the
+/// schema's constraints.
+///
+/// High-level structure of the generated `validate()` method:
+/// 1. **Object-level constraints**: Validates `minProperties` and `maxProperties` by counting non-null fields and additional properties.
+/// 2. **Dependent Required**: Enforces that if a property is present (non-null), its dependent properties must also be present.
+/// 3. **Property-level validation**: Iterates through defined properties and generates inline validation checks (type, range, pattern, etc.)
+///    by calling [_generateSchemaValidations]. If a property is nullable, these checks are wrapped in an `if (field != null)` block.
+/// 4. **Pattern Properties**: Generates code to iterate over `patternProperties` Map and validate keys/values against matching RegExp schemas.
+/// 5. **Additional Properties**: Generates validation for any properties not explicitly defined, using `_generateArrayItemValidation` or inline validations.
 String _generateValidationMethod(
   Schema schema,
   String className,
@@ -1323,6 +1347,14 @@ String _generateValidationMethod(
   return buffer.toString();
 }
 
+/// Generates recursive validation code for array items, supporting nested arrays.
+///
+/// Since arrays can contain other arrays (nested lists), this method handles
+/// the recursion:
+/// - For **Object/Union items**: Generates a call to `item.validate()` wrapped in a try-catch to propagate the path.
+/// - For **Nested Array items**: Generates a loop (e.g., `for (var i = ...; i < list.length; i++)`) and recursively calls
+///   [_generateArrayItemValidation] for the next depth level, updating the validation path.
+/// - For **Primitive items** (string, number, boolean): Generates inline validations using [_generateSchemaValidations].
 void _generateArrayItemValidation(
   StringBuffer validations,
   Schema itemSchema,
@@ -1495,6 +1527,10 @@ void _generateSchemaValidations(
         );
         validations.writeln('      }');
       } else {
+        // Floating point division can introduce precision errors under IEEE-754 constraints.
+        // Instead of a strict modulo (`%`), we calculate the relative error between the
+        // division result and its nearest integer. A tolerance of `1e-14` is used to allow
+        // for minor rounding errors while still catching genuine invalid values.
         validations.writeln('''
       if (() {
         final div = $valueVar / ${real.multipleOf};
@@ -2030,6 +2066,20 @@ bool _isSameSchemaResource(Schema a, Schema b) {
   return false;
 }
 
+/// Resolves `$dynamicRef` references to their corresponding `$dynamicAnchor` definitions for code generation.
+///
+/// Under Draft 2020-12, a `$dynamicRef` behaves like a normal `$ref` unless the
+/// target anchor is defined as a `$dynamicAnchor`. In that case, the reference
+/// resolves to the first schema in the dynamic evaluation path that defines
+/// that anchor.
+///
+/// This is a pre-generation pass that resolves dynamic references statically
+/// relative to the [root] schema of the generation context (where possible,
+/// or establishes the default target).
+/// It constructs the absolute URI of the anchor using the root's ID and the fragment,
+/// and checks if the root (or any of its subschemas) defines a matching `$dynamicAnchor`
+/// (stored in [root.dynamicAnchors]). If found, it maps the [current] schema's
+/// `resolvedRef` to that target schema.
 void _resolveDynamicRefs(Schema root, Schema current, [Set<Schema>? seen]) {
   seen ??= <Schema>{};
   if (!seen.add(current)) return;

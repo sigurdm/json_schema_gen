@@ -138,6 +138,14 @@ void writeAny(JsonSink sink, dynamic value) {
 }
 
 /// Base class for execution frames used during non-recursive parsing.
+///
+/// The validator uses a stack-based, non-recursive parser architecture to avoid
+/// Dart call-stack overflow when parsing and validating deeply nested JSON structures.
+/// Instead of relying on recursive function calls, which consume physical stack space
+/// and can lead to StackOverflowErrors, we maintain our own stack of [JsonParseFrame]s
+/// on the heap. Each frame manages its own state and progress, and yields control
+/// back to the main loop ([_runNonRecursiveWithDescriptor]) when it needs to parse
+/// a nested child structure, pushing a new frame onto the stack.
 sealed class JsonParseFrame {
   /// The result of parsing this frame.
   dynamic get result;
@@ -935,6 +943,14 @@ class _Validator {
       if (schema.ref != null || schema.dynamicRef != null) {
         Schema? target;
         if (schema.dynamicRef != null) {
+          // Draft 2020-12 dynamic reference resolution ($dynamicRef).
+          // A dynamic reference behaves like a normal reference unless the target schema
+          // has a matching `$dynamicAnchor`. If it does, we look up the dynamic scoping stack
+          // (represented by [dynamicScope], which tracks the URIs of schemas we have entered).
+          // We traverse the stack from oldest to newest (outermost to innermost) to find the first
+          // schema resource that defines a dynamic anchor with the same name.
+          // This allows subschemas to be overridden by outer schemas that redefine the anchor,
+          // supporting extensibility patterns similar to inheritance.
           final lexicalTarget = schema.realSchema;
           final refUri = Uri.parse(schema.dynamicRef!);
           final anchor = refUri.fragment;

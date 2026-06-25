@@ -263,6 +263,10 @@ final class Schema {
     this.resourceUri,
   });
 
+  /// Creates a copy of this schema with the given fields replaced with the new values.
+  ///
+  /// If [clearAllOf] is true, the `allOf` field will be cleared (set to null)
+  /// instead of copied from the original schema.
   Schema copyWith({
     bool? hasExplicitType,
     String? title,
@@ -381,10 +385,15 @@ final class Schema {
       dynamicAnchors: dynamicAnchors ?? this.dynamicAnchors,
       resourceUri: resourceUri ?? this.resourceUri,
     );
-    newSchema.resolvedRef = this.resolvedRef;
+    newSchema.resolvedRef = resolvedRef;
     return newSchema;
   }
 
+  /// Returns a new [Schema] that is a copy of this schema but with [enumValues]
+  /// set to null.
+  ///
+  /// This is used during code generation to separate the enum class definition
+  /// from the base schema type validations.
   Schema removeEnum() {
     final newSchema = Schema(
       hasExplicitType: hasExplicitType,
@@ -441,7 +450,7 @@ final class Schema {
       dynamicAnchors: dynamicAnchors,
       resourceUri: resourceUri,
     );
-    newSchema.resolvedRef = this.resolvedRef;
+    newSchema.resolvedRef = resolvedRef;
     return newSchema;
   }
 

@@ -51,7 +51,16 @@ int? parseInt(dynamic value) {
   return null;
 }
 
-/// Normalizes a schema URI by percent-decoding the fragment and unescaping JSON Pointer segments.
+/// Normalizes a schema URI.
+///
+/// This function normalizes the fragment part of a URI by:
+/// 1. Percent-decoding the fragment.
+/// 2. Unescaping JSON Pointer segments (replacing `~1` with `/` and `~0` with `~`).
+///
+/// This is crucial for matching URIs that might have been encoded differently
+/// but point to the same schema location.
+///
+/// Returns the normalized URI string. If URI parsing fails, returns the original [uriStr] unchanged.
 String normalizeSchemaUri(String uriStr) {
   try {
     final uri = Uri.parse(uriStr);
