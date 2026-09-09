@@ -43,6 +43,28 @@ final class Schema {
   /// Custom name to use for generated Dart class, if specified via x-dart-name.
   final String? dartName;
 
+  /// Whether this schema or reference must be inlined into generated Dart code
+  /// rather than imported as an external library, specified via `x-dart-inline`.
+  final bool dartInline;
+
+  /// The URI of the document/file in which this schema is defined.
+  final String? documentUri;
+
+  /// The definition key under which this schema was declared in `$defs` or `definitions`.
+  final String? definitionKey;
+
+  /// Map of definition keys to their schemas (from `$defs`).
+  ///
+  /// Reference:
+  /// - [JSON Schema Draft 2020-12 Core `$defs`](https://json-schema.org/draft/2020-12/json-schema-core.html#section-8.2.4)
+  final Map<String, Schema>? defs;
+
+  /// Map of definition keys to their schemas (from legacy `definitions`).
+  ///
+  /// Reference:
+  /// - [JSON Schema Draft 7 Core `definitions`](https://datatracker.ietf.org/doc/html/draft-handrews-json-schema-validation-01#section-9)
+  final Map<String, Schema>? definitions;
+
   // Identity and Refs
 
   /// The `$id` of the schema.
@@ -261,6 +283,11 @@ final class Schema {
     this.vocabularies,
     this.dynamicAnchors,
     this.resourceUri,
+    this.defs,
+    this.definitions,
+    this.dartInline = false,
+    this.documentUri,
+    this.definitionKey,
   });
 
   /// Creates a copy of this schema with the given fields replaced with the new values.
@@ -325,6 +352,11 @@ final class Schema {
     Set<String>? vocabularies,
     Map<String, Schema>? dynamicAnchors,
     String? resourceUri,
+    Map<String, Schema>? defs,
+    Map<String, Schema>? definitions,
+    bool? dartInline,
+    String? documentUri,
+    String? definitionKey,
   }) {
     final newSchema = Schema(
       hasExplicitType: hasExplicitType ?? this.hasExplicitType,
@@ -384,6 +416,11 @@ final class Schema {
       vocabularies: vocabularies ?? this.vocabularies,
       dynamicAnchors: dynamicAnchors ?? this.dynamicAnchors,
       resourceUri: resourceUri ?? this.resourceUri,
+      defs: defs ?? this.defs,
+      definitions: definitions ?? this.definitions,
+      dartInline: dartInline ?? this.dartInline,
+      documentUri: documentUri ?? this.documentUri,
+      definitionKey: definitionKey ?? this.definitionKey,
     );
     newSchema.resolvedRef = resolvedRef;
     return newSchema;
@@ -449,6 +486,11 @@ final class Schema {
       vocabularies: vocabularies,
       dynamicAnchors: dynamicAnchors,
       resourceUri: resourceUri,
+      defs: defs,
+      definitions: definitions,
+      dartInline: dartInline,
+      documentUri: documentUri,
+      definitionKey: definitionKey,
     );
     newSchema.resolvedRef = resolvedRef;
     return newSchema;

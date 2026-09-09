@@ -39,4 +39,125 @@ void main() {
           'Run build_runner to update it.',
     );
   });
+
+  group('generateCode with DartImportResolver', () {
+    test(
+      'allocates prefixes _i1, _i2 and uses them for external types',
+      () async {
+        final bSchemaJson = json.encode({
+          r'$defs': {
+            'Address': {
+              'type': 'object',
+              'properties': {
+                'city': {'type': 'string'},
+              },
+            },
+          },
+        });
+
+        final cSchemaJson = json.encode({
+          r'$defs': {
+            'Order': {
+              'type': 'object',
+              'properties': {
+                'id': {'type': 'string'},
+              },
+            },
+          },
+        });
+
+        final aSchemaJson = json.encode({
+          'title': 'User',
+          'type': 'object',
+          'properties': {
+            'address': {r'$ref': r'b.schema.json#/$defs/Address'},
+            'order': {r'$ref': r'c.schema.json#/$defs/Order'},
+          },
+        });
+
+        final parser = SchemaParser(
+          json.decode(aSchemaJson) as Map<String, dynamic>,
+          baseUri: 'a.schema.json',
+          uriResolver: (uri) async {
+            if (uri.path == 'b.schema.json') {
+              return utf8.encode(bSchemaJson);
+            }
+            if (uri.path == 'c.schema.json') {
+              return utf8.encode(cSchemaJson);
+            }
+            throw ArgumentError('Unknown uri: $uri');
+          },
+        );
+
+        final rootSchema = await parser.parse();
+        final code = generateCode(
+          rootSchema,
+          'User',
+          dartImportResolver: (uri) {
+            if (uri.path == 'b.schema.json') return 'b.g.dart';
+            if (uri.path == 'c.schema.json') return 'c.g.dart';
+            return null;
+          },
+        );
+
+        expect(code, contains("import 'b.g.dart' as _i1;"));
+        expect(code, contains("import 'c.g.dart' as _i2;"));
+        expect(code, contains('final _i1.Address? address;'));
+        expect(code, contains('final _i2.Order? order;'));
+        expect(
+          code,
+          contains('RefDescriptor<_i1.Address>(() => _i1.Address.descriptor)'),
+        );
+        expect(
+          code,
+          contains('RefDescriptor<_i2.Order>(() => _i2.Order.descriptor)'),
+        );
+        expect(code, isNot(contains('final class Address')));
+        expect(code, isNot(contains('final class Order')));
+      },
+    );
+
+    test('falls back to inlining if dartImportResolver returns null', () async {
+      final bSchemaJson = json.encode({
+        r'$defs': {
+          'Address': {
+            'type': 'object',
+            'properties': {
+              'city': {'type': 'string'},
+            },
+          },
+        },
+      });
+
+      final aSchemaJson = json.encode({
+        'title': 'User',
+        'type': 'object',
+        'properties': {
+          'address': {r'$ref': r'b.schema.json#/$defs/Address'},
+        },
+      });
+
+      final parser = SchemaParser(
+        json.decode(aSchemaJson) as Map<String, dynamic>,
+        baseUri: 'a.schema.json',
+        uriResolver: (uri) async {
+          if (uri.path == 'b.schema.json') {
+            return utf8.encode(bSchemaJson);
+          }
+          throw ArgumentError('Unknown uri: $uri');
+        },
+      );
+
+      final rootSchema = await parser.parse();
+      final code = generateCode(
+        rootSchema,
+        'User',
+        dartImportResolver: (uri) => null, // Resolver returns null -> inline
+      );
+
+      expect(code, isNot(contains("import 'b.g.dart'")));
+      expect(code, contains('final Address? address;'));
+      expect(code, contains('final class Address implements JsonModel'));
+    });
+  });
 }

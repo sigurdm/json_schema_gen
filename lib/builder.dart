@@ -36,22 +36,77 @@ final class JsonSchemaBuilder implements Builder {
       decoded,
       baseUri: inputId.pathSegments.last,
       uriResolver: (uri) async {
-        final resolvedId = AssetId(
-          inputId.package,
-          p.normalize(p.join(p.dirname(inputId.path), uri.path)),
-        );
+        AssetId resolvedId;
+        if (uri.isScheme('package')) {
+          final segments = uri.pathSegments;
+          resolvedId = AssetId(
+            segments.first,
+            p.url.joinAll(['lib', ...segments.skip(1)]),
+          );
+        } else {
+          resolvedId = AssetId(
+            inputId.package,
+            p.normalize(p.url.join(p.url.dirname(inputId.path), uri.path)),
+          );
+        }
         return buildStep.readAsBytes(resolvedId);
       },
       disallowExternalRefs: !allowExternalRefs,
     );
     final rootSchema = await parser.parse();
 
+    String? dartImportResolver(Uri schemaUri) {
+      final cleanUri = schemaUri.hasFragment
+          ? schemaUri.removeFragment()
+          : schemaUri;
+      if (cleanUri.scheme == 'http' || cleanUri.scheme == 'https') {
+        return null;
+      }
+      AssetId resolvedId;
+      if (cleanUri.isScheme('package')) {
+        final segments = cleanUri.pathSegments;
+        if (segments.isEmpty) return null;
+        resolvedId = AssetId(
+          segments.first,
+          p.url.joinAll(['lib', ...segments.skip(1)]),
+        );
+      } else {
+        final uriPath = cleanUri.path;
+        if (uriPath.isEmpty) return null;
+        resolvedId = AssetId(
+          inputId.package,
+          p.normalize(p.url.join(p.url.dirname(inputId.path), uriPath)),
+        );
+      }
+
+      if (resolvedId == inputId) return null;
+      if (!resolvedId.path.endsWith('.schema.json')) return null;
+
+      final targetDartPath = resolvedId.path.replaceAll(
+        RegExp(r'\.schema\.json$'),
+        '.g.dart',
+      );
+
+      if (resolvedId.package != inputId.package) {
+        if (!resolvedId.path.startsWith('lib/')) return null;
+        final libPath = targetDartPath.substring('lib/'.length);
+        return 'package:${resolvedId.package}/$libPath';
+      }
+
+      final inputDir = p.url.dirname(inputId.path);
+      return p.url.relative(targetDartPath, from: inputDir);
+    }
+
     // Determine the root name based on the schema title or the file name
     final baseName = inputId.pathSegments.last.replaceAll('.schema.json', '');
     final rootName = decoded['title'] as String? ?? baseName;
 
     // Generate the Dart code
-    final generatedCode = generateCode(rootSchema, rootName);
+    final generatedCode = generateCode(
+      rootSchema,
+      rootName,
+      dartImportResolver: dartImportResolver,
+    );
 
     // Format the generated code using dart_style for clean output
     String formattedCode;

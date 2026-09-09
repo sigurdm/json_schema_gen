@@ -94,6 +94,7 @@ final class SchemaParser {
     String path, {
     bool isExternal = false,
     String? parentResourceUri,
+    String? definitionKey,
   }) async {
     path = normalizeSchemaUri(path);
     if (_cache.containsKey(path)) {
@@ -140,6 +141,7 @@ final class SchemaParser {
         path,
         json,
         parentResourceUri: parentResourceUri,
+        definitionKey: definitionKey,
       );
     } finally {
       _currentVocabularies = savedVocabs;
@@ -210,6 +212,8 @@ final class SchemaParser {
       }
 
       if (s.not != null) visit(s.not!);
+      s.defs?.values.forEach(visit);
+      s.definitions?.values.forEach(visit);
       s.properties?.values.forEach(visit);
       s.patternProperties?.values.forEach(visit);
       if (s.additionalProperties != null) visit(s.additionalProperties!);
@@ -242,6 +246,8 @@ final class SchemaParser {
         }
       }
       if (s.not != null) visit(s.not!);
+      s.defs?.values.forEach(visit);
+      s.definitions?.values.forEach(visit);
       s.properties?.values.forEach(visit);
       s.patternProperties?.values.forEach(visit);
       if (s.additionalProperties != null) visit(s.additionalProperties!);
@@ -324,6 +330,26 @@ final class SchemaParser {
       schema.dependentSchemas!.forEach((k, v) {
         final nv = _flatten(v);
         newDependentSchemas![k] = nv;
+        if (nv != v) changed = true;
+      });
+    }
+
+    Map<String, Schema>? newDefs;
+    if (schema.defs != null) {
+      newDefs = {};
+      schema.defs!.forEach((k, v) {
+        final nv = _flatten(v);
+        newDefs![k] = nv;
+        if (nv != v) changed = true;
+      });
+    }
+
+    Map<String, Schema>? newDefinitions;
+    if (schema.definitions != null) {
+      newDefinitions = {};
+      schema.definitions!.forEach((k, v) {
+        final nv = _flatten(v);
+        newDefinitions![k] = nv;
         if (nv != v) changed = true;
       });
     }
@@ -422,6 +448,8 @@ final class SchemaParser {
         patternProperties: newPatternProps,
         additionalProperties: newAddProps,
         dependentSchemas: newDependentSchemas,
+        defs: newDefs,
+        definitions: newDefinitions,
         unevaluatedProperties: newUnevaluatedProperties,
         items: newItems,
         prefixItems: newPrefixItems,
@@ -452,6 +480,11 @@ final class SchemaParser {
         anchor: schema.anchor,
         dynamicAnchor: schema.dynamicAnchor,
         resourceUri: schema.resourceUri,
+        defs: schema.defs,
+        definitions: schema.definitions,
+        dartInline: schema.dartInline,
+        documentUri: schema.documentUri,
+        definitionKey: schema.definitionKey,
       );
       _flattenCache[schema] = finalSchemaWithMetadata;
       return finalSchemaWithMetadata;
@@ -928,6 +961,7 @@ final class SchemaParser {
     String path,
     dynamic json, {
     String? parentResourceUri,
+    String? definitionKey,
   }) async {
     if (gen is CoreAndValidationSpecificationsMetaSchemaOption1) {
       final schema = gen.value ? Schema.anything : Schema.never;
@@ -936,10 +970,6 @@ final class SchemaParser {
     }
 
     final obj = (gen as CoreAndValidationSpecificationsMetaSchemaOption0).value;
-    print('Mapping schema at $path. obj.defs: ${obj.defs}');
-    if (obj.defs != null) {
-      print('  defs keys: ${obj.defs!.additionalProperties.keys}');
-    }
 
     final originalPath = path;
     String? idUrl;
@@ -1045,24 +1075,30 @@ final class SchemaParser {
       }
     }
 
+    Map<String, Schema>? defs;
     if (obj.defs != null && obj.defs!.additionalProperties.isNotEmpty) {
+      defs = {};
       for (final entry in obj.defs!.additionalProperties.entries) {
-        await _mapGenerated(
+        defs[entry.key] = await _mapGenerated(
           entry.value,
           '$path/\$defs/${entry.key}',
           jsonMap[r'$defs']?[entry.key],
           parentResourceUri: currentResourceUri,
+          definitionKey: entry.key,
         );
       }
     }
 
+    Map<String, Schema>? definitions;
     if (obj.definitions.additionalProperties.isNotEmpty) {
+      definitions = {};
       for (final entry in obj.definitions.additionalProperties.entries) {
-        await _mapGenerated(
+        definitions[entry.key] = await _mapGenerated(
           entry.value,
           '$path/definitions/${entry.key}',
           jsonMap['definitions']?[entry.key],
           parentResourceUri: currentResourceUri,
+          definitionKey: entry.key,
         );
       }
     }
@@ -1212,8 +1248,12 @@ final class SchemaParser {
     }
 
     final dartName = obj.additionalProperties['x-dart-name'] as String?;
+    final dartInline =
+        obj.additionalProperties['x-dart-inline'] == true ||
+        jsonMap['x-dart-inline'] == true;
     final deprecatedMessage =
         obj.additionalProperties['x-deprecated-message'] as String?;
+    final documentUri = _getFileUri(path);
 
     Set<String>? vocabularies = _currentVocabularies;
     if (obj.vocabulary != null) {
@@ -1291,6 +1331,11 @@ final class SchemaParser {
       elseSchema: elseSchema,
       vocabularies: vocabularies,
       resourceUri: currentResourceUri,
+      defs: defs,
+      definitions: definitions,
+      dartInline: dartInline,
+      documentUri: documentUri,
+      definitionKey: definitionKey,
     );
 
     _cacheSchema(

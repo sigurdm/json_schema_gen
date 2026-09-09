@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export 'src/descriptors.dart';
-export 'src/generator.dart' show generateCode;
+export 'src/generator.dart' show generateCode, DartImportResolver;
 export 'src/parser.dart' show SchemaParser;
 export 'src/schema.dart';
 export 'src/validator.dart'

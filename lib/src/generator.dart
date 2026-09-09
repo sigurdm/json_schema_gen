@@ -12,7 +12,66 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:path/path.dart' as p;
 import 'schema.dart';
+
+/// Callback that resolves a JSON Schema [schemaUri] to an import URI string for generated Dart code.
+///
+/// Returns the Dart import path (such as a relative path `'b.g.dart'` or package URI
+/// `'package:my_pkg/b.g.dart'`), or `null` if the referenced schema cannot be resolved
+/// to an external Dart library or should fall back to inlining.
+///
+/// Preconditions:
+/// - [schemaUri] must not be empty.
+///
+/// Reference:
+/// - See [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/json-schema-core.html#section-8.2)
+///   for details on schema identification and `$ref` resolution.
+typedef DartImportResolver = String? Function(Uri schemaUri);
+
+/// Derives the canonical Dart class name for a definition [schema].
+///
+/// Preconditions:
+/// - [schema] must not be null.
+///
+/// Returns the name derived from `x-dart-name`, `title`, `definitionKey`,
+/// [definitionKey], or `'Model'`, formatted in PascalCase.
+String getDefinitionClassName(Schema schema, {String? definitionKey}) {
+  final real = schema.realSchema;
+  var name =
+      real.dartName ??
+      schema.dartName ??
+      real.title ??
+      schema.title ??
+      real.definitionKey ??
+      schema.definitionKey ??
+      definitionKey;
+  if (name == null) {
+    final refStr = schema.ref ?? schema.resolvedRef?.ref;
+    if (refStr != null) {
+      final uri = Uri.tryParse(refStr);
+      if (uri != null) {
+        if (uri.hasFragment && uri.fragment.isNotEmpty) {
+          final segments = uri.fragment
+              .split('/')
+              .where((s) => s.isNotEmpty)
+              .toList();
+          if (segments.isNotEmpty) {
+            name = segments.last;
+          }
+        } else if (uri.path.isNotEmpty) {
+          final base = p.basenameWithoutExtension(uri.path);
+          name = base.endsWith('.schema')
+              ? p.basenameWithoutExtension(base)
+              : base;
+        }
+      }
+    }
+  }
+  name ??= 'Model';
+  final result = toPascalCase(name);
+  return result.isEmpty ? 'Model' : result;
+}
 
 /// Formats a name string into PascalCase for Dart class names.
 String toPascalCase(String text) {
@@ -228,10 +287,79 @@ Map<String, String> _calculateFieldNames(Schema schema) {
 }
 
 /// Entry point to generate code for a parsed JSON Schema.
-String generateCode(Schema rootSchema, String rootName) {
+///
+/// Preconditions:
+/// - [rootSchema] must not be null.
+/// - [rootName] must not be empty.
+///
+/// If [dartImportResolver] is provided, external `$ref`s pointing to another
+/// document will be resolved to imported Dart libraries instead of being inlined,
+/// unless inlining is requested explicitly via `x-dart-inline: true`.
+String generateCode(
+  Schema rootSchema,
+  String rootName, {
+  DartImportResolver? dartImportResolver,
+}) {
   _resolveDynamicRefs(rootSchema, rootSchema);
   final classNames = Map<Schema, String>.identity();
   final usedNames = <String>{};
+  final localClasses = <Schema>{};
+  final importPrefixes = <String, String>{};
+
+  bool tryHandleExternalRef(Schema schema) {
+    if (dartImportResolver == null) return false;
+    if (schema.dartInline == true) return false;
+    if (schema.resolvedRef?.dartInline == true) return false;
+    if (schema.realSchema.dartInline == true) return false;
+
+    final ref = schema.ref ?? schema.dynamicRef;
+    if (ref == null || ref.startsWith('#')) return false;
+
+    final realTarget = schema.realSchema;
+    final generatesType =
+        realTarget.enumValues != null ||
+        realTarget.isObject ||
+        (realTarget.isUnion &&
+            !(UnionAnalysis.analyze(realTarget).isNullable &&
+                UnionAnalysis.analyze(realTarget).nonNullSchema != null));
+    if (!generatesType) {
+      return false;
+    }
+
+    final uri = Uri.tryParse(ref);
+    if (uri == null) return false;
+
+    final docUriStr =
+        schema.resolvedRef?.documentUri ??
+        (uri.hasFragment ? uri.removeFragment().toString() : uri.toString());
+    final targetDocUri = Uri.tryParse(docUriStr);
+    if (targetDocUri == null) return false;
+
+    if (rootSchema.documentUri != null &&
+        targetDocUri.toString() == rootSchema.documentUri) {
+      return false;
+    }
+
+    final importPath = dartImportResolver(targetDocUri);
+    if (importPath == null || importPath.isEmpty) {
+      return false;
+    }
+
+    final prefix = importPrefixes.putIfAbsent(
+      importPath,
+      () => '_i${importPrefixes.length + 1}',
+    );
+
+    final className = getDefinitionClassName(schema);
+    final fullName = '$prefix.$className';
+    classNames[realTarget] = fullName;
+    classNames[schema] = fullName;
+    if (schema.resolvedRef != null) {
+      classNames[schema.resolvedRef!] = fullName;
+    }
+
+    return true;
+  }
 
   /// Recursively traverses the schema to discover all subschemas that need to be
   /// generated as separate Dart classes (e.g., objects, enums, unions).
@@ -248,9 +376,15 @@ String generateCode(Schema rootSchema, String rootName) {
   /// 5. The resolved unique name is added to [usedNames] to reserve it.
   void discoverClasses(Schema schema, String preferredName) {
     final real = schema.realSchema;
+    if (classNames.containsKey(real)) return;
+
+    if (tryHandleExternalRef(schema)) {
+      return;
+    }
+
     if (real.enumValues != null) {
-      if (classNames.containsKey(real)) return;
-      final name = real.dartName ?? real.title ?? preferredName;
+      final name =
+          real.dartName ?? real.title ?? real.definitionKey ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Enum';
       var candidate = className;
@@ -263,6 +397,7 @@ String generateCode(Schema rootSchema, String rootName) {
       }
       usedNames.add(candidate);
       classNames[real] = candidate;
+      localClasses.add(real);
       discoverClasses(real.removeEnum(), '${candidate}_Base');
     } else if (real.isUnion) {
       final analysis = UnionAnalysis.analyze(real);
@@ -270,8 +405,8 @@ String generateCode(Schema rootSchema, String rootName) {
         discoverClasses(analysis.nonNullSchema!, preferredName);
         return;
       }
-      if (classNames.containsKey(real)) return;
-      final name = real.dartName ?? real.title ?? preferredName;
+      final name =
+          real.dartName ?? real.title ?? real.definitionKey ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Union';
       var candidate = className;
@@ -284,6 +419,7 @@ String generateCode(Schema rootSchema, String rootName) {
       }
       usedNames.add(candidate);
       classNames[real] = candidate;
+      localClasses.add(real);
 
       int index = 0;
       for (final sub in analysis.activeSchemas) {
@@ -291,8 +427,8 @@ String generateCode(Schema rootSchema, String rootName) {
         index++;
       }
     } else if (real.isObject) {
-      if (classNames.containsKey(real)) return;
-      final name = real.dartName ?? real.title ?? preferredName;
+      final name =
+          real.dartName ?? real.title ?? real.definitionKey ?? preferredName;
       var className = toPascalCase(name);
       if (className.isEmpty) className = 'Model';
       var candidate = className;
@@ -305,6 +441,7 @@ String generateCode(Schema rootSchema, String rootName) {
       }
       usedNames.add(candidate);
       classNames[real] = candidate;
+      localClasses.add(real);
 
       real.properties?.forEach((propName, propSchema) {
         discoverClasses(propSchema, '${candidate}_$propName');
@@ -333,6 +470,31 @@ String generateCode(Schema rootSchema, String rootName) {
 
   discoverClasses(rootSchema, rootName);
 
+  void discoverDefs(Schema schema) {
+    schema.defs?.forEach((key, defSchema) {
+      final candidateName = getDefinitionClassName(
+        defSchema,
+        definitionKey: key,
+      );
+      discoverClasses(defSchema, candidateName);
+      discoverDefs(defSchema);
+    });
+    schema.definitions?.forEach((key, defSchema) {
+      final candidateName = getDefinitionClassName(
+        defSchema,
+        definitionKey: key,
+      );
+      discoverClasses(defSchema, candidateName);
+      discoverDefs(defSchema);
+    });
+  }
+
+  final isStandaloneDefLibrary =
+      rootSchema.properties == null || rootSchema.properties!.isEmpty;
+  if (isStandaloneDefLibrary) {
+    discoverDefs(rootSchema);
+  }
+
   _currentEnumConstantNames = {};
   _currentObjectFieldNames = {};
   classNames.forEach((schema, name) {
@@ -352,10 +514,14 @@ String generateCode(Schema rootSchema, String rootName) {
 import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
-import 'package:jsontool/jsontool.dart';
-''');
+import 'package:jsontool/jsontool.dart';''');
 
-    classNames.forEach((schema, name) {
+    for (final entry in importPrefixes.entries) {
+      buffer.writeln("import '${entry.key}' as ${entry.value};");
+    }
+
+    for (final schema in localClasses) {
+      final name = classNames[schema]!;
       if (schema.enumValues != null) {
         buffer.writeln(_generateEnumClass(schema, name));
       } else if (schema.isUnion) {
@@ -363,7 +529,7 @@ import 'package:jsontool/jsontool.dart';
       } else if (schema.isObject) {
         buffer.writeln(_generateObjectClass(schema, name, classNames));
       }
-    });
+    }
 
     return buffer.toString();
   } finally {
@@ -2103,7 +2269,16 @@ void _resolveDynamicRefs(Schema root, Schema current, [Set<Schema>? seen]) {
       }
     }
   }
-
+  if (current.defs != null) {
+    for (final s in current.defs!.values) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
+  if (current.definitions != null) {
+    for (final s in current.definitions!.values) {
+      _resolveDynamicRefs(root, s, seen);
+    }
+  }
   if (current.properties != null) {
     for (final s in current.properties!.values) {
       _resolveDynamicRefs(root, s, seen);
