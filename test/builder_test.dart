@@ -406,5 +406,101 @@ void main() {
       expect(output, contains('final _i1.Address? shipping;'));
       expect(output, isNot(contains('final class Address')));
     });
+
+    test(
+      'emits package: URI when compiling non-lib asset referencing lib schema',
+      () async {
+        final testOrderSchemaId = AssetId(
+          'my_package',
+          'test/fixtures/order.schema.json',
+        );
+        final libAddressSchemaId = AssetId(
+          'my_package',
+          'lib/address.schema.json',
+        );
+
+        final addressSchemaJson = json.encode({
+          r'$defs': {
+            'Address': {
+              'type': 'object',
+              'properties': {
+                'city': {'type': 'string'},
+              },
+            },
+          },
+        });
+
+        final orderSchemaJson = json.encode({
+          'title': 'Order',
+          'type': 'object',
+          'properties': {
+            'shipping': {
+              r'$ref': r'package:my_package/address.schema.json#/$defs/Address',
+            },
+          },
+        });
+
+        final builder = jsonSchemaBuilder(BuilderOptions.empty);
+        final buildStep = FakeBuildStep(testOrderSchemaId, {
+          testOrderSchemaId: orderSchemaJson,
+          libAddressSchemaId: addressSchemaJson,
+        });
+        await builder.build(buildStep);
+
+        final output =
+            buildStep.outputs[testOrderSchemaId.changeExtension('.g.dart')]!;
+        expect(
+          output,
+          contains("import 'package:my_package/address.g.dart' as _i1;"),
+        );
+        expect(output, contains('final _i1.Address? shipping;'));
+        expect(output, isNot(contains("import '../../lib/address.g.dart'")));
+      },
+    );
+
+    test('supports arrays of external types in builder', () async {
+      final orderSchemaId = AssetId('my_package', 'lib/order.schema.json');
+      final itemSchemaId = AssetId('my_package', 'lib/item.schema.json');
+
+      final itemSchemaJson = json.encode({
+        r'$defs': {
+          'Item': {
+            'type': 'object',
+            'properties': {
+              'name': {'type': 'string'},
+            },
+          },
+        },
+      });
+
+      final orderSchemaJson = json.encode({
+        'title': 'Order',
+        'type': 'object',
+        'properties': {
+          'items': {
+            'type': 'array',
+            'items': {r'$ref': r'item.schema.json#/$defs/Item'},
+          },
+        },
+      });
+
+      final builder = jsonSchemaBuilder(BuilderOptions.empty);
+      final buildStep = FakeBuildStep(orderSchemaId, {
+        orderSchemaId: orderSchemaJson,
+        itemSchemaId: itemSchemaJson,
+      });
+      await builder.build(buildStep);
+
+      final output =
+          buildStep.outputs[orderSchemaId.changeExtension('.g.dart')]!;
+      expect(output, contains("import 'item.g.dart' as _i1;"));
+      expect(output, contains('final List<_i1.Item>? items;'));
+      expect(output, contains('ArrayDescriptor<_i1.Item>('));
+      expect(
+        output,
+        contains('RefDescriptor<_i1.Item>(() => _i1.Item.descriptor)'),
+      );
+      expect(output, isNot(contains('final class Item')));
+    });
   });
 }

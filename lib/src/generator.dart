@@ -57,7 +57,7 @@ String getDefinitionClassName(Schema schema, {String? definitionKey}) {
               .where((s) => s.isNotEmpty)
               .toList();
           if (segments.isNotEmpty) {
-            name = segments.last;
+            name = Uri.decodeComponent(segments.last);
           }
         } else if (uri.path.isNotEmpty) {
           final base = p.basenameWithoutExtension(uri.path);
@@ -74,6 +74,9 @@ String getDefinitionClassName(Schema schema, {String? definitionKey}) {
 }
 
 /// Formats a name string into PascalCase for Dart class names.
+///
+/// Preconditions:
+/// - [text] must not be null.
 String toPascalCase(String text) {
   final result = text
       .split(RegExp(r'[^a-zA-Z0-9]+'))
@@ -88,6 +91,9 @@ String toPascalCase(String text) {
 }
 
 /// Formats a name string into camelCase for Dart properties.
+///
+/// Preconditions:
+/// - [text] must not be null.
 String toCamelCase(String text) {
   final parts = text
       .split(RegExp(r'(?=[A-Z])|[^a-zA-Z0-9]+'))
@@ -213,6 +219,10 @@ String _arrayElementType(Schema schema, Map<Schema, String> classNames) {
 }
 
 /// Computes the Dart type string for the given [schema].
+///
+/// Preconditions:
+/// - [schema] must not be null.
+/// - [classNames] must not be null.
 String dartType(Schema schema, Map<Schema, String> classNames) {
   final real = schema.realSchema;
   if (real.isUnion) {
@@ -292,6 +302,8 @@ Map<String, String> _calculateFieldNames(Schema schema) {
 /// - [rootSchema] must not be null.
 /// - [rootName] must not be empty.
 ///
+/// It is an error if [rootName] is empty.
+///
 /// If [dartImportResolver] is provided, external `$ref`s pointing to another
 /// document will be resolved to imported Dart libraries instead of being inlined,
 /// unless inlining is requested explicitly via `x-dart-inline: true`.
@@ -300,6 +312,9 @@ String generateCode(
   String rootName, {
   DartImportResolver? dartImportResolver,
 }) {
+  if (rootName.isEmpty) {
+    throw ArgumentError.value(rootName, 'rootName', 'Must not be empty.');
+  }
   _resolveDynamicRefs(rootSchema, rootSchema);
   final classNames = Map<Schema, String>.identity();
   final usedNames = <String>{};
@@ -602,6 +617,9 @@ String _generateEnumClass(Schema schema, String className) {
 }
 
 /// Checks if a string is a reserved Dart keyword.
+///
+/// Preconditions:
+/// - [s] must not be null.
 bool isKeyword(String s) {
   return _dartKeywords.contains(s);
 }

@@ -46,7 +46,7 @@ final class JsonSchemaBuilder implements Builder {
         } else {
           resolvedId = AssetId(
             inputId.package,
-            p.normalize(p.url.join(p.url.dirname(inputId.path), uri.path)),
+            p.url.normalize(p.url.join(p.url.dirname(inputId.path), uri.path)),
           );
         }
         return buildStep.readAsBytes(resolvedId);
@@ -75,7 +75,7 @@ final class JsonSchemaBuilder implements Builder {
         if (uriPath.isEmpty) return null;
         resolvedId = AssetId(
           inputId.package,
-          p.normalize(p.url.join(p.url.dirname(inputId.path), uriPath)),
+          p.url.normalize(p.url.join(p.url.dirname(inputId.path), uriPath)),
         );
       }
 
@@ -87,7 +87,8 @@ final class JsonSchemaBuilder implements Builder {
         '.g.dart',
       );
 
-      if (resolvedId.package != inputId.package) {
+      if (resolvedId.package != inputId.package ||
+          !inputId.path.startsWith('lib/')) {
         if (!resolvedId.path.startsWith('lib/')) return null;
         final libPath = targetDartPath.substring('lib/'.length);
         return 'package:${resolvedId.package}/$libPath';
@@ -127,4 +128,7 @@ final class JsonSchemaBuilder implements Builder {
 }
 
 /// Factory function to construct the builder for build_runner.
+///
+/// Preconditions:
+/// - [options] must not be null.
 Builder jsonSchemaBuilder(BuilderOptions options) => JsonSchemaBuilder(options);

@@ -24,6 +24,9 @@ final class SchemaParser {
   final Map<String, Schema> _dynamicAnchors = {};
 
   /// Creates a parser for the given [rootJson] schema definition.
+  ///
+  /// Preconditions:
+  /// - [rootJson] must not be null.
   SchemaParser(
     this._rootJson, {
     this.baseUri = 'http://localhost/',
@@ -35,6 +38,9 @@ final class SchemaParser {
   }
 
   /// Parses the schema and returns the resolved [Schema] AST.
+  ///
+  /// It is an error if [rootJson] contains an invalid schema type, or an external
+  /// reference when external references are disallowed or no URI resolver is provided.
   Future<Schema> parse() async {
     final root = await _parseSchema(
       _rootJson,
@@ -1351,6 +1357,14 @@ final class SchemaParser {
 }
 
 /// A resolver that loads schemas from the local file system.
+///
+/// Preconditions:
+/// - [uri] must have a scheme of 'file' or be empty.
+///
+/// Throws [FileSystemException] if the file cannot be read.
+///
+/// It is an error if [uri] specifies an unsupported scheme or if [restrictToRoot]
+/// is `true` and the resolved file path is outside [rootDirectory].
 Future<List<int>> ioFileResolver(
   Uri uri, {
   io.Directory? rootDirectory,

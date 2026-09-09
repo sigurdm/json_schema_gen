@@ -1,14 +1,17 @@
 import 'dart:core';
 
-/// Represents a discriminator mapping.
-class Discriminator {
+/// Represents a discriminator mapping for polymorphic schemas.
+final class Discriminator {
   /// The name of the property to discriminate on.
   final String propertyName;
 
   /// Optional mapping of property values to schemas.
   final Map<String, Schema>? mapping;
 
-  /// Const constructor.
+  /// Creates a [Discriminator] mapping with the given [propertyName] and optional [mapping].
+  ///
+  /// Preconditions:
+  /// - [propertyName] must not be empty.
   const Discriminator({required this.propertyName, this.mapping});
 }
 
@@ -615,6 +618,9 @@ extension SchemaHelpers on Schema {
       anyOf != null || oneOf != null || (type != null && type!.length > 1);
 
   /// Resolves references recursively (lexically).
+  ///
+  /// It is an error if a cyclic reference is detected or if a reference has not
+  /// been resolved.
   Schema get realSchema {
     var current = this;
     final seen = <Schema>{};
@@ -645,7 +651,7 @@ final class UnionAnalysis {
   /// The schemas that are not NullSchema.
   final List<Schema> activeSchemas;
 
-  /// Constructor.
+  /// Creates a [UnionAnalysis] result.
   const UnionAnalysis({
     required this.isNullable,
     this.nonNullSchema,
@@ -654,7 +660,10 @@ final class UnionAnalysis {
 
   static final Expando<UnionAnalysis> _cache = Expando();
 
-  /// Analyzes a [Schema] (which must be a union) to extract nullability information.
+  /// Analyzes a [schema] to extract nullability and active schema information.
+  ///
+  /// Preconditions:
+  /// - [schema] must represent a union type (such as `anyOf`, `oneOf`, or multiple types).
   factory UnionAnalysis.analyze(Schema schema) {
     final real = schema.realSchema;
     final cached = _cache[real];

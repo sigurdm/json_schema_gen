@@ -3,5 +3,14 @@ include: package:lints/recommended.yaml
 analyzer:
   language:
     strict-casts: true
+  exclude:
+    - pkgs/**
+    - scratch/**
+    - .jetski/**
+    - debug_*.dart
+    - test_*.dart
+    - tool/run_json_schema_tests.dart
+    - "**/*.g.dart"
   errors:
     doc_directive_unknown: ignore
+

@@ -159,5 +159,120 @@ void main() {
       expect(code, contains('final Address? address;'));
       expect(code, contains('final class Address implements JsonModel'));
     });
+
+    test('supports arrays of external types', () async {
+      final bSchemaJson = json.encode({
+        r'$defs': {
+          'Address': {
+            'type': 'object',
+            'properties': {
+              'city': {'type': 'string'},
+            },
+          },
+        },
+      });
+
+      final aSchemaJson = json.encode({
+        'title': 'User',
+        'type': 'object',
+        'properties': {
+          'addresses': {
+            'type': 'array',
+            'items': {r'$ref': r'b.schema.json#/$defs/Address'},
+          },
+        },
+      });
+
+      final parser = SchemaParser(
+        json.decode(aSchemaJson) as Map<String, dynamic>,
+        baseUri: 'a.schema.json',
+        uriResolver: (uri) async {
+          if (uri.path == 'b.schema.json') {
+            return utf8.encode(bSchemaJson);
+          }
+          throw ArgumentError('Unknown uri: $uri');
+        },
+      );
+
+      final rootSchema = await parser.parse();
+      final code = generateCode(
+        rootSchema,
+        'User',
+        dartImportResolver: (uri) {
+          if (uri.path == 'b.schema.json') return 'b.g.dart';
+          return null;
+        },
+      );
+
+      expect(code, contains("import 'b.g.dart' as _i1;"));
+      expect(code, contains('final List<_i1.Address>? addresses;'));
+      expect(
+        code,
+        contains(
+          'ArrayDescriptor<_i1.Address>(RefDescriptor<_i1.Address>(() => _i1.Address.descriptor))',
+        ),
+      );
+      expect(code, isNot(contains('final class Address')));
+    });
+
+    test(
+      'reuses import prefix for multiple references to the same file',
+      () async {
+        final bSchemaJson = json.encode({
+          r'$defs': {
+            'Address': {
+              'type': 'object',
+              'properties': {
+                'city': {'type': 'string'},
+              },
+            },
+            'Country': {
+              'type': 'object',
+              'properties': {
+                'code': {'type': 'string'},
+              },
+            },
+          },
+        });
+
+        final aSchemaJson = json.encode({
+          'title': 'User',
+          'type': 'object',
+          'properties': {
+            'address': {r'$ref': r'b.schema.json#/$defs/Address'},
+            'shippingAddress': {r'$ref': r'b.schema.json#/$defs/Address'},
+            'country': {r'$ref': r'b.schema.json#/$defs/Country'},
+          },
+        });
+
+        final parser = SchemaParser(
+          json.decode(aSchemaJson) as Map<String, dynamic>,
+          baseUri: 'a.schema.json',
+          uriResolver: (uri) async {
+            if (uri.path == 'b.schema.json') {
+              return utf8.encode(bSchemaJson);
+            }
+            throw ArgumentError('Unknown uri: $uri');
+          },
+        );
+
+        final rootSchema = await parser.parse();
+        final code = generateCode(
+          rootSchema,
+          'User',
+          dartImportResolver: (uri) {
+            if (uri.path == 'b.schema.json') return 'b.g.dart';
+            return null;
+          },
+        );
+
+        // Only one import for b.g.dart should be emitted
+        expect("import 'b.g.dart' as _i1;".allMatches(code).length, equals(1));
+        expect(code, isNot(contains('_i2')));
+        expect(code, contains('final _i1.Address? address;'));
+        expect(code, contains('final _i1.Address? shippingAddress;'));
+        expect(code, contains('final _i1.Country? country;'));
+      },
+    );
   });
 }
