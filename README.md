@@ -115,7 +115,8 @@ Add `json_schema_gen` and `build_runner` to your `pubspec.yaml`:
 dependencies:
   jsontool: ^2.1.0
   json_schema_gen:
-    path: path/to/json_schema_gen # Or pub package when published
+    git:
+      url: https://github.com/sigurdm/json_schema_gen.git
 
 dev_dependencies:
   build_runner: ^2.4.0
