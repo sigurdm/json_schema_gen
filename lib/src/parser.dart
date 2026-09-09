@@ -1393,7 +1393,7 @@ Future<List<int>> ioFileResolver(
   }
 
   if (!await file.exists()) {
-    throw io.OSError('File not found: $path');
+    throw io.FileSystemException('File not found', path);
   }
 
   return file.readAsBytes();

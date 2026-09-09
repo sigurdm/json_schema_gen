@@ -461,6 +461,9 @@ String generateCode(
       real.properties?.forEach((propName, propSchema) {
         discoverClasses(propSchema, '${candidate}_$propName');
       });
+      real.patternProperties?.forEach((pattern, propSchema) {
+        discoverClasses(propSchema, '${candidate}_PatternProperty');
+      });
       if (real.additionalProperties != null) {
         discoverClasses(
           real.additionalProperties!,

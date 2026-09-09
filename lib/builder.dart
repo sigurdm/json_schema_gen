@@ -44,9 +44,12 @@ final class JsonSchemaBuilder implements Builder {
             p.url.joinAll(['lib', ...segments.skip(1)]),
           );
         } else {
+          final cleanPath = uri.path.startsWith('/')
+              ? uri.path.substring(1)
+              : uri.path;
           resolvedId = AssetId(
             inputId.package,
-            p.url.normalize(p.url.join(p.url.dirname(inputId.path), uri.path)),
+            p.url.normalize(p.url.join(p.url.dirname(inputId.path), cleanPath)),
           );
         }
         return buildStep.readAsBytes(resolvedId);
