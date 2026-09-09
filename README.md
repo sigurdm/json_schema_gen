@@ -35,6 +35,7 @@ This package supports schemas conforming to **JSON Schema Draft 2020-12**.
 The generator supports custom annotations to configure the generated Dart code:
 - **`x-dart-name`**: Overrides the name of the generated Dart class or enum. Useful for naming nested objects or inline schemas that would otherwise receive automatic names (e.g. `ParentClass_PropertyName`).
 - **`x-deprecated-message`**: Generates a Dart `@Deprecated('message')` annotation with the specified warning text. It can be applied to fields (properties), classes, or enums. If the standard `deprecated: true` is used without this extension, the standard `@deprecated` annotation (without message) is generated.
+- **`x-dart-inline`**: When set to `true` on a schema definition or at a `$ref` call site, forces the generator to inline the referenced schema directly into the consumer file (the legacy behavior) rather than generating an `import` to an external library.
 
 ### Limitations
 - **Non-discriminator object unions**: Unions of objects without an explicit discriminator are only supported if they can be distinguished by primitive types or unique structural differences.
@@ -95,6 +96,14 @@ Constraints (e.g., `minLength`, `minimum`) are checked at runtime.
 *   **`validate()` Method**: Generated classes include a `validate()` method to check field values.
 *   **Propagation**: `validate()` recursively validates nested objects and lists.
 *   **Manual Validation**: Raw Dart data can be validated using `SchemaValidationExtension.validate(value)`.
+
+### Modular Schemas & Cross-File References (`$ref`)
+When schemas reference definitions across files within the same package or across packages:
+*   **Automatic Library Imports**: The generator emits prefixed Dart imports (e.g. `import 'address.g.dart' as _i1;`) and reuses external types (`_i1.Address`) and descriptors (`_i1.Address.descriptor`) instead of duplicating code into every output file.
+*   **Shared Type Compatibility**: Instances of shared components can be passed seamlessly between different root models (e.g. sharing an `Address` instance across both `User` and `Order`).
+*   **Standalone Definition Libraries**: Schema files containing only `$defs` or `definitions` without root properties (such as UBL CAC/CBC suites) generate standalone Dart libraries declaring all components.
+*   **Unmapped Remote References**: External references pointing to unmapped `http:` or `https:` URIs automatically fall back to inlining.
+*   **Inlining Overrides**: Use `"x-dart-inline": true` on a schema or at a `$ref` call site to force inlining an external schema locally.
 
 ---
 
@@ -244,6 +253,24 @@ final parser = SchemaParser(
 );
 final schema = await parser.parse();
 schema.validate(payload);
+```
+
+### Programmatic Code Generation
+
+You can also generate Dart code programmatically without `build_runner` using `generateCode`. Use `dartImportResolver` to specify how external schema URIs map to Dart library import paths:
+
+```dart
+final code = generateCode(
+  rootSchema,
+  'Order',
+  dartImportResolver: (Uri uri) {
+    if (uri.path.endsWith('address.schema.json')) {
+      return 'address.g.dart';
+    }
+    // Return null to fall back to inlining for this reference.
+    return null;
+  },
+);
 ```
 
 ---
