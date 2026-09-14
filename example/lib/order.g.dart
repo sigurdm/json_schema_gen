@@ -65,22 +65,53 @@ final class Order implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (total < 0) {
-      throw JsonValidationException('Property "total" must be >= 0', ['total']);
+      errors.add(
+        ValidationError(
+          message: 'Property "total" must be >= 0',
+          path: ['total'],
+          keyword: 'minimum',
+        ),
+      );
     }
-    try {
-      shippingAddress.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, ['shippingAddress', ...e.path]);
-    }
+    errors.addAll(
+      (shippingAddress as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['shippingAddress', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
     final val_billingAddress = billingAddress;
     if (val_billingAddress != null) {
-      try {
-        val_billingAddress.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['billingAddress', ...e.path]);
-      }
+      errors.addAll(
+        (val_billingAddress as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['billingAddress', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 

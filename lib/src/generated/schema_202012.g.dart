@@ -45,6 +45,17 @@ sealed class CoreAndValidationSpecificationsMetaSchema implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<CoreAndValidationSpecificationsMetaSchema>
   descriptor = UnionDescriptor<CoreAndValidationSpecificationsMetaSchema>(
     title: 'CoreAndValidationSpecificationsMetaSchema',
@@ -86,9 +97,7 @@ final class CoreAndValidationSpecificationsMetaSchemaOption0
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -116,7 +125,9 @@ final class CoreAndValidationSpecificationsMetaSchemaOption1
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -442,278 +453,291 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_id = id;
     if (val_id != null) {
-      if (!isValidUriReference(val_id)) {
-        throw JsonValidationException(
-          'Property "\$id" must be a valid URI reference',
-          ['\$id'],
+      if (!(isValidUriReference(val_id))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "\$id" must be a valid URI reference',
+            path: ['\$id'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_schema = schema;
     if (val_schema != null) {
-      if (!isValidUri(val_schema)) {
-        throw JsonValidationException(
-          'Property "\$schema" must be a valid absolute URI',
-          ['\$schema'],
+      if (!(isValidUri(val_schema))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "\$schema" must be a valid absolute URI',
+            path: ['\$schema'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_ref = ref;
     if (val_ref != null) {
-      if (!isValidUriReference(val_ref)) {
-        throw JsonValidationException(
-          'Property "\$ref" must be a valid URI reference',
-          ['\$ref'],
+      if (!(isValidUriReference(val_ref))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "\$ref" must be a valid URI reference',
+            path: ['\$ref'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_anchor = anchor;
     if (val_anchor != null) {
       if (!RegExp('^[A-Za-z_][-A-Za-z0-9._]*\$').hasMatch(val_anchor)) {
-        throw JsonValidationException(
-          'Property "\$anchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
-          ['\$anchor'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "\$anchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
+            path: ['\$anchor'],
+            keyword: 'pattern',
+          ),
         );
       }
     }
     final val_dynamicRef = dynamicRef;
     if (val_dynamicRef != null) {
-      if (!isValidUriReference(val_dynamicRef)) {
-        throw JsonValidationException(
-          'Property "\$dynamicRef" must be a valid URI reference',
-          ['\$dynamicRef'],
+      if (!(isValidUriReference(val_dynamicRef))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "\$dynamicRef" must be a valid URI reference',
+            path: ['\$dynamicRef'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_dynamicAnchor = dynamicAnchor;
     if (val_dynamicAnchor != null) {
       if (!RegExp('^[A-Za-z_][-A-Za-z0-9._]*\$').hasMatch(val_dynamicAnchor)) {
-        throw JsonValidationException(
-          'Property "\$dynamicAnchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
-          ['\$dynamicAnchor'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "\$dynamicAnchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
+            path: ['\$dynamicAnchor'],
+            keyword: 'pattern',
+          ),
         );
       }
     }
     final val_vocabulary = vocabulary;
     if (val_vocabulary != null) {
-      try {
-        val_vocabulary.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['\$vocabulary', ...e.path]);
-      }
+      errors.addAll(
+        (val_vocabulary as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['\$vocabulary', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_comment = comment;
     final val_defs = defs;
     if (val_defs != null) {
-      try {
-        val_defs.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['\$defs', ...e.path]);
-      }
+      errors.addAll(
+        (val_defs as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['\$defs', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_prefixItems = prefixItems;
     if (val_prefixItems != null) {
       if (val_prefixItems.length < 1) {
-        throw JsonValidationException(
-          'Property "prefixItems" must have >= 1 items',
-          ['prefixItems'],
+        errors.add(
+          ValidationError(
+            message: 'Property "prefixItems" must have >= 1 items',
+            path: ['prefixItems'],
+            keyword: 'minItems',
+          ),
         );
       }
       for (var i = 0; i < val_prefixItems.length; i++) {
-        try {
-          val_prefixItems[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'prefixItems',
-            '[$i]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_prefixItems[i] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['prefixItems', '[$i]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
     }
     final val_items = items;
-    if (val_items != null) {
-      try {
-        val_items.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['items', ...e.path]);
-      }
-    }
     final val_contains = contains;
-    if (val_contains != null) {
-      try {
-        val_contains.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['contains', ...e.path]);
-      }
-    }
     final val_additionalProperties_ = additionalProperties_;
-    if (val_additionalProperties_ != null) {
-      try {
-        val_additionalProperties_.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'additionalProperties',
-          ...e.path,
-        ]);
-      }
-    }
-    try {
-      properties.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, ['properties', ...e.path]);
-    }
-    try {
-      patternProperties_.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, [
-        'patternProperties',
-        ...e.path,
-      ]);
-    }
-    try {
-      dependentSchemas.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, ['dependentSchemas', ...e.path]);
-    }
+    errors.addAll(
+      (properties as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['properties', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
+    errors.addAll(
+      (patternProperties_ as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['patternProperties', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
+    errors.addAll(
+      (dependentSchemas as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['dependentSchemas', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
     final val_propertyNames = propertyNames;
-    if (val_propertyNames != null) {
-      try {
-        val_propertyNames.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['propertyNames', ...e.path]);
-      }
-    }
     final val_if_ = if_;
-    if (val_if_ != null) {
-      try {
-        val_if_.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['if', ...e.path]);
-      }
-    }
     final val_then = then;
-    if (val_then != null) {
-      try {
-        val_then.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['then', ...e.path]);
-      }
-    }
     final val_else_ = else_;
-    if (val_else_ != null) {
-      try {
-        val_else_.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['else', ...e.path]);
-      }
-    }
     final val_allOf = allOf;
     if (val_allOf != null) {
       if (val_allOf.length < 1) {
-        throw JsonValidationException('Property "allOf" must have >= 1 items', [
-          'allOf',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "allOf" must have >= 1 items',
+            path: ['allOf'],
+            keyword: 'minItems',
+          ),
+        );
       }
       for (var i = 0; i < val_allOf.length; i++) {
-        try {
-          val_allOf[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'allOf',
-            '[$i]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_allOf[i] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['allOf', '[$i]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
     }
     final val_anyOf = anyOf;
     if (val_anyOf != null) {
       if (val_anyOf.length < 1) {
-        throw JsonValidationException('Property "anyOf" must have >= 1 items', [
-          'anyOf',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "anyOf" must have >= 1 items',
+            path: ['anyOf'],
+            keyword: 'minItems',
+          ),
+        );
       }
       for (var i = 0; i < val_anyOf.length; i++) {
-        try {
-          val_anyOf[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'anyOf',
-            '[$i]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_anyOf[i] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['anyOf', '[$i]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
     }
     final val_oneOf = oneOf;
     if (val_oneOf != null) {
       if (val_oneOf.length < 1) {
-        throw JsonValidationException('Property "oneOf" must have >= 1 items', [
-          'oneOf',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "oneOf" must have >= 1 items',
+            path: ['oneOf'],
+            keyword: 'minItems',
+          ),
+        );
       }
       for (var i = 0; i < val_oneOf.length; i++) {
-        try {
-          val_oneOf[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'oneOf',
-            '[$i]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_oneOf[i] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['oneOf', '[$i]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
     }
     final val_not = not;
-    if (val_not != null) {
-      try {
-        val_not.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['not', ...e.path]);
-      }
-    }
     final val_unevaluatedItems = unevaluatedItems;
-    if (val_unevaluatedItems != null) {
-      try {
-        val_unevaluatedItems.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'unevaluatedItems',
-          ...e.path,
-        ]);
-      }
-    }
     final val_unevaluatedProperties = unevaluatedProperties;
-    if (val_unevaluatedProperties != null) {
-      try {
-        val_unevaluatedProperties.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'unevaluatedProperties',
-          ...e.path,
-        ]);
-      }
-    }
     final val_type_ = type_;
     if (val_type_ != null) {
-      try {
-        val_type_.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['type', ...e.path]);
-      }
+      errors.addAll(
+        (val_type_ as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['type', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_const_ = const_;
     final val_enum_ = enum_;
     final val_multipleOf = multipleOf;
     if (val_multipleOf != null) {
       if (val_multipleOf <= 0) {
-        throw JsonValidationException('Property "multipleOf" must be > 0', [
-          'multipleOf',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "multipleOf" must be > 0',
+            path: ['multipleOf'],
+            keyword: 'exclusiveMinimum',
+          ),
+        );
       }
     }
     final val_maximum = maximum;
@@ -723,63 +747,95 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     final val_maxLength = maxLength;
     if (val_maxLength != null) {
       if (val_maxLength < 0) {
-        throw JsonValidationException('Property "maxLength" must be >= 0', [
-          'maxLength',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "maxLength" must be >= 0',
+            path: ['maxLength'],
+            keyword: 'minimum',
+          ),
+        );
       }
     }
     final val_minLength = minLength;
     if (val_minLength != null) {
       if (val_minLength < 0) {
-        throw JsonValidationException('Property "minLength" must be >= 0', [
-          'minLength',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "minLength" must be >= 0',
+            path: ['minLength'],
+            keyword: 'minimum',
+          ),
+        );
       }
     }
     final val_pattern = pattern;
     final val_maxItems = maxItems;
     if (val_maxItems != null) {
       if (val_maxItems < 0) {
-        throw JsonValidationException('Property "maxItems" must be >= 0', [
-          'maxItems',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "maxItems" must be >= 0',
+            path: ['maxItems'],
+            keyword: 'minimum',
+          ),
+        );
       }
     }
     final val_minItems = minItems;
     if (val_minItems != null) {
       if (val_minItems < 0) {
-        throw JsonValidationException('Property "minItems" must be >= 0', [
-          'minItems',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "minItems" must be >= 0',
+            path: ['minItems'],
+            keyword: 'minimum',
+          ),
+        );
       }
     }
     final val_maxContains = maxContains;
     if (val_maxContains != null) {
       if (val_maxContains < 0) {
-        throw JsonValidationException('Property "maxContains" must be >= 0', [
-          'maxContains',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "maxContains" must be >= 0',
+            path: ['maxContains'],
+            keyword: 'minimum',
+          ),
+        );
       }
     }
     if (minContains < 0) {
-      throw JsonValidationException('Property "minContains" must be >= 0', [
-        'minContains',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "minContains" must be >= 0',
+          path: ['minContains'],
+          keyword: 'minimum',
+        ),
+      );
     }
     final val_maxProperties = maxProperties;
     if (val_maxProperties != null) {
       if (val_maxProperties < 0) {
-        throw JsonValidationException('Property "maxProperties" must be >= 0', [
-          'maxProperties',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "maxProperties" must be >= 0',
+            path: ['maxProperties'],
+            keyword: 'minimum',
+          ),
+        );
       }
     }
     final val_minProperties = minProperties;
     if (val_minProperties != null) {
       if (val_minProperties < 0) {
-        throw JsonValidationException('Property "minProperties" must be >= 0', [
-          'minProperties',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "minProperties" must be >= 0',
+            path: ['minProperties'],
+            keyword: 'minimum',
+          ),
+        );
       }
     }
     final val_required_ = required_;
@@ -789,22 +845,29 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
             equals: const DeepCollectionEquality().equals,
             hashCode: const DeepCollectionEquality().hash,
           )..addAll(val_required_)).length) {
-        throw JsonValidationException(
-          'Property "required" items must be unique',
-          ['required'],
+        errors.add(
+          ValidationError(
+            message: 'Property "required" items must be unique',
+            path: ['required'],
+            keyword: 'uniqueItems',
+          ),
         );
       }
     }
     final val_dependentRequired = dependentRequired;
     if (val_dependentRequired != null) {
-      try {
-        val_dependentRequired.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'dependentRequired',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_dependentRequired as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['dependentRequired', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_title = title;
     final val_description = description;
@@ -814,42 +877,65 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     final val_contentEncoding = contentEncoding;
     final val_contentMediaType = contentMediaType;
     final val_contentSchema = contentSchema;
-    if (val_contentSchema != null) {
-      try {
-        val_contentSchema.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['contentSchema', ...e.path]);
-      }
-    }
-    try {
-      definitions.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, ['definitions', ...e.path]);
-    }
-    try {
-      dependencies.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, ['dependencies', ...e.path]);
-    }
+    errors.addAll(
+      (definitions as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['definitions', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
+    errors.addAll(
+      (dependencies as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['dependencies', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
     final val_recursiveAnchor = recursiveAnchor;
     if (val_recursiveAnchor != null) {
       if (!RegExp(
         '^[A-Za-z_][-A-Za-z0-9._]*\$',
       ).hasMatch(val_recursiveAnchor)) {
-        throw JsonValidationException(
-          'Property "\$recursiveAnchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
-          ['\$recursiveAnchor'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "\$recursiveAnchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
+            path: ['\$recursiveAnchor'],
+            keyword: 'pattern',
+          ),
         );
       }
     }
     final val_recursiveRef = recursiveRef;
     if (val_recursiveRef != null) {
-      if (!isValidUriReference(val_recursiveRef)) {
-        throw JsonValidationException(
-          'Property "\$recursiveRef" must be a valid URI reference',
-          ['\$recursiveRef'],
+      if (!(isValidUriReference(val_recursiveRef))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "\$recursiveRef" must be a valid URI reference',
+            path: ['\$recursiveRef'],
+            keyword: 'format',
+          ),
         );
       }
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -1692,7 +1778,30 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {}
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
+    additionalProperties.forEach((key, value) {
+      if (value is! bool) {
+        errors.add(
+          ValidationError(
+            message: 'Property "$key" must be a boolean',
+            path: ['\$key'],
+            keyword: 'type',
+          ),
+        );
+      }
+    });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 
   static final ObjectDescriptor<
     CoreAndValidationSpecificationsMetaSchema1Vocabulary
@@ -1795,14 +1904,32 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     additionalProperties.forEach((key, value) {
-      try {
-        value.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$key', ...e.path]);
-      }
+      errors.addAll(
+        (value as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['$key', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Defs>
@@ -1906,14 +2033,32 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     additionalProperties.forEach((key, value) {
-      try {
-        value.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$key', ...e.path]);
-      }
+      errors.addAll(
+        (value as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['$key', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<
@@ -2022,14 +2167,32 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     additionalProperties.forEach((key, value) {
-      try {
-        value.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$key', ...e.path]);
-      }
+      errors.addAll(
+        (value as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['$key', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<
@@ -2142,14 +2305,32 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     additionalProperties.forEach((key, value) {
-      try {
-        value.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$key', ...e.path]);
-      }
+      errors.addAll(
+        (value as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['$key', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<
@@ -2247,6 +2428,17 @@ sealed class CoreAndValidationSpecificationsMetaSchema1Type
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<CoreAndValidationSpecificationsMetaSchema1Type>
   descriptor = UnionDescriptor<CoreAndValidationSpecificationsMetaSchema1Type>(
     title: 'CoreAndValidationSpecificationsMetaSchema1Type',
@@ -2285,7 +2477,8 @@ final class CoreAndValidationSpecificationsMetaSchema1TypeOption0
   }
 
   @override
-  void validate() {
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (!const [
       'array',
       'boolean',
@@ -2300,11 +2493,16 @@ final class CoreAndValidationSpecificationsMetaSchema1TypeOption0
         value is Enum ? (value as dynamic).value : value,
       ),
     )) {
-      throw JsonValidationException(
-        'Property "value" must be one of [array, boolean, integer, null, number, object, string]',
-        ['value'],
+      errors.add(
+        ValidationError(
+          message:
+              'Property "value" must be one of [array, boolean, integer, null, number, object, string]',
+          path: ['value'],
+          keyword: 'enum',
+        ),
       );
     }
+    return errors;
   }
 
   @override
@@ -2337,7 +2535,9 @@ final class CoreAndValidationSpecificationsMetaSchema1TypeOption1
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -2427,18 +2627,43 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     additionalProperties.forEach((key, value) {
-      if (value.length !=
-          (LinkedHashSet<dynamic>(
-            equals: const DeepCollectionEquality().equals,
-            hashCode: const DeepCollectionEquality().hash,
-          )..addAll(value)).length) {
-        throw JsonValidationException('Property "$key" items must be unique', [
-          '\$key',
-        ]);
+      if (value is! List) {
+        errors.add(
+          ValidationError(
+            message: 'Property "$key" must be an array',
+            path: ['\$key'],
+            keyword: 'type',
+          ),
+        );
+      } else {
+        if (value.length !=
+            (LinkedHashSet<dynamic>(
+              equals: const DeepCollectionEquality().equals,
+              hashCode: const DeepCollectionEquality().hash,
+            )..addAll(value)).length) {
+          errors.add(
+            ValidationError(
+              message: 'Property "$key" items must be unique',
+              path: ['\$key'],
+              keyword: 'uniqueItems',
+            ),
+          );
+        }
       }
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<
@@ -2547,14 +2772,32 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     additionalProperties.forEach((key, value) {
-      try {
-        value.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$key', ...e.path]);
-      }
+      errors.addAll(
+        (value as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['$key', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<
@@ -2670,14 +2913,32 @@ final class CoreAndValidationSpecificationsMetaSchema1Dependencies
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     additionalProperties.forEach((key, value) {
-      try {
-        value.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$key', ...e.path]);
-      }
+      errors.addAll(
+        (value as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['$key', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<
@@ -2780,6 +3041,17 @@ sealed class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPro
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<
     CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
   >
@@ -2837,9 +3109,7 @@ final class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProp
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -2875,7 +3145,9 @@ final class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProp
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>

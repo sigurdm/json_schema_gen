@@ -60,12 +60,26 @@ final class Address implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (!RegExp('^[0-9]{5}\$').hasMatch(zipCode)) {
-      throw JsonValidationException(
-        'Property "zipCode" must match pattern "^[0-9]{5}\$"',
-        ['zipCode'],
+      errors.add(
+        ValidationError(
+          message: 'Property "zipCode" must match pattern "^[0-9]{5}\$"',
+          path: ['zipCode'],
+          keyword: 'pattern',
+        ),
       );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 

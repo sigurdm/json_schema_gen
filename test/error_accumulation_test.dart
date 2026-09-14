@@ -15,6 +15,8 @@
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:test/test.dart';
 
+import 'test_schema.g.dart';
+
 void main() {
   group('ValidationError', () {
     test('JSON Pointer (instancePath) and JSONPath formatting', () {
@@ -81,12 +83,12 @@ void main() {
     });
   });
 
-  group('JsonValidationException backwards compatibility', () {
-    test('legacy single-error formatting', () {
-      final ex = JsonValidationException('Something went wrong', [
-        'data',
-        'value',
-      ]);
+  group('JsonValidationException', () {
+    test('single-error formatting', () {
+      final ex = JsonValidationException.single(
+        'Something went wrong',
+        path: ['data', 'value'],
+      );
       expect(ex.message, 'Something went wrong');
       expect(ex.path, ['data', 'value']);
       expect(ex.errors.length, 1);
@@ -101,7 +103,7 @@ void main() {
     test('multi-error formatting', () {
       final err1 = ValidationError(message: 'Error 1', path: ['a']);
       final err2 = ValidationError(message: 'Error 2', path: ['b']);
-      final ex = JsonValidationException.fromErrors([err1, err2]);
+      final ex = JsonValidationException([err1, err2]);
 
       expect(ex.errors.length, 2);
       expect(ex.path, ['a']);
@@ -164,27 +166,24 @@ void main() {
       );
     });
 
-    test(
-      'validate with failFast: false throws JsonValidationException with all errors',
-      () {
-        final invalidData = {'username': 'a', 'email': 'bad'};
-
-        try {
-          schema.validate(invalidData, failFast: false);
-          fail('Expected JsonValidationException');
-        } on JsonValidationException catch (e) {
-          expect(e.errors.length, greaterThanOrEqualTo(2));
-          expect(e.errors.any((err) => err.path.contains('username')), isTrue);
-          expect(e.errors.any((err) => err.path.contains('email')), isTrue);
-        }
-      },
-    );
-
-    test('validate with failFast: true (default) stops at first error', () {
+    test('validate defaults to accumulating all errors (failFast: false)', () {
       final invalidData = {'username': 'a', 'email': 'bad'};
 
       try {
         schema.validate(invalidData);
+        fail('Expected JsonValidationException');
+      } on JsonValidationException catch (e) {
+        expect(e.errors.length, greaterThanOrEqualTo(2));
+        expect(e.errors.any((err) => err.path.contains('username')), isTrue);
+        expect(e.errors.any((err) => err.path.contains('email')), isTrue);
+      }
+    });
+
+    test('validate with failFast: true stops at first error', () {
+      final invalidData = {'username': 'a', 'email': 'bad'};
+
+      try {
+        schema.validate(invalidData, failFast: true);
         fail('Expected JsonValidationException');
       } on JsonValidationException catch (e) {
         expect(e.errors.length, 1);
@@ -382,6 +381,72 @@ void main() {
 
       final invalidErrors = collector({'a': 123});
       expect(invalidErrors.length, 2); // missing 'b', 'a' is not string
+    });
+  });
+
+  group('Generated Model Error Accumulation', () {
+    test('Address collectErrors returns all validation errors', () {
+      const address = Address(city: 'NY'); // city.runes.length < 3
+      final errors = address.collectErrors();
+      expect(errors.length, 1);
+      expect(errors.first.path, ['city']);
+      expect(errors.first.keyword, 'minLength');
+    });
+
+    test('Address validate throws JsonValidationException with all errors', () {
+      const address = Address(city: 'NY');
+      expect(
+        () => address.validate(),
+        throwsA(
+          isA<JsonValidationException>().having(
+            (e) => e.errors,
+            'errors',
+            hasLength(1),
+          ),
+        ),
+      );
+    });
+
+    test('TestRoot accumulates errors across fields and nested objects', () {
+      const invalidRoot = TestRoot(
+        name: '', // minLength: 1
+        age: -5, // minimum: 0
+        isAwesome: true,
+        email: 'invalid-email', // pattern
+        ipv4Field: 'invalid-ip', // format: ipv4
+        tags: ['tag1', 'tag1'], // uniqueItems
+        address: Address(city: 'NY'), // nested city minLength: 3
+      );
+
+      final errors = invalidRoot.collectErrors();
+      expect(errors.length, 6);
+
+      final keywords = errors.map((e) => e.keyword).toSet();
+      expect(
+        keywords,
+        containsAll([
+          'minLength',
+          'minimum',
+          'pattern',
+          'format',
+          'uniqueItems',
+        ]),
+      );
+
+      final paths = errors.map((e) => e.path.join('.')).toList();
+      expect(paths, contains('name'));
+      expect(paths, contains('age'));
+      expect(paths, contains('email'));
+      expect(paths, contains('ipv4Field'));
+      expect(paths, contains('tags'));
+      expect(paths, contains('address.city'));
+
+      try {
+        invalidRoot.validate();
+        fail('Expected JsonValidationException');
+      } on JsonValidationException catch (e) {
+        expect(e.errors.length, 6);
+      }
     });
   });
 }

@@ -990,11 +990,11 @@ void main() {
       final root = await parser.parse();
       final code = generateCode(root, 'NotModel');
 
-      expect(code, contains('if (notMatches_disallowed)'));
+      expect(code, contains('if (notErrors_disallowed.isEmpty)'));
       expect(
         code,
         contains(
-          "throw JsonValidationException('Property \"disallowed\" must not match the schema'",
+          "errors.add(ValidationError(message: 'Property \"disallowed\" must not match the schema'",
         ),
       );
     });

@@ -116,7 +116,7 @@ void main() async {
                 if (schema is bool) {
                   validator = (dynamic value) {
                     if (schema == false) {
-                      throw JsonValidationException(
+                      throw JsonValidationException.single(
                         'Value not allowed by false schema',
                       );
                     }

@@ -193,11 +193,12 @@ const _reservedTypeNames = {
   'NullableDescriptor', 'NullDescriptor', 'NumDescriptor',
   'ObjectDescriptor', 'PrimitiveDescriptor', 'PropertyDescriptor',
   'RefDescriptor', 'SchemaDescriptor', 'StringDescriptor',
-  'UnionDescriptor', 'UnionOptionDescriptor',
+  'UnionDescriptor', 'UnionOptionDescriptor', 'ValidationError',
 };
 
 const _reservedMemberNames = {
   'validate',
+  'collectErrors',
   'writeJson',
   'toJson',
   'hashCode',
@@ -1257,13 +1258,10 @@ String _generateMatchBlock(
       );
     }
     if (real.format != null) {
-      final fmtBuf = StringBuffer();
-      _generateFormatValidation(fmtBuf, valueVar, real.format!, 'item');
-      buffer.writeln('      try {');
-      buffer.write(fmtBuf.toString());
-      buffer.writeln('      } on JsonValidationException catch (_) {');
-      buffer.writeln('        $resultVar = false;');
-      buffer.writeln('      }');
+      final cond = _getFormatCondition(valueVar, real.format!);
+      if (cond != null) {
+        buffer.writeln('      if (!($cond)) $resultVar = false;');
+      }
     }
     buffer.writeln('    }');
   } else if (real.isNumber) {
@@ -1311,31 +1309,25 @@ String _generateMatchBlock(
   } else if (real.isObject) {
     final className = classNames[real]!;
     buffer.writeln('    if ($valueVar is $className) {');
-    buffer.writeln('      $resultVar = true;');
-    buffer.writeln(
-      '      try { $valueVar.validate(); } on JsonValidationException catch (_) { $resultVar = false; }',
-    );
+    buffer.writeln('      $resultVar = $valueVar.collectErrors().isEmpty;');
     buffer.writeln('    } else if ($valueVar is Map<String, dynamic>) {');
     buffer.writeln('      try {');
     buffer.writeln(
       '        final parsed = $className.fromJson(JsonReader.fromObject($valueVar));',
     );
-    buffer.writeln('        $resultVar = true;');
+    buffer.writeln('        $resultVar = parsed.collectErrors().isEmpty;');
     buffer.writeln('      } catch (_) {}');
     buffer.writeln('    }');
   } else if (real.isUnion) {
     final className = classNames[real]!;
     buffer.writeln('    if ($valueVar is $className) {');
-    buffer.writeln('      $resultVar = true;');
-    buffer.writeln(
-      '      try { $valueVar.validate(); } on JsonValidationException catch (_) { $resultVar = false; }',
-    );
+    buffer.writeln('      $resultVar = $valueVar.collectErrors().isEmpty;');
     buffer.writeln('    } else {');
     buffer.writeln('      try {');
     buffer.writeln(
-      '        $className.fromJson(JsonReader.fromObject($valueVar));',
+      '        final parsed = $className.fromJson(JsonReader.fromObject($valueVar));',
     );
-    buffer.writeln('        $resultVar = true;');
+    buffer.writeln('        $resultVar = parsed.collectErrors().isEmpty;');
     buffer.writeln('      } catch (_) {}');
     buffer.writeln('    }');
   } else if (real.enumValues != null) {
@@ -1437,7 +1429,9 @@ String _generateValidationMethod(
   Map<String, String> fieldNames,
 ) {
   final buffer = StringBuffer();
-  buffer.writeln('  void validate() {');
+  buffer.writeln('  @override');
+  buffer.writeln('  List<ValidationError> collectErrors() {');
+  buffer.writeln('    final errors = <ValidationError>[];');
   if (schema.minProperties != null || schema.maxProperties != null) {
     buffer.writeln('    var count = 0;');
     schema.properties?.forEach((key, propSchema) {
@@ -1459,14 +1453,14 @@ String _generateValidationMethod(
     if (schema.minProperties != null) {
       buffer.writeln('    if (count < ${schema.minProperties}) {');
       buffer.writeln(
-        "      throw JsonValidationException('Object must have >= ${schema.minProperties} properties', []);",
+        "      errors.add(ValidationError(message: 'Object must have >= ${schema.minProperties} properties', keyword: 'minProperties'));",
       );
       buffer.writeln('    }');
     }
     if (schema.maxProperties != null) {
       buffer.writeln('    if (count > ${schema.maxProperties}) {');
       buffer.writeln(
-        "      throw JsonValidationException('Object must have <= ${schema.maxProperties} properties', []);",
+        "      errors.add(ValidationError(message: 'Object must have <= ${schema.maxProperties} properties', keyword: 'maxProperties'));",
       );
       buffer.writeln('    }');
     }
@@ -1480,7 +1474,7 @@ String _generateValidationMethod(
       final depFieldName = fieldNames[dep]!;
       buffer.writeln('      if ($depFieldName == null) {');
       buffer.writeln(
-        "        throw JsonValidationException('Property \"$escapedDep\" is required because \"$escapedKey\" is present', ['$escapedDep']);",
+        "        errors.add(ValidationError(message: 'Property \"$escapedDep\" is required because \"$escapedKey\" is present', path: ['$escapedDep'], keyword: 'dependentRequired'));",
       );
       buffer.writeln('      }');
     }
@@ -1527,19 +1521,20 @@ String _generateValidationMethod(
           classNames,
           checkType: true,
           includeNot: true,
+          errorsVar: 'notErrors_$fieldName',
         );
         if (notValBuf.isNotEmpty) {
           final escapedName = escapeStringContents(name);
-          buffer.writeln('    bool notMatches_$fieldName = true;');
-          buffer.writeln('    try {');
-          buffer.write(notValBuf.toString());
-          buffer.writeln('    } on JsonValidationException {');
-          buffer.writeln('      notMatches_$fieldName = false;');
-          buffer.writeln('    }');
-          buffer.writeln('    if (notMatches_$fieldName) {');
+          buffer.writeln('    {');
           buffer.writeln(
-            "      throw JsonValidationException('Property \"$escapedName\" must not match the schema', ['$escapedName']);",
+            '      final notErrors_$fieldName = <ValidationError>[];',
           );
+          buffer.write(notValBuf.toString());
+          buffer.writeln('      if (notErrors_$fieldName.isEmpty) {');
+          buffer.writeln(
+            "        errors.add(ValidationError(message: 'Property \"$escapedName\" must not match the schema', path: ['$escapedName'], keyword: 'not'));",
+          );
+          buffer.writeln('      }');
           buffer.writeln('    }');
         }
       } else {
@@ -1560,7 +1555,7 @@ String _generateValidationMethod(
         buffer.writeln('    }');
         buffer.writeln('    if (notMatches_$fieldName) {');
         buffer.writeln(
-          "      throw JsonValidationException('Property \"$escapedName\" must not match the schema', ['$escapedName']);",
+          "      errors.add(ValidationError(message: 'Property \"$escapedName\" must not match the schema', path: ['$escapedName'], keyword: 'not'));",
         );
         buffer.writeln('    }');
       }
@@ -1618,6 +1613,7 @@ String _generateValidationMethod(
         'value',
         r'$key',
         classNames,
+        checkType: true,
         includeNot: false,
         escapeName: false,
       );
@@ -1629,6 +1625,15 @@ String _generateValidationMethod(
     }
   }
 
+  buffer.writeln('    return errors;');
+  buffer.writeln('  }');
+  buffer.writeln();
+  buffer.writeln('  @override');
+  buffer.writeln('  void validate() {');
+  buffer.writeln('    final errors = collectErrors();');
+  buffer.writeln('    if (errors.isNotEmpty) {');
+  buffer.writeln('      throw JsonValidationException(errors);');
+  buffer.writeln('    }');
   buffer.writeln('  }');
   return buffer.toString();
 }
@@ -1637,7 +1642,7 @@ String _generateValidationMethod(
 ///
 /// Since arrays can contain other arrays (nested lists), this method handles
 /// the recursion:
-/// - For **Object/Union items**: Generates a call to `item.validate()` wrapped in a try-catch to propagate the path.
+/// - For **Object/Union items**: Generates a call to `item.collectErrors()` to propagate the path.
 /// - For **Nested Array items**: Generates a loop (e.g., `for (var i = ...; i < list.length; i++)`) and recursively calls
 ///   [_generateArrayItemValidation] for the next depth level, updating the validation path.
 /// - For **Primitive items** (string, number, boolean): Generates inline validations using [_generateSchemaValidations].
@@ -1650,15 +1655,19 @@ void _generateArrayItemValidation(
   int depth,
   Map<Schema, String> classNames, {
   bool escapeName = true,
+  String errorsVar = 'errors',
 }) {
   final real = itemSchema.realSchema;
   if (real.isObject || real.isUnion) {
     validations.writeln('''
-        try {
-          $valueVar.validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [${pathExprs.join(', ')}, ...e.path]);
-        }''');
+        $errorsVar.addAll(($valueVar as JsonModel).collectErrors().map((ValidationError e) => ValidationError(
+          message: e.message,
+          path: [${pathExprs.join(', ')}, ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        )));''');
   } else if (real.isArray) {
     final itemVar = 'item$depth';
     final indexVar = 'i$depth';
@@ -1678,6 +1687,7 @@ void _generateArrayItemValidation(
         depth + 1,
         classNames,
         escapeName: escapeName,
+        errorsVar: errorsVar,
       );
       validations.writeln('        }');
     }
@@ -1692,6 +1702,7 @@ void _generateArrayItemValidation(
       checkType: true,
       pathExprs: pathExprs,
       escapeName: escapeName,
+      errorsVar: errorsVar,
     );
     if (primitiveValidations.isNotEmpty) {
       final indent = '  ' * (depth + 1);
@@ -1718,6 +1729,7 @@ void _generateSchemaValidations(
   bool includeNot = true,
   List<String>? pathExprs,
   bool escapeName = true,
+  String errorsVar = 'errors',
 }) {
   final unescapedName = name;
   // `name` is interpolated into generated error messages. Normally it is a
@@ -1732,16 +1744,16 @@ void _generateSchemaValidations(
     if (checkType) {
       validations.writeln('      if ($valueVar is! String) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a string', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a string', path: $effectivePathExpr, keyword: 'type'));",
       );
-      validations.writeln('      }');
+      validations.writeln('      } else {');
     }
     if (real.minLength != null) {
       validations.writeln(
         '      if ($valueVar.runes.length < ${real.minLength}) {',
       );
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" length must be >= ${real.minLength}', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" length must be >= ${real.minLength}', path: $effectivePathExpr, keyword: 'minLength'));",
       );
       validations.writeln('      }');
     }
@@ -1750,7 +1762,7 @@ void _generateSchemaValidations(
         '      if ($valueVar.runes.length > ${real.maxLength}) {',
       );
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" length must be <= ${real.maxLength}', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" length must be <= ${real.maxLength}', path: $effectivePathExpr, keyword: 'maxLength'));",
       );
       validations.writeln('      }');
     }
@@ -1759,7 +1771,7 @@ void _generateSchemaValidations(
       final msgPatternEscaped = escapeStringContents(real.pattern!);
       validations.writeln('''
       if (!RegExp($patternLiteral).hasMatch($valueVar)) {
-        throw JsonValidationException('Property "$name" must match pattern "$msgPatternEscaped"', $effectivePathExpr);
+        $errorsVar.add(ValidationError(message: 'Property "$name" must match pattern "$msgPatternEscaped"', path: $effectivePathExpr, keyword: 'pattern'));
       }''');
     }
     if (real.format != null) {
@@ -1769,7 +1781,11 @@ void _generateSchemaValidations(
         real.format!,
         name,
         pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
+    }
+    if (checkType) {
+      validations.writeln('      }');
     }
   } else if (real.isNumber) {
     if (checkType) {
@@ -1777,35 +1793,35 @@ void _generateSchemaValidations(
       final typeName = real.isInteger ? 'an integer' : 'a number';
       validations.writeln('      if ($valueVar $typeCheck) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be $typeName', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be $typeName', path: $effectivePathExpr, keyword: 'type'));",
       );
-      validations.writeln('      }');
+      validations.writeln('      } else {');
     }
     if (real.minimum != null) {
       validations.writeln('      if ($valueVar < ${real.minimum}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be >= ${real.minimum}', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be >= ${real.minimum}', path: $effectivePathExpr, keyword: 'minimum'));",
       );
       validations.writeln('      }');
     }
     if (real.maximum != null) {
       validations.writeln('      if ($valueVar > ${real.maximum}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be <= ${real.maximum}', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be <= ${real.maximum}', path: $effectivePathExpr, keyword: 'maximum'));",
       );
       validations.writeln('      }');
     }
     if (real.exclusiveMinimum != null) {
       validations.writeln('      if ($valueVar <= ${real.exclusiveMinimum}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be > ${real.exclusiveMinimum}', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be > ${real.exclusiveMinimum}', path: $effectivePathExpr, keyword: 'exclusiveMinimum'));",
       );
       validations.writeln('      }');
     }
     if (real.exclusiveMaximum != null) {
       validations.writeln('      if ($valueVar >= ${real.exclusiveMaximum}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be < ${real.exclusiveMaximum}', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be < ${real.exclusiveMaximum}', path: $effectivePathExpr, keyword: 'exclusiveMaximum'));",
       );
       validations.writeln('      }');
     }
@@ -1813,7 +1829,7 @@ void _generateSchemaValidations(
       if (real.isInteger) {
         validations.writeln('      if ($valueVar % ${real.multipleOf} != 0) {');
         validations.writeln(
-          "        throw JsonValidationException('Property \"$name\" must be a multiple of ${real.multipleOf}', $effectivePathExpr);",
+          "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a multiple of ${real.multipleOf}', path: $effectivePathExpr, keyword: 'multipleOf'));",
         );
         validations.writeln('      }');
       } else {
@@ -1824,34 +1840,38 @@ void _generateSchemaValidations(
         validations.writeln('''
       if (() {
         final div = $valueVar / ${real.multipleOf};
+        if (!div.isFinite) return true;
         final rounded = div.round();
         final absError = (div - rounded).abs();
         final relError = absError / (div.abs() > 1.0 ? div.abs() : 1.0);
         return relError > 1e-14;
       }()) {
-        throw JsonValidationException('Property "$name" must be a multiple of ${real.multipleOf}', $effectivePathExpr);
+        $errorsVar.add(ValidationError(message: 'Property "$name" must be a multiple of ${real.multipleOf}', path: $effectivePathExpr, keyword: 'multipleOf'));
       }''');
       }
+    }
+    if (checkType) {
+      validations.writeln('      }');
     }
   } else if (real.isArray) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! List) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be an array', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be an array', path: $effectivePathExpr, keyword: 'type'));",
       );
-      validations.writeln('      }');
+      validations.writeln('      } else {');
     }
     if (real.minItems != null) {
       validations.writeln('      if ($valueVar.length < ${real.minItems}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must have >= ${real.minItems} items', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must have >= ${real.minItems} items', path: $effectivePathExpr, keyword: 'minItems'));",
       );
       validations.writeln('      }');
     }
     if (real.maxItems != null) {
       validations.writeln('      if ($valueVar.length > ${real.maxItems}) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must have <= ${real.maxItems} items', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must have <= ${real.maxItems} items', path: $effectivePathExpr, keyword: 'maxItems'));",
       );
       validations.writeln('      }');
     }
@@ -1860,7 +1880,7 @@ void _generateSchemaValidations(
         '      if ($valueVar.length != (LinkedHashSet<dynamic>(equals: const DeepCollectionEquality().equals, hashCode: const DeepCollectionEquality().hash)..addAll($valueVar)).length) {',
       );
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" items must be unique', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" items must be unique', path: $effectivePathExpr, keyword: 'uniqueItems'));",
       );
       validations.writeln('      }');
     }
@@ -1880,14 +1900,14 @@ void _generateSchemaValidations(
       if (minContains > 0) {
         validations.writeln('      if (containsCount < $minContains) {');
         validations.writeln(
-          "        throw JsonValidationException('Property \"$name\" must contain at least $minContains items matching contains schema, but has \$containsCount', $effectivePathExpr);",
+          "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must contain at least $minContains items matching contains schema, but has \$containsCount', path: $effectivePathExpr, keyword: 'minContains'));",
         );
         validations.writeln('      }');
       }
       if (real.maxContains != null) {
         validations.writeln('      if (containsCount > ${real.maxContains}) {');
         validations.writeln(
-          "        throw JsonValidationException('Property \"$name\" must contain at most ${real.maxContains} items matching contains schema, but has \$containsCount', $effectivePathExpr);",
+          "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must contain at most ${real.maxContains} items matching contains schema, but has \$containsCount', path: $effectivePathExpr, keyword: 'maxContains'));",
         );
         validations.writeln('      }');
       }
@@ -1905,6 +1925,7 @@ void _generateSchemaValidations(
             [...effectivePath, "'[$i]'"],
             0,
             classNames,
+            errorsVar: errorsVar,
           );
           validations.writeln('      }');
         }
@@ -1924,14 +1945,18 @@ void _generateSchemaValidations(
         [...effectivePath, "'[\$i]'"],
         0,
         classNames,
+        errorsVar: errorsVar,
       );
+      validations.writeln('      }');
+    }
+    if (checkType) {
       validations.writeln('      }');
     }
   } else if (real.isBoolean) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! bool) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a boolean', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a boolean', path: $effectivePathExpr, keyword: 'type'));",
       );
       validations.writeln('      }');
     }
@@ -1939,7 +1964,7 @@ void _generateSchemaValidations(
     if (checkType) {
       validations.writeln('      if ($valueVar != null) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be null', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be null', path: $effectivePathExpr, keyword: 'type'));",
       );
       validations.writeln('      }');
     }
@@ -1954,6 +1979,7 @@ void _generateSchemaValidations(
         classNames,
         checkType: true,
         pathExprs: effectivePath,
+        errorsVar: errorsVar,
       );
     }
     final valuesLiterals = real.enumValues!
@@ -1965,7 +1991,7 @@ void _generateSchemaValidations(
       '      if (!const [$valuesLiterals].any((v) => const DeepCollectionEquality().equals(v, $effectiveValue))) {',
     );
     validations.writeln(
-      "        throw JsonValidationException('Property \"$name\" must be one of ${real.enumValues}', $effectivePathExpr);",
+      "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be one of ${real.enumValues}', path: $effectivePathExpr, keyword: 'enum'));",
     );
     validations.writeln('      }');
   } else if (real.isObject || real.isUnion) {
@@ -1973,27 +1999,38 @@ void _generateSchemaValidations(
       final className = classNames[real]!;
       validations.writeln('      if ($valueVar is! $className) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a $className', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a $className', path: $effectivePathExpr, keyword: 'type'));",
       );
+      if (_hasValidationMethod(real)) {
+        validations.writeln('      } else {');
+        validations.writeln('''
+        $errorsVar.addAll(($valueVar as JsonModel).collectErrors().map((ValidationError e) => ValidationError(
+          message: e.message,
+          path: [${effectivePath.join(', ')}, ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        )));''');
+      }
       validations.writeln('      }');
+    } else if (_hasValidationMethod(real)) {
+      validations.writeln('''
+      $errorsVar.addAll(($valueVar as JsonModel).collectErrors().map((ValidationError e) => ValidationError(
+        message: e.message,
+        path: [${effectivePath.join(', ')}, ...e.path],
+        keyword: e.keyword,
+        schema: e.schema,
+        value: e.value,
+        nestedErrors: e.nestedErrors,
+      )));''');
     }
   } else if (real.isAnything) {
     // Always succeeds, so do nothing.
   } else if (real.isNever) {
     validations.writeln(
-      "      throw JsonValidationException('Property \"$name\" matches nothing', $effectivePathExpr);",
+      "      $errorsVar.add(ValidationError(message: 'Property \"$name\" matches nothing', path: $effectivePathExpr, keyword: 'false'));",
     );
-  }
-
-  final hasNestedValidation =
-      (real.isObject || real.isUnion) && _hasValidationMethod(real);
-  if (hasNestedValidation) {
-    validations.writeln('''
-      try {
-        $valueVar.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$name', ...e.path]);
-      }''');
   }
 
   if (includeNot && schema.not != null) {
@@ -2008,18 +2045,17 @@ void _generateSchemaValidations(
         classNames,
         checkType: true,
         includeNot: true,
+        errorsVar: 'notErrors',
       );
       if (notValBuf.isNotEmpty) {
-        validations.writeln('      bool notMatches = true;');
-        validations.writeln('      try {');
+        validations.writeln('      {');
+        validations.writeln('        final notErrors = <ValidationError>[];');
         validations.write(notValBuf.toString());
-        validations.writeln('      } on JsonValidationException {');
-        validations.writeln('        notMatches = false;');
-        validations.writeln('      }');
-        validations.writeln('      if (notMatches) {');
+        validations.writeln('        if (notErrors.isEmpty) {');
         validations.writeln(
-          "        throw JsonValidationException('Property \"$name\" must not match the schema', $effectivePathExpr);",
+          "          $errorsVar.add(ValidationError(message: 'Property \"$name\" must not match the schema', path: $effectivePathExpr, keyword: 'not'));",
         );
+        validations.writeln('        }');
         validations.writeln('      }');
       }
     } else {
@@ -2039,10 +2075,64 @@ void _generateSchemaValidations(
       validations.writeln('      }');
       validations.writeln('      if (notMatches) {');
       validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must not match the schema', $effectivePathExpr);",
+        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must not match the schema', path: $effectivePathExpr, keyword: 'not'));",
       );
       validations.writeln('      }');
     }
+  }
+}
+
+String? _getFormatCondition(String valueVar, String format) {
+  switch (format) {
+    case 'date-time':
+      return 'DateTime.tryParse($valueVar) != null';
+    case 'date':
+      return "RegExp(r'^\\d{4}-\\d{2}-\\d{2}\$').hasMatch($valueVar)";
+    case 'email':
+      return "RegExp(r'^[^@]+@[^@]+\$').hasMatch($valueVar)";
+    case 'ipv4':
+      return "RegExp(r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\$').hasMatch($valueVar)";
+    case 'uuid':
+      return "RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$').hasMatch($valueVar)";
+    case 'uri':
+      return 'isValidUri($valueVar)';
+    case 'uri-reference':
+      return 'isValidUriReference($valueVar)';
+    case 'ipv6':
+      return 'isValidIPv6($valueVar)';
+    case 'hostname':
+      return 'isValidHostname($valueVar)';
+    case 'time':
+      return 'isValidTime($valueVar)';
+    default:
+      return null;
+  }
+}
+
+String? _getFormatErrorMessage(String name, String format) {
+  switch (format) {
+    case 'date-time':
+      return 'Property "$name" must be a valid RFC 3339 date-time string';
+    case 'date':
+      return 'Property "$name" must be a valid date string (YYYY-MM-DD)';
+    case 'email':
+      return 'Property "$name" must be a valid email address';
+    case 'ipv4':
+      return 'Property "$name" must be a valid IPv4 address';
+    case 'uuid':
+      return 'Property "$name" must be a valid UUID';
+    case 'uri':
+      return 'Property "$name" must be a valid absolute URI';
+    case 'uri-reference':
+      return 'Property "$name" must be a valid URI reference';
+    case 'ipv6':
+      return 'Property "$name" must be a valid IPv6 address';
+    case 'hostname':
+      return 'Property "$name" must be a valid hostname';
+    case 'time':
+      return 'Property "$name" must be a valid time string';
+    default:
+      return null;
   }
 }
 
@@ -2052,90 +2142,21 @@ void _generateFormatValidation(
   String format,
   String name, {
   String? pathExpr,
+  String errorsVar = 'errors',
 }) {
+  final msg = _getFormatErrorMessage(name, format);
+  if (msg == null) return;
+  final cond = format == 'date-time'
+      ? 'DateTime.tryParse($valueVar) == null'
+      : '!(${_getFormatCondition(valueVar, format)})';
   // [name] arrives already escaped (or as a deliberate code fragment) from
   // the caller; escaping again here would double up the backslashes.
   final effectivePathExpr = pathExpr ?? "['$name']";
-  switch (format) {
-    case 'date-time':
-      validations.writeln('      if (DateTime.tryParse($valueVar) == null) {');
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid RFC 3339 date-time string', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'date':
-      validations.writeln(
-        "      if (!RegExp(r'^\\d{4}-\\d{2}-\\d{2}\$').hasMatch($valueVar)) {",
-      );
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid date string (YYYY-MM-DD)', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'email':
-      validations.writeln(
-        "      if (!RegExp(r'^[^@]+@[^@]+\$').hasMatch($valueVar)) {",
-      );
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid email address', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'ipv4':
-      validations.writeln(
-        "      if (!RegExp(r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\$').hasMatch($valueVar)) {",
-      );
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid IPv4 address', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'uuid':
-      validations.writeln(
-        "      if (!RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$').hasMatch($valueVar)) {",
-      );
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid UUID', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'uri':
-      validations.writeln('      if (!isValidUri($valueVar)) {');
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid absolute URI', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'uri-reference':
-      validations.writeln('      if (!isValidUriReference($valueVar)) {');
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid URI reference', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'ipv6':
-      validations.writeln('      if (!isValidIPv6($valueVar)) {');
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid IPv6 address', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'hostname':
-      validations.writeln('      if (!isValidHostname($valueVar)) {');
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid hostname', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-    case 'time':
-      validations.writeln('      if (!isValidTime($valueVar)) {');
-      validations.writeln(
-        "        throw JsonValidationException('Property \"$name\" must be a valid time string', $effectivePathExpr);",
-      );
-      validations.writeln('      }');
-      break;
-  }
+  validations.writeln('      if ($cond) {');
+  validations.writeln(
+    "        $errorsVar.add(ValidationError(message: '$msg', path: $effectivePathExpr, keyword: 'format'));",
+  );
+  validations.writeln('      }');
 }
 
 String _generateUnionClass(
@@ -2156,24 +2177,31 @@ String _generateUnionClass(
     final validationBody = StringBuffer();
     if (hasNestedValidation) {
       validationBody.writeln('  @override');
-      validationBody.writeln('  void validate() {');
-      validationBody.writeln('    value.validate();');
-      validationBody.writeln('  }');
+      validationBody.writeln(
+        '  List<ValidationError> collectErrors() => value.collectErrors();',
+      );
     } else if (sub.realSchema.isArray) {
       final itemReal = sub.realSchema.items?.realSchema ?? Schema.anything;
       final hasItemValidation =
           itemReal.isObject || itemReal.isUnion || itemReal.isArray;
       validationBody.writeln('  @override');
-      validationBody.writeln('  void validate() {');
+      validationBody.writeln('  List<ValidationError> collectErrors() {');
       if (hasItemValidation) {
         validationBody.writeln('''
+    final errors = <ValidationError>[];
     for (var i = 0; i < value.length; i++) {
-      try {
-        (value[i] as JsonModel).validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['[\$i]', ...e.path]);
-      }
-    }''');
+      errors.addAll((value[i] as JsonModel).collectErrors().map((e) => ValidationError(
+        message: e.message,
+        path: ['[\$i]', ...e.path],
+        keyword: e.keyword,
+        schema: e.schema,
+        value: e.value,
+        nestedErrors: e.nestedErrors,
+      )));
+    }
+    return errors;''');
+      } else {
+        validationBody.writeln('    return const [];');
       }
       validationBody.writeln('  }');
     } else {
@@ -2187,9 +2215,13 @@ String _generateUnionClass(
         includeNot: false,
       );
       validationBody.writeln('  @override');
-      validationBody.writeln('  void validate() {');
+      validationBody.writeln('  List<ValidationError> collectErrors() {');
       if (validations.isNotEmpty) {
+        validationBody.writeln('    final errors = <ValidationError>[];');
         validationBody.write(validations.toString());
+        validationBody.writeln('    return errors;');
+      } else {
+        validationBody.writeln('    return const [];');
       }
       validationBody.writeln('  }');
     }
@@ -2332,6 +2364,17 @@ ${deprecatedAttr}sealed class $className implements JsonModel {
     final sink = jsonObjectWriter((obj) => result = obj);
     writeJson(sink);
     return result;
+  }
+
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
 $descriptorString

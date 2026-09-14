@@ -117,12 +117,15 @@ void main() {
 
   group('JsonValidationException', () {
     test('toString with empty path', () {
-      final ex = JsonValidationException('error message');
+      final ex = JsonValidationException.single('error message');
       expect(ex.toString(), 'JsonValidationException: error message');
     });
 
     test('toString with path', () {
-      final ex = JsonValidationException('error message', ['foo', 'bar']);
+      final ex = JsonValidationException.single(
+        'error message',
+        path: ['foo', 'bar'],
+      );
       expect(
         ex.toString(),
         r'JsonValidationException at $.foo.bar: error message',

@@ -89,39 +89,68 @@ final class User implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (name.runes.length < 2) {
-      throw JsonValidationException('Property "name" length must be >= 2', [
-        'name',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "name" length must be >= 2',
+          path: ['name'],
+          keyword: 'minLength',
+        ),
+      );
     }
-    if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(email)) {
-      throw JsonValidationException(
-        'Property "email" must be a valid email address',
-        ['email'],
+    if (!(RegExp(r'^[^@]+@[^@]+$').hasMatch(email))) {
+      errors.add(
+        ValidationError(
+          message: 'Property "email" must be a valid email address',
+          path: ['email'],
+          keyword: 'format',
+        ),
       );
     }
     final val_age = age;
     if (val_age != null) {
       if (val_age < 0) {
-        throw JsonValidationException('Property "age" must be >= 0', ['age']);
+        errors.add(
+          ValidationError(
+            message: 'Property "age" must be >= 0',
+            path: ['age'],
+            keyword: 'minimum',
+          ),
+        );
       }
     }
     final val_profile = profile;
     if (val_profile != null) {
-      try {
-        val_profile.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['profile', ...e.path]);
-      }
+      errors.addAll(
+        (val_profile as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['profile', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_address = address;
     if (val_address != null) {
-      try {
-        val_address.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['address', ...e.path]);
-      }
+      errors.addAll(
+        (val_address as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['address', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_tags = tags;
     if (val_tags != null) {
@@ -130,27 +159,51 @@ final class User implements JsonModel {
             equals: const DeepCollectionEquality().equals,
             hashCode: const DeepCollectionEquality().hash,
           )..addAll(val_tags)).length) {
-        throw JsonValidationException('Property "tags" items must be unique', [
-          'tags',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "tags" items must be unique',
+            path: ['tags'],
+            keyword: 'uniqueItems',
+          ),
+        );
       }
     }
     final val_preferences = preferences;
     if (val_preferences != null) {
-      try {
-        val_preferences.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['preferences', ...e.path]);
-      }
+      errors.addAll(
+        (val_preferences as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['preferences', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_createdAt = createdAt;
     if (val_createdAt != null) {
       if (DateTime.tryParse(val_createdAt) == null) {
-        throw JsonValidationException(
-          'Property "createdAt" must be a valid RFC 3339 date-time string',
-          ['createdAt'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "createdAt" must be a valid RFC 3339 date-time string',
+            path: ['createdAt'],
+            keyword: 'format',
+          ),
         );
       }
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -376,17 +429,31 @@ final class UserProfile implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_avatarUrl = avatarUrl;
     if (val_avatarUrl != null) {
-      if (!isValidUri(val_avatarUrl)) {
-        throw JsonValidationException(
-          'Property "avatarUrl" must be a valid absolute URI',
-          ['avatarUrl'],
+      if (!(isValidUri(val_avatarUrl))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "avatarUrl" must be a valid absolute URI',
+            path: ['avatarUrl'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_bio = bio;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<UserProfile> descriptor =
@@ -508,16 +575,30 @@ final class Address implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_street = street;
     final val_zipCode = zipCode;
     if (val_zipCode != null) {
       if (!RegExp('^[0-9]{5}\$').hasMatch(val_zipCode)) {
-        throw JsonValidationException(
-          'Property "zipCode" must match pattern "^[0-9]{5}\$"',
-          ['zipCode'],
+        errors.add(
+          ValidationError(
+            message: 'Property "zipCode" must match pattern "^[0-9]{5}\$"',
+            path: ['zipCode'],
+            keyword: 'pattern',
+          ),
         );
       }
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -638,7 +719,30 @@ final class UserPreferences implements JsonModel {
         additionalProperties: additionalProperties ?? this.additionalProperties,
       );
 
-  void validate() {}
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
+    additionalProperties.forEach((key, value) {
+      if (value is! String) {
+        errors.add(
+          ValidationError(
+            message: 'Property "$key" must be a string',
+            path: ['\$key'],
+            keyword: 'type',
+          ),
+        );
+      } else {}
+    });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 
   static final ObjectDescriptor<UserPreferences> descriptor =
       ObjectDescriptor<UserPreferences>(

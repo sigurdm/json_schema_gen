@@ -392,35 +392,35 @@ final class TestRoot implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_deprecated = deprecated;
     final val_idField = idField;
     final val_unionWithObjectAndBoolean = unionWithObjectAndBoolean;
-    if (val_unionWithObjectAndBoolean != null) {
-      try {
-        val_unionWithObjectAndBoolean.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'unionWithObjectAndBoolean',
-          ...e.path,
-        ]);
-      }
-    }
     final val_recursiveNodeField = recursiveNodeField;
     if (val_recursiveNodeField != null) {
-      try {
-        val_recursiveNodeField.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'recursiveNodeField',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_recursiveNodeField as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['recursiveNodeField', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     if (name.runes.length < 2) {
-      throw JsonValidationException('Property "name" length must be >= 2', [
-        'name',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "name" length must be >= 2',
+          path: ['name'],
+          keyword: 'minLength',
+        ),
+      );
     }
     final val_constValue = constValue;
     if (val_constValue != null) {
@@ -432,51 +432,80 @@ final class TestRoot implements JsonModel {
               : val_constValue,
         ),
       )) {
-        throw JsonValidationException(
-          'Property "constValue" must be one of [always-this-value]',
-          ['constValue'],
+        errors.add(
+          ValidationError(
+            message: 'Property "constValue" must be one of [always-this-value]',
+            path: ['constValue'],
+            keyword: 'enum',
+          ),
         );
       }
     }
     if (age < 0) {
-      throw JsonValidationException('Property "age" must be >= 0', ['age']);
+      errors.add(
+        ValidationError(
+          message: 'Property "age" must be >= 0',
+          path: ['age'],
+          keyword: 'minimum',
+        ),
+      );
     }
     if (age % 5 != 0) {
-      throw JsonValidationException('Property "age" must be a multiple of 5', [
-        'age',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "age" must be a multiple of 5',
+          path: ['age'],
+          keyword: 'multipleOf',
+        ),
+      );
     }
     final val_exclusiveAge = exclusiveAge;
     if (val_exclusiveAge != null) {
       if (val_exclusiveAge <= 0) {
-        throw JsonValidationException('Property "exclusiveAge" must be > 0', [
-          'exclusiveAge',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "exclusiveAge" must be > 0',
+            path: ['exclusiveAge'],
+            keyword: 'exclusiveMinimum',
+          ),
+        );
       }
       if (val_exclusiveAge >= 100) {
-        throw JsonValidationException('Property "exclusiveAge" must be < 100', [
-          'exclusiveAge',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "exclusiveAge" must be < 100',
+            path: ['exclusiveAge'],
+            keyword: 'exclusiveMaximum',
+          ),
+        );
       }
     }
     final val_height = height;
     final val_email = email;
     if (val_email != null) {
       if (!RegExp('^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+\$').hasMatch(val_email)) {
-        throw JsonValidationException(
-          'Property "email" must match pattern "^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+\$"',
-          ['email'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "email" must match pattern "^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+\$"',
+            path: ['email'],
+            keyword: 'pattern',
+          ),
         );
       }
     }
     final val_uuid = uuid;
     if (val_uuid != null) {
-      if (!RegExp(
+      if (!(RegExp(
         r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
-      ).hasMatch(val_uuid)) {
-        throw JsonValidationException('Property "uuid" must be a valid UUID', [
-          'uuid',
-        ]);
+      ).hasMatch(val_uuid))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "uuid" must be a valid UUID',
+            path: ['uuid'],
+            keyword: 'format',
+          ),
+        );
       }
     }
     final val_class_ = class_;
@@ -484,117 +513,174 @@ final class TestRoot implements JsonModel {
     final val_stack = stack;
     final val_validate_ = validate_;
     final val_result = result;
-    try {
-      address.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, ['address', ...e.path]);
-    }
+    errors.addAll(
+      (address as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['address', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
     final val_tags = tags;
     if (val_tags != null) {
       if (val_tags.length < 1) {
-        throw JsonValidationException('Property "tags" must have >= 1 items', [
-          'tags',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "tags" must have >= 1 items',
+            path: ['tags'],
+            keyword: 'minItems',
+          ),
+        );
       }
       if (val_tags.length !=
           (LinkedHashSet<dynamic>(
             equals: const DeepCollectionEquality().equals,
             hashCode: const DeepCollectionEquality().hash,
           )..addAll(val_tags)).length) {
-        throw JsonValidationException('Property "tags" items must be unique', [
-          'tags',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "tags" items must be unique',
+            path: ['tags'],
+            keyword: 'uniqueItems',
+          ),
+        );
       }
     }
     final val_scores = scores;
     if (val_scores != null) {
       for (var i = 0; i < val_scores.length; i++) {
-        try {
-          val_scores[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'scores',
-            '[$i]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_scores[i] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['scores', '[$i]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
     }
     final val_unionValue = unionValue;
     if (val_unionValue != null) {
-      try {
-        val_unionValue.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['unionValue', ...e.path]);
-      }
+      errors.addAll(
+        (val_unionValue as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['unionValue', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_nullableUnionValue = nullableUnionValue;
     if (val_nullableUnionValue != null) {
-      try {
-        val_nullableUnionValue.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'nullableUnionValue',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_nullableUnionValue as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['nullableUnionValue', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_requiredNullableUnionObject = requiredNullableUnionObject;
     if (val_requiredNullableUnionObject != null) {
-      try {
-        val_requiredNullableUnionObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'requiredNullableUnionObject',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_requiredNullableUnionObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['requiredNullableUnionObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_nullableString = nullableString;
     final val_pet = pet;
     if (val_pet != null) {
-      try {
-        val_pet.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['pet', ...e.path]);
-      }
+      errors.addAll(
+        (val_pet as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['pet', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_restrictedObject = restrictedObject;
     if (val_restrictedObject != null) {
-      try {
-        val_restrictedObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'restrictedObject',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_restrictedObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['restrictedObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_dependentObject = dependentObject;
     if (val_dependentObject != null) {
-      try {
-        val_dependentObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'dependentObject',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_dependentObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['dependentObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_primitiveArrayWithValidation = primitiveArrayWithValidation;
     if (val_primitiveArrayWithValidation != null) {
       for (var i = 0; i < val_primitiveArrayWithValidation.length; i++) {
         if (val_primitiveArrayWithValidation[i] is! String) {
-          throw JsonValidationException(
-            'Property "primitiveArrayWithValidation" must be a string',
-            ['primitiveArrayWithValidation', '[$i]'],
+          errors.add(
+            ValidationError(
+              message:
+                  'Property "primitiveArrayWithValidation" must be a string',
+              path: ['primitiveArrayWithValidation', '[$i]'],
+              keyword: 'type',
+            ),
           );
-        }
-        if (val_primitiveArrayWithValidation[i].runes.length < 3) {
-          throw JsonValidationException(
-            'Property "primitiveArrayWithValidation" length must be >= 3',
-            ['primitiveArrayWithValidation', '[$i]'],
-          );
+        } else {
+          if (val_primitiveArrayWithValidation[i].runes.length < 3) {
+            errors.add(
+              ValidationError(
+                message:
+                    'Property "primitiveArrayWithValidation" length must be >= 3',
+                path: ['primitiveArrayWithValidation', '[$i]'],
+                keyword: 'minLength',
+              ),
+            );
+          }
         }
       }
     }
@@ -611,176 +697,262 @@ final class TestRoot implements JsonModel {
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "restrictedArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['restrictedArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "restrictedArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['restrictedArray'],
+            keyword: 'minContains',
+          ),
         );
       }
       if (containsCount > 2) {
-        throw JsonValidationException(
-          'Property "restrictedArray" must contain at most 2 items matching contains schema, but has $containsCount',
-          ['restrictedArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "restrictedArray" must contain at most 2 items matching contains schema, but has $containsCount',
+            path: ['restrictedArray'],
+            keyword: 'maxContains',
+          ),
         );
       }
     }
     final val_deprecatedField = deprecatedField;
     final val_deprecatedRef = deprecatedRef;
     if (val_deprecatedRef != null) {
-      try {
-        val_deprecatedRef.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['deprecatedRef', ...e.path]);
-      }
+      errors.addAll(
+        (val_deprecatedRef as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['deprecatedRef', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_nestedArray = nestedArray;
     if (val_nestedArray != null) {
       for (var i = 0; i < val_nestedArray.length; i++) {
         for (var i0 = 0; i0 < val_nestedArray[i].length; i0++) {
           final item0 = val_nestedArray[i][i0];
-          try {
-            item0.validate();
-          } on JsonValidationException catch (e) {
-            throw JsonValidationException(e.message, [
-              'nestedArray',
-              '[$i]',
-              '[$i0]',
-              ...e.path,
-            ]);
-          }
+          errors.addAll(
+            (item0 as JsonModel).collectErrors().map(
+              (ValidationError e) => ValidationError(
+                message: e.message,
+                path: ['nestedArray', '[$i]', '[$i0]', ...e.path],
+                keyword: e.keyword,
+                schema: e.schema,
+                value: e.value,
+                nestedErrors: e.nestedErrors,
+              ),
+            ),
+          );
         }
       }
     }
     final val_singleQuoteKey = singleQuoteKey;
     final val_mixedEnum = mixedEnum;
-    try {
-      defaultObject.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, ['defaultObject', ...e.path]);
-    }
+    errors.addAll(
+      (defaultObject as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['defaultObject', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
     final val_defaultNullableString = defaultNullableString;
     final val_mergedValue = mergedValue;
     if (val_mergedValue != null) {
-      try {
-        val_mergedValue.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['mergedValue', ...e.path]);
-      }
+      errors.addAll(
+        (val_mergedValue as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['mergedValue', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_tupleArray = tupleArray;
     final val_tupleObjectArray = tupleObjectArray;
     if (val_tupleObjectArray != null) {
       if (val_tupleObjectArray.length > 0) {
-        try {
-          val_tupleObjectArray[0].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'tupleObjectArray',
-            '[0]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_tupleObjectArray[0] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['tupleObjectArray', '[0]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
       if (val_tupleObjectArray.length > 1) {
-        try {
-          val_tupleObjectArray[1].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'tupleObjectArray',
-            '[1]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_tupleObjectArray[1] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['tupleObjectArray', '[1]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
     }
     final val_ipv6Value = ipv6Value;
     if (val_ipv6Value != null) {
-      if (!isValidIPv6(val_ipv6Value)) {
-        throw JsonValidationException(
-          'Property "ipv6Value" must be a valid IPv6 address',
-          ['ipv6Value'],
+      if (!(isValidIPv6(val_ipv6Value))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "ipv6Value" must be a valid IPv6 address',
+            path: ['ipv6Value'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_hostnameValue = hostnameValue;
     if (val_hostnameValue != null) {
-      if (!isValidHostname(val_hostnameValue)) {
-        throw JsonValidationException(
-          'Property "hostnameValue" must be a valid hostname',
-          ['hostnameValue'],
+      if (!(isValidHostname(val_hostnameValue))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "hostnameValue" must be a valid hostname',
+            path: ['hostnameValue'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_timeValue = timeValue;
     if (val_timeValue != null) {
-      if (!isValidTime(val_timeValue)) {
-        throw JsonValidationException(
-          'Property "timeValue" must be a valid time string',
-          ['timeValue'],
+      if (!(isValidTime(val_timeValue))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "timeValue" must be a valid time string',
+            path: ['timeValue'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_uriReferenceValue = uriReferenceValue;
     if (val_uriReferenceValue != null) {
-      if (!isValidUriReference(val_uriReferenceValue)) {
-        throw JsonValidationException(
-          'Property "uriReferenceValue" must be a valid URI reference',
-          ['uriReferenceValue'],
+      if (!(isValidUriReference(val_uriReferenceValue))) {
+        errors.add(
+          ValidationError(
+            message:
+                'Property "uriReferenceValue" must be a valid URI reference',
+            path: ['uriReferenceValue'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_additionalPropertiesObject = additionalPropertiesObject;
     if (val_additionalPropertiesObject != null) {
-      try {
-        val_additionalPropertiesObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'additionalPropertiesObject',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_additionalPropertiesObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['additionalPropertiesObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_strictObject = strictObject;
     if (val_strictObject != null) {
-      try {
-        val_strictObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['strictObject', ...e.path]);
-      }
+      errors.addAll(
+        (val_strictObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['strictObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_notObject = notObject;
     if (val_notObject != null) {
-      try {
-        val_notObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['notObject', ...e.path]);
-      }
+      errors.addAll(
+        (val_notObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['notObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_anyOfValue = anyOfValue;
     if (val_anyOfValue != null) {
-      try {
-        val_anyOfValue.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['anyOfValue', ...e.path]);
-      }
+      errors.addAll(
+        (val_anyOfValue as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['anyOfValue', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_mergedAllOfObject = mergedAllOfObject;
     if (val_mergedAllOfObject != null) {
-      try {
-        val_mergedAllOfObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'mergedAllOfObject',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_mergedAllOfObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['mergedAllOfObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_complexMerged = complexMerged;
     if (val_complexMerged != null) {
-      try {
-        val_complexMerged.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['complexMerged', ...e.path]);
-      }
+      errors.addAll(
+        (val_complexMerged as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['complexMerged', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_myEnumField = myEnumField;
     final val_unionContainsArray = unionContainsArray;
@@ -789,26 +961,25 @@ final class TestRoot implements JsonModel {
       for (final dynamic item in val_unionContainsArray) {
         bool matches = false;
         if (item is TestRootUnionContainsArrayContains) {
-          matches = true;
-          try {
-            item.validate();
-          } on JsonValidationException catch (_) {
-            matches = false;
-          }
+          matches = item.collectErrors().isEmpty;
         } else {
           try {
-            TestRootUnionContainsArrayContains.fromJson(
+            final parsed = TestRootUnionContainsArrayContains.fromJson(
               JsonReader.fromObject(item),
             );
-            matches = true;
+            matches = parsed.collectErrors().isEmpty;
           } catch (_) {}
         }
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "unionContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['unionContainsArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "unionContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['unionContainsArray'],
+            keyword: 'minContains',
+          ),
         );
       }
     }
@@ -818,24 +989,23 @@ final class TestRoot implements JsonModel {
       for (final dynamic item in val_objectContainsArray) {
         bool matches = false;
         if (item is Address) {
-          matches = true;
-          try {
-            item.validate();
-          } on JsonValidationException catch (_) {
-            matches = false;
-          }
+          matches = item.collectErrors().isEmpty;
         } else if (item is Map<String, dynamic>) {
           try {
             final parsed = Address.fromJson(JsonReader.fromObject(item));
-            matches = true;
+            matches = parsed.collectErrors().isEmpty;
           } catch (_) {}
         }
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "objectContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['objectContainsArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "objectContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['objectContainsArray'],
+            keyword: 'minContains',
+          ),
         );
       }
     }
@@ -850,9 +1020,13 @@ final class TestRoot implements JsonModel {
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "enumContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['enumContainsArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "enumContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['enumContainsArray'],
+            keyword: 'minContains',
+          ),
         );
       }
     }
@@ -865,9 +1039,13 @@ final class TestRoot implements JsonModel {
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "booleanContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['booleanContainsArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "booleanContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['booleanContainsArray'],
+            keyword: 'minContains',
+          ),
         );
       }
     }
@@ -880,9 +1058,13 @@ final class TestRoot implements JsonModel {
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "nullContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['nullContainsArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "nullContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['nullContainsArray'],
+            keyword: 'minContains',
+          ),
         );
       }
     }
@@ -895,9 +1077,13 @@ final class TestRoot implements JsonModel {
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "anyContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['anyContainsArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "anyContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['anyContainsArray'],
+            keyword: 'minContains',
+          ),
         );
       }
     }
@@ -911,23 +1097,18 @@ final class TestRoot implements JsonModel {
           if (item.runes.length < 3) matches = false;
           if (item.runes.length > 10) matches = false;
           if (!RegExp('^a').hasMatch(item)) matches = false;
-          try {
-            if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(item)) {
-              throw JsonValidationException(
-                'Property "item" must be a valid email address',
-                ['item'],
-              );
-            }
-          } on JsonValidationException catch (_) {
-            matches = false;
-          }
+          if (!(RegExp(r'^[^@]+@[^@]+$').hasMatch(item))) matches = false;
         }
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "stringContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['stringContainsArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "stringContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['stringContainsArray'],
+            keyword: 'minContains',
+          ),
         );
       }
     }
@@ -947,196 +1128,273 @@ final class TestRoot implements JsonModel {
         if (matches) containsCount++;
       }
       if (containsCount < 1) {
-        throw JsonValidationException(
-          'Property "numberContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
-          ['numberContainsArray'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "numberContainsArray" must contain at least 1 items matching contains schema, but has $containsCount',
+            path: ['numberContainsArray'],
+            keyword: 'minContains',
+          ),
         );
       }
     }
     final val_dynamicProps = dynamicProps;
     if (val_dynamicProps != null) {
-      try {
-        val_dynamicProps.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['dynamicProps', ...e.path]);
-      }
+      errors.addAll(
+        (val_dynamicProps as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['dynamicProps', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_dateTimeField = dateTimeField;
     if (val_dateTimeField != null) {
       if (DateTime.tryParse(val_dateTimeField) == null) {
-        throw JsonValidationException(
-          'Property "dateTimeField" must be a valid RFC 3339 date-time string',
-          ['dateTimeField'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "dateTimeField" must be a valid RFC 3339 date-time string',
+            path: ['dateTimeField'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_dateField = dateField;
     if (val_dateField != null) {
-      if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(val_dateField)) {
-        throw JsonValidationException(
-          'Property "dateField" must be a valid date string (YYYY-MM-DD)',
-          ['dateField'],
+      if (!(RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(val_dateField))) {
+        errors.add(
+          ValidationError(
+            message:
+                'Property "dateField" must be a valid date string (YYYY-MM-DD)',
+            path: ['dateField'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_ipv4Field = ipv4Field;
     if (val_ipv4Field != null) {
-      if (!RegExp(
+      if (!(RegExp(
         r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-      ).hasMatch(val_ipv4Field)) {
-        throw JsonValidationException(
-          'Property "ipv4Field" must be a valid IPv4 address',
-          ['ipv4Field'],
+      ).hasMatch(val_ipv4Field))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "ipv4Field" must be a valid IPv4 address',
+            path: ['ipv4Field'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_uriField = uriField;
     if (val_uriField != null) {
-      if (!isValidUri(val_uriField)) {
-        throw JsonValidationException(
-          'Property "uriField" must be a valid absolute URI',
-          ['uriField'],
+      if (!(isValidUri(val_uriField))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "uriField" must be a valid absolute URI',
+            path: ['uriField'],
+            keyword: 'format',
+          ),
         );
       }
     }
-    try {
-      defaultEmptyObject.validate();
-    } on JsonValidationException catch (e) {
-      throw JsonValidationException(e.message, [
-        'defaultEmptyObject',
-        ...e.path,
-      ]);
-    }
+    errors.addAll(
+      (defaultEmptyObject as JsonModel).collectErrors().map(
+        (ValidationError e) => ValidationError(
+          message: e.message,
+          path: ['defaultEmptyObject', ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        ),
+      ),
+    );
     final val_unionWithArrayOption = unionWithArrayOption;
     if (val_unionWithArrayOption != null) {
-      try {
-        val_unionWithArrayOption.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'unionWithArrayOption',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_unionWithArrayOption as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['unionWithArrayOption', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_impossibleField = impossibleField;
     if (val_impossibleField != null) {
-      throw JsonValidationException(
-        'Property "impossibleField" matches nothing',
-        ['impossibleField'],
+      errors.add(
+        ValidationError(
+          message: 'Property "impossibleField" matches nothing',
+          path: ['impossibleField'],
+          keyword: 'false',
+        ),
       );
     }
     final val_tupleSameTypeArray = tupleSameTypeArray;
     if (val_tupleSameTypeArray != null) {
       if (val_tupleSameTypeArray.length > 0) {
         if (val_tupleSameTypeArray[0] is! String) {
-          throw JsonValidationException(
-            'Property "tupleSameTypeArray" must be a string',
-            ['tupleSameTypeArray', '[0]'],
+          errors.add(
+            ValidationError(
+              message: 'Property "tupleSameTypeArray" must be a string',
+              path: ['tupleSameTypeArray', '[0]'],
+              keyword: 'type',
+            ),
           );
-        }
-        if (val_tupleSameTypeArray[0].runes.length < 1) {
-          throw JsonValidationException(
-            'Property "tupleSameTypeArray" length must be >= 1',
-            ['tupleSameTypeArray', '[0]'],
-          );
+        } else {
+          if (val_tupleSameTypeArray[0].runes.length < 1) {
+            errors.add(
+              ValidationError(
+                message: 'Property "tupleSameTypeArray" length must be >= 1',
+                path: ['tupleSameTypeArray', '[0]'],
+                keyword: 'minLength',
+              ),
+            );
+          }
         }
       }
       if (val_tupleSameTypeArray.length > 1) {
         if (val_tupleSameTypeArray[1] is! String) {
-          throw JsonValidationException(
-            'Property "tupleSameTypeArray" must be a string',
-            ['tupleSameTypeArray', '[1]'],
+          errors.add(
+            ValidationError(
+              message: 'Property "tupleSameTypeArray" must be a string',
+              path: ['tupleSameTypeArray', '[1]'],
+              keyword: 'type',
+            ),
           );
-        }
-        if (val_tupleSameTypeArray[1].runes.length > 5) {
-          throw JsonValidationException(
-            'Property "tupleSameTypeArray" length must be <= 5',
-            ['tupleSameTypeArray', '[1]'],
-          );
+        } else {
+          if (val_tupleSameTypeArray[1].runes.length > 5) {
+            errors.add(
+              ValidationError(
+                message: 'Property "tupleSameTypeArray" length must be <= 5',
+                path: ['tupleSameTypeArray', '[1]'],
+                keyword: 'maxLength',
+              ),
+            );
+          }
         }
       }
     }
     final val_arrayWithAllOfItems = arrayWithAllOfItems;
     if (val_arrayWithAllOfItems != null) {
       for (var i = 0; i < val_arrayWithAllOfItems.length; i++) {
-        try {
-          val_arrayWithAllOfItems[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'arrayWithAllOfItems',
-            '[$i]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_arrayWithAllOfItems[i] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['arrayWithAllOfItems', '[$i]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
     }
     final val_unionWithAllOfOption = unionWithAllOfOption;
     if (val_unionWithAllOfOption != null) {
-      try {
-        val_unionWithAllOfOption.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'unionWithAllOfOption',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_unionWithAllOfOption as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['unionWithAllOfOption', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_patternPropsField = patternPropsField;
     if (val_patternPropsField != null) {
-      try {
-        val_patternPropsField.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'patternPropsField',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_patternPropsField as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['patternPropsField', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_overlappingUnion = overlappingUnion;
     if (val_overlappingUnion != null) {
-      try {
-        val_overlappingUnion.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'overlappingUnion',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_overlappingUnion as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['overlappingUnion', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_deprecatedFieldWithMessage = deprecatedFieldWithMessage;
     final val_customNamedObject = customNamedObject;
     if (val_customNamedObject != null) {
-      try {
-        val_customNamedObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'customNamedObject',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_customNamedObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['customNamedObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_customNamedUnion = customNamedUnion;
     if (val_customNamedUnion != null) {
-      try {
-        val_customNamedUnion.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'customNamedUnion',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_customNamedUnion as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['customNamedUnion', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_customNamedEnum = customNamedEnum;
     final val_coverageTrigger = coverageTrigger;
     if (val_coverageTrigger != null) {
-      try {
-        val_coverageTrigger.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'coverageTrigger',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_coverageTrigger as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['coverageTrigger', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_collidingEnumField = collidingEnumField;
     if (val_collidingEnumField != null) {
@@ -1157,22 +1415,39 @@ final class TestRoot implements JsonModel {
               : val_collidingEnumField,
         ),
       )) {
-        throw JsonValidationException(
-          'Property "collidingEnumField" must be one of [values, value, fromValue, descriptor, foo-bar, foo_bar, {a: 1}, {a: 1}]',
-          ['collidingEnumField'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "collidingEnumField" must be one of [values, value, fromValue, descriptor, foo-bar, foo_bar, {a: 1}, {a: 1}]',
+            path: ['collidingEnumField'],
+            keyword: 'enum',
+          ),
         );
       }
     }
     final val_collidingObjectField = collidingObjectField;
     if (val_collidingObjectField != null) {
-      try {
-        val_collidingObjectField.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'collidingObjectField',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_collidingObjectField as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['collidingObjectField', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -2253,6 +2528,17 @@ sealed class TestRootUnionWithObjectAndBoolean implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootUnionWithObjectAndBoolean> descriptor =
       UnionDescriptor<TestRootUnionWithObjectAndBoolean>(
         title: 'TestRootUnionWithObjectAndBoolean',
@@ -2294,9 +2580,7 @@ final class TestRootUnionWithObjectAndBooleanOption0
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -2324,7 +2608,9 @@ final class TestRootUnionWithObjectAndBooleanOption1
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -2395,8 +2681,19 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_foo = foo;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<TestRootUnionWithObjectAndBooleanOptionType0>
@@ -2508,29 +2805,50 @@ final class RecursiveNode implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_name = name;
     final val_parent = parent;
     if (val_parent != null) {
-      try {
-        val_parent.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['parent', ...e.path]);
-      }
+      errors.addAll(
+        (val_parent as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['parent', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_children = children;
     if (val_children != null) {
       for (var i = 0; i < val_children.length; i++) {
-        try {
-          val_children[i].validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [
-            'children',
-            '[$i]',
-            ...e.path,
-          ]);
-        }
+        errors.addAll(
+          (val_children[i] as JsonModel).collectErrors().map(
+            (ValidationError e) => ValidationError(
+              message: e.message,
+              path: ['children', '[$i]', ...e.path],
+              keyword: e.keyword,
+              schema: e.schema,
+              value: e.value,
+              nestedErrors: e.nestedErrors,
+            ),
+          ),
+        );
       }
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -2677,13 +2995,28 @@ final class Address implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (city.runes.length < 3) {
-      throw JsonValidationException('Property "city" length must be >= 3', [
-        'city',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "city" length must be >= 3',
+          path: ['city'],
+          keyword: 'minLength',
+        ),
+      );
     }
     final val_street = street;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<Address> descriptor = ObjectDescriptor<Address>(
@@ -2790,11 +3123,26 @@ final class Score implements JsonModel {
         additionalProperties: additionalProperties ?? this.additionalProperties,
       );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (value < 0.0) {
-      throw JsonValidationException('Property "value" must be >= 0.0', [
-        'value',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must be >= 0.0',
+          path: ['value'],
+          keyword: 'minimum',
+        ),
+      );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -2888,6 +3236,17 @@ sealed class TestRootUnionValue implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootUnionValue> descriptor =
       UnionDescriptor<TestRootUnionValue>(
         title: 'TestRootUnionValue',
@@ -2915,7 +3274,9 @@ final class TestRootUnionValueOption0 extends TestRootUnionValue {
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -2945,9 +3306,7 @@ final class TestRootUnionValueOption1 extends TestRootUnionValue {
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -3000,6 +3359,17 @@ sealed class TestRootNullableUnionValue implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootNullableUnionValue> descriptor =
       UnionDescriptor<TestRootNullableUnionValue>(
         title: 'TestRootNullableUnionValue',
@@ -3028,7 +3398,9 @@ final class TestRootNullableUnionValueOption0
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -3059,9 +3431,7 @@ final class TestRootNullableUnionValueOption1
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -3131,14 +3501,32 @@ final class RequiredNullableUnionObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_nullableUnion = nullableUnion;
     if (val_nullableUnion != null) {
-      try {
-        val_nullableUnion.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['nullableUnion', ...e.path]);
-      }
+      errors.addAll(
+        (val_nullableUnion as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['nullableUnion', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -3241,6 +3629,17 @@ sealed class RequiredNullableUnionObjectNullableUnion implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<RequiredNullableUnionObjectNullableUnion>
   descriptor = UnionDescriptor<RequiredNullableUnionObjectNullableUnion>(
     title: 'RequiredNullableUnionObjectNullableUnion',
@@ -3269,7 +3668,9 @@ final class RequiredNullableUnionObjectNullableUnionOption0
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -3297,7 +3698,9 @@ final class RequiredNullableUnionObjectNullableUnionOption1
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -3340,6 +3743,17 @@ sealed class Pet implements JsonModel {
     final sink = jsonObjectWriter((obj) => result = obj);
     writeJson(sink);
     return result;
+  }
+
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final UnionDescriptor<Pet> descriptor = UnionDescriptor<Pet>(
@@ -3398,9 +3812,7 @@ final class PetOption0 extends Pet {
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -3430,9 +3842,7 @@ final class PetOption1 extends Pet {
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -3497,8 +3907,19 @@ final class Cat implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_meowVolume = meowVolume;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<Cat> descriptor = ObjectDescriptor<Cat>(
@@ -3615,8 +4036,19 @@ final class Dog implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_barkVolume = barkVolume;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<Dog> descriptor = ObjectDescriptor<Dog>(
@@ -3744,21 +4176,42 @@ final class RestrictedObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     var count = 0;
     if (a != null) count++;
     if (b != null) count++;
     if (c != null) count++;
     count += additionalProperties.length;
     if (count < 1) {
-      throw JsonValidationException('Object must have >= 1 properties', []);
+      errors.add(
+        ValidationError(
+          message: 'Object must have >= 1 properties',
+          keyword: 'minProperties',
+        ),
+      );
     }
     if (count > 2) {
-      throw JsonValidationException('Object must have <= 2 properties', []);
+      errors.add(
+        ValidationError(
+          message: 'Object must have <= 2 properties',
+          keyword: 'maxProperties',
+        ),
+      );
     }
     final val_a = a;
     final val_b = b;
     final val_c = c;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<RestrictedObject> descriptor =
@@ -3888,17 +4341,32 @@ final class DependentObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (creditCard != null) {
       if (billingAddress == null) {
-        throw JsonValidationException(
-          'Property "billingAddress" is required because "creditCard" is present',
-          ['billingAddress'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "billingAddress" is required because "creditCard" is present',
+            path: ['billingAddress'],
+            keyword: 'dependentRequired',
+          ),
         );
       }
     }
     final val_creditCard = creditCard;
     final val_billingAddress = billingAddress;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<DependentObject> descriptor =
@@ -4021,8 +4489,19 @@ final class DeprecatedObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_value = value;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<DeprecatedObject> descriptor =
@@ -4135,6 +4614,17 @@ sealed class TestRootMixedEnumBase implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootMixedEnumBase> descriptor =
       UnionDescriptor<TestRootMixedEnumBase>(
         title: 'TestRootMixedEnumBase',
@@ -4162,7 +4652,9 @@ final class TestRootMixedEnumBaseOption0 extends TestRootMixedEnumBase {
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -4188,7 +4680,9 @@ final class TestRootMixedEnumBaseOption1 extends TestRootMixedEnumBase {
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -4252,10 +4746,21 @@ final class Merged implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_a = a;
     final val_b = b;
     final val_c = c;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<Merged> descriptor = ObjectDescriptor<Merged>(
@@ -4371,8 +4876,30 @@ final class MapObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_name = name;
+    additionalProperties.forEach((key, value) {
+      if (value is! String) {
+        errors.add(
+          ValidationError(
+            message: 'Property "$key" must be a string',
+            path: ['\$key'],
+            keyword: 'type',
+          ),
+        );
+      } else {}
+    });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<MapObject> descriptor =
@@ -4468,8 +4995,19 @@ final class StrictObject implements JsonModel {
   StrictObject copyWith({String? name}) =>
       StrictObject(name: name ?? this.name);
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_name = name;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<StrictObject> descriptor =
@@ -4564,68 +5102,88 @@ final class NotObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
-    bool notMatches_notPatternString = true;
-    try {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
+    {
+      final notErrors_notPatternString = <ValidationError>[];
       if (notPatternString is! String) {
-        throw JsonValidationException(
-          'Property "notPatternString" must be a string',
-          ['notPatternString'],
+        notErrors_notPatternString.add(
+          ValidationError(
+            message: 'Property "notPatternString" must be a string',
+            path: ['notPatternString'],
+            keyword: 'type',
+          ),
+        );
+      } else {
+        if (!RegExp('forbidden').hasMatch(notPatternString)) {
+          notErrors_notPatternString.add(
+            ValidationError(
+              message:
+                  'Property "notPatternString" must match pattern "forbidden"',
+              path: ['notPatternString'],
+              keyword: 'pattern',
+            ),
+          );
+        }
+      }
+      if (notErrors_notPatternString.isEmpty) {
+        errors.add(
+          ValidationError(
+            message: 'Property "notPatternString" must not match the schema',
+            path: ['notPatternString'],
+            keyword: 'not',
+          ),
         );
       }
-      if (!RegExp('forbidden').hasMatch(notPatternString)) {
-        throw JsonValidationException(
-          'Property "notPatternString" must match pattern "forbidden"',
-          ['notPatternString'],
-        );
-      }
-    } on JsonValidationException {
-      notMatches_notPatternString = false;
     }
-    if (notMatches_notPatternString) {
-      throw JsonValidationException(
-        'Property "notPatternString" must not match the schema',
-        ['notPatternString'],
-      );
-    }
-    bool notMatches_notEnumInt = true;
-    try {
+    {
+      final notErrors_notEnumInt = <ValidationError>[];
       if (!const [13, 17].any(
         (v) => const DeepCollectionEquality().equals(
           v,
           notEnumInt is Enum ? (notEnumInt as dynamic).value : notEnumInt,
         ),
       )) {
-        throw JsonValidationException(
-          'Property "notEnumInt" must be one of [13, 17]',
-          ['notEnumInt'],
+        notErrors_notEnumInt.add(
+          ValidationError(
+            message: 'Property "notEnumInt" must be one of [13, 17]',
+            path: ['notEnumInt'],
+            keyword: 'enum',
+          ),
         );
       }
-    } on JsonValidationException {
-      notMatches_notEnumInt = false;
-    }
-    if (notMatches_notEnumInt) {
-      throw JsonValidationException(
-        'Property "notEnumInt" must not match the schema',
-        ['notEnumInt'],
-      );
+      if (notErrors_notEnumInt.isEmpty) {
+        errors.add(
+          ValidationError(
+            message: 'Property "notEnumInt" must not match the schema',
+            path: ['notEnumInt'],
+            keyword: 'not',
+          ),
+        );
+      }
     }
     final val_notNullValue = notNullValue;
-    bool notMatches_notNullValue = true;
-    try {
+    {
+      final notErrors_notNullValue = <ValidationError>[];
       if (val_notNullValue != null) {
-        throw JsonValidationException('Property "notNullValue" must be null', [
-          'notNullValue',
-        ]);
+        notErrors_notNullValue.add(
+          ValidationError(
+            message: 'Property "notNullValue" must be null',
+            path: ['notNullValue'],
+            keyword: 'type',
+          ),
+        );
       }
-    } on JsonValidationException {
-      notMatches_notNullValue = false;
-    }
-    if (notMatches_notNullValue) {
-      throw JsonValidationException(
-        'Property "notNullValue" must not match the schema',
-        ['notNullValue'],
-      );
+      if (notErrors_notNullValue.isEmpty) {
+        errors.add(
+          ValidationError(
+            message: 'Property "notNullValue" must not match the schema',
+            path: ['notNullValue'],
+            keyword: 'not',
+          ),
+        );
+      }
     }
     final val_notObjectValue = notObjectValue;
     bool notMatches_notObjectValue = true;
@@ -4646,10 +5204,22 @@ final class NotObject implements JsonModel {
       notMatches_notObjectValue = false;
     }
     if (notMatches_notObjectValue) {
-      throw JsonValidationException(
-        'Property "notObjectValue" must not match the schema',
-        ['notObjectValue'],
+      errors.add(
+        ValidationError(
+          message: 'Property "notObjectValue" must not match the schema',
+          path: ['notObjectValue'],
+          keyword: 'not',
+        ),
       );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -4820,7 +5390,19 @@ final class NotObjectNotObjectValueNot implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {}
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 
   static final ObjectDescriptor<NotObjectNotObjectValueNot> descriptor =
       ObjectDescriptor<NotObjectNotObjectValueNot>(
@@ -4915,6 +5497,17 @@ sealed class TestRootAnyOfValue implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootAnyOfValue> descriptor =
       UnionDescriptor<TestRootAnyOfValue>(
         title: 'TestRootAnyOfValue',
@@ -4942,7 +5535,9 @@ final class TestRootAnyOfValueOption0 extends TestRootAnyOfValue {
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -4968,7 +5563,9 @@ final class TestRootAnyOfValueOption1 extends TestRootAnyOfValue {
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -5042,64 +5639,105 @@ final class MergedAllOfObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (strVal != null) {
       if (numVal == null) {
-        throw JsonValidationException(
-          'Property "numVal" is required because "strVal" is present',
-          ['numVal'],
+        errors.add(
+          ValidationError(
+            message:
+                'Property "numVal" is required because "strVal" is present',
+            path: ['numVal'],
+            keyword: 'dependentRequired',
+          ),
         );
       }
     }
     final val_strVal = strVal;
     if (val_strVal != null) {
       if (val_strVal.runes.length < 5) {
-        throw JsonValidationException('Property "strVal" length must be >= 5', [
-          'strVal',
-        ]);
-      }
-      if (val_strVal.runes.length > 8) {
-        throw JsonValidationException('Property "strVal" length must be <= 8', [
-          'strVal',
-        ]);
-      }
-      if (!RegExp('^a').hasMatch(val_strVal)) {
-        throw JsonValidationException(
-          'Property "strVal" must match pattern "^a"',
-          ['strVal'],
+        errors.add(
+          ValidationError(
+            message: 'Property "strVal" length must be >= 5',
+            path: ['strVal'],
+            keyword: 'minLength',
+          ),
         );
       }
-      if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(val_strVal)) {
-        throw JsonValidationException(
-          'Property "strVal" must be a valid email address',
-          ['strVal'],
+      if (val_strVal.runes.length > 8) {
+        errors.add(
+          ValidationError(
+            message: 'Property "strVal" length must be <= 8',
+            path: ['strVal'],
+            keyword: 'maxLength',
+          ),
+        );
+      }
+      if (!RegExp('^a').hasMatch(val_strVal)) {
+        errors.add(
+          ValidationError(
+            message: 'Property "strVal" must match pattern "^a"',
+            path: ['strVal'],
+            keyword: 'pattern',
+          ),
+        );
+      }
+      if (!(RegExp(r'^[^@]+@[^@]+$').hasMatch(val_strVal))) {
+        errors.add(
+          ValidationError(
+            message: 'Property "strVal" must be a valid email address',
+            path: ['strVal'],
+            keyword: 'format',
+          ),
         );
       }
     }
     final val_numVal = numVal;
     if (val_numVal != null) {
       if (val_numVal < 10) {
-        throw JsonValidationException('Property "numVal" must be >= 10', [
-          'numVal',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "numVal" must be >= 10',
+            path: ['numVal'],
+            keyword: 'minimum',
+          ),
+        );
       }
       if (val_numVal > 50) {
-        throw JsonValidationException('Property "numVal" must be <= 50', [
-          'numVal',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "numVal" must be <= 50',
+            path: ['numVal'],
+            keyword: 'maximum',
+          ),
+        );
       }
       if (() {
         final div = val_numVal / 5;
+        if (!div.isFinite) return true;
         final rounded = div.round();
         final absError = (div - rounded).abs();
         final relError = absError / (div.abs() > 1.0 ? div.abs() : 1.0);
         return relError > 1e-14;
       }()) {
-        throw JsonValidationException(
-          'Property "numVal" must be a multiple of 5',
-          ['numVal'],
+        errors.add(
+          ValidationError(
+            message: 'Property "numVal" must be a multiple of 5',
+            path: ['numVal'],
+            keyword: 'multipleOf',
+          ),
         );
       }
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -5223,36 +5861,79 @@ final class ComplexMergedObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     var count = 0;
     if (numVal != null) count++;
     count += additionalProperties.length;
     if (count < 2) {
-      throw JsonValidationException('Object must have >= 2 properties', []);
+      errors.add(
+        ValidationError(
+          message: 'Object must have >= 2 properties',
+          keyword: 'minProperties',
+        ),
+      );
     }
     if (count > 5) {
-      throw JsonValidationException('Object must have <= 5 properties', []);
+      errors.add(
+        ValidationError(
+          message: 'Object must have <= 5 properties',
+          keyword: 'maxProperties',
+        ),
+      );
     }
     final val_numVal = numVal;
     if (val_numVal != null) {
       if (val_numVal <= 10.0) {
-        throw JsonValidationException('Property "numVal" must be > 10.0', [
-          'numVal',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "numVal" must be > 10.0',
+            path: ['numVal'],
+            keyword: 'exclusiveMinimum',
+          ),
+        );
       }
       if (val_numVal >= 20.0) {
-        throw JsonValidationException('Property "numVal" must be < 20.0', [
-          'numVal',
-        ]);
+        errors.add(
+          ValidationError(
+            message: 'Property "numVal" must be < 20.0',
+            path: ['numVal'],
+            keyword: 'exclusiveMaximum',
+          ),
+        );
       }
     }
     additionalProperties.forEach((key, value) {
-      if (value.runes.length < 3) {
-        throw JsonValidationException('Property "$key" length must be >= 3', [
-          '\$key',
-        ]);
+      if (value is! String) {
+        errors.add(
+          ValidationError(
+            message: 'Property "$key" must be a string',
+            path: ['\$key'],
+            keyword: 'type',
+          ),
+        );
+      } else {
+        if (value.runes.length < 3) {
+          errors.add(
+            ValidationError(
+              message: 'Property "$key" length must be >= 3',
+              path: ['\$key'],
+              keyword: 'minLength',
+            ),
+          );
+        }
       }
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<ComplexMergedObject> descriptor =
@@ -5363,6 +6044,17 @@ sealed class TestRootUnionContainsArrayContains implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootUnionContainsArrayContains> descriptor =
       UnionDescriptor<TestRootUnionContainsArrayContains>(
         title: 'TestRootUnionContainsArrayContains',
@@ -5395,29 +6087,45 @@ final class TestRootUnionContainsArrayContainsOption0
   }
 
   @override
-  void validate() {
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (value.runes.length < 3) {
-      throw JsonValidationException('Property "value" length must be >= 3', [
-        'value',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "value" length must be >= 3',
+          path: ['value'],
+          keyword: 'minLength',
+        ),
+      );
     }
     if (value.runes.length > 10) {
-      throw JsonValidationException('Property "value" length must be <= 10', [
-        'value',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "value" length must be <= 10',
+          path: ['value'],
+          keyword: 'maxLength',
+        ),
+      );
     }
     if (!RegExp('^a').hasMatch(value)) {
-      throw JsonValidationException(
-        'Property "value" must match pattern "^a"',
-        ['value'],
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must match pattern "^a"',
+          path: ['value'],
+          keyword: 'pattern',
+        ),
       );
     }
-    if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(value)) {
-      throw JsonValidationException(
-        'Property "value" must be a valid email address',
-        ['value'],
+    if (!(RegExp(r'^[^@]+@[^@]+$').hasMatch(value))) {
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must be a valid email address',
+          path: ['value'],
+          keyword: 'format',
+        ),
       );
     }
+    return errors;
   }
 
   @override
@@ -5446,21 +6154,36 @@ final class TestRootUnionContainsArrayContainsOption1
   }
 
   @override
-  void validate() {
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (value < 5) {
-      throw JsonValidationException('Property "value" must be >= 5', ['value']);
-    }
-    if (value > 10) {
-      throw JsonValidationException('Property "value" must be <= 10', [
-        'value',
-      ]);
-    }
-    if (value % 2 != 0) {
-      throw JsonValidationException(
-        'Property "value" must be a multiple of 2',
-        ['value'],
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must be >= 5',
+          path: ['value'],
+          keyword: 'minimum',
+        ),
       );
     }
+    if (value > 10) {
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must be <= 10',
+          path: ['value'],
+          keyword: 'maximum',
+        ),
+      );
+    }
+    if (value % 2 != 0) {
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must be a multiple of 2',
+          path: ['value'],
+          keyword: 'multipleOf',
+        ),
+      );
+    }
+    return errors;
   }
 
   @override
@@ -5489,29 +6212,43 @@ final class TestRootUnionContainsArrayContainsOption2
   }
 
   @override
-  void validate() {
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (value <= 5.0) {
-      throw JsonValidationException('Property "value" must be > 5.0', [
-        'value',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must be > 5.0',
+          path: ['value'],
+          keyword: 'exclusiveMinimum',
+        ),
+      );
     }
     if (value >= 11.0) {
-      throw JsonValidationException('Property "value" must be < 11.0', [
-        'value',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must be < 11.0',
+          path: ['value'],
+          keyword: 'exclusiveMaximum',
+        ),
+      );
     }
     if (() {
       final div = value / 0.5;
+      if (!div.isFinite) return true;
       final rounded = div.round();
       final absError = (div - rounded).abs();
       final relError = absError / (div.abs() > 1.0 ? div.abs() : 1.0);
       return relError > 1e-14;
     }()) {
-      throw JsonValidationException(
-        'Property "value" must be a multiple of 0.5',
-        ['value'],
+      errors.add(
+        ValidationError(
+          message: 'Property "value" must be a multiple of 0.5',
+          path: ['value'],
+          keyword: 'multipleOf',
+        ),
       );
     }
+    return errors;
   }
 
   @override
@@ -5587,40 +6324,61 @@ final class ObjectWithDynamicProps implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_notInt = notInt;
-    bool notMatches_notInt = true;
-    try {
+    {
+      final notErrors_notInt = <ValidationError>[];
       if (val_notInt is! int) {
-        throw JsonValidationException('Property "notInt" must be an integer', [
-          'notInt',
-        ]);
+        notErrors_notInt.add(
+          ValidationError(
+            message: 'Property "notInt" must be an integer',
+            path: ['notInt'],
+            keyword: 'type',
+          ),
+        );
+      } else {}
+      if (notErrors_notInt.isEmpty) {
+        errors.add(
+          ValidationError(
+            message: 'Property "notInt" must not match the schema',
+            path: ['notInt'],
+            keyword: 'not',
+          ),
+        );
       }
-    } on JsonValidationException {
-      notMatches_notInt = false;
-    }
-    if (notMatches_notInt) {
-      throw JsonValidationException(
-        'Property "notInt" must not match the schema',
-        ['notInt'],
-      );
     }
     final val_notNum = notNum;
-    bool notMatches_notNum = true;
-    try {
+    {
+      final notErrors_notNum = <ValidationError>[];
       if (val_notNum is! num) {
-        throw JsonValidationException('Property "notNum" must be a number', [
-          'notNum',
-        ]);
+        notErrors_notNum.add(
+          ValidationError(
+            message: 'Property "notNum" must be a number',
+            path: ['notNum'],
+            keyword: 'type',
+          ),
+        );
+      } else {}
+      if (notErrors_notNum.isEmpty) {
+        errors.add(
+          ValidationError(
+            message: 'Property "notNum" must not match the schema',
+            path: ['notNum'],
+            keyword: 'not',
+          ),
+        );
       }
-    } on JsonValidationException {
-      notMatches_notNum = false;
     }
-    if (notMatches_notNum) {
-      throw JsonValidationException(
-        'Property "notNum" must not match the schema',
-        ['notNum'],
-      );
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -5727,6 +6485,17 @@ sealed class TestRootUnionWithArrayOption implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootUnionWithArrayOption> descriptor =
       UnionDescriptor<TestRootUnionWithArrayOption>(
         title: 'TestRootUnionWithArrayOption',
@@ -5757,7 +6526,9 @@ final class TestRootUnionWithArrayOptionOption0
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -5790,14 +6561,23 @@ final class TestRootUnionWithArrayOptionOption1
   }
 
   @override
-  void validate() {
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     for (var i = 0; i < value.length; i++) {
-      try {
-        (value[i] as JsonModel).validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['[$i]', ...e.path]);
-      }
+      errors.addAll(
+        (value[i] as JsonModel).collectErrors().map(
+          (e) => ValidationError(
+            message: e.message,
+            path: ['[$i]', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
+    return errors;
   }
 
   @override
@@ -5872,9 +6652,20 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_a = a;
     final val_b = b;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<TestRootArrayWithAllOfItemsItem> descriptor =
@@ -5977,6 +6768,17 @@ sealed class TestRootUnionWithAllOfOption implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootUnionWithAllOfOption> descriptor =
       UnionDescriptor<TestRootUnionWithAllOfOption>(
         title: 'TestRootUnionWithAllOfOption',
@@ -6012,7 +6814,9 @@ final class TestRootUnionWithAllOfOptionOption0
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -6045,9 +6849,7 @@ final class TestRootUnionWithAllOfOptionOption1
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -6121,9 +6923,20 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_a = a;
     final val_b = b;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<TestRootUnionWithAllOfOptionOptionType1>
@@ -6243,41 +7056,77 @@ final class PatternPropertiesObject implements JsonModel {
     patternProperties: patternProperties ?? this.patternProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_name = name;
     patternProperties.forEach((key, value) {
       if (_patternRegex0.hasMatch(key)) {
         if (value is! String) {
-          throw JsonValidationException('Property "$key" must be a string', [
-            '\$key',
-          ]);
-        }
+          errors.add(
+            ValidationError(
+              message: 'Property "$key" must be a string',
+              path: ['\$key'],
+              keyword: 'type',
+            ),
+          );
+        } else {}
       }
       if (_patternRegex1.hasMatch(key)) {
         if (value is! int) {
-          throw JsonValidationException('Property "$key" must be an integer', [
-            '\$key',
-          ]);
-        }
-        if (value < 0) {
-          throw JsonValidationException('Property "$key" must be >= 0', [
-            '\$key',
-          ]);
+          errors.add(
+            ValidationError(
+              message: 'Property "$key" must be an integer',
+              path: ['\$key'],
+              keyword: 'type',
+            ),
+          );
+        } else {
+          if (value < 0) {
+            errors.add(
+              ValidationError(
+                message: 'Property "$key" must be >= 0',
+                path: ['\$key'],
+                keyword: 'minimum',
+              ),
+            );
+          }
         }
       }
       if (_patternRegex2.hasMatch(key)) {
         if (value is! Address) {
-          throw JsonValidationException('Property "$key" must be a Address', [
-            '\$key',
-          ]);
-        }
-        try {
-          value.validate();
-        } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, ['$key', ...e.path]);
+          errors.add(
+            ValidationError(
+              message: 'Property "$key" must be a Address',
+              path: ['\$key'],
+              keyword: 'type',
+            ),
+          );
+        } else {
+          errors.addAll(
+            (value as JsonModel).collectErrors().map(
+              (ValidationError e) => ValidationError(
+                message: e.message,
+                path: ['\$key', ...e.path],
+                keyword: e.keyword,
+                schema: e.schema,
+                value: e.value,
+                nestedErrors: e.nestedErrors,
+              ),
+            ),
+          );
         }
       }
     });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<PatternPropertiesObject> descriptor =
@@ -6377,6 +7226,17 @@ sealed class OverlappingUnion implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<OverlappingUnion> descriptor =
       UnionDescriptor<OverlappingUnion>(
         title: 'OverlappingUnion',
@@ -6408,9 +7268,7 @@ final class OverlappingUnionOption0 extends OverlappingUnion {
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -6440,9 +7298,7 @@ final class OverlappingUnionOption1 extends OverlappingUnion {
   }
 
   @override
-  void validate() {
-    value.validate();
-  }
+  List<ValidationError> collectErrors() => value.collectErrors();
 
   @override
   bool operator ==(Object other) =>
@@ -6500,11 +7356,26 @@ final class OptionA implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (value.runes.length < 5) {
-      throw JsonValidationException('Property "value" length must be >= 5', [
-        'value',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "value" length must be >= 5',
+          path: ['value'],
+          keyword: 'minLength',
+        ),
+      );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -6603,11 +7474,26 @@ final class OptionB implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     if (value.runes.length < 2) {
-      throw JsonValidationException('Property "value" length must be >= 2', [
-        'value',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "value" length must be >= 2',
+          path: ['value'],
+          keyword: 'minLength',
+        ),
+      );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -6715,8 +7601,19 @@ final class MyCustomClassName implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_foo = foo;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<MyCustomClassName> descriptor =
@@ -6810,6 +7707,17 @@ sealed class MyCustomUnionName implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<MyCustomUnionName> descriptor =
       UnionDescriptor<MyCustomUnionName>(
         title: 'MyCustomUnionName',
@@ -6837,7 +7745,9 @@ final class MyCustomUnionNameOption0 extends MyCustomUnionName {
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -6863,7 +7773,9 @@ final class MyCustomUnionNameOption1 extends MyCustomUnionName {
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -6997,74 +7909,127 @@ final class TestRootCoverageTrigger implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_mergeArray = mergeArray;
     final val_mergeObject = mergeObject;
     if (val_mergeObject != null) {
-      try {
-        val_mergeObject.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['mergeObject', ...e.path]);
-      }
+      errors.addAll(
+        (val_mergeObject as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['mergeObject', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_mergeString = mergeString;
     if (val_mergeString != null) {
       if (val_mergeString.runes.length < 5) {
-        throw JsonValidationException(
-          'Property "mergeString" length must be >= 5',
-          ['mergeString'],
+        errors.add(
+          ValidationError(
+            message: 'Property "mergeString" length must be >= 5',
+            path: ['mergeString'],
+            keyword: 'minLength',
+          ),
         );
       }
       if (val_mergeString.runes.length > 10) {
-        throw JsonValidationException(
-          'Property "mergeString" length must be <= 10',
-          ['mergeString'],
+        errors.add(
+          ValidationError(
+            message: 'Property "mergeString" length must be <= 10',
+            path: ['mergeString'],
+            keyword: 'maxLength',
+          ),
         );
       }
     }
     final val_mergeNumber = mergeNumber;
     if (val_mergeNumber != null) {
-      throw JsonValidationException('Property "mergeNumber" matches nothing', [
-        'mergeNumber',
-      ]);
+      errors.add(
+        ValidationError(
+          message: 'Property "mergeNumber" matches nothing',
+          path: ['mergeNumber'],
+          keyword: 'false',
+        ),
+      );
     }
     final val_mergeBoolean = mergeBoolean;
     final val_mergeAnything = mergeAnything;
     final val_mergeNever = mergeNever;
     if (val_mergeNever != null) {
-      try {
-        val_mergeNever.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['mergeNever', ...e.path]);
-      }
+      errors.addAll(
+        (val_mergeNever as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['mergeNever', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_mergeRef = mergeRef;
     if (val_mergeRef != null) {
-      try {
-        val_mergeRef.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['mergeRef', ...e.path]);
-      }
+      errors.addAll(
+        (val_mergeRef as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['mergeRef', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_mergeEnum = mergeEnum;
     final val_mergeUnion = mergeUnion;
     if (val_mergeUnion != null) {
-      try {
-        val_mergeUnion.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['mergeUnion', ...e.path]);
-      }
+      errors.addAll(
+        (val_mergeUnion as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['mergeUnion', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
     }
     final val_mergeObjectsWithNoAdditional = mergeObjectsWithNoAdditional;
     if (val_mergeObjectsWithNoAdditional != null) {
-      try {
-        val_mergeObjectsWithNoAdditional.validate();
-      } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, [
-          'mergeObjectsWithNoAdditional',
-          ...e.path,
-        ]);
-      }
+      errors.addAll(
+        (val_mergeObjectsWithNoAdditional as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['mergeObjectsWithNoAdditional', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
     }
   }
 
@@ -7312,9 +8277,20 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_a = a;
     final val_b = b;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<TestRootCoverageTriggerMergeObject> descriptor =
@@ -7423,7 +8399,19 @@ final class TestRootCoverageTriggerMergeNever implements JsonModel {
   TestRootCoverageTriggerMergeNever copyWith() =>
       TestRootCoverageTriggerMergeNever();
 
-  void validate() {}
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 
   static final ObjectDescriptor<TestRootCoverageTriggerMergeNever> descriptor =
       ObjectDescriptor<TestRootCoverageTriggerMergeNever>(
@@ -7498,8 +8486,30 @@ final class MapObject1 implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_name = name;
+    additionalProperties.forEach((key, value) {
+      if (value is! String) {
+        errors.add(
+          ValidationError(
+            message: 'Property "$key" must be a string',
+            path: ['\$key'],
+            keyword: 'type',
+          ),
+        );
+      } else {}
+    });
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<MapObject1> descriptor =
@@ -7610,6 +8620,17 @@ sealed class TestRootCoverageTriggerMergeUnion implements JsonModel {
     return result;
   }
 
+  @override
+  List<ValidationError> collectErrors();
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
+
   static final UnionDescriptor<TestRootCoverageTriggerMergeUnion> descriptor =
       UnionDescriptor<TestRootCoverageTriggerMergeUnion>(
         title: 'TestRootCoverageTriggerMergeUnion',
@@ -7638,7 +8659,9 @@ final class TestRootCoverageTriggerMergeUnionOption0
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -7666,7 +8689,9 @@ final class TestRootCoverageTriggerMergeUnionOption1
   }
 
   @override
-  void validate() {}
+  List<ValidationError> collectErrors() {
+    return const [];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -7727,7 +8752,19 @@ final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
   TestRootCoverageTriggerMergeObjectsWithNoAdditional copyWith() =>
       TestRootCoverageTriggerMergeObjectsWithNoAdditional();
 
-  void validate() {}
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 
   static final ObjectDescriptor<
     TestRootCoverageTriggerMergeObjectsWithNoAdditional
@@ -7852,12 +8889,23 @@ final class CollidingObject implements JsonModel {
     additionalProperties: additionalProperties ?? this.additionalProperties,
   );
 
-  void validate() {
+  @override
+  List<ValidationError> collectErrors() {
+    final errors = <ValidationError>[];
     final val_foo = foo;
     final val_foo_1 = foo_1;
     final val_bar = bar;
     final val_bar1 = bar1;
     final val_validate_ = validate_;
+    return errors;
+  }
+
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
   }
 
   static final ObjectDescriptor<CollidingObject> descriptor =
