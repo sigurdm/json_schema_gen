@@ -968,7 +968,8 @@ final class TestRoot implements JsonModel {
               JsonReader.fromObject(item),
             );
             matches = parsed.collectErrors().isEmpty;
-          } catch (_) {}
+          } on JsonValidationException catch (_) {
+          } on FormatException catch (_) {}
         }
         if (matches) containsCount++;
       }
@@ -994,7 +995,8 @@ final class TestRoot implements JsonModel {
           try {
             final parsed = Address.fromJson(JsonReader.fromObject(item));
             matches = parsed.collectErrors().isEmpty;
-          } catch (_) {}
+          } on JsonValidationException catch (_) {
+          } on FormatException catch (_) {}
         }
         if (matches) containsCount++;
       }
@@ -1014,8 +1016,15 @@ final class TestRoot implements JsonModel {
       var containsCount = 0;
       for (final dynamic item in val_enumContainsArray) {
         bool matches = false;
-        if (item is String) {
+        if (item is MyEnum) {
           matches = true;
+        } else {
+          try {
+            if (item is String) {
+              MyEnum.fromValue(item);
+              matches = true;
+            }
+          } on StateError catch (_) {}
         }
         if (matches) containsCount++;
       }

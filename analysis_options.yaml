@@ -9,7 +9,6 @@ analyzer:
     - .jetski/**
     - debug_*.dart
     - test_*.dart
-    - tool/run_json_schema_tests.dart
   errors:
     doc_directive_unknown: ignore
 

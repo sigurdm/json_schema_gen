@@ -12,27 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export 'src/descriptors.dart';
-export 'src/generator.dart' show generateCode, DartImportResolver;
-export 'src/parser.dart' show SchemaParser;
-export 'src/schema.dart';
+export 'src/descriptors.dart'
+    show
+        AnythingDescriptor,
+        ArrayDescriptor,
+        BoolDescriptor,
+        EnumDescriptor,
+        IntDescriptor,
+        NeverDescriptor,
+        NotDescriptor,
+        NullableDescriptor,
+        NumDescriptor,
+        NullDescriptor,
+        ObjectDescriptor,
+        PrimitiveDescriptor,
+        PropertyDescriptor,
+        RefDescriptor,
+        SchemaDescriptor,
+        StringDescriptor,
+        UnionDescriptor,
+        UnionOptionDescriptor;
+export 'src/generator.dart' show DartImportResolver, generateCode;
+export 'src/parser.dart' show SchemaParser, ioFileResolver;
+export 'src/schema.dart'
+    show Discriminator, Schema, SchemaHelpers, UnionAnalysis;
 export 'src/validator.dart'
     show
-        parseWithDescriptor,
-        writeWithDescriptor,
+        JsonModel,
         JsonParseException,
         JsonValidationException,
-        ValidationError,
-        JsonModel,
-        createValidator,
-        createErrorCollector,
         SchemaValidationExtension,
-        wrapException,
-        readAny,
-        writeAny,
+        ValidationError,
+        createErrorCollector,
+        createValidator,
         isValidHostname,
         isValidIPv6,
         isValidTime,
-        isValidUriReference,
         isValidUri,
-        ioFileResolver;
+        isValidUriReference,
+        parseWithDescriptor,
+        readAny,
+        wrapException,
+        writeAny,
+        writeWithDescriptor;

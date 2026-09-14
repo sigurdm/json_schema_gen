@@ -336,15 +336,35 @@ String dartType(Schema schema, Map<Schema, String> classNames) {
   return 'dynamic';
 }
 
-Map<Schema, Map<dynamic, String>>? _currentEnumConstantNames;
-Map<Schema, Map<String, String>>? _currentObjectFieldNames;
+final class _GeneratorContext {
+  final Map<Schema, String> classNames;
+  final Map<Schema, Map<dynamic, String>> enumConstantNames = {};
+  final Map<Schema, Map<String, String>> objectFieldNames = {};
+
+  _GeneratorContext(this.classNames);
+
+  String toEnumConstantName(Object? val, [Schema? schema]) {
+    if (schema != null) {
+      final names = enumConstantNames[schema];
+      if (names != null) {
+        final name = names[val];
+        if (name != null) return name;
+      }
+    }
+    return _toEnumConstantName(val);
+  }
+
+  Map<String, String> fieldNamesFor(Schema schema) {
+    return objectFieldNames[schema] ?? _calculateFieldNames(schema);
+  }
+}
 
 Map<dynamic, String> _calculateEnumConstantNames(Schema schema) {
   final names = <dynamic, String>{};
   final used = <String>{'values', 'value', 'fromValue', 'descriptor'};
 
   for (final val in schema.enumValues!) {
-    var baseName = _toEnumConstantName(val, null);
+    var baseName = _toEnumConstantName(val);
     var name = baseName;
     int counter = 1;
     while (used.contains(name)) {
@@ -596,68 +616,55 @@ String generateCode(
     discoverDefs(rootSchema);
   }
 
-  _currentEnumConstantNames = {};
-  _currentObjectFieldNames = {};
+  final context = _GeneratorContext(classNames);
   classNames.forEach((schema, name) {
     if (schema.enumValues != null) {
-      _currentEnumConstantNames![schema] = _calculateEnumConstantNames(schema);
+      context.enumConstantNames[schema] = _calculateEnumConstantNames(schema);
     } else if (schema.isObject) {
-      _currentObjectFieldNames![schema] = _calculateFieldNames(schema);
+      context.objectFieldNames[schema] = _calculateFieldNames(schema);
     }
   });
 
-  try {
-    // Generate the class bodies first so the import list can be tailored to
-    // what the output actually references.
-    final body = StringBuffer();
-    for (final schema in localClasses) {
-      final name = classNames[schema]!;
-      if (schema.enumValues != null) {
-        body.writeln(_generateEnumClass(schema, name));
-      } else if (schema.isUnion) {
-        body.writeln(_generateUnionClass(schema, name, classNames));
-      } else if (schema.isObject) {
-        body.writeln(_generateObjectClass(schema, name, classNames));
-      }
+  // Generate the class bodies first so the import list can be tailored to
+  // what the output actually references.
+  final body = StringBuffer();
+  for (final schema in localClasses) {
+    final name = classNames[schema]!;
+    if (schema.enumValues != null) {
+      body.writeln(_generateEnumClass(schema, name, context));
+    } else if (schema.isUnion) {
+      body.writeln(_generateUnionClass(schema, name, context));
+    } else if (schema.isObject) {
+      body.writeln(_generateObjectClass(schema, name, context));
     }
-    final bodyCode = body.toString();
+  }
+  final bodyCode = body.toString();
 
-    final buffer = StringBuffer();
-    buffer.writeln('''
+  final buffer = StringBuffer();
+  buffer.writeln('''
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
 // ignore_for_file: prefer_is_empty, unnecessary_string_interpolations, avoid_init_to_null, unnecessary_const
 // ignore_for_file: unnecessary_question_mark, unnecessary_cast
 ''');
-    if (bodyCode.contains('LinkedHashSet')) {
-      buffer.writeln("import 'dart:collection';");
-    }
-    buffer.writeln('''import 'package:collection/collection.dart';
+  if (bodyCode.contains('LinkedHashSet')) {
+    buffer.writeln("import 'dart:collection';");
+  }
+  buffer.writeln('''import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';''');
 
-    for (final entry in importPrefixes.entries) {
-      buffer.writeln("import '${entry.key}' as ${entry.value};");
-    }
-
-    buffer.writeln();
-    buffer.write(bodyCode);
-
-    return buffer.toString();
-  } finally {
-    _currentEnumConstantNames = null;
-    _currentObjectFieldNames = null;
+  for (final entry in importPrefixes.entries) {
+    buffer.writeln("import '${entry.key}' as ${entry.value};");
   }
+
+  buffer.writeln();
+  buffer.write(bodyCode);
+
+  return buffer.toString();
 }
 
-String _toEnumConstantName(Object? val, [Schema? schema]) {
-  if (schema != null && _currentEnumConstantNames != null) {
-    final names = _currentEnumConstantNames![schema];
-    if (names != null) {
-      final name = names[val];
-      if (name != null) return name;
-    }
-  }
+String _toEnumConstantName(Object? val) {
   var enumName = toCamelCase(val.toString());
   if (isKeyword(enumName) || int.tryParse(enumName[0]) != null) {
     enumName = 'val${toPascalCase(val.toString())}';
@@ -673,7 +680,11 @@ String _enumBackingType(Schema schema) {
 }
 
 /// Generates a Dart enum class representation for an EnumSchema.
-String _generateEnumClass(Schema schema, String className) {
+String _generateEnumClass(
+  Schema schema,
+  String className,
+  _GeneratorContext context,
+) {
   final buffer = StringBuffer();
 
   final backingType = _enumBackingType(schema);
@@ -691,7 +702,7 @@ String _generateEnumClass(Schema schema, String className) {
   }
   buffer.writeln('enum $className {');
   for (final val in schema.enumValues!) {
-    final enumName = _toEnumConstantName(val, schema);
+    final enumName = context.toEnumConstantName(val, schema);
     final formattedValue = _toBasicDartLiteral(val);
     buffer.writeln("  $enumName($formattedValue),");
   }
@@ -769,16 +780,16 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
 String _fieldType(
   Schema propSchema,
   bool isRequired,
-  Map<Schema, String> classNames,
+  _GeneratorContext context,
 ) {
-  final baseType = dartType(propSchema, classNames);
+  final baseType = dartType(propSchema, context.classNames);
   final hasDefault = propSchema.hasDefault;
   String? defaultLiteral;
   if (hasDefault) {
     defaultLiteral = _toDartLiteral(
       propSchema.defaultValue,
       propSchema,
-      classNames,
+      context,
     );
   }
   return (isRequired || (defaultLiteral != null && !baseType.endsWith('?')))
@@ -794,9 +805,9 @@ String _fieldType(
 bool _isNullable(
   Schema propSchema,
   bool isRequired,
-  Map<Schema, String> classNames,
+  _GeneratorContext context,
 ) {
-  final type = _fieldType(propSchema, isRequired, classNames);
+  final type = _fieldType(propSchema, isRequired, context);
   return type.endsWith('?') || type == 'dynamic' || type == 'Object?';
 }
 
@@ -828,16 +839,17 @@ String _toBasicDartLiteral(Object? value) {
 String? _toDartLiteral(
   Object? value,
   Schema schema,
-  Map<Schema, String> classNames,
+  _GeneratorContext context,
 ) {
+  final classNames = context.classNames;
   final real = schema.realSchema;
   if (real.enumValues != null) {
     final className = classNames[real];
     if (className != null) {
-      final constName = _toEnumConstantName(value, real);
+      final constName = context.toEnumConstantName(value, real);
       return '$className.$constName';
     } else {
-      return _toDartLiteral(value, real.removeEnum(), classNames);
+      return _toDartLiteral(value, real.removeEnum(), context);
     }
   }
   if (value == null) return 'null';
@@ -859,11 +871,7 @@ String? _toDartLiteral(
       final itemType = dartType(real.items ?? Schema.anything, classNames);
       final elements = <String>[];
       for (final val in value) {
-        final lit = _toDartLiteral(
-          val,
-          real.items ?? Schema.anything,
-          classNames,
-        );
+        final lit = _toDartLiteral(val, real.items ?? Schema.anything, context);
         if (lit == null) return null;
         elements.add(lit);
       }
@@ -885,15 +893,14 @@ String? _toDartLiteral(
       if (className != null) {
         final args = <String>[];
         var ok = true;
-        final fieldNames =
-            _currentObjectFieldNames?[real] ?? _calculateFieldNames(real);
+        final fieldNames = context.fieldNamesFor(real);
         value.forEach((k, v) {
           final propSchema = real.properties?[k];
           if (propSchema == null) {
             ok = false;
             return;
           }
-          final lit = _toDartLiteral(v, propSchema, classNames);
+          final lit = _toDartLiteral(v, propSchema, context);
           if (lit == null) {
             ok = false;
             return;
@@ -913,10 +920,10 @@ String? _toDartLiteral(
 String _generateObjectClass(
   Schema schema,
   String className,
-  Map<Schema, String> classNames,
+  _GeneratorContext context,
 ) {
-  final fieldNames =
-      _currentObjectFieldNames?[schema] ?? _calculateFieldNames(schema);
+  final classNames = context.classNames;
+  final fieldNames = context.fieldNamesFor(schema);
   final fields = StringBuffer();
   final constructorParams = StringBuffer();
   final equalityProps = <String>[];
@@ -936,11 +943,11 @@ String _generateObjectClass(
       defaultLiteral = _toDartLiteral(
         propSchema.defaultValue,
         propSchema,
-        classNames,
+        context,
       );
     }
 
-    final fieldType = _fieldType(propSchema, isRequired, classNames);
+    final fieldType = _fieldType(propSchema, isRequired, context);
 
     if (propSchema.isDeprecated) {
       if (propSchema.deprecatedMessage != null) {
@@ -1038,7 +1045,7 @@ String _generateObjectClass(
   final validationMethod = _generateValidationMethod(
     schema,
     className,
-    classNames,
+    context,
     fieldNames,
   );
 
@@ -1064,11 +1071,11 @@ String _generateObjectClass(
       defaultLiteral = _toDartLiteral(
         propSchema.defaultValue,
         propSchema,
-        classNames,
+        context,
       );
     }
 
-    final fieldType = _fieldType(propSchema, isRequired, classNames);
+    final fieldType = _fieldType(propSchema, isRequired, context);
 
     if (isRequired) {
       instantiateArgs.writeln(
@@ -1238,7 +1245,27 @@ String _generateMatchBlock(
   final buffer = StringBuffer();
   final real = schema.realSchema;
   buffer.writeln('    bool $resultVar = false;');
-  if (real.isString) {
+  if (real.enumValues != null) {
+    final className = classNames[real];
+    if (className != null) {
+      final backingType = _enumBackingType(real);
+      buffer.writeln('    if ($valueVar is $className) {');
+      buffer.writeln('      $resultVar = true;');
+      buffer.writeln('    } else {');
+      buffer.writeln('      try {');
+      if (backingType != 'dynamic') {
+        buffer.writeln('        if ($valueVar is $backingType) {');
+        buffer.writeln('          $className.fromValue($valueVar);');
+        buffer.writeln('          $resultVar = true;');
+        buffer.writeln('        }');
+      } else {
+        buffer.writeln('        $className.fromValue($valueVar);');
+        buffer.writeln('        $resultVar = true;');
+      }
+      buffer.writeln('      } on StateError catch (_) {}');
+      buffer.writeln('    }');
+    }
+  } else if (real.isString) {
     buffer.writeln('    if ($valueVar is String) {');
     buffer.writeln('      $resultVar = true;');
     if (real.minLength != null) {
@@ -1316,7 +1343,8 @@ String _generateMatchBlock(
       '        final parsed = $className.fromJson(JsonReader.fromObject($valueVar));',
     );
     buffer.writeln('        $resultVar = parsed.collectErrors().isEmpty;');
-    buffer.writeln('      } catch (_) {}');
+    buffer.writeln('      } on JsonValidationException catch (_) {');
+    buffer.writeln('      } on FormatException catch (_) {}');
     buffer.writeln('    }');
   } else if (real.isUnion) {
     final className = classNames[real]!;
@@ -1328,24 +1356,8 @@ String _generateMatchBlock(
       '        final parsed = $className.fromJson(JsonReader.fromObject($valueVar));',
     );
     buffer.writeln('        $resultVar = parsed.collectErrors().isEmpty;');
-    buffer.writeln('      } catch (_) {}');
-    buffer.writeln('    }');
-  } else if (real.enumValues != null) {
-    final className = classNames[real]!;
-    final backingType = _enumBackingType(real);
-    buffer.writeln('    if ($valueVar is $className) {');
-    buffer.writeln('      $resultVar = true;');
-    buffer.writeln('    } else {');
-    buffer.writeln('      try {');
-    if (backingType != 'dynamic') {
-      buffer.writeln(
-        '        $className.fromValue($valueVar as $backingType);',
-      );
-    } else {
-      buffer.writeln('        $className.fromValue($valueVar);');
-    }
-    buffer.writeln('        $resultVar = true;');
-    buffer.writeln('      } catch (_) {}');
+    buffer.writeln('      } on JsonValidationException catch (_) {');
+    buffer.writeln('      } on FormatException catch (_) {}');
     buffer.writeln('    }');
   }
   return buffer.toString();
@@ -1425,9 +1437,10 @@ bool _hasItemValidation(Schema schema) {
 String _generateValidationMethod(
   Schema schema,
   String className,
-  Map<Schema, String> classNames,
+  _GeneratorContext context,
   Map<String, String> fieldNames,
 ) {
+  final classNames = context.classNames;
   final buffer = StringBuffer();
   buffer.writeln('  @override');
   buffer.writeln('  List<ValidationError> collectErrors() {');
@@ -1437,7 +1450,7 @@ String _generateValidationMethod(
     schema.properties?.forEach((key, propSchema) {
       final fieldName = fieldNames[key]!;
       final isRequired = schema.required?.contains(key) == true;
-      final isNullable = _isNullable(propSchema, isRequired, classNames);
+      final isNullable = _isNullable(propSchema, isRequired, context);
       if (isNullable) {
         buffer.writeln('    if ($fieldName != null) count++;');
       } else {
@@ -1483,7 +1496,7 @@ String _generateValidationMethod(
   schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
     final isRequired = schema.required?.contains(name) == true;
-    final isNullable = _isNullable(propSchema, isRequired, classNames);
+    final isNullable = _isNullable(propSchema, isRequired, context);
 
     final valueVar = isNullable ? 'val_$fieldName' : fieldName;
     if (isNullable) {
@@ -1495,7 +1508,7 @@ String _generateValidationMethod(
       propSchema,
       valueVar,
       name,
-      classNames,
+      context,
       includeNot: false,
     );
 
@@ -1518,7 +1531,7 @@ String _generateValidationMethod(
           propSchema.not!,
           valueVar,
           name,
-          classNames,
+          context,
           checkType: true,
           includeNot: true,
           errorsVar: 'notErrors_$fieldName',
@@ -1574,7 +1587,7 @@ String _generateValidationMethod(
         patternSchema,
         'value',
         r'$key',
-        classNames,
+        context,
         checkType: true,
         includeNot: true,
         escapeName: false,
@@ -1601,7 +1614,7 @@ String _generateValidationMethod(
         r'$key',
         [r"'$key'"],
         0,
-        classNames,
+        context,
         escapeName: false,
       );
       buffer.writeln('    });');
@@ -1612,7 +1625,7 @@ String _generateValidationMethod(
         addSchema,
         'value',
         r'$key',
-        classNames,
+        context,
         checkType: true,
         includeNot: false,
         escapeName: false,
@@ -1653,7 +1666,7 @@ void _generateArrayItemValidation(
   String name,
   List<String> pathExprs,
   int depth,
-  Map<Schema, String> classNames, {
+  _GeneratorContext context, {
   bool escapeName = true,
   String errorsVar = 'errors',
 }) {
@@ -1685,7 +1698,7 @@ void _generateArrayItemValidation(
         name,
         [...pathExprs, "'[\$$indexVar]'"],
         depth + 1,
-        classNames,
+        context,
         escapeName: escapeName,
         errorsVar: errorsVar,
       );
@@ -1698,7 +1711,7 @@ void _generateArrayItemValidation(
       real,
       valueVar,
       name,
-      classNames,
+      context,
       checkType: true,
       pathExprs: pathExprs,
       escapeName: escapeName,
@@ -1724,13 +1737,14 @@ void _generateSchemaValidations(
   Schema schema,
   String valueVar,
   String name,
-  Map<Schema, String> classNames, {
+  _GeneratorContext context, {
   bool checkType = false,
   bool includeNot = true,
   List<String>? pathExprs,
   bool escapeName = true,
   String errorsVar = 'errors',
 }) {
+  final classNames = context.classNames;
   final unescapedName = name;
   // `name` is interpolated into generated error messages. Normally it is a
   // schema-derived property name and must be escaped; callers that pass a
@@ -1924,7 +1938,7 @@ void _generateSchemaValidations(
             name,
             [...effectivePath, "'[$i]'"],
             0,
-            classNames,
+            context,
             errorsVar: errorsVar,
           );
           validations.writeln('      }');
@@ -1944,7 +1958,7 @@ void _generateSchemaValidations(
         name,
         [...effectivePath, "'[\$i]'"],
         0,
-        classNames,
+        context,
         errorsVar: errorsVar,
       );
       validations.writeln('      }');
@@ -1976,14 +1990,14 @@ void _generateSchemaValidations(
         baseSchema,
         valueVar,
         unescapedName,
-        classNames,
+        context,
         checkType: true,
         pathExprs: effectivePath,
         errorsVar: errorsVar,
       );
     }
     final valuesLiterals = real.enumValues!
-        .map((v) => _toDartLiteral(v, baseSchema, classNames))
+        .map((v) => _toDartLiteral(v, baseSchema, context))
         .join(', ');
     final effectiveValue =
         '$valueVar is Enum ? ($valueVar as dynamic).value : $valueVar';
@@ -2042,7 +2056,7 @@ void _generateSchemaValidations(
         schema.not!,
         valueVar,
         unescapedName,
-        classNames,
+        context,
         checkType: true,
         includeNot: true,
         errorsVar: 'notErrors',
@@ -2162,8 +2176,9 @@ void _generateFormatValidation(
 String _generateUnionClass(
   Schema schema,
   String className,
-  Map<Schema, String> classNames,
+  _GeneratorContext context,
 ) {
+  final classNames = context.classNames;
   final analysis = UnionAnalysis.analyze(schema);
   final subclasses = StringBuffer();
 
@@ -2211,7 +2226,7 @@ String _generateUnionClass(
         sub,
         'value',
         'value',
-        classNames,
+        context,
         includeNot: false,
       );
       validationBody.writeln('  @override');

@@ -1,20 +1,35 @@
 name: json_schema_gen
-version: 0.0.0
-publish_to: none
+version: 0.1.0
+description: >-
+  A JSON Schema (Draft 2020-12) code generator and runtime validator for Dart,
+  compiling schemas to type-safe models using streaming JSON parsing.
+repository: https://github.com/sigurdm/json_schema_gen
+issue_tracker: https://github.com/sigurdm/json_schema_gen/issues
+topics:
+  - json-schema
+  - code-generation
+  - serialization
+  - validation
+
+executables:
+  json_schema_gen:
+
 workspace:
   - example
 
 environment:
   sdk: ^3.12.0
+
 dependencies:
+  args: ^2.5.0
   build: ^4.0.6
-  jsontool: ^2.1.0
-  dart_style: ^3.1.9
   collection: ^1.19.1
-  pub_semver: ^2.1.4
+  dart_style: ^3.1.9
+  jsontool: ^2.1.0
   path: ^1.9.1
+  pub_semver: ^2.1.4
 
 dev_dependencies:
-  test: ^1.24.0
   build_runner: ^2.4.0
   lints: ^5.0.0
+  test: ^1.24.0

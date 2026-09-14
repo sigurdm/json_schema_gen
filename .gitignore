@@ -8,3 +8,8 @@ pubspec.lock
 *.iml
 coverage/
 third_party/JSON-Schema-Test-Suite/
+.jetski/
+scratch/
+pkgs/
+debug_*.dart
+test_failures*.txt

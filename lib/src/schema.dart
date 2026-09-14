@@ -504,10 +504,7 @@ final class Schema {
 
   /// Predefined schema that always fails validation.
   static final Schema never = Schema(booleanValue: false);
-}
 
-/// Helper extensions on [Schema] to ease migration and support validation/generation.
-extension SchemaHelpers on Schema {
   /// Whether this schema always fails validation.
   bool get isNever => booleanValue == false;
 
@@ -639,6 +636,9 @@ extension SchemaHelpers on Schema {
     return current;
   }
 }
+
+/// Helper extensions on [Schema] to ease migration and support validation/generation.
+extension SchemaHelpers on Schema {}
 
 /// Analysis helper for union types.
 final class UnionAnalysis {

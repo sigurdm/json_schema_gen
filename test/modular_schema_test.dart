@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
-import 'package:json_schema_gen/json_schema.dart' hide ioFileResolver;
-import 'package:json_schema_gen/src/parser.dart' show ioFileResolver;
+import 'package:json_schema_gen/json_schema.dart';
 
 void main() {
   group('Schema and Parser metadata preservation', () {

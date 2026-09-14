@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:io' as io;
 import 'dart:math' as math;
 import 'package:jsontool/jsontool.dart';
-import 'package:path/path.dart' as p;
 import 'descriptors.dart';
 import 'schema.dart';
 import 'parser.dart';
@@ -2087,30 +2085,4 @@ _EvaluationTracker _validateObject(
   }
 
   return tracker;
-}
-
-/// A resolver that loads schemas from the local file system.
-Future<List<int>> ioFileResolver(
-  Uri uri, {
-  io.Directory? rootDirectory,
-  bool restrictToRoot = true,
-}) async {
-  if (uri.scheme != 'file' && uri.scheme != '') {
-    throw ArgumentError(
-      'Unsupported scheme: ${uri.scheme}. Only file URIs are supported.',
-    );
-  }
-  final file = io.File.fromUri(uri);
-  if (restrictToRoot) {
-    final root = rootDirectory ?? io.Directory.current;
-    final rootPath = p.canonicalize(root.path);
-    final filePath = p.canonicalize(file.path);
-
-    if (!p.isWithin(rootPath, filePath) && !p.equals(rootPath, filePath)) {
-      throw ArgumentError(
-        'Access denied: $uri is outside of restricted root $rootPath',
-      );
-    }
-  }
-  return file.readAsBytes();
 }
