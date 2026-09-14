@@ -76,6 +76,83 @@ abstract interface class JsonModel implements JsonWritable {
   Object? toJsonValue();
 }
 
+/// Represents a validation error encountered during schema validation.
+class ValidationError {
+  /// The validation error message.
+  final String message;
+
+  /// The JSON path segments leading to the validation failure.
+  final List<String> path;
+
+  /// The schema keyword that failed (e.g. 'required', 'type', 'minimum', 'anyOf').
+  final String? keyword;
+
+  /// The schema definition under which this error occurred, if available.
+  final Schema? schema;
+
+  /// The rejected value that caused the validation failure.
+  final dynamic value;
+
+  /// Nested errors from subschemas, e.g. for 'anyOf' or 'oneOf' failures.
+  final List<ValidationError> nestedErrors;
+
+  /// Creates a [ValidationError].
+  const ValidationError({
+    required this.message,
+    this.path = const [],
+    this.keyword,
+    this.schema,
+    this.value,
+    this.nestedErrors = const [],
+  });
+
+  /// The JSON Pointer (RFC 6901) representation of [path], e.g. "/items/0/name".
+  String get instancePath {
+    if (path.isEmpty) return '';
+    return '/${path.map((s) => s.replaceAll('~', '~0').replaceAll('/', '~1')).join('/')}';
+  }
+
+  /// The dot-separated JSONPath representation of [path], e.g. "$.items.0.name".
+  String get jsonPath {
+    if (path.isEmpty) return r'$';
+    return r'$.' + path.join('.');
+  }
+
+  @override
+  String toString() {
+    final loc = jsonPath;
+    final kw = keyword != null ? ' ($keyword)' : '';
+    return 'ValidationError at $loc$kw: $message';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ValidationError &&
+          runtimeType == other.runtimeType &&
+          message == other.message &&
+          keyword == other.keyword &&
+          _listEquals(path, other.path) &&
+          _listEquals(nestedErrors, other.nestedErrors);
+
+  @override
+  int get hashCode => Object.hash(
+    message,
+    keyword,
+    Object.hashAll(path),
+    Object.hashAll(nestedErrors),
+  );
+
+  static bool _listEquals(List<Object?> a, List<Object?> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+}
+
 /// Exception thrown when schema validation fails.
 final class JsonValidationException implements Exception {
   /// The validation error message.
@@ -84,13 +161,51 @@ final class JsonValidationException implements Exception {
   /// The JSON path segments leading to the validation failure.
   final List<String> path;
 
+  /// All validation errors accumulated during validation.
+  final List<ValidationError> errors;
+
   /// Creates a [JsonValidationException] with the validation failure path.
-  JsonValidationException(this.message, [this.path = const []]);
+  JsonValidationException(
+    this.message, [
+    this.path = const [],
+    List<ValidationError>? errors,
+  ]) : errors =
+           errors ??
+           List.unmodifiable([ValidationError(message: message, path: path)]);
+
+  /// Creates a [JsonValidationException] from a non-empty list of accumulated errors.
+  factory JsonValidationException.fromErrors(List<ValidationError> errors) {
+    if (errors.isEmpty) {
+      throw ArgumentError.value(
+        errors,
+        'errors',
+        'Cannot create JsonValidationException with empty errors',
+      );
+    }
+    final first = errors.first;
+    final message = errors.length == 1
+        ? first.message
+        : '${errors.length} validation errors: ${errors.map((e) => e.message).join('; ')}';
+    return JsonValidationException(
+      message,
+      first.path,
+      List.unmodifiable(errors),
+    );
+  }
 
   @override
   String toString() {
-    final pathStr = path.isEmpty ? '' : ' at \$.${path.join('.')}';
-    return 'JsonValidationException$pathStr: $message';
+    if (errors.length <= 1) {
+      final pathStr = path.isEmpty ? '' : ' at \$.${path.join('.')}';
+      return 'JsonValidationException$pathStr: $message';
+    }
+    final buffer = StringBuffer(
+      'JsonValidationException: ${errors.length} validation error(s):\n',
+    );
+    for (var i = 0; i < errors.length; i++) {
+      buffer.writeln('  ${i + 1}. ${errors[i]}');
+    }
+    return buffer.toString().trimRight();
   }
 }
 
@@ -537,10 +652,20 @@ dynamic _runNonRecursiveWithDescriptor(
       }
     }
     final propName = path.isNotEmpty ? path.last : null;
-    final message = (propName != null && e.message.startsWith('Value '))
-        ? e.message.replaceFirst('Value ', 'Property "$propName" ')
-        : e.message;
-    throw JsonValidationException(message, [...path, ...e.path]);
+    final updatedErrors = e.errors.map((err) {
+      final updatedMsg = (propName != null && err.message.startsWith('Value '))
+          ? err.message.replaceFirst('Value ', 'Property "$propName" ')
+          : err.message;
+      return ValidationError(
+        message: updatedMsg,
+        path: [...path, ...err.path],
+        keyword: err.keyword,
+        schema: err.schema,
+        value: err.value,
+        nestedErrors: err.nestedErrors,
+      );
+    }).toList();
+    throw JsonValidationException.fromErrors(updatedErrors);
   } on FormatException catch (e) {
     final path = <String>[];
     for (final frame in stack) {
@@ -805,11 +930,43 @@ extension SchemaValidationExtension on Schema {
   /// Validates [value] against this schema.
   ///
   /// Throws [JsonValidationException] if validation fails.
-  void validate(dynamic value, {bool validateFormats = false}) {
-    _Validator(
+  /// If [failFast] is `true` (the default), validation halts at the first error.
+  /// If [failFast] is `false`, validation continues to accumulate all errors and
+  /// throws a [JsonValidationException] containing all errors in [JsonValidationException.errors].
+  void validate(
+    dynamic value, {
+    bool validateFormats = false,
+    bool failFast = true,
+  }) {
+    final context = _ValidationContext(
+      failFast: failFast,
       validateFormats: validateFormats,
       dynamicAnchors: dynamicAnchors ?? const {},
-    ).validate(value, this, _ValidationPath.empty);
+    );
+    try {
+      const _Validator().validate(value, this, _ValidationPath.empty, context);
+    } on _ValidationAbortException {
+      // Short-circuited on first error in fail-fast mode
+    }
+    if (context.hasErrors) {
+      throw JsonValidationException.fromErrors(context.errors);
+    }
+  }
+
+  /// Validates [value] against this schema and returns all accumulated errors.
+  ///
+  /// Never throws [JsonValidationException]. Returns an empty list if the value is valid.
+  List<ValidationError> collectErrors(
+    dynamic value, {
+    bool validateFormats = false,
+  }) {
+    final context = _ValidationContext(
+      failFast: false,
+      validateFormats: validateFormats,
+      dynamicAnchors: dynamicAnchors ?? const {},
+    );
+    const _Validator().validate(value, this, _ValidationPath.empty, context);
+    return List.unmodifiable(context.errors);
   }
 }
 
@@ -818,6 +975,32 @@ extension SchemaValidationExtension on Schema {
 /// The returned function takes a decoded JSON value and validates it.
 /// It throws [JsonValidationException] if validation fails.
 Future<void Function(dynamic)> createValidator(
+  Map<String, dynamic> schema, {
+  Future<List<int>> Function(Uri uri)? uriResolver,
+  bool disallowExternalRefs = true,
+  bool flatten = false,
+  bool validateFormats = false,
+  bool failFast = true,
+}) async {
+  final parser = SchemaParser(
+    schema,
+    uriResolver: uriResolver,
+    disallowExternalRefs: disallowExternalRefs,
+    flatten: flatten,
+  );
+  final parsedSchema = await parser.parse();
+  return (dynamic value) => parsedSchema.validate(
+    value,
+    validateFormats: validateFormats,
+    failFast: failFast,
+  );
+}
+
+/// Creates an error-collecting validator function for the given JSON [schema].
+///
+/// The returned function takes a decoded JSON value, validates it, and returns
+/// a list of all accumulated [ValidationError]s without throwing.
+Future<List<ValidationError> Function(dynamic)> createErrorCollector(
   Map<String, dynamic> schema, {
   Future<List<int>> Function(Uri uri)? uriResolver,
   bool disallowExternalRefs = true,
@@ -832,7 +1015,7 @@ Future<void Function(dynamic)> createValidator(
   );
   final parsedSchema = await parser.parse();
   return (dynamic value) =>
-      parsedSchema.validate(value, validateFormats: validateFormats);
+      parsedSchema.collectErrors(value, validateFormats: validateFormats);
 }
 
 abstract class _ValidationPath {
@@ -884,25 +1067,82 @@ class _EvaluationTracker {
   }
 }
 
-class _Validator {
+class _ValidationAbortException implements Exception {
+  const _ValidationAbortException();
+
+  @override
+  String toString() => '_ValidationAbortException';
+}
+
+class _ValidationContext {
+  final List<ValidationError> errors = [];
+  final bool failFast;
   final bool validateFormats;
   final Map<String, Schema> dynamicAnchors;
-  final List<String> dynamicScope = []; // Track resource URIs (IDs)
+  final List<String> dynamicScope;
 
-  _Validator({this.validateFormats = false, this.dynamicAnchors = const {}});
+  _ValidationContext({
+    this.failFast = false,
+    this.validateFormats = false,
+    this.dynamicAnchors = const {},
+    List<String>? dynamicScope,
+  }) : dynamicScope = dynamicScope ?? [];
+
+  bool get hasErrors => errors.isNotEmpty;
+
+  void addError(
+    String message,
+    _ValidationPath path, {
+    String? keyword,
+    Schema? schema,
+    dynamic value,
+    List<ValidationError> nestedErrors = const [],
+  }) {
+    errors.add(
+      ValidationError(
+        message: message,
+        path: path.toList(),
+        keyword: keyword,
+        schema: schema,
+        value: value,
+        nestedErrors: nestedErrors,
+      ),
+    );
+    if (failFast) {
+      throw const _ValidationAbortException();
+    }
+  }
+
+  _ValidationContext createBranch({bool? failFast}) {
+    return _ValidationContext(
+      failFast: failFast ?? this.failFast,
+      validateFormats: validateFormats,
+      dynamicAnchors: dynamicAnchors,
+      dynamicScope: List.of(dynamicScope),
+    );
+  }
+}
+
+class _Validator {
+  const _Validator();
 
   _EvaluationTracker validate(
     dynamic value,
     Schema schema,
     _ValidationPath path,
+    _ValidationContext context,
   ) {
     final tracker = _EvaluationTracker();
 
     if (schema.isNever) {
-      throw JsonValidationException(
+      context.addError(
         'Value matches "never" schema',
-        path.toList(),
+        path,
+        keyword: 'false',
+        schema: schema,
+        value: value,
       );
+      return tracker;
     }
 
     if (schema.isAnything) {
@@ -916,24 +1156,28 @@ class _Validator {
     final resourceUri = schema.resourceUri;
     final pushed =
         resourceUri != null &&
-        (dynamicScope.isEmpty || dynamicScope.last != resourceUri);
+        (context.dynamicScope.isEmpty ||
+            context.dynamicScope.last != resourceUri);
     if (pushed) {
-      dynamicScope.add(resourceUri);
+      context.dynamicScope.add(resourceUri);
     }
 
     try {
       // Check 'not'
       if (hasApplicator && schema.not != null) {
-        bool matches = true;
+        final branch = context.createBranch(failFast: true);
         try {
-          validate(value, schema.not!, path);
-        } on JsonValidationException {
-          matches = false;
+          validate(value, schema.not!, path, branch);
+        } on _ValidationAbortException {
+          // Failure in branch means 'not' condition succeeded
         }
-        if (matches) {
-          throw JsonValidationException(
+        if (!branch.hasErrors) {
+          context.addError(
             'Value must not match the schema',
-            path.toList(),
+            path,
+            keyword: 'not',
+            schema: schema,
+            value: value,
           );
         }
       }
@@ -942,24 +1186,16 @@ class _Validator {
       if (schema.ref != null || schema.dynamicRef != null) {
         Schema? target;
         if (schema.dynamicRef != null) {
-          // Draft 2020-12 dynamic reference resolution ($dynamicRef).
-          // A dynamic reference behaves like a normal reference unless the target schema
-          // has a matching `$dynamicAnchor`. If it does, we look up the dynamic scoping stack
-          // (represented by [dynamicScope], which tracks the URIs of schemas we have entered).
-          // We traverse the stack from oldest to newest (outermost to innermost) to find the first
-          // schema resource that defines a dynamic anchor with the same name.
-          // This allows subschemas to be overridden by outer schemas that redefine the anchor,
-          // supporting extensibility patterns similar to inheritance.
           final lexicalTarget = schema.realSchema;
           final refUri = Uri.parse(schema.dynamicRef!);
           final anchor = refUri.fragment;
           if (anchor.isNotEmpty && lexicalTarget.dynamicAnchor == anchor) {
-            for (final uri in dynamicScope) {
+            for (final uri in context.dynamicScope) {
               final targetUri = Uri.parse(
                 uri,
               ).replace(fragment: anchor).toString();
-              if (dynamicAnchors.containsKey(targetUri)) {
-                target = dynamicAnchors[targetUri];
+              if (context.dynamicAnchors.containsKey(targetUri)) {
+                target = context.dynamicAnchors[targetUri];
                 break;
               }
             }
@@ -969,22 +1205,32 @@ class _Validator {
           target = schema.resolvedRef!;
         }
 
-        final refTracker = validate(value, target, path);
+        final refTracker = validate(value, target, path, context);
         tracker.merge(refTracker);
       }
 
       if (hasValidation) {
         // Type validation
         if (schema.type != null) {
-          _validateType(value, schema.type!, schema.hasExplicitType, path);
+          _validateType(
+            value,
+            schema.type!,
+            schema.hasExplicitType,
+            path,
+            context,
+            schema: schema,
+          );
         }
 
         // Enum validation
         if (schema.enumValues != null) {
           if (!schema.enumValues!.any((v) => deepEquals(v, value))) {
-            throw JsonValidationException(
+            context.addError(
               'Value must be one of: ${schema.enumValues}',
-              path.toList(),
+              path,
+              keyword: 'enum',
+              schema: schema,
+              value: value,
             );
           }
         }
@@ -992,9 +1238,12 @@ class _Validator {
         // Const validation
         if (schema.constValue != null) {
           if (!deepEquals(schema.constValue, value)) {
-            throw JsonValidationException(
+            context.addError(
               'Value must be const: ${schema.constValue}',
-              path.toList(),
+              path,
+              keyword: 'const',
+              schema: schema,
+              value: value,
             );
           }
         }
@@ -1002,64 +1251,86 @@ class _Validator {
 
       // Object validation
       if (value is Map) {
-        final objTracker = _validateObject(value, schema, path, this);
+        final objTracker = _validateObject(value, schema, path, this, context);
         tracker.merge(objTracker);
       }
 
       // Array validation
       if (value is List) {
-        final arrTracker = _validateArray(value, schema, path, this);
+        final arrTracker = _validateArray(value, schema, path, this, context);
         tracker.merge(arrTracker);
       }
 
       // String validation
       if (value is String) {
-        _validateString(value, schema, path, validateFormats: validateFormats);
+        _validateString(
+          value,
+          schema,
+          path,
+          context,
+          validateFormats: context.validateFormats,
+        );
       }
 
       // Number validation
       if (value is num) {
-        _validateNumber(value, schema, path);
+        _validateNumber(value, schema, path, context);
       }
 
       // Combinators
       if (hasApplicator) {
         if (schema.discriminator != null) {
           if (value is! Map) {
-            throw JsonValidationException(
+            context.addError(
               'Value must be an object for discriminator validation',
-              path.toList(),
+              path,
+              keyword: 'discriminator',
+              schema: schema,
+              value: value,
             );
+            return tracker;
           }
           final propName = schema.discriminator!.propertyName;
           final discValue = value[propName];
           if (discValue == null) {
-            throw JsonValidationException(
+            context.addError(
               'Missing discriminator property: $propName',
-              path.toList(),
+              path,
+              keyword: 'discriminator',
+              schema: schema,
+              value: value,
             );
+            return tracker;
           }
           if (discValue is! String) {
-            throw JsonValidationException(
+            context.addError(
               'Discriminator property $propName must be a string',
-              path.toList(),
+              path,
+              keyword: 'discriminator',
+              schema: schema,
+              value: discValue,
             );
+            return tracker;
           }
           final targetSchema = schema.discriminator!.mapping?[discValue];
           if (targetSchema == null) {
-            throw JsonValidationException(
+            context.addError(
               'Unknown discriminator value: $discValue',
-              path.toList(),
+              path,
+              keyword: 'discriminator',
+              schema: schema,
+              value: discValue,
             );
+            return tracker;
           }
-          final subTracker = validate(value, targetSchema, path);
+          final subTracker = validate(value, targetSchema, path, context);
           tracker.merge(subTracker);
           return tracker;
         }
 
         if (schema.allOf != null) {
           for (final sub in schema.allOf!) {
-            final subTracker = validate(value, sub, path);
+            final subTracker = validate(value, sub, path, context);
             tracker.merge(subTracker);
           }
         }
@@ -1067,66 +1338,90 @@ class _Validator {
         if (schema.anyOf != null) {
           bool anyValid = false;
           final mergedTracker = _EvaluationTracker();
-          List<JsonValidationException> errors = [];
+          final allBranchErrors = <ValidationError>[];
           for (final sub in schema.anyOf!) {
+            final branch = context.createBranch(failFast: true);
             try {
-              final subTracker = validate(value, sub, path);
-              mergedTracker.merge(subTracker);
+              final subTracker = validate(value, sub, path, branch);
               anyValid = true;
-            } on JsonValidationException catch (e) {
-              errors.add(e);
+              mergedTracker.merge(subTracker);
+            } on _ValidationAbortException {
+              allBranchErrors.addAll(branch.errors);
             }
           }
           if (!anyValid) {
-            throw JsonValidationException(
-              'Value does not match any of the subschemas. Errors: $errors',
-              path.toList(),
+            context.addError(
+              'Value does not match any of the subschemas. Errors: $allBranchErrors',
+              path,
+              keyword: 'anyOf',
+              schema: schema,
+              value: value,
+              nestedErrors: allBranchErrors,
             );
+          } else {
+            tracker.merge(mergedTracker);
           }
-          tracker.merge(mergedTracker);
         }
 
         if (schema.oneOf != null) {
           int validCount = 0;
           _EvaluationTracker? singleTracker;
-          List<JsonValidationException> errors = [];
+          final allBranchErrors = <ValidationError>[];
           for (final sub in schema.oneOf!) {
+            final branch = context.createBranch(failFast: true);
             try {
-              final subTracker = validate(value, sub, path);
-              singleTracker = subTracker;
+              final subTracker = validate(value, sub, path, branch);
               validCount++;
-            } on JsonValidationException catch (e) {
-              errors.add(e);
+              singleTracker = subTracker;
+            } on _ValidationAbortException {
+              allBranchErrors.addAll(branch.errors);
             }
           }
           if (validCount != 1) {
-            throw JsonValidationException(
-              'Value must match exactly one subschema (matched $validCount). Errors: $errors',
-              path.toList(),
+            final message = validCount == 0
+                ? 'Value must match exactly one subschema (matched 0). Errors: $allBranchErrors'
+                : 'Value must match exactly one subschema (matched $validCount)';
+            context.addError(
+              message,
+              path,
+              keyword: 'oneOf',
+              schema: schema,
+              value: value,
+              nestedErrors: validCount == 0 ? allBranchErrors : const [],
             );
+          } else {
+            tracker.merge(singleTracker!);
           }
-          tracker.merge(singleTracker!);
         }
 
         if (schema.ifSchema != null) {
-          bool ifSucceeded = false;
+          final ifBranch = context.createBranch(failFast: true);
           _EvaluationTracker? ifTracker;
           try {
-            ifTracker = validate(value, schema.ifSchema!, path);
-            ifSucceeded = true;
-          } on JsonValidationException catch (_) {
-            // failed
+            ifTracker = validate(value, schema.ifSchema!, path, ifBranch);
+          } on _ValidationAbortException {
+            // Condition did not match; ifBranch.hasErrors is true
           }
 
-          if (ifSucceeded) {
+          if (!ifBranch.hasErrors) {
             tracker.merge(ifTracker!);
             if (schema.thenSchema != null) {
-              final thenTracker = validate(value, schema.thenSchema!, path);
+              final thenTracker = validate(
+                value,
+                schema.thenSchema!,
+                path,
+                context,
+              );
               tracker.merge(thenTracker);
             }
           } else {
             if (schema.elseSchema != null) {
-              final elseTracker = validate(value, schema.elseSchema!, path);
+              final elseTracker = validate(
+                value,
+                schema.elseSchema!,
+                path,
+                context,
+              );
               tracker.merge(elseTracker);
             }
           }
@@ -1136,12 +1431,12 @@ class _Validator {
         if (value is Map && schema.unevaluatedProperties != null) {
           value.forEach((key, val) {
             if (!tracker.evaluatedProperties.contains(key)) {
-              final subTracker = validate(
+              validate(
                 val,
                 schema.unevaluatedProperties!,
                 path.append(key as Object),
+                context,
               );
-              tracker.merge(subTracker);
               tracker.evaluatedProperties.add(key.toString());
             }
           });
@@ -1150,12 +1445,12 @@ class _Validator {
         if (value is List && schema.unevaluatedItems != null) {
           value.asMap().forEach((index, val) {
             if (!tracker.evaluatedItems.contains(index)) {
-              final subTracker = validate(
+              validate(
                 val,
                 schema.unevaluatedItems!,
                 path.append(index),
+                context,
               );
-              tracker.merge(subTracker);
               tracker.evaluatedItems.add(index);
             }
           });
@@ -1163,7 +1458,7 @@ class _Validator {
       }
     } finally {
       if (pushed) {
-        dynamicScope.removeLast();
+        context.dynamicScope.removeLast();
       }
     }
 
@@ -1176,7 +1471,9 @@ void _validateType(
   List<String> allowedTypes,
   bool hasExplicitType,
   _ValidationPath path,
-) {
+  _ValidationContext context, {
+  Schema? schema,
+}) {
   bool matches = false;
   for (final type in allowedTypes) {
     if (type == 'null' && value == null) matches = true;
@@ -1193,54 +1490,86 @@ void _validateType(
   }
   if (!matches) {
     if (hasExplicitType) {
-      throw JsonValidationException(
+      context.addError(
         'Value must be one of type: $allowedTypes',
-        path.toList(),
+        path,
+        keyword: 'type',
+        schema: schema,
+        value: value,
       );
     }
   }
 }
 
-void _validateNumber(dynamic value, Schema schema, _ValidationPath path) {
+void _validateNumber(
+  dynamic value,
+  Schema schema,
+  _ValidationPath path,
+  _ValidationContext context,
+) {
   if (schema.vocabularies != null &&
       !schema.vocabularies!.contains(_vocabValidation)) {
     return;
   }
   if (value is! num) {
     if (schema.hasExplicitType) {
-      throw JsonValidationException('Value must be a number', path.toList());
+      context.addError(
+        'Value must be a number',
+        path,
+        keyword: 'type',
+        schema: schema,
+        value: value,
+      );
     }
     return;
   }
   if (schema.isInteger) {
     if (value is! int && value != value.toInt()) {
-      throw JsonValidationException('Value must be an integer', path.toList());
+      context.addError(
+        'Value must be an integer',
+        path,
+        keyword: 'type',
+        schema: schema,
+        value: value,
+      );
     }
   }
 
   final val = value;
   if (schema.minimum != null && val < schema.minimum!) {
-    throw JsonValidationException(
+    context.addError(
       'Value must be >= ${schema.minimum}',
-      path.toList(),
+      path,
+      keyword: 'minimum',
+      schema: schema,
+      value: val,
     );
   }
   if (schema.maximum != null && val > schema.maximum!) {
-    throw JsonValidationException(
+    context.addError(
       'Value must be <= ${schema.maximum}',
-      path.toList(),
+      path,
+      keyword: 'maximum',
+      schema: schema,
+      value: val,
     );
   }
   if (schema.exclusiveMinimum != null && val <= schema.exclusiveMinimum!) {
-    throw JsonValidationException(
+    context.addError(
       'Value must be > ${schema.exclusiveMinimum}',
-      path.toList(),
+      path,
+      keyword: 'exclusiveMinimum',
+      schema: schema,
+      value: val,
     );
   }
   if (schema.exclusiveMaximum != null && val >= schema.exclusiveMaximum!) {
-    throw JsonValidationException(
+    context.addError(
       'Value must be < ${schema.exclusiveMaximum}',
-      path.toList(),
+      path,
+      keyword: 'exclusiveMaximum',
+      schema: schema,
+      value: val,
     );
   }
   if (schema.multipleOf != null) {
@@ -1248,9 +1577,12 @@ void _validateNumber(dynamic value, Schema schema, _ValidationPath path) {
     final mInt = parseInt(schema.multipleOf);
     if (valInt != null && mInt != null) {
       if (valInt % mInt != 0) {
-        throw JsonValidationException(
+        context.addError(
           'Value must be a multiple of ${schema.multipleOf}',
-          path.toList(),
+          path,
+          keyword: 'multipleOf',
+          schema: schema,
+          value: val,
         );
       }
     } else {
@@ -1259,9 +1591,12 @@ void _validateNumber(dynamic value, Schema schema, _ValidationPath path) {
       final absError = (div - rounded).abs();
       final relError = absError / math.max(div.abs(), 1.0);
       if (relError > 1e-14) {
-        throw JsonValidationException(
+        context.addError(
           'Value must be a multiple of ${schema.multipleOf}',
-          path.toList(),
+          path,
+          keyword: 'multipleOf',
+          schema: schema,
+          value: val,
         );
       }
     }
@@ -1271,7 +1606,8 @@ void _validateNumber(dynamic value, Schema schema, _ValidationPath path) {
 void _validateString(
   dynamic value,
   Schema schema,
-  _ValidationPath path, {
+  _ValidationPath path,
+  _ValidationContext context, {
   bool validateFormats = false,
 }) {
   if (schema.vocabularies != null &&
@@ -1280,30 +1616,45 @@ void _validateString(
   }
   if (value is! String) {
     if (schema.hasExplicitType) {
-      throw JsonValidationException('Value must be a string', path.toList());
+      context.addError(
+        'Value must be a string',
+        path,
+        keyword: 'type',
+        schema: schema,
+        value: value,
+      );
     }
     return;
   }
   // JSON Schema counts Unicode code points, not grapheme clusters.
   if (schema.minLength != null && value.runes.length < schema.minLength!) {
-    throw JsonValidationException(
+    context.addError(
       'Value length must be >= ${schema.minLength}',
-      path.toList(),
+      path,
+      keyword: 'minLength',
+      schema: schema,
+      value: value,
     );
   }
   // JSON Schema counts Unicode code points, not grapheme clusters.
   if (schema.maxLength != null && value.runes.length > schema.maxLength!) {
-    throw JsonValidationException(
+    context.addError(
       'Value length must be <= ${schema.maxLength}',
-      path.toList(),
+      path,
+      keyword: 'maxLength',
+      schema: schema,
+      value: value,
     );
   }
   if (schema.pattern != null) {
     final regExp = RegExp(schema.pattern!, unicode: true);
     if (!regExp.hasMatch(value)) {
-      throw JsonValidationException(
+      context.addError(
         'Value must match pattern: ${schema.pattern}',
-        path.toList(),
+        path,
+        keyword: 'pattern',
+        schema: schema,
+        value: value,
       );
     }
   }
@@ -1314,18 +1665,24 @@ void _validateString(
           r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$',
         );
         if (!r.hasMatch(value)) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid date-time string',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
       case 'email':
         final r = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
         if (!r.hasMatch(value)) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid email address',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
@@ -1335,9 +1692,12 @@ void _validateString(
           r'(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*$',
         );
         if (!r.hasMatch(value) || value.length > 255) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid hostname',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
@@ -1347,9 +1707,12 @@ void _validateString(
           r'(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
         );
         if (!r.hasMatch(value)) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid IPv4 address',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
@@ -1360,9 +1723,12 @@ void _validateString(
           r'((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$',
         );
         if (!r.hasMatch(value) && !r2.hasMatch(value)) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid IPv6 address',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
@@ -1370,23 +1736,32 @@ void _validateString(
         try {
           final uri = Uri.parse(value);
           if (!uri.hasScheme) {
-            throw JsonValidationException(
+            context.addError(
               'Value must be a valid URI (missing scheme)',
-              path.toList(),
+              path,
+              keyword: 'format',
+              schema: schema,
+              value: value,
             );
           }
         } catch (e) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid URI',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
       case 'uri-reference':
         if (!isValidUriReference(value)) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid URI reference',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
@@ -1396,9 +1771,12 @@ void _validateString(
           r'[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
         );
         if (!r.hasMatch(value)) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid UUID',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
@@ -1406,26 +1784,35 @@ void _validateString(
         try {
           RegExp(value);
         } catch (e) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid regular expression',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
       case 'date':
         final r = RegExp(r'^\d{4}-\d{2}-\d{2}$');
         if (!r.hasMatch(value)) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid date string',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
       case 'time':
         if (!isValidTime(value)) {
-          throw JsonValidationException(
+          context.addError(
             'Value must be a valid time string',
-            path.toList(),
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
           );
         }
         break;
@@ -1438,6 +1825,7 @@ _EvaluationTracker _validateArray(
   Schema schema,
   _ValidationPath path,
   _Validator validator,
+  _ValidationContext context,
 ) {
   final tracker = _EvaluationTracker();
   if (value is! List) return tracker;
@@ -1449,26 +1837,38 @@ _EvaluationTracker _validateArray(
 
   if (hasValidation) {
     if (schema.minItems != null && list.length < schema.minItems!) {
-      throw JsonValidationException(
+      context.addError(
         'Value must have >= ${schema.minItems} items',
-        path.toList(),
+        path,
+        keyword: 'minItems',
+        schema: schema,
+        value: value,
       );
     }
     if (schema.maxItems != null && list.length > schema.maxItems!) {
-      throw JsonValidationException(
+      context.addError(
         'Value must have <= ${schema.maxItems} items',
-        path.toList(),
+        path,
+        keyword: 'maxItems',
+        schema: schema,
+        value: value,
       );
     }
 
     if (schema.uniqueItems == true) {
-      for (var i = 0; i < list.length; i++) {
+      bool duplicateFound = false;
+      for (var i = 0; i < list.length && !duplicateFound; i++) {
         for (var j = i + 1; j < list.length; j++) {
           if (deepEquals(list[i], list[j])) {
-            throw JsonValidationException(
+            context.addError(
               'Value must have unique items, but items at indices $i and $j are equal',
-              path.toList(),
+              path,
+              keyword: 'uniqueItems',
+              schema: schema,
+              value: value,
             );
+            duplicateFound = true;
+            break;
           }
         }
       }
@@ -1480,14 +1880,19 @@ _EvaluationTracker _validateArray(
     if (schema.prefixItems != null) {
       prefixItemsCount = schema.prefixItems!.length;
       for (var i = 0; i < math.min(list.length, prefixItemsCount); i++) {
-        validator.validate(list[i], schema.prefixItems![i], path.append(i));
+        validator.validate(
+          list[i],
+          schema.prefixItems![i],
+          path.append(i),
+          context,
+        );
         tracker.evaluatedItems.add(i);
       }
     }
 
     if (schema.items != null) {
       for (var i = prefixItemsCount; i < list.length; i++) {
-        validator.validate(list[i], schema.items!, path.append(i));
+        validator.validate(list[i], schema.items!, path.append(i), context);
         tracker.evaluatedItems.add(i);
       }
     }
@@ -1495,28 +1900,35 @@ _EvaluationTracker _validateArray(
     if (schema.contains != null) {
       var containsCount = 0;
       for (var i = 0; i < list.length; i++) {
+        final branch = context.createBranch(failFast: true);
         try {
-          validator.validate(list[i], schema.contains!, path.append(i));
+          validator.validate(list[i], schema.contains!, path.append(i), branch);
           containsCount++;
           tracker.evaluatedItems.add(i);
-        } on JsonValidationException {
-          // Ignore
+        } on _ValidationAbortException {
+          // Item did not match contains schema
         }
       }
 
       final minContains = hasValidation ? (schema.minContains ?? 1) : 1;
       if (containsCount < minContains) {
-        throw JsonValidationException(
+        context.addError(
           'Value must contain at least $minContains items matching contains schema (matched $containsCount)',
-          path.toList(),
+          path,
+          keyword: schema.minContains != null ? 'minContains' : 'contains',
+          schema: schema,
+          value: value,
         );
       }
       if (hasValidation &&
           schema.maxContains != null &&
           containsCount > schema.maxContains!) {
-        throw JsonValidationException(
+        context.addError(
           'Value must contain at most ${schema.maxContains} items matching contains schema',
-          path.toList(),
+          path,
+          keyword: 'maxContains',
+          schema: schema,
+          value: value,
         );
       }
     }
@@ -1530,6 +1942,7 @@ _EvaluationTracker _validateObject(
   Schema schema,
   _ValidationPath path,
   _Validator validator,
+  _ValidationContext context,
 ) {
   final tracker = _EvaluationTracker();
   if (value is! Map) return tracker;
@@ -1543,38 +1956,51 @@ _EvaluationTracker _validateObject(
     if (schema.required != null) {
       for (final req in schema.required!) {
         if (!map.containsKey(req)) {
-          throw JsonValidationException(
+          context.addError(
             'Missing required property: $req',
-            path.append(req).toList(),
+            path.append(req),
+            keyword: 'required',
+            schema: schema,
+            value: value,
           );
         }
       }
     }
 
     if (schema.minProperties != null && map.length < schema.minProperties!) {
-      throw JsonValidationException(
+      context.addError(
         'Object must have >= ${schema.minProperties} properties',
-        path.toList(),
+        path,
+        keyword: 'minProperties',
+        schema: schema,
+        value: value,
       );
     }
     if (schema.maxProperties != null && map.length > schema.maxProperties!) {
-      throw JsonValidationException(
+      context.addError(
         'Object must have <= ${schema.maxProperties} properties',
-        path.toList(),
+        path,
+        keyword: 'maxProperties',
+        schema: schema,
+        value: value,
       );
     }
   }
 
   map.forEach((key, val) {
     if (key is! String) {
-      throw JsonValidationException(
+      context.addError(
         'Object keys must be strings',
-        path.toList(),
+        path,
+        keyword: 'propertyNames',
+        schema: schema,
+        value: key,
       );
+      return;
     }
 
     if (hasApplicator && schema.propertyNames != null) {
-      validator.validate(key, schema.propertyNames!, path.append(key));
+      validator.validate(key, schema.propertyNames!, path.append(key), context);
     }
 
     var evaluated = false;
@@ -1583,7 +2009,7 @@ _EvaluationTracker _validateObject(
       if (schema.properties != null) {
         final propSchema = schema.properties![key];
         if (propSchema != null) {
-          validator.validate(val, propSchema, path.append(key));
+          validator.validate(val, propSchema, path.append(key), context);
           tracker.evaluatedProperties.add(key);
           evaluated = true;
         }
@@ -1592,7 +2018,7 @@ _EvaluationTracker _validateObject(
       if (schema.patternProperties != null) {
         schema.patternProperties!.forEach((pattern, patternSchema) {
           if (pattern.hasMatch(key)) {
-            validator.validate(val, patternSchema, path.append(key));
+            validator.validate(val, patternSchema, path.append(key), context);
             tracker.evaluatedProperties.add(key);
             evaluated = true;
           }
@@ -1602,7 +2028,7 @@ _EvaluationTracker _validateObject(
       if (!evaluated) {
         final addProps = schema.additionalProperties;
         if (addProps != null) {
-          validator.validate(val, addProps, path.append(key));
+          validator.validate(val, addProps, path.append(key), context);
           tracker.evaluatedProperties.add(key);
         }
       }
@@ -1614,9 +2040,12 @@ _EvaluationTracker _validateObject(
       if (map.containsKey(key)) {
         for (final dep in deps) {
           if (!map.containsKey(dep)) {
-            throw JsonValidationException(
+            context.addError(
               'Property "$dep" is required because "$key" is present',
-              path.append(dep).toList(),
+              path.append(dep),
+              keyword: 'dependentRequired',
+              schema: schema,
+              value: value,
             );
           }
         }
@@ -1627,7 +2056,7 @@ _EvaluationTracker _validateObject(
   if (hasApplicator) {
     schema.dependentSchemas?.forEach((key, depSchema) {
       if (map.containsKey(key)) {
-        final depTracker = validator.validate(value, depSchema, path);
+        final depTracker = validator.validate(value, depSchema, path, context);
         tracker.merge(depTracker);
       }
     });
