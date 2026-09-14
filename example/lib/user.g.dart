@@ -20,6 +20,7 @@ final class User implements JsonModel {
   final UserPreferences? preferences;
   final String? createdAt;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const User({
     required this.id,
@@ -33,7 +34,8 @@ final class User implements JsonModel {
     this.preferences,
     this.createdAt,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory User.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as User;
@@ -63,31 +65,82 @@ final class User implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   User copyWith({
-    int? id,
-    String? name,
-    String? email,
-    int? age,
-    UserRole? role,
-    UserProfile? profile,
-    Address? address,
-    List<String>? tags,
-    UserPreferences? preferences,
-    String? createdAt,
-    Map<String, Object?>? additionalProperties,
-  }) => User(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    email: email ?? this.email,
-    age: age ?? this.age,
-    role: role ?? this.role,
-    profile: profile ?? this.profile,
-    address: address ?? this.address,
-    tags: tags ?? this.tags,
-    preferences: preferences ?? this.preferences,
-    createdAt: createdAt ?? this.createdAt,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? id = _undefined,
+    Object? name = _undefined,
+    Object? email = _undefined,
+    Object? age = _undefined,
+    Object? role = _undefined,
+    Object? profile = _undefined,
+    Object? address = _undefined,
+    Object? tags = _undefined,
+    Object? preferences = _undefined,
+    Object? createdAt = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(id, _undefined)) {
+      nextKeys.add('id');
+    }
+    if (!identical(name, _undefined)) {
+      nextKeys.add('name');
+    }
+    if (!identical(email, _undefined)) {
+      nextKeys.add('email');
+    }
+    if (!identical(age, _undefined)) {
+      nextKeys.add('age');
+    }
+    if (!identical(role, _undefined)) {
+      nextKeys.add('role');
+    }
+    if (!identical(profile, _undefined)) {
+      nextKeys.add('profile');
+    }
+    if (!identical(address, _undefined)) {
+      nextKeys.add('address');
+    }
+    if (!identical(tags, _undefined)) {
+      nextKeys.add('tags');
+    }
+    if (!identical(preferences, _undefined)) {
+      nextKeys.add('preferences');
+    }
+    if (!identical(createdAt, _undefined)) {
+      nextKeys.add('createdAt');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return User(
+      id: !identical(id, _undefined) ? id as int : this.id,
+      name: !identical(name, _undefined) ? name as String : this.name,
+      email: !identical(email, _undefined) ? email as String : this.email,
+      age: !identical(age, _undefined) ? age as int? : this.age,
+      role: !identical(role, _undefined) ? role as UserRole : this.role,
+      profile: !identical(profile, _undefined)
+          ? profile as UserProfile?
+          : this.profile,
+      address: !identical(address, _undefined)
+          ? address as Address?
+          : this.address,
+      tags: !identical(tags, _undefined) ? tags as List<String>? : this.tags,
+      preferences: !identical(preferences, _undefined)
+          ? preferences as UserPreferences?
+          : this.preferences,
+      createdAt: !identical(createdAt, _undefined)
+          ? createdAt as String?
+          : this.createdAt,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -244,10 +297,11 @@ final class User implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as User;
-      return {
+      final map = <String, dynamic>{
         'id': typedInstance.id,
         'name': typedInstance.name,
         'email': typedInstance.email,
@@ -260,6 +314,13 @@ final class User implements JsonModel {
         'createdAt': typedInstance.createdAt,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'id': PropertyDescriptor(
@@ -381,12 +442,14 @@ final class UserProfile implements JsonModel {
   final String? avatarUrl;
   final String? bio;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const UserProfile({
     this.avatarUrl,
     this.bio,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory UserProfile.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -419,15 +482,36 @@ final class UserProfile implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   UserProfile copyWith({
-    String? avatarUrl,
-    String? bio,
-    Map<String, Object?>? additionalProperties,
-  }) => UserProfile(
-    avatarUrl: avatarUrl ?? this.avatarUrl,
-    bio: bio ?? this.bio,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? avatarUrl = _undefined,
+    Object? bio = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(avatarUrl, _undefined)) {
+      nextKeys.add('avatarUrl');
+    }
+    if (!identical(bio, _undefined)) {
+      nextKeys.add('bio');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return UserProfile(
+      avatarUrl: !identical(avatarUrl, _undefined)
+          ? avatarUrl as String?
+          : this.avatarUrl,
+      bio: !identical(bio, _undefined) ? bio as String? : this.bio,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -472,14 +556,22 @@ final class UserProfile implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as UserProfile;
-          return {
+          final map = <String, dynamic>{
             'avatarUrl': typedInstance.avatarUrl,
             'bio': typedInstance.bio,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'avatarUrl': PropertyDescriptor(
@@ -527,13 +619,15 @@ final class Address implements JsonModel {
   final String city;
   final String? zipCode;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const Address({
     this.street,
     required this.city,
     this.zipCode,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory Address.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Address;
@@ -563,17 +657,41 @@ final class Address implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   Address copyWith({
-    String? street,
-    String? city,
-    String? zipCode,
-    Map<String, Object?>? additionalProperties,
-  }) => Address(
-    street: street ?? this.street,
-    city: city ?? this.city,
-    zipCode: zipCode ?? this.zipCode,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? street = _undefined,
+    Object? city = _undefined,
+    Object? zipCode = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(street, _undefined)) {
+      nextKeys.add('street');
+    }
+    if (!identical(city, _undefined)) {
+      nextKeys.add('city');
+    }
+    if (!identical(zipCode, _undefined)) {
+      nextKeys.add('zipCode');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return Address(
+      street: !identical(street, _undefined) ? street as String? : this.street,
+      city: !identical(city, _undefined) ? city as String : this.city,
+      zipCode: !identical(zipCode, _undefined)
+          ? zipCode as String?
+          : this.zipCode,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -619,15 +737,23 @@ final class Address implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as Address;
-      return {
+      final map = <String, dynamic>{
         'street': typedInstance.street,
         'city': typedInstance.city,
         'zipCode': typedInstance.zipCode,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'street': PropertyDescriptor(
@@ -679,8 +805,12 @@ final class Address implements JsonModel {
 
 final class UserPreferences implements JsonModel {
   final Map<String, String> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const UserPreferences({this.additionalProperties = const {}});
+  const UserPreferences({
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory UserPreferences.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -714,10 +844,22 @@ final class UserPreferences implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  UserPreferences copyWith({Map<String, String>? additionalProperties}) =>
-      UserPreferences(
-        additionalProperties: additionalProperties ?? this.additionalProperties,
-      );
+  static const Object _undefined = Object();
+
+  UserPreferences copyWith({Object? additionalProperties = _undefined}) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return UserPreferences(
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, String>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -755,10 +897,18 @@ final class UserPreferences implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as String,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as UserPreferences;
-          return {...typedInstance.additionalProperties};
+          final map = <String, dynamic>{...typedInstance.additionalProperties};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {},
 

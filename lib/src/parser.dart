@@ -1285,8 +1285,24 @@ final class SchemaParser {
         ? obj.minContains
         : null;
 
+    Schema? contentSchema;
+    if (obj.contentSchema != null) {
+      contentSchema = await _mapGenerated(
+        obj.contentSchema!,
+        '$path/contentSchema',
+        jsonMap['contentSchema'],
+        parentResourceUri: currentResourceUri,
+      );
+    }
+
     final schema = Schema(
       hasExplicitType: hasExplicitType,
+      readOnly: obj.readOnly,
+      writeOnly: obj.writeOnly,
+      comment: obj.comment,
+      contentEncoding: obj.contentEncoding,
+      contentMediaType: obj.contentMediaType,
+      contentSchema: contentSchema,
       title: obj.title,
       description: obj.description,
       isDeprecated: obj.deprecated,

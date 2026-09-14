@@ -96,6 +96,7 @@ final class TestRoot implements JsonModel {
   final CollidingEnum? collidingEnumField;
   final CollidingObject? collidingObjectField;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const TestRoot({
     this.deprecated,
@@ -183,7 +184,8 @@ final class TestRoot implements JsonModel {
     this.collidingEnumField,
     this.collidingObjectField,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory TestRoot.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as TestRoot;
@@ -213,184 +215,595 @@ final class TestRoot implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   TestRoot copyWith({
-    String? deprecated,
-    String? idField,
-    TestRootUnionWithObjectAndBoolean? unionWithObjectAndBoolean,
-    RecursiveNode? recursiveNodeField,
-    String? name,
-    TestRootConstValue? constValue,
-    int? age,
-    int? exclusiveAge,
-    num? height,
-    String? email,
-    String? uuid,
-    bool? isAwesome,
-    String? class_,
-    String? reader,
-    String? stack,
-    String? validate_,
-    String? result,
-    Address? address,
-    List<String>? tags,
-    List<Score>? scores,
-    TestRootUnionValue? unionValue,
-    TestRootNullableUnionValue? nullableUnionValue,
-    RequiredNullableUnionObject? requiredNullableUnionObject,
-    String? nullableString,
-    Pet? pet,
-    RestrictedObject? restrictedObject,
-    DependentObject? dependentObject,
-    List<String>? primitiveArrayWithValidation,
-    List<int>? restrictedArray,
-    String? deprecatedField,
-    DeprecatedObject? deprecatedRef,
-    String? defaultString,
-    String? defaultBackslash,
-    List<List<Address>>? nestedArray,
-    String? singleQuoteKey,
-    TestRootMixedEnum? mixedEnum,
-    int? defaultInt,
-    bool? defaultBool,
-    List<String>? defaultList,
-    Address? defaultObject,
-    String? defaultNullableString,
-    Merged? mergedValue,
-    List<dynamic>? tupleArray,
-    List<dynamic>? tupleObjectArray,
-    String? ipv6Value,
-    String? hostnameValue,
-    String? timeValue,
-    String? uriReferenceValue,
-    MapObject? additionalPropertiesObject,
-    StrictObject? strictObject,
-    NotObject? notObject,
-    TestRootAnyOfValue? anyOfValue,
-    MergedAllOfObject? mergedAllOfObject,
-    ComplexMergedObject? complexMerged,
-    MyEnum? myEnumField,
-    List<Object?>? unionContainsArray,
-    List<Object?>? objectContainsArray,
-    List<Object?>? enumContainsArray,
-    List<Object?>? booleanContainsArray,
-    List<Object?>? nullContainsArray,
-    List<Object?>? anyContainsArray,
-    List<Object?>? stringContainsArray,
-    List<Object?>? numberContainsArray,
-    ObjectWithDynamicProps? dynamicProps,
-    String? dateTimeField,
-    String? dateField,
-    String? ipv4Field,
-    String? uriField,
-    List<String>? defaultEmptyList,
-    MapObject? defaultEmptyObject,
-    TestRootUnionWithArrayOption? unionWithArrayOption,
-    Never? impossibleField,
-    List<String>? tupleSameTypeArray,
-    List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems,
-    TestRootUnionWithAllOfOption? unionWithAllOfOption,
-    PatternPropertiesObject? patternPropsField,
-    OverlappingUnion? overlappingUnion,
-    String? deprecatedFieldWithMessage,
-    MyCustomClassName? customNamedObject,
-    MyCustomUnionName? customNamedUnion,
-    MyCustomEnumName? customNamedEnum,
-    TestRootCoverageTrigger? coverageTrigger,
-    CollidingEnum? collidingEnumField,
-    CollidingObject? collidingObjectField,
-    Map<String, Object?>? additionalProperties,
-  }) => TestRoot(
-    deprecated: deprecated ?? this.deprecated,
-    idField: idField ?? this.idField,
-    unionWithObjectAndBoolean:
-        unionWithObjectAndBoolean ?? this.unionWithObjectAndBoolean,
-    recursiveNodeField: recursiveNodeField ?? this.recursiveNodeField,
-    name: name ?? this.name,
-    constValue: constValue ?? this.constValue,
-    age: age ?? this.age,
-    exclusiveAge: exclusiveAge ?? this.exclusiveAge,
-    height: height ?? this.height,
-    email: email ?? this.email,
-    uuid: uuid ?? this.uuid,
-    isAwesome: isAwesome ?? this.isAwesome,
-    class_: class_ ?? this.class_,
-    reader: reader ?? this.reader,
-    stack: stack ?? this.stack,
-    validate_: validate_ ?? this.validate_,
-    result: result ?? this.result,
-    address: address ?? this.address,
-    tags: tags ?? this.tags,
-    scores: scores ?? this.scores,
-    unionValue: unionValue ?? this.unionValue,
-    nullableUnionValue: nullableUnionValue ?? this.nullableUnionValue,
-    requiredNullableUnionObject:
-        requiredNullableUnionObject ?? this.requiredNullableUnionObject,
-    nullableString: nullableString ?? this.nullableString,
-    pet: pet ?? this.pet,
-    restrictedObject: restrictedObject ?? this.restrictedObject,
-    dependentObject: dependentObject ?? this.dependentObject,
-    primitiveArrayWithValidation:
-        primitiveArrayWithValidation ?? this.primitiveArrayWithValidation,
-    restrictedArray: restrictedArray ?? this.restrictedArray,
-    deprecatedField: deprecatedField ?? this.deprecatedField,
-    deprecatedRef: deprecatedRef ?? this.deprecatedRef,
-    defaultString: defaultString ?? this.defaultString,
-    defaultBackslash: defaultBackslash ?? this.defaultBackslash,
-    nestedArray: nestedArray ?? this.nestedArray,
-    singleQuoteKey: singleQuoteKey ?? this.singleQuoteKey,
-    mixedEnum: mixedEnum ?? this.mixedEnum,
-    defaultInt: defaultInt ?? this.defaultInt,
-    defaultBool: defaultBool ?? this.defaultBool,
-    defaultList: defaultList ?? this.defaultList,
-    defaultObject: defaultObject ?? this.defaultObject,
-    defaultNullableString: defaultNullableString ?? this.defaultNullableString,
-    mergedValue: mergedValue ?? this.mergedValue,
-    tupleArray: tupleArray ?? this.tupleArray,
-    tupleObjectArray: tupleObjectArray ?? this.tupleObjectArray,
-    ipv6Value: ipv6Value ?? this.ipv6Value,
-    hostnameValue: hostnameValue ?? this.hostnameValue,
-    timeValue: timeValue ?? this.timeValue,
-    uriReferenceValue: uriReferenceValue ?? this.uriReferenceValue,
-    additionalPropertiesObject:
-        additionalPropertiesObject ?? this.additionalPropertiesObject,
-    strictObject: strictObject ?? this.strictObject,
-    notObject: notObject ?? this.notObject,
-    anyOfValue: anyOfValue ?? this.anyOfValue,
-    mergedAllOfObject: mergedAllOfObject ?? this.mergedAllOfObject,
-    complexMerged: complexMerged ?? this.complexMerged,
-    myEnumField: myEnumField ?? this.myEnumField,
-    unionContainsArray: unionContainsArray ?? this.unionContainsArray,
-    objectContainsArray: objectContainsArray ?? this.objectContainsArray,
-    enumContainsArray: enumContainsArray ?? this.enumContainsArray,
-    booleanContainsArray: booleanContainsArray ?? this.booleanContainsArray,
-    nullContainsArray: nullContainsArray ?? this.nullContainsArray,
-    anyContainsArray: anyContainsArray ?? this.anyContainsArray,
-    stringContainsArray: stringContainsArray ?? this.stringContainsArray,
-    numberContainsArray: numberContainsArray ?? this.numberContainsArray,
-    dynamicProps: dynamicProps ?? this.dynamicProps,
-    dateTimeField: dateTimeField ?? this.dateTimeField,
-    dateField: dateField ?? this.dateField,
-    ipv4Field: ipv4Field ?? this.ipv4Field,
-    uriField: uriField ?? this.uriField,
-    defaultEmptyList: defaultEmptyList ?? this.defaultEmptyList,
-    defaultEmptyObject: defaultEmptyObject ?? this.defaultEmptyObject,
-    unionWithArrayOption: unionWithArrayOption ?? this.unionWithArrayOption,
-    impossibleField: impossibleField ?? this.impossibleField,
-    tupleSameTypeArray: tupleSameTypeArray ?? this.tupleSameTypeArray,
-    arrayWithAllOfItems: arrayWithAllOfItems ?? this.arrayWithAllOfItems,
-    unionWithAllOfOption: unionWithAllOfOption ?? this.unionWithAllOfOption,
-    patternPropsField: patternPropsField ?? this.patternPropsField,
-    overlappingUnion: overlappingUnion ?? this.overlappingUnion,
-    deprecatedFieldWithMessage:
-        deprecatedFieldWithMessage ?? this.deprecatedFieldWithMessage,
-    customNamedObject: customNamedObject ?? this.customNamedObject,
-    customNamedUnion: customNamedUnion ?? this.customNamedUnion,
-    customNamedEnum: customNamedEnum ?? this.customNamedEnum,
-    coverageTrigger: coverageTrigger ?? this.coverageTrigger,
-    collidingEnumField: collidingEnumField ?? this.collidingEnumField,
-    collidingObjectField: collidingObjectField ?? this.collidingObjectField,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? deprecated = _undefined,
+    Object? idField = _undefined,
+    Object? unionWithObjectAndBoolean = _undefined,
+    Object? recursiveNodeField = _undefined,
+    Object? name = _undefined,
+    Object? constValue = _undefined,
+    Object? age = _undefined,
+    Object? exclusiveAge = _undefined,
+    Object? height = _undefined,
+    Object? email = _undefined,
+    Object? uuid = _undefined,
+    Object? isAwesome = _undefined,
+    Object? class_ = _undefined,
+    Object? reader = _undefined,
+    Object? stack = _undefined,
+    Object? validate_ = _undefined,
+    Object? result = _undefined,
+    Object? address = _undefined,
+    Object? tags = _undefined,
+    Object? scores = _undefined,
+    Object? unionValue = _undefined,
+    Object? nullableUnionValue = _undefined,
+    Object? requiredNullableUnionObject = _undefined,
+    Object? nullableString = _undefined,
+    Object? pet = _undefined,
+    Object? restrictedObject = _undefined,
+    Object? dependentObject = _undefined,
+    Object? primitiveArrayWithValidation = _undefined,
+    Object? restrictedArray = _undefined,
+    Object? deprecatedField = _undefined,
+    Object? deprecatedRef = _undefined,
+    Object? defaultString = _undefined,
+    Object? defaultBackslash = _undefined,
+    Object? nestedArray = _undefined,
+    Object? singleQuoteKey = _undefined,
+    Object? mixedEnum = _undefined,
+    Object? defaultInt = _undefined,
+    Object? defaultBool = _undefined,
+    Object? defaultList = _undefined,
+    Object? defaultObject = _undefined,
+    Object? defaultNullableString = _undefined,
+    Object? mergedValue = _undefined,
+    Object? tupleArray = _undefined,
+    Object? tupleObjectArray = _undefined,
+    Object? ipv6Value = _undefined,
+    Object? hostnameValue = _undefined,
+    Object? timeValue = _undefined,
+    Object? uriReferenceValue = _undefined,
+    Object? additionalPropertiesObject = _undefined,
+    Object? strictObject = _undefined,
+    Object? notObject = _undefined,
+    Object? anyOfValue = _undefined,
+    Object? mergedAllOfObject = _undefined,
+    Object? complexMerged = _undefined,
+    Object? myEnumField = _undefined,
+    Object? unionContainsArray = _undefined,
+    Object? objectContainsArray = _undefined,
+    Object? enumContainsArray = _undefined,
+    Object? booleanContainsArray = _undefined,
+    Object? nullContainsArray = _undefined,
+    Object? anyContainsArray = _undefined,
+    Object? stringContainsArray = _undefined,
+    Object? numberContainsArray = _undefined,
+    Object? dynamicProps = _undefined,
+    Object? dateTimeField = _undefined,
+    Object? dateField = _undefined,
+    Object? ipv4Field = _undefined,
+    Object? uriField = _undefined,
+    Object? defaultEmptyList = _undefined,
+    Object? defaultEmptyObject = _undefined,
+    Object? unionWithArrayOption = _undefined,
+    Object? impossibleField = _undefined,
+    Object? tupleSameTypeArray = _undefined,
+    Object? arrayWithAllOfItems = _undefined,
+    Object? unionWithAllOfOption = _undefined,
+    Object? patternPropsField = _undefined,
+    Object? overlappingUnion = _undefined,
+    Object? deprecatedFieldWithMessage = _undefined,
+    Object? customNamedObject = _undefined,
+    Object? customNamedUnion = _undefined,
+    Object? customNamedEnum = _undefined,
+    Object? coverageTrigger = _undefined,
+    Object? collidingEnumField = _undefined,
+    Object? collidingObjectField = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(deprecated, _undefined)) {
+      nextKeys.add('deprecated');
+    }
+    if (!identical(idField, _undefined)) {
+      nextKeys.add('\$idField');
+    }
+    if (!identical(unionWithObjectAndBoolean, _undefined)) {
+      nextKeys.add('unionWithObjectAndBoolean');
+    }
+    if (!identical(recursiveNodeField, _undefined)) {
+      nextKeys.add('recursiveNodeField');
+    }
+    if (!identical(name, _undefined)) {
+      nextKeys.add('name');
+    }
+    if (!identical(constValue, _undefined)) {
+      nextKeys.add('constValue');
+    }
+    if (!identical(age, _undefined)) {
+      nextKeys.add('age');
+    }
+    if (!identical(exclusiveAge, _undefined)) {
+      nextKeys.add('exclusiveAge');
+    }
+    if (!identical(height, _undefined)) {
+      nextKeys.add('height');
+    }
+    if (!identical(email, _undefined)) {
+      nextKeys.add('email');
+    }
+    if (!identical(uuid, _undefined)) {
+      nextKeys.add('uuid');
+    }
+    if (!identical(isAwesome, _undefined)) {
+      nextKeys.add('isAwesome');
+    }
+    if (!identical(class_, _undefined)) {
+      nextKeys.add('class');
+    }
+    if (!identical(reader, _undefined)) {
+      nextKeys.add('reader');
+    }
+    if (!identical(stack, _undefined)) {
+      nextKeys.add('stack');
+    }
+    if (!identical(validate_, _undefined)) {
+      nextKeys.add('validate');
+    }
+    if (!identical(result, _undefined)) {
+      nextKeys.add('result');
+    }
+    if (!identical(address, _undefined)) {
+      nextKeys.add('address');
+    }
+    if (!identical(tags, _undefined)) {
+      nextKeys.add('tags');
+    }
+    if (!identical(scores, _undefined)) {
+      nextKeys.add('scores');
+    }
+    if (!identical(unionValue, _undefined)) {
+      nextKeys.add('unionValue');
+    }
+    if (!identical(nullableUnionValue, _undefined)) {
+      nextKeys.add('nullableUnionValue');
+    }
+    if (!identical(requiredNullableUnionObject, _undefined)) {
+      nextKeys.add('requiredNullableUnionObject');
+    }
+    if (!identical(nullableString, _undefined)) {
+      nextKeys.add('nullableString');
+    }
+    if (!identical(pet, _undefined)) {
+      nextKeys.add('pet');
+    }
+    if (!identical(restrictedObject, _undefined)) {
+      nextKeys.add('restrictedObject');
+    }
+    if (!identical(dependentObject, _undefined)) {
+      nextKeys.add('dependentObject');
+    }
+    if (!identical(primitiveArrayWithValidation, _undefined)) {
+      nextKeys.add('primitiveArrayWithValidation');
+    }
+    if (!identical(restrictedArray, _undefined)) {
+      nextKeys.add('restrictedArray');
+    }
+    if (!identical(deprecatedField, _undefined)) {
+      nextKeys.add('deprecatedField');
+    }
+    if (!identical(deprecatedRef, _undefined)) {
+      nextKeys.add('deprecatedRef');
+    }
+    if (!identical(defaultString, _undefined)) {
+      nextKeys.add('defaultString');
+    }
+    if (!identical(defaultBackslash, _undefined)) {
+      nextKeys.add('defaultBackslash');
+    }
+    if (!identical(nestedArray, _undefined)) {
+      nextKeys.add('nestedArray');
+    }
+    if (!identical(singleQuoteKey, _undefined)) {
+      nextKeys.add('single\'quote\'key');
+    }
+    if (!identical(mixedEnum, _undefined)) {
+      nextKeys.add('mixedEnum');
+    }
+    if (!identical(defaultInt, _undefined)) {
+      nextKeys.add('defaultInt');
+    }
+    if (!identical(defaultBool, _undefined)) {
+      nextKeys.add('defaultBool');
+    }
+    if (!identical(defaultList, _undefined)) {
+      nextKeys.add('defaultList');
+    }
+    if (!identical(defaultObject, _undefined)) {
+      nextKeys.add('defaultObject');
+    }
+    if (!identical(defaultNullableString, _undefined)) {
+      nextKeys.add('defaultNullableString');
+    }
+    if (!identical(mergedValue, _undefined)) {
+      nextKeys.add('mergedValue');
+    }
+    if (!identical(tupleArray, _undefined)) {
+      nextKeys.add('tupleArray');
+    }
+    if (!identical(tupleObjectArray, _undefined)) {
+      nextKeys.add('tupleObjectArray');
+    }
+    if (!identical(ipv6Value, _undefined)) {
+      nextKeys.add('ipv6Value');
+    }
+    if (!identical(hostnameValue, _undefined)) {
+      nextKeys.add('hostnameValue');
+    }
+    if (!identical(timeValue, _undefined)) {
+      nextKeys.add('timeValue');
+    }
+    if (!identical(uriReferenceValue, _undefined)) {
+      nextKeys.add('uriReferenceValue');
+    }
+    if (!identical(additionalPropertiesObject, _undefined)) {
+      nextKeys.add('additionalPropertiesObject');
+    }
+    if (!identical(strictObject, _undefined)) {
+      nextKeys.add('strictObject');
+    }
+    if (!identical(notObject, _undefined)) {
+      nextKeys.add('notObject');
+    }
+    if (!identical(anyOfValue, _undefined)) {
+      nextKeys.add('anyOfValue');
+    }
+    if (!identical(mergedAllOfObject, _undefined)) {
+      nextKeys.add('mergedAllOfObject');
+    }
+    if (!identical(complexMerged, _undefined)) {
+      nextKeys.add('complexMerged');
+    }
+    if (!identical(myEnumField, _undefined)) {
+      nextKeys.add('myEnumField');
+    }
+    if (!identical(unionContainsArray, _undefined)) {
+      nextKeys.add('unionContainsArray');
+    }
+    if (!identical(objectContainsArray, _undefined)) {
+      nextKeys.add('objectContainsArray');
+    }
+    if (!identical(enumContainsArray, _undefined)) {
+      nextKeys.add('enumContainsArray');
+    }
+    if (!identical(booleanContainsArray, _undefined)) {
+      nextKeys.add('booleanContainsArray');
+    }
+    if (!identical(nullContainsArray, _undefined)) {
+      nextKeys.add('nullContainsArray');
+    }
+    if (!identical(anyContainsArray, _undefined)) {
+      nextKeys.add('anyContainsArray');
+    }
+    if (!identical(stringContainsArray, _undefined)) {
+      nextKeys.add('stringContainsArray');
+    }
+    if (!identical(numberContainsArray, _undefined)) {
+      nextKeys.add('numberContainsArray');
+    }
+    if (!identical(dynamicProps, _undefined)) {
+      nextKeys.add('dynamicProps');
+    }
+    if (!identical(dateTimeField, _undefined)) {
+      nextKeys.add('dateTimeField');
+    }
+    if (!identical(dateField, _undefined)) {
+      nextKeys.add('dateField');
+    }
+    if (!identical(ipv4Field, _undefined)) {
+      nextKeys.add('ipv4Field');
+    }
+    if (!identical(uriField, _undefined)) {
+      nextKeys.add('uriField');
+    }
+    if (!identical(defaultEmptyList, _undefined)) {
+      nextKeys.add('defaultEmptyList');
+    }
+    if (!identical(defaultEmptyObject, _undefined)) {
+      nextKeys.add('defaultEmptyObject');
+    }
+    if (!identical(unionWithArrayOption, _undefined)) {
+      nextKeys.add('unionWithArrayOption');
+    }
+    if (!identical(impossibleField, _undefined)) {
+      nextKeys.add('impossibleField');
+    }
+    if (!identical(tupleSameTypeArray, _undefined)) {
+      nextKeys.add('tupleSameTypeArray');
+    }
+    if (!identical(arrayWithAllOfItems, _undefined)) {
+      nextKeys.add('arrayWithAllOfItems');
+    }
+    if (!identical(unionWithAllOfOption, _undefined)) {
+      nextKeys.add('unionWithAllOfOption');
+    }
+    if (!identical(patternPropsField, _undefined)) {
+      nextKeys.add('patternPropsField');
+    }
+    if (!identical(overlappingUnion, _undefined)) {
+      nextKeys.add('overlappingUnion');
+    }
+    if (!identical(deprecatedFieldWithMessage, _undefined)) {
+      nextKeys.add('deprecatedFieldWithMessage');
+    }
+    if (!identical(customNamedObject, _undefined)) {
+      nextKeys.add('customNamedObject');
+    }
+    if (!identical(customNamedUnion, _undefined)) {
+      nextKeys.add('customNamedUnion');
+    }
+    if (!identical(customNamedEnum, _undefined)) {
+      nextKeys.add('customNamedEnum');
+    }
+    if (!identical(coverageTrigger, _undefined)) {
+      nextKeys.add('coverageTrigger');
+    }
+    if (!identical(collidingEnumField, _undefined)) {
+      nextKeys.add('collidingEnumField');
+    }
+    if (!identical(collidingObjectField, _undefined)) {
+      nextKeys.add('collidingObjectField');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return TestRoot(
+      deprecated: !identical(deprecated, _undefined)
+          ? deprecated as String?
+          : this.deprecated,
+      idField: !identical(idField, _undefined)
+          ? idField as String?
+          : this.idField,
+      unionWithObjectAndBoolean:
+          !identical(unionWithObjectAndBoolean, _undefined)
+          ? unionWithObjectAndBoolean as TestRootUnionWithObjectAndBoolean?
+          : this.unionWithObjectAndBoolean,
+      recursiveNodeField: !identical(recursiveNodeField, _undefined)
+          ? recursiveNodeField as RecursiveNode?
+          : this.recursiveNodeField,
+      name: !identical(name, _undefined) ? name as String : this.name,
+      constValue: !identical(constValue, _undefined)
+          ? constValue as TestRootConstValue?
+          : this.constValue,
+      age: !identical(age, _undefined) ? age as int : this.age,
+      exclusiveAge: !identical(exclusiveAge, _undefined)
+          ? exclusiveAge as int?
+          : this.exclusiveAge,
+      height: !identical(height, _undefined) ? height as num? : this.height,
+      email: !identical(email, _undefined) ? email as String? : this.email,
+      uuid: !identical(uuid, _undefined) ? uuid as String? : this.uuid,
+      isAwesome: !identical(isAwesome, _undefined)
+          ? isAwesome as bool
+          : this.isAwesome,
+      class_: !identical(class_, _undefined) ? class_ as String? : this.class_,
+      reader: !identical(reader, _undefined) ? reader as String? : this.reader,
+      stack: !identical(stack, _undefined) ? stack as String? : this.stack,
+      validate_: !identical(validate_, _undefined)
+          ? validate_ as String?
+          : this.validate_,
+      result: !identical(result, _undefined) ? result as String? : this.result,
+      address: !identical(address, _undefined)
+          ? address as Address
+          : this.address,
+      tags: !identical(tags, _undefined) ? tags as List<String>? : this.tags,
+      scores: !identical(scores, _undefined)
+          ? scores as List<Score>?
+          : this.scores,
+      unionValue: !identical(unionValue, _undefined)
+          ? unionValue as TestRootUnionValue?
+          : this.unionValue,
+      nullableUnionValue: !identical(nullableUnionValue, _undefined)
+          ? nullableUnionValue as TestRootNullableUnionValue?
+          : this.nullableUnionValue,
+      requiredNullableUnionObject:
+          !identical(requiredNullableUnionObject, _undefined)
+          ? requiredNullableUnionObject as RequiredNullableUnionObject?
+          : this.requiredNullableUnionObject,
+      nullableString: !identical(nullableString, _undefined)
+          ? nullableString as String?
+          : this.nullableString,
+      pet: !identical(pet, _undefined) ? pet as Pet? : this.pet,
+      restrictedObject: !identical(restrictedObject, _undefined)
+          ? restrictedObject as RestrictedObject?
+          : this.restrictedObject,
+      dependentObject: !identical(dependentObject, _undefined)
+          ? dependentObject as DependentObject?
+          : this.dependentObject,
+      primitiveArrayWithValidation:
+          !identical(primitiveArrayWithValidation, _undefined)
+          ? primitiveArrayWithValidation as List<String>?
+          : this.primitiveArrayWithValidation,
+      restrictedArray: !identical(restrictedArray, _undefined)
+          ? restrictedArray as List<int>?
+          : this.restrictedArray,
+      deprecatedField: !identical(deprecatedField, _undefined)
+          ? deprecatedField as String?
+          : this.deprecatedField,
+      deprecatedRef: !identical(deprecatedRef, _undefined)
+          ? deprecatedRef as DeprecatedObject?
+          : this.deprecatedRef,
+      defaultString: !identical(defaultString, _undefined)
+          ? defaultString as String
+          : this.defaultString,
+      defaultBackslash: !identical(defaultBackslash, _undefined)
+          ? defaultBackslash as String
+          : this.defaultBackslash,
+      nestedArray: !identical(nestedArray, _undefined)
+          ? nestedArray as List<List<Address>>?
+          : this.nestedArray,
+      singleQuoteKey: !identical(singleQuoteKey, _undefined)
+          ? singleQuoteKey as String?
+          : this.singleQuoteKey,
+      mixedEnum: !identical(mixedEnum, _undefined)
+          ? mixedEnum as TestRootMixedEnum?
+          : this.mixedEnum,
+      defaultInt: !identical(defaultInt, _undefined)
+          ? defaultInt as int
+          : this.defaultInt,
+      defaultBool: !identical(defaultBool, _undefined)
+          ? defaultBool as bool
+          : this.defaultBool,
+      defaultList: !identical(defaultList, _undefined)
+          ? defaultList as List<String>
+          : this.defaultList,
+      defaultObject: !identical(defaultObject, _undefined)
+          ? defaultObject as Address
+          : this.defaultObject,
+      defaultNullableString: !identical(defaultNullableString, _undefined)
+          ? defaultNullableString as String?
+          : this.defaultNullableString,
+      mergedValue: !identical(mergedValue, _undefined)
+          ? mergedValue as Merged?
+          : this.mergedValue,
+      tupleArray: !identical(tupleArray, _undefined)
+          ? tupleArray as List<dynamic>?
+          : this.tupleArray,
+      tupleObjectArray: !identical(tupleObjectArray, _undefined)
+          ? tupleObjectArray as List<dynamic>?
+          : this.tupleObjectArray,
+      ipv6Value: !identical(ipv6Value, _undefined)
+          ? ipv6Value as String?
+          : this.ipv6Value,
+      hostnameValue: !identical(hostnameValue, _undefined)
+          ? hostnameValue as String?
+          : this.hostnameValue,
+      timeValue: !identical(timeValue, _undefined)
+          ? timeValue as String?
+          : this.timeValue,
+      uriReferenceValue: !identical(uriReferenceValue, _undefined)
+          ? uriReferenceValue as String?
+          : this.uriReferenceValue,
+      additionalPropertiesObject:
+          !identical(additionalPropertiesObject, _undefined)
+          ? additionalPropertiesObject as MapObject?
+          : this.additionalPropertiesObject,
+      strictObject: !identical(strictObject, _undefined)
+          ? strictObject as StrictObject?
+          : this.strictObject,
+      notObject: !identical(notObject, _undefined)
+          ? notObject as NotObject?
+          : this.notObject,
+      anyOfValue: !identical(anyOfValue, _undefined)
+          ? anyOfValue as TestRootAnyOfValue?
+          : this.anyOfValue,
+      mergedAllOfObject: !identical(mergedAllOfObject, _undefined)
+          ? mergedAllOfObject as MergedAllOfObject?
+          : this.mergedAllOfObject,
+      complexMerged: !identical(complexMerged, _undefined)
+          ? complexMerged as ComplexMergedObject?
+          : this.complexMerged,
+      myEnumField: !identical(myEnumField, _undefined)
+          ? myEnumField as MyEnum?
+          : this.myEnumField,
+      unionContainsArray: !identical(unionContainsArray, _undefined)
+          ? unionContainsArray as List<Object?>?
+          : this.unionContainsArray,
+      objectContainsArray: !identical(objectContainsArray, _undefined)
+          ? objectContainsArray as List<Object?>?
+          : this.objectContainsArray,
+      enumContainsArray: !identical(enumContainsArray, _undefined)
+          ? enumContainsArray as List<Object?>?
+          : this.enumContainsArray,
+      booleanContainsArray: !identical(booleanContainsArray, _undefined)
+          ? booleanContainsArray as List<Object?>?
+          : this.booleanContainsArray,
+      nullContainsArray: !identical(nullContainsArray, _undefined)
+          ? nullContainsArray as List<Object?>?
+          : this.nullContainsArray,
+      anyContainsArray: !identical(anyContainsArray, _undefined)
+          ? anyContainsArray as List<Object?>?
+          : this.anyContainsArray,
+      stringContainsArray: !identical(stringContainsArray, _undefined)
+          ? stringContainsArray as List<Object?>?
+          : this.stringContainsArray,
+      numberContainsArray: !identical(numberContainsArray, _undefined)
+          ? numberContainsArray as List<Object?>?
+          : this.numberContainsArray,
+      dynamicProps: !identical(dynamicProps, _undefined)
+          ? dynamicProps as ObjectWithDynamicProps?
+          : this.dynamicProps,
+      dateTimeField: !identical(dateTimeField, _undefined)
+          ? dateTimeField as String?
+          : this.dateTimeField,
+      dateField: !identical(dateField, _undefined)
+          ? dateField as String?
+          : this.dateField,
+      ipv4Field: !identical(ipv4Field, _undefined)
+          ? ipv4Field as String?
+          : this.ipv4Field,
+      uriField: !identical(uriField, _undefined)
+          ? uriField as String?
+          : this.uriField,
+      defaultEmptyList: !identical(defaultEmptyList, _undefined)
+          ? defaultEmptyList as List<String>
+          : this.defaultEmptyList,
+      defaultEmptyObject: !identical(defaultEmptyObject, _undefined)
+          ? defaultEmptyObject as MapObject
+          : this.defaultEmptyObject,
+      unionWithArrayOption: !identical(unionWithArrayOption, _undefined)
+          ? unionWithArrayOption as TestRootUnionWithArrayOption?
+          : this.unionWithArrayOption,
+      impossibleField: !identical(impossibleField, _undefined)
+          ? impossibleField as Never?
+          : this.impossibleField,
+      tupleSameTypeArray: !identical(tupleSameTypeArray, _undefined)
+          ? tupleSameTypeArray as List<String>?
+          : this.tupleSameTypeArray,
+      arrayWithAllOfItems: !identical(arrayWithAllOfItems, _undefined)
+          ? arrayWithAllOfItems as List<TestRootArrayWithAllOfItemsItem>?
+          : this.arrayWithAllOfItems,
+      unionWithAllOfOption: !identical(unionWithAllOfOption, _undefined)
+          ? unionWithAllOfOption as TestRootUnionWithAllOfOption?
+          : this.unionWithAllOfOption,
+      patternPropsField: !identical(patternPropsField, _undefined)
+          ? patternPropsField as PatternPropertiesObject?
+          : this.patternPropsField,
+      overlappingUnion: !identical(overlappingUnion, _undefined)
+          ? overlappingUnion as OverlappingUnion?
+          : this.overlappingUnion,
+      deprecatedFieldWithMessage:
+          !identical(deprecatedFieldWithMessage, _undefined)
+          ? deprecatedFieldWithMessage as String?
+          : this.deprecatedFieldWithMessage,
+      customNamedObject: !identical(customNamedObject, _undefined)
+          ? customNamedObject as MyCustomClassName?
+          : this.customNamedObject,
+      customNamedUnion: !identical(customNamedUnion, _undefined)
+          ? customNamedUnion as MyCustomUnionName?
+          : this.customNamedUnion,
+      customNamedEnum: !identical(customNamedEnum, _undefined)
+          ? customNamedEnum as MyCustomEnumName?
+          : this.customNamedEnum,
+      coverageTrigger: !identical(coverageTrigger, _undefined)
+          ? coverageTrigger as TestRootCoverageTrigger?
+          : this.coverageTrigger,
+      collidingEnumField: !identical(collidingEnumField, _undefined)
+          ? collidingEnumField as CollidingEnum?
+          : this.collidingEnumField,
+      collidingObjectField: !identical(collidingObjectField, _undefined)
+          ? collidingObjectField as CollidingObject?
+          : this.collidingObjectField,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -1674,10 +2087,11 @@ final class TestRoot implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as TestRoot;
-      return {
+      final map = <String, dynamic>{
         'deprecated': typedInstance.deprecated,
         '\$idField': typedInstance.idField,
         'unionWithObjectAndBoolean': typedInstance.unionWithObjectAndBoolean,
@@ -1766,6 +2180,13 @@ final class TestRoot implements JsonModel {
         'collidingObjectField': typedInstance.collidingObjectField,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'deprecated': PropertyDescriptor(
@@ -2639,11 +3060,13 @@ final class TestRootUnionWithObjectAndBooleanOption1
 final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
   final String? foo;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const TestRootUnionWithObjectAndBooleanOptionType0({
     this.foo,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory TestRootUnionWithObjectAndBooleanOptionType0.fromJson(
     JsonReader reader, {
@@ -2682,13 +3105,29 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   TestRootUnionWithObjectAndBooleanOptionType0 copyWith({
-    String? foo,
-    Map<String, Object?>? additionalProperties,
-  }) => TestRootUnionWithObjectAndBooleanOptionType0(
-    foo: foo ?? this.foo,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? foo = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(foo, _undefined)) {
+      nextKeys.add('foo');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return TestRootUnionWithObjectAndBooleanOptionType0(
+      foo: !identical(foo, _undefined) ? foo as String? : this.foo,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -2718,11 +3157,22 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance =
           instance as TestRootUnionWithObjectAndBooleanOptionType0;
-      return {'foo': typedInstance.foo, ...typedInstance.additionalProperties};
+      final map = <String, dynamic>{
+        'foo': typedInstance.foo,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'foo': PropertyDescriptor(
@@ -2763,13 +3213,15 @@ final class RecursiveNode implements JsonModel {
   final RecursiveNode? parent;
   final List<RecursiveNode>? children;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const RecursiveNode({
     this.name,
     this.parent,
     this.children,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory RecursiveNode.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -2802,17 +3254,43 @@ final class RecursiveNode implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   RecursiveNode copyWith({
-    String? name,
-    RecursiveNode? parent,
-    List<RecursiveNode>? children,
-    Map<String, Object?>? additionalProperties,
-  }) => RecursiveNode(
-    name: name ?? this.name,
-    parent: parent ?? this.parent,
-    children: children ?? this.children,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? name = _undefined,
+    Object? parent = _undefined,
+    Object? children = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(name, _undefined)) {
+      nextKeys.add('name');
+    }
+    if (!identical(parent, _undefined)) {
+      nextKeys.add('parent');
+    }
+    if (!identical(children, _undefined)) {
+      nextKeys.add('children');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return RecursiveNode(
+      name: !identical(name, _undefined) ? name as String? : this.name,
+      parent: !identical(parent, _undefined)
+          ? parent as RecursiveNode?
+          : this.parent,
+      children: !identical(children, _undefined)
+          ? children as List<RecursiveNode>?
+          : this.children,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -2879,15 +3357,23 @@ final class RecursiveNode implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as RecursiveNode;
-      return {
+      final map = <String, dynamic>{
         'name': typedInstance.name,
         'parent': typedInstance.parent,
         'children': typedInstance.children,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'name': PropertyDescriptor(
@@ -2959,12 +3445,14 @@ final class Address implements JsonModel {
   final String city;
   final String? street;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const Address({
     required this.city,
     this.street,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory Address.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Address;
@@ -2994,15 +3482,34 @@ final class Address implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   Address copyWith({
-    String? city,
-    String? street,
-    Map<String, Object?>? additionalProperties,
-  }) => Address(
-    city: city ?? this.city,
-    street: street ?? this.street,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? city = _undefined,
+    Object? street = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(city, _undefined)) {
+      nextKeys.add('city');
+    }
+    if (!identical(street, _undefined)) {
+      nextKeys.add('street');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return Address(
+      city: !identical(city, _undefined) ? city as String : this.city,
+      street: !identical(street, _undefined) ? street as String? : this.street,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -3042,14 +3549,22 @@ final class Address implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as Address;
-      return {
+      final map = <String, dynamic>{
         'city': typedInstance.city,
         'street': typedInstance.street,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'city': PropertyDescriptor(
@@ -3095,8 +3610,13 @@ final class Address implements JsonModel {
 final class Score implements JsonModel {
   final num value;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const Score({required this.value, this.additionalProperties = const {}});
+  const Score({
+    required this.value,
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory Score.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Score;
@@ -3126,11 +3646,29 @@ final class Score implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  Score copyWith({num? value, Map<String, Object?>? additionalProperties}) =>
-      Score(
-        value: value ?? this.value,
-        additionalProperties: additionalProperties ?? this.additionalProperties,
-      );
+  static const Object _undefined = Object();
+
+  Score copyWith({
+    Object? value = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(value, _undefined)) {
+      nextKeys.add('value');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return Score(
+      value: !identical(value, _undefined) ? value as num : this.value,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -3166,13 +3704,21 @@ final class Score implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as Score;
-      return {
+      final map = <String, dynamic>{
         'value': typedInstance.value,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'value': PropertyDescriptor(
@@ -3459,11 +4005,13 @@ final class TestRootNullableUnionValueOption1
 final class RequiredNullableUnionObject implements JsonModel {
   final RequiredNullableUnionObjectNullableUnion? nullableUnion;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const RequiredNullableUnionObject({
     required this.nullableUnion,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory RequiredNullableUnionObject.fromJson(
     JsonReader reader, {
@@ -3502,13 +4050,31 @@ final class RequiredNullableUnionObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   RequiredNullableUnionObject copyWith({
-    RequiredNullableUnionObjectNullableUnion? nullableUnion,
-    Map<String, Object?>? additionalProperties,
-  }) => RequiredNullableUnionObject(
-    nullableUnion: nullableUnion ?? this.nullableUnion,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? nullableUnion = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(nullableUnion, _undefined)) {
+      nextKeys.add('nullableUnion');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return RequiredNullableUnionObject(
+      nullableUnion: !identical(nullableUnion, _undefined)
+          ? nullableUnion as RequiredNullableUnionObjectNullableUnion?
+          : this.nullableUnion,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -3555,13 +4121,21 @@ final class RequiredNullableUnionObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as RequiredNullableUnionObject;
-          return {
+          final map = <String, dynamic>{
             'nullableUnion': typedInstance.nullableUnion,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'nullableUnion': PropertyDescriptor(
@@ -3871,12 +4445,14 @@ final class Cat implements JsonModel {
   final String kind;
   final num? meowVolume;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const Cat({
     required this.kind,
     this.meowVolume,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory Cat.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Cat;
@@ -3906,15 +4482,36 @@ final class Cat implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   Cat copyWith({
-    String? kind,
-    num? meowVolume,
-    Map<String, Object?>? additionalProperties,
-  }) => Cat(
-    kind: kind ?? this.kind,
-    meowVolume: meowVolume ?? this.meowVolume,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? kind = _undefined,
+    Object? meowVolume = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(kind, _undefined)) {
+      nextKeys.add('kind');
+    }
+    if (!identical(meowVolume, _undefined)) {
+      nextKeys.add('meowVolume');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return Cat(
+      kind: !identical(kind, _undefined) ? kind as String : this.kind,
+      meowVolume: !identical(meowVolume, _undefined)
+          ? meowVolume as num?
+          : this.meowVolume,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -3946,14 +4543,22 @@ final class Cat implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as Cat;
-      return {
+      final map = <String, dynamic>{
         'kind': typedInstance.kind,
         'meowVolume': typedInstance.meowVolume,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'kind': PropertyDescriptor(
@@ -4000,12 +4605,14 @@ final class Dog implements JsonModel {
   final String kind;
   final num? barkVolume;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const Dog({
     required this.kind,
     this.barkVolume,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory Dog.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Dog;
@@ -4035,15 +4642,36 @@ final class Dog implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   Dog copyWith({
-    String? kind,
-    num? barkVolume,
-    Map<String, Object?>? additionalProperties,
-  }) => Dog(
-    kind: kind ?? this.kind,
-    barkVolume: barkVolume ?? this.barkVolume,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? kind = _undefined,
+    Object? barkVolume = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(kind, _undefined)) {
+      nextKeys.add('kind');
+    }
+    if (!identical(barkVolume, _undefined)) {
+      nextKeys.add('barkVolume');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return Dog(
+      kind: !identical(kind, _undefined) ? kind as String : this.kind,
+      barkVolume: !identical(barkVolume, _undefined)
+          ? barkVolume as num?
+          : this.barkVolume,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -4075,14 +4703,22 @@ final class Dog implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as Dog;
-      return {
+      final map = <String, dynamic>{
         'kind': typedInstance.kind,
         'barkVolume': typedInstance.barkVolume,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'kind': PropertyDescriptor(
@@ -4130,13 +4766,15 @@ final class RestrictedObject implements JsonModel {
   final String? b;
   final String? c;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const RestrictedObject({
     this.a,
     this.b,
     this.c,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory RestrictedObject.fromJson(
     JsonReader reader, {
@@ -4173,17 +4811,39 @@ final class RestrictedObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   RestrictedObject copyWith({
-    String? a,
-    String? b,
-    String? c,
-    Map<String, Object?>? additionalProperties,
-  }) => RestrictedObject(
-    a: a ?? this.a,
-    b: b ?? this.b,
-    c: c ?? this.c,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? a = _undefined,
+    Object? b = _undefined,
+    Object? c = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(a, _undefined)) {
+      nextKeys.add('a');
+    }
+    if (!identical(b, _undefined)) {
+      nextKeys.add('b');
+    }
+    if (!identical(c, _undefined)) {
+      nextKeys.add('c');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return RestrictedObject(
+      a: !identical(a, _undefined) ? a as String? : this.a,
+      b: !identical(b, _undefined) ? b as String? : this.b,
+      c: !identical(c, _undefined) ? c as String? : this.c,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -4239,15 +4899,23 @@ final class RestrictedObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as RestrictedObject;
-          return {
+          final map = <String, dynamic>{
             'a': typedInstance.a,
             'b': typedInstance.b,
             'c': typedInstance.c,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'a': PropertyDescriptor(
@@ -4301,12 +4969,14 @@ final class DependentObject implements JsonModel {
   final num? creditCard;
   final String? billingAddress;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const DependentObject({
     this.creditCard,
     this.billingAddress,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory DependentObject.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -4340,15 +5010,38 @@ final class DependentObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   DependentObject copyWith({
-    num? creditCard,
-    String? billingAddress,
-    Map<String, Object?>? additionalProperties,
-  }) => DependentObject(
-    creditCard: creditCard ?? this.creditCard,
-    billingAddress: billingAddress ?? this.billingAddress,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? creditCard = _undefined,
+    Object? billingAddress = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(creditCard, _undefined)) {
+      nextKeys.add('creditCard');
+    }
+    if (!identical(billingAddress, _undefined)) {
+      nextKeys.add('billingAddress');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return DependentObject(
+      creditCard: !identical(creditCard, _undefined)
+          ? creditCard as num?
+          : this.creditCard,
+      billingAddress: !identical(billingAddress, _undefined)
+          ? billingAddress as String?
+          : this.billingAddress,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -4398,14 +5091,22 @@ final class DependentObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as DependentObject;
-          return {
+          final map = <String, dynamic>{
             'creditCard': typedInstance.creditCard,
             'billingAddress': typedInstance.billingAddress,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'creditCard': PropertyDescriptor(
@@ -4452,8 +5153,13 @@ final class DependentObject implements JsonModel {
 final class DeprecatedObject implements JsonModel {
   final String? value;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const DeprecatedObject({this.value, this.additionalProperties = const {}});
+  const DeprecatedObject({
+    this.value,
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory DeprecatedObject.fromJson(
     JsonReader reader, {
@@ -4490,13 +5196,29 @@ final class DeprecatedObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   DeprecatedObject copyWith({
-    String? value,
-    Map<String, Object?>? additionalProperties,
-  }) => DeprecatedObject(
-    value: value ?? this.value,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? value = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(value, _undefined)) {
+      nextKeys.add('value');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return DeprecatedObject(
+      value: !identical(value, _undefined) ? value as String? : this.value,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -4525,13 +5247,21 @@ final class DeprecatedObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as DeprecatedObject;
-          return {
+          final map = <String, dynamic>{
             'value': typedInstance.value,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'value': PropertyDescriptor(
@@ -4712,8 +5442,15 @@ final class Merged implements JsonModel {
   final int? b;
   final bool? c;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const Merged({this.a, this.b, this.c, this.additionalProperties = const {}});
+  const Merged({
+    this.a,
+    this.b,
+    this.c,
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory Merged.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Merged;
@@ -4743,17 +5480,39 @@ final class Merged implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   Merged copyWith({
-    String? a,
-    int? b,
-    bool? c,
-    Map<String, Object?>? additionalProperties,
-  }) => Merged(
-    a: a ?? this.a,
-    b: b ?? this.b,
-    c: c ?? this.c,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? a = _undefined,
+    Object? b = _undefined,
+    Object? c = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(a, _undefined)) {
+      nextKeys.add('a');
+    }
+    if (!identical(b, _undefined)) {
+      nextKeys.add('b');
+    }
+    if (!identical(c, _undefined)) {
+      nextKeys.add('c');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return Merged(
+      a: !identical(a, _undefined) ? a as String? : this.a,
+      b: !identical(b, _undefined) ? b as int? : this.b,
+      c: !identical(c, _undefined) ? c as bool? : this.c,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -4785,15 +5544,23 @@ final class Merged implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as Merged;
-      return {
+      final map = <String, dynamic>{
         'a': typedInstance.a,
         'b': typedInstance.b,
         'c': typedInstance.c,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'a': PropertyDescriptor(
@@ -4846,8 +5613,13 @@ final class Merged implements JsonModel {
 final class MapObject implements JsonModel {
   final String? name;
   final Map<String, String> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const MapObject({this.name, this.additionalProperties = const {}});
+  const MapObject({
+    this.name,
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory MapObject.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as MapObject;
@@ -4877,13 +5649,29 @@ final class MapObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   MapObject copyWith({
-    String? name,
-    Map<String, String>? additionalProperties,
-  }) => MapObject(
-    name: name ?? this.name,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? name = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(name, _undefined)) {
+      nextKeys.add('name');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return MapObject(
+      name: !identical(name, _undefined) ? name as String? : this.name,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, String>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -4923,13 +5711,21 @@ final class MapObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as String,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as MapObject;
-          return {
+          final map = <String, dynamic>{
             'name': typedInstance.name,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'name': PropertyDescriptor(
@@ -4967,8 +5763,10 @@ final class MapObject implements JsonModel {
 
 final class StrictObject implements JsonModel {
   final String? name;
+  final Set<String>? _$explicitKeys;
 
-  const StrictObject({this.name});
+  const StrictObject({this.name, Set<String>? explicitKeys})
+    : _$explicitKeys = explicitKeys;
 
   factory StrictObject.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -5001,8 +5799,20 @@ final class StrictObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  StrictObject copyWith({String? name}) =>
-      StrictObject(name: name ?? this.name);
+  static const Object _undefined = Object();
+
+  StrictObject copyWith({Object? name = _undefined}) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(name, _undefined)) {
+      nextKeys.add('name');
+    }
+
+    return StrictObject(
+      name: !identical(name, _undefined) ? name as String? : this.name,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -5023,10 +5833,20 @@ final class StrictObject implements JsonModel {
       ObjectDescriptor<StrictObject>(
         title: 'StrictObject',
         matches: (instance) => instance is StrictObject,
-        instantiate: (fields) => StrictObject(name: fields['name'] as String?),
+        instantiate: (fields) => StrictObject(
+          name: fields['name'] as String?,
+          explicitKeys: fields.keys.toSet(),
+        ),
         getFields: (instance) {
           final typedInstance = instance as StrictObject;
-          return {'name': typedInstance.name};
+          final map = <String, dynamic>{'name': typedInstance.name};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'name': PropertyDescriptor(
@@ -5060,6 +5880,7 @@ final class NotObject implements JsonModel {
   final dynamic notNullValue;
   final dynamic notObjectValue;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const NotObject({
     required this.notPatternString,
@@ -5067,7 +5888,8 @@ final class NotObject implements JsonModel {
     required this.notNullValue,
     this.notObjectValue,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory NotObject.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as NotObject;
@@ -5097,19 +5919,52 @@ final class NotObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   NotObject copyWith({
-    String? notPatternString,
-    int? notEnumInt,
-    dynamic? notNullValue,
-    dynamic? notObjectValue,
-    Map<String, Object?>? additionalProperties,
-  }) => NotObject(
-    notPatternString: notPatternString ?? this.notPatternString,
-    notEnumInt: notEnumInt ?? this.notEnumInt,
-    notNullValue: notNullValue ?? this.notNullValue,
-    notObjectValue: notObjectValue ?? this.notObjectValue,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? notPatternString = _undefined,
+    Object? notEnumInt = _undefined,
+    Object? notNullValue = _undefined,
+    Object? notObjectValue = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(notPatternString, _undefined)) {
+      nextKeys.add('notPatternString');
+    }
+    if (!identical(notEnumInt, _undefined)) {
+      nextKeys.add('notEnumInt');
+    }
+    if (!identical(notNullValue, _undefined)) {
+      nextKeys.add('notNullValue');
+    }
+    if (!identical(notObjectValue, _undefined)) {
+      nextKeys.add('notObjectValue');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return NotObject(
+      notPatternString: !identical(notPatternString, _undefined)
+          ? notPatternString as String
+          : this.notPatternString,
+      notEnumInt: !identical(notEnumInt, _undefined)
+          ? notEnumInt as int
+          : this.notEnumInt,
+      notNullValue: !identical(notNullValue, _undefined)
+          ? notNullValue as dynamic
+          : this.notNullValue,
+      notObjectValue: !identical(notObjectValue, _undefined)
+          ? notObjectValue as dynamic
+          : this.notObjectValue,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -5256,16 +6111,24 @@ final class NotObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as NotObject;
-          return {
+          final map = <String, dynamic>{
             'notPatternString': typedInstance.notPatternString,
             'notEnumInt': typedInstance.notEnumInt,
             'notNullValue': typedInstance.notNullValue,
             'notObjectValue': typedInstance.notObjectValue,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'notPatternString': PropertyDescriptor(
@@ -5348,11 +6211,13 @@ enum NotObjectNotEnumIntNot {
 final class NotObjectNotObjectValueNot implements JsonModel {
   final String forbiddenProp;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const NotObjectNotObjectValueNot({
     required this.forbiddenProp,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory NotObjectNotObjectValueNot.fromJson(
     JsonReader reader, {
@@ -5391,13 +6256,31 @@ final class NotObjectNotObjectValueNot implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   NotObjectNotObjectValueNot copyWith({
-    String? forbiddenProp,
-    Map<String, Object?>? additionalProperties,
-  }) => NotObjectNotObjectValueNot(
-    forbiddenProp: forbiddenProp ?? this.forbiddenProp,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? forbiddenProp = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(forbiddenProp, _undefined)) {
+      nextKeys.add('forbiddenProp');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return NotObjectNotObjectValueNot(
+      forbiddenProp: !identical(forbiddenProp, _undefined)
+          ? forbiddenProp as String
+          : this.forbiddenProp,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -5427,13 +6310,21 @@ final class NotObjectNotObjectValueNot implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as NotObjectNotObjectValueNot;
-          return {
+          final map = <String, dynamic>{
             'forbiddenProp': typedInstance.forbiddenProp,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'forbiddenProp': PropertyDescriptor(
@@ -5594,12 +6485,14 @@ final class MergedAllOfObject implements JsonModel {
   final String? strVal;
   final num? numVal;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const MergedAllOfObject({
     this.strVal,
     this.numVal,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory MergedAllOfObject.fromJson(
     JsonReader reader, {
@@ -5638,15 +6531,34 @@ final class MergedAllOfObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   MergedAllOfObject copyWith({
-    String? strVal,
-    num? numVal,
-    Map<String, Object?>? additionalProperties,
-  }) => MergedAllOfObject(
-    strVal: strVal ?? this.strVal,
-    numVal: numVal ?? this.numVal,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? strVal = _undefined,
+    Object? numVal = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(strVal, _undefined)) {
+      nextKeys.add('strVal');
+    }
+    if (!identical(numVal, _undefined)) {
+      nextKeys.add('numVal');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return MergedAllOfObject(
+      strVal: !identical(strVal, _undefined) ? strVal as String? : this.strVal,
+      numVal: !identical(numVal, _undefined) ? numVal as num? : this.numVal,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -5766,14 +6678,22 @@ final class MergedAllOfObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as MergedAllOfObject;
-          return {
+          final map = <String, dynamic>{
             'strVal': typedInstance.strVal,
             'numVal': typedInstance.numVal,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'strVal': PropertyDescriptor(
@@ -5819,11 +6739,13 @@ final class MergedAllOfObject implements JsonModel {
 final class ComplexMergedObject implements JsonModel {
   final num? numVal;
   final Map<String, String> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const ComplexMergedObject({
     this.numVal,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory ComplexMergedObject.fromJson(
     JsonReader reader, {
@@ -5862,13 +6784,29 @@ final class ComplexMergedObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   ComplexMergedObject copyWith({
-    num? numVal,
-    Map<String, String>? additionalProperties,
-  }) => ComplexMergedObject(
-    numVal: numVal ?? this.numVal,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? numVal = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(numVal, _undefined)) {
+      nextKeys.add('numVal');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return ComplexMergedObject(
+      numVal: !identical(numVal, _undefined) ? numVal as num? : this.numVal,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, String>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -5957,13 +6895,21 @@ final class ComplexMergedObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as String,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as ComplexMergedObject;
-          return {
+          final map = <String, dynamic>{
             'numVal': typedInstance.numVal,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'numVal': PropertyDescriptor(
@@ -6279,12 +7225,14 @@ final class ObjectWithDynamicProps implements JsonModel {
   final dynamic notInt;
   final dynamic notNum;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const ObjectWithDynamicProps({
     this.notInt,
     this.notNum,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory ObjectWithDynamicProps.fromJson(
     JsonReader reader, {
@@ -6323,15 +7271,34 @@ final class ObjectWithDynamicProps implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   ObjectWithDynamicProps copyWith({
-    dynamic? notInt,
-    dynamic? notNum,
-    Map<String, Object?>? additionalProperties,
-  }) => ObjectWithDynamicProps(
-    notInt: notInt ?? this.notInt,
-    notNum: notNum ?? this.notNum,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? notInt = _undefined,
+    Object? notNum = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(notInt, _undefined)) {
+      nextKeys.add('notInt');
+    }
+    if (!identical(notNum, _undefined)) {
+      nextKeys.add('notNum');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return ObjectWithDynamicProps(
+      notInt: !identical(notInt, _undefined) ? notInt as dynamic : this.notInt,
+      notNum: !identical(notNum, _undefined) ? notNum as dynamic : this.notNum,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -6407,14 +7374,22 @@ final class ObjectWithDynamicProps implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as ObjectWithDynamicProps;
-          return {
+          final map = <String, dynamic>{
             'notInt': typedInstance.notInt,
             'notNum': typedInstance.notNum,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'notInt': PropertyDescriptor(
@@ -6607,12 +7582,14 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
   final String? a;
   final int? b;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const TestRootArrayWithAllOfItemsItem({
     this.a,
     this.b,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory TestRootArrayWithAllOfItemsItem.fromJson(
     JsonReader reader, {
@@ -6651,15 +7628,34 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   TestRootArrayWithAllOfItemsItem copyWith({
-    String? a,
-    int? b,
-    Map<String, Object?>? additionalProperties,
-  }) => TestRootArrayWithAllOfItemsItem(
-    a: a ?? this.a,
-    b: b ?? this.b,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? a = _undefined,
+    Object? b = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(a, _undefined)) {
+      nextKeys.add('a');
+    }
+    if (!identical(b, _undefined)) {
+      nextKeys.add('b');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return TestRootArrayWithAllOfItemsItem(
+      a: !identical(a, _undefined) ? a as String? : this.a,
+      b: !identical(b, _undefined) ? b as int? : this.b,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -6690,14 +7686,22 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as TestRootArrayWithAllOfItemsItem;
-          return {
+          final map = <String, dynamic>{
             'a': typedInstance.a,
             'b': typedInstance.b,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'a': PropertyDescriptor(
@@ -6878,12 +7882,14 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
   final String? a;
   final int? b;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const TestRootUnionWithAllOfOptionOptionType1({
     this.a,
     this.b,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory TestRootUnionWithAllOfOptionOptionType1.fromJson(
     JsonReader reader, {
@@ -6922,15 +7928,34 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   TestRootUnionWithAllOfOptionOptionType1 copyWith({
-    String? a,
-    int? b,
-    Map<String, Object?>? additionalProperties,
-  }) => TestRootUnionWithAllOfOptionOptionType1(
-    a: a ?? this.a,
-    b: b ?? this.b,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? a = _undefined,
+    Object? b = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(a, _undefined)) {
+      nextKeys.add('a');
+    }
+    if (!identical(b, _undefined)) {
+      nextKeys.add('b');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return TestRootUnionWithAllOfOptionOptionType1(
+      a: !identical(a, _undefined) ? a as String? : this.a,
+      b: !identical(b, _undefined) ? b as int? : this.b,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -6961,14 +7986,22 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as TestRootUnionWithAllOfOptionOptionType1;
-      return {
+      final map = <String, dynamic>{
         'a': typedInstance.a,
         'b': typedInstance.b,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'a': PropertyDescriptor(
@@ -7017,8 +8050,13 @@ final class PatternPropertiesObject implements JsonModel {
   static final _patternRegex1 = RegExp('^I_');
   static final _patternRegex2 = RegExp('^O_');
   final Map<String, dynamic> patternProperties;
+  final Set<String>? _$explicitKeys;
 
-  const PatternPropertiesObject({this.name, this.patternProperties = const {}});
+  const PatternPropertiesObject({
+    this.name,
+    this.patternProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory PatternPropertiesObject.fromJson(
     JsonReader reader, {
@@ -7057,13 +8095,29 @@ final class PatternPropertiesObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   PatternPropertiesObject copyWith({
-    String? name,
-    Map<String, dynamic>? patternProperties,
-  }) => PatternPropertiesObject(
-    name: name ?? this.name,
-    patternProperties: patternProperties ?? this.patternProperties,
-  );
+    Object? name = _undefined,
+    Object? patternProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(name, _undefined)) {
+      nextKeys.add('name');
+    }
+    if (!identical(patternProperties, _undefined)) {
+      nextKeys.add('patternProperties');
+    }
+
+    return PatternPropertiesObject(
+      name: !identical(name, _undefined) ? name as String? : this.name,
+      patternProperties: !identical(patternProperties, _undefined)
+          ? patternProperties as Map<String, dynamic>
+          : this.patternProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -7152,13 +8206,21 @@ final class PatternPropertiesObject implements JsonModel {
                     _patternRegex2.hasMatch(e.key);
               })
               .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as PatternPropertiesObject;
-          return {
+          final map = <String, dynamic>{
             'name': typedInstance.name,
             ...typedInstance.patternProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'name': PropertyDescriptor(
@@ -7326,8 +8388,13 @@ final class OverlappingUnionOption1 extends OverlappingUnion {
 final class OptionA implements JsonModel {
   final String value;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const OptionA({required this.value, this.additionalProperties = const {}});
+  const OptionA({
+    required this.value,
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory OptionA.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as OptionA;
@@ -7357,13 +8424,29 @@ final class OptionA implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   OptionA copyWith({
-    String? value,
-    Map<String, Object?>? additionalProperties,
-  }) => OptionA(
-    value: value ?? this.value,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? value = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(value, _undefined)) {
+      nextKeys.add('value');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return OptionA(
+      value: !identical(value, _undefined) ? value as String : this.value,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -7399,13 +8482,21 @@ final class OptionA implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as OptionA;
-      return {
+      final map = <String, dynamic>{
         'value': typedInstance.value,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'value': PropertyDescriptor(
@@ -7444,8 +8535,13 @@ final class OptionA implements JsonModel {
 final class OptionB implements JsonModel {
   final String value;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const OptionB({required this.value, this.additionalProperties = const {}});
+  const OptionB({
+    required this.value,
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory OptionB.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as OptionB;
@@ -7475,13 +8571,29 @@ final class OptionB implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   OptionB copyWith({
-    String? value,
-    Map<String, Object?>? additionalProperties,
-  }) => OptionB(
-    value: value ?? this.value,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? value = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(value, _undefined)) {
+      nextKeys.add('value');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return OptionB(
+      value: !identical(value, _undefined) ? value as String : this.value,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -7517,13 +8629,21 @@ final class OptionB implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as OptionB;
-      return {
+      final map = <String, dynamic>{
         'value': typedInstance.value,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'value': PropertyDescriptor(
@@ -7562,8 +8682,13 @@ final class OptionB implements JsonModel {
 final class MyCustomClassName implements JsonModel {
   final String? foo;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const MyCustomClassName({this.foo, this.additionalProperties = const {}});
+  const MyCustomClassName({
+    this.foo,
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory MyCustomClassName.fromJson(
     JsonReader reader, {
@@ -7602,13 +8727,29 @@ final class MyCustomClassName implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   MyCustomClassName copyWith({
-    String? foo,
-    Map<String, Object?>? additionalProperties,
-  }) => MyCustomClassName(
-    foo: foo ?? this.foo,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? foo = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(foo, _undefined)) {
+      nextKeys.add('foo');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return MyCustomClassName(
+      foo: !identical(foo, _undefined) ? foo as String? : this.foo,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -7637,13 +8778,21 @@ final class MyCustomClassName implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as MyCustomClassName;
-          return {
+          final map = <String, dynamic>{
             'foo': typedInstance.foo,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'foo': PropertyDescriptor(
@@ -7832,6 +8981,7 @@ final class TestRootCoverageTrigger implements JsonModel {
   final TestRootCoverageTriggerMergeObjectsWithNoAdditional?
   mergeObjectsWithNoAdditional;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const TestRootCoverageTrigger({
     this.mergeArray,
@@ -7847,7 +8997,8 @@ final class TestRootCoverageTrigger implements JsonModel {
     this.mergeUnion,
     this.mergeObjectsWithNoAdditional,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory TestRootCoverageTrigger.fromJson(
     JsonReader reader, {
@@ -7886,37 +9037,110 @@ final class TestRootCoverageTrigger implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   TestRootCoverageTrigger copyWith({
-    List<String>? mergeArray,
-    TestRootCoverageTriggerMergeObject? mergeObject,
-    String? mergeString,
-    Never? mergeNumber,
-    bool? mergeBoolean,
-    Null mergeNull,
-    Object? mergeAnything,
-    TestRootCoverageTriggerMergeNever? mergeNever,
-    MapObject1? mergeRef,
-    TestRootCoverageTriggerMergeEnum? mergeEnum,
-    TestRootCoverageTriggerMergeUnion? mergeUnion,
-    TestRootCoverageTriggerMergeObjectsWithNoAdditional?
-    mergeObjectsWithNoAdditional,
-    Map<String, Object?>? additionalProperties,
-  }) => TestRootCoverageTrigger(
-    mergeArray: mergeArray ?? this.mergeArray,
-    mergeObject: mergeObject ?? this.mergeObject,
-    mergeString: mergeString ?? this.mergeString,
-    mergeNumber: mergeNumber ?? this.mergeNumber,
-    mergeBoolean: mergeBoolean ?? this.mergeBoolean,
-    mergeNull: mergeNull ?? this.mergeNull,
-    mergeAnything: mergeAnything ?? this.mergeAnything,
-    mergeNever: mergeNever ?? this.mergeNever,
-    mergeRef: mergeRef ?? this.mergeRef,
-    mergeEnum: mergeEnum ?? this.mergeEnum,
-    mergeUnion: mergeUnion ?? this.mergeUnion,
-    mergeObjectsWithNoAdditional:
-        mergeObjectsWithNoAdditional ?? this.mergeObjectsWithNoAdditional,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? mergeArray = _undefined,
+    Object? mergeObject = _undefined,
+    Object? mergeString = _undefined,
+    Object? mergeNumber = _undefined,
+    Object? mergeBoolean = _undefined,
+    Object? mergeNull = _undefined,
+    Object? mergeAnything = _undefined,
+    Object? mergeNever = _undefined,
+    Object? mergeRef = _undefined,
+    Object? mergeEnum = _undefined,
+    Object? mergeUnion = _undefined,
+    Object? mergeObjectsWithNoAdditional = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(mergeArray, _undefined)) {
+      nextKeys.add('mergeArray');
+    }
+    if (!identical(mergeObject, _undefined)) {
+      nextKeys.add('mergeObject');
+    }
+    if (!identical(mergeString, _undefined)) {
+      nextKeys.add('mergeString');
+    }
+    if (!identical(mergeNumber, _undefined)) {
+      nextKeys.add('mergeNumber');
+    }
+    if (!identical(mergeBoolean, _undefined)) {
+      nextKeys.add('mergeBoolean');
+    }
+    if (!identical(mergeNull, _undefined)) {
+      nextKeys.add('mergeNull');
+    }
+    if (!identical(mergeAnything, _undefined)) {
+      nextKeys.add('mergeAnything');
+    }
+    if (!identical(mergeNever, _undefined)) {
+      nextKeys.add('mergeNever');
+    }
+    if (!identical(mergeRef, _undefined)) {
+      nextKeys.add('mergeRef');
+    }
+    if (!identical(mergeEnum, _undefined)) {
+      nextKeys.add('mergeEnum');
+    }
+    if (!identical(mergeUnion, _undefined)) {
+      nextKeys.add('mergeUnion');
+    }
+    if (!identical(mergeObjectsWithNoAdditional, _undefined)) {
+      nextKeys.add('mergeObjectsWithNoAdditional');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return TestRootCoverageTrigger(
+      mergeArray: !identical(mergeArray, _undefined)
+          ? mergeArray as List<String>?
+          : this.mergeArray,
+      mergeObject: !identical(mergeObject, _undefined)
+          ? mergeObject as TestRootCoverageTriggerMergeObject?
+          : this.mergeObject,
+      mergeString: !identical(mergeString, _undefined)
+          ? mergeString as String?
+          : this.mergeString,
+      mergeNumber: !identical(mergeNumber, _undefined)
+          ? mergeNumber as Never?
+          : this.mergeNumber,
+      mergeBoolean: !identical(mergeBoolean, _undefined)
+          ? mergeBoolean as bool?
+          : this.mergeBoolean,
+      mergeNull: !identical(mergeNull, _undefined)
+          ? mergeNull as Null
+          : this.mergeNull,
+      mergeAnything: !identical(mergeAnything, _undefined)
+          ? mergeAnything as Object?
+          : this.mergeAnything,
+      mergeNever: !identical(mergeNever, _undefined)
+          ? mergeNever as TestRootCoverageTriggerMergeNever?
+          : this.mergeNever,
+      mergeRef: !identical(mergeRef, _undefined)
+          ? mergeRef as MapObject1?
+          : this.mergeRef,
+      mergeEnum: !identical(mergeEnum, _undefined)
+          ? mergeEnum as TestRootCoverageTriggerMergeEnum?
+          : this.mergeEnum,
+      mergeUnion: !identical(mergeUnion, _undefined)
+          ? mergeUnion as TestRootCoverageTriggerMergeUnion?
+          : this.mergeUnion,
+      mergeObjectsWithNoAdditional:
+          !identical(mergeObjectsWithNoAdditional, _undefined)
+          ? mergeObjectsWithNoAdditional
+                as TestRootCoverageTriggerMergeObjectsWithNoAdditional?
+          : this.mergeObjectsWithNoAdditional,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -8084,10 +9308,11 @@ final class TestRootCoverageTrigger implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as TestRootCoverageTrigger;
-      return {
+      final map = <String, dynamic>{
         'mergeArray': typedInstance.mergeArray,
         'mergeObject': typedInstance.mergeObject,
         'mergeString': typedInstance.mergeString,
@@ -8103,6 +9328,13 @@ final class TestRootCoverageTrigger implements JsonModel {
             typedInstance.mergeObjectsWithNoAdditional,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'mergeArray': PropertyDescriptor(
@@ -8232,12 +9464,14 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
   final String? a;
   final int? b;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const TestRootCoverageTriggerMergeObject({
     this.a,
     this.b,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory TestRootCoverageTriggerMergeObject.fromJson(
     JsonReader reader, {
@@ -8276,15 +9510,34 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   TestRootCoverageTriggerMergeObject copyWith({
-    String? a,
-    int? b,
-    Map<String, Object?>? additionalProperties,
-  }) => TestRootCoverageTriggerMergeObject(
-    a: a ?? this.a,
-    b: b ?? this.b,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? a = _undefined,
+    Object? b = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(a, _undefined)) {
+      nextKeys.add('a');
+    }
+    if (!identical(b, _undefined)) {
+      nextKeys.add('b');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return TestRootCoverageTriggerMergeObject(
+      a: !identical(a, _undefined) ? a as String? : this.a,
+      b: !identical(b, _undefined) ? b as int? : this.b,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -8315,14 +9568,22 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as TestRootCoverageTriggerMergeObject;
-          return {
+          final map = <String, dynamic>{
             'a': typedInstance.a,
             'b': typedInstance.b,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'a': PropertyDescriptor(
@@ -8366,7 +9627,10 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
 }
 
 final class TestRootCoverageTriggerMergeNever implements JsonModel {
-  const TestRootCoverageTriggerMergeNever();
+  final Set<String>? _$explicitKeys;
+
+  const TestRootCoverageTriggerMergeNever({Set<String>? explicitKeys})
+    : _$explicitKeys = explicitKeys;
 
   factory TestRootCoverageTriggerMergeNever.fromJson(
     JsonReader reader, {
@@ -8406,7 +9670,7 @@ final class TestRootCoverageTriggerMergeNever implements JsonModel {
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   TestRootCoverageTriggerMergeNever copyWith() =>
-      TestRootCoverageTriggerMergeNever();
+      TestRootCoverageTriggerMergeNever(explicitKeys: _$explicitKeys);
 
   @override
   List<ValidationError> collectErrors() {
@@ -8426,10 +9690,19 @@ final class TestRootCoverageTriggerMergeNever implements JsonModel {
       ObjectDescriptor<TestRootCoverageTriggerMergeNever>(
         title: 'TestRootCoverageTriggerMergeNever',
         matches: (instance) => instance is TestRootCoverageTriggerMergeNever,
-        instantiate: (fields) => TestRootCoverageTriggerMergeNever(),
+        instantiate: (fields) => TestRootCoverageTriggerMergeNever(
+          explicitKeys: fields.keys.toSet(),
+        ),
         getFields: (instance) {
           final typedInstance = instance as TestRootCoverageTriggerMergeNever;
-          return {};
+          final map = <String, dynamic>{};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {},
 
@@ -8454,8 +9727,13 @@ final class TestRootCoverageTriggerMergeNever implements JsonModel {
 final class MapObject1 implements JsonModel {
   final String? name;
   final Map<String, String> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
-  const MapObject1({this.name, this.additionalProperties = const {}});
+  const MapObject1({
+    this.name,
+    this.additionalProperties = const {},
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory MapObject1.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as MapObject1;
@@ -8487,13 +9765,29 @@ final class MapObject1 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   MapObject1 copyWith({
-    String? name,
-    Map<String, String>? additionalProperties,
-  }) => MapObject1(
-    name: name ?? this.name,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? name = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(name, _undefined)) {
+      nextKeys.add('name');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return MapObject1(
+      name: !identical(name, _undefined) ? name as String? : this.name,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, String>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -8533,13 +9827,21 @@ final class MapObject1 implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as String,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as MapObject1;
-          return {
+          final map = <String, dynamic>{
             'name': typedInstance.name,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'name': PropertyDescriptor(
@@ -8719,7 +10021,11 @@ final class TestRootCoverageTriggerMergeUnionOption1
 
 final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
     implements JsonModel {
-  const TestRootCoverageTriggerMergeObjectsWithNoAdditional();
+  final Set<String>? _$explicitKeys;
+
+  const TestRootCoverageTriggerMergeObjectsWithNoAdditional({
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory TestRootCoverageTriggerMergeObjectsWithNoAdditional.fromJson(
     JsonReader reader, {
@@ -8759,7 +10065,9 @@ final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
   TestRootCoverageTriggerMergeObjectsWithNoAdditional copyWith() =>
-      TestRootCoverageTriggerMergeObjectsWithNoAdditional();
+      TestRootCoverageTriggerMergeObjectsWithNoAdditional(
+        explicitKeys: _$explicitKeys,
+      );
 
   @override
   List<ValidationError> collectErrors() {
@@ -8784,11 +10092,20 @@ final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
         matches: (instance) =>
             instance is TestRootCoverageTriggerMergeObjectsWithNoAdditional,
         instantiate: (fields) =>
-            TestRootCoverageTriggerMergeObjectsWithNoAdditional(),
+            TestRootCoverageTriggerMergeObjectsWithNoAdditional(
+              explicitKeys: fields.keys.toSet(),
+            ),
         getFields: (instance) {
           final typedInstance =
               instance as TestRootCoverageTriggerMergeObjectsWithNoAdditional;
-          return {};
+          final map = <String, dynamic>{};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {},
 
@@ -8840,6 +10157,7 @@ final class CollidingObject implements JsonModel {
   final String? bar1;
   final String? validate_;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const CollidingObject({
     this.foo,
@@ -8848,7 +10166,8 @@ final class CollidingObject implements JsonModel {
     this.bar1,
     this.validate_,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory CollidingObject.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate)
@@ -8882,21 +10201,51 @@ final class CollidingObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   CollidingObject copyWith({
-    String? foo,
-    String? foo_1,
-    String? bar,
-    String? bar1,
-    String? validate_,
-    Map<String, Object?>? additionalProperties,
-  }) => CollidingObject(
-    foo: foo ?? this.foo,
-    foo_1: foo_1 ?? this.foo_1,
-    bar: bar ?? this.bar,
-    bar1: bar1 ?? this.bar1,
-    validate_: validate_ ?? this.validate_,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? foo = _undefined,
+    Object? foo_1 = _undefined,
+    Object? bar = _undefined,
+    Object? bar1 = _undefined,
+    Object? validate_ = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(foo, _undefined)) {
+      nextKeys.add('foo');
+    }
+    if (!identical(foo_1, _undefined)) {
+      nextKeys.add('@foo');
+    }
+    if (!identical(bar, _undefined)) {
+      nextKeys.add('bar');
+    }
+    if (!identical(bar1, _undefined)) {
+      nextKeys.add('bar_1');
+    }
+    if (!identical(validate_, _undefined)) {
+      nextKeys.add('validate');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return CollidingObject(
+      foo: !identical(foo, _undefined) ? foo as String? : this.foo,
+      foo_1: !identical(foo_1, _undefined) ? foo_1 as String? : this.foo_1,
+      bar: !identical(bar, _undefined) ? bar as String? : this.bar,
+      bar1: !identical(bar1, _undefined) ? bar1 as String? : this.bar1,
+      validate_: !identical(validate_, _undefined)
+          ? validate_ as String?
+          : this.validate_,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -8943,10 +10292,11 @@ final class CollidingObject implements JsonModel {
                 {},
                 (m, e) => m..[e.key] = e.value as Object?,
               ),
+          explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
           final typedInstance = instance as CollidingObject;
-          return {
+          final map = <String, dynamic>{
             'foo': typedInstance.foo,
             '@foo': typedInstance.foo_1,
             'bar': typedInstance.bar,
@@ -8954,6 +10304,13 @@ final class CollidingObject implements JsonModel {
             'validate': typedInstance.validate_,
             ...typedInstance.additionalProperties,
           };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
         },
         properties: {
           'foo': PropertyDescriptor(

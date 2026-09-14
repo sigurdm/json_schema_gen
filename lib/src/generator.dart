@@ -931,6 +931,7 @@ String _generateObjectClass(
   final toStringProps = <String>[];
   final copyWithParams = StringBuffer();
   final copyWithArgs = StringBuffer();
+  final copyWithKeys = StringBuffer();
 
   schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
@@ -948,6 +949,16 @@ String _generateObjectClass(
     }
 
     final fieldType = _fieldType(propSchema, isRequired, context);
+
+    if (propSchema.comment != null) {
+      fields.writeln('  /// Comment: ${propSchema.comment}');
+    }
+    if (propSchema.readOnly) {
+      fields.writeln('  /// Read-only.');
+    }
+    if (propSchema.writeOnly) {
+      fields.writeln('  /// Write-only.');
+    }
 
     if (propSchema.isDeprecated) {
       if (propSchema.deprecatedMessage != null) {
@@ -967,11 +978,15 @@ String _generateObjectClass(
       constructorParams.writeln('    this.$fieldName,');
     }
 
-    final copyWithType = (baseType.endsWith('?') || baseType == 'Null')
-        ? baseType
-        : '$baseType?';
-    copyWithParams.writeln('    $copyWithType $fieldName,');
-    copyWithArgs.writeln('    $fieldName: $fieldName ?? this.$fieldName,');
+    copyWithParams.writeln('    Object? $fieldName = _undefined,');
+    copyWithArgs.writeln(
+      '      $fieldName: !identical($fieldName, _undefined) ? $fieldName as $fieldType : this.$fieldName,',
+    );
+    copyWithKeys.writeln('    if (!identical($fieldName, _undefined)) {');
+    copyWithKeys.writeln(
+      "      nextKeys.add('${escapeStringContents(name)}');",
+    );
+    copyWithKeys.writeln('    }');
 
     final isColl =
         baseType.startsWith('List') ||
@@ -1007,9 +1022,14 @@ String _generateObjectClass(
     }
     fields.writeln('  final Map<String, dynamic> patternProperties;');
     constructorParams.writeln('    this.patternProperties = const {},');
-    copyWithParams.writeln('    Map<String, dynamic>? patternProperties,');
+    copyWithParams.writeln('    Object? patternProperties = _undefined,');
+    copyWithKeys.writeln(
+      '    if (!identical(patternProperties, _undefined)) {',
+    );
+    copyWithKeys.writeln("      nextKeys.add('patternProperties');");
+    copyWithKeys.writeln('    }');
     copyWithArgs.writeln(
-      '    patternProperties: patternProperties ?? this.patternProperties,',
+      '      patternProperties: !identical(patternProperties, _undefined) ? patternProperties as Map<String, dynamic> : this.patternProperties,',
     );
     equalityProps.add(
       'const DeepCollectionEquality().equals(patternProperties, other.patternProperties)',
@@ -1025,11 +1045,14 @@ String _generateObjectClass(
     );
     fields.writeln('  final Map<String, $addPropsType> additionalProperties;');
     constructorParams.writeln('    this.additionalProperties = const {},');
-    copyWithParams.writeln(
-      '    Map<String, $addPropsType>? additionalProperties,',
+    copyWithParams.writeln('    Object? additionalProperties = _undefined,');
+    copyWithKeys.writeln(
+      '    if (!identical(additionalProperties, _undefined)) {',
     );
+    copyWithKeys.writeln("      nextKeys.add('additionalProperties');");
+    copyWithKeys.writeln('    }');
     copyWithArgs.writeln(
-      '    additionalProperties: additionalProperties ?? this.additionalProperties,',
+      '      additionalProperties: !identical(additionalProperties, _undefined) ? additionalProperties as Map<String, $addPropsType> : this.additionalProperties,',
     );
     equalityProps.add(
       'const DeepCollectionEquality().equals(additionalProperties, other.additionalProperties)',
@@ -1147,11 +1170,19 @@ String _generateObjectClass(
     title: '$className',
     matches: (instance) => instance is $className,
     instantiate: (fields) => $className(
-$instantiateArgs    ),
+$instantiateArgs        explicitKeys: fields.keys.toSet(),
+    ),
     getFields: (instance) {
       final typedInstance = instance as $className;
-      return {
+      final map = <String, dynamic>{
 $getFieldsMap      };
+      final explicit = typedInstance._\$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
 $propDescriptors    },
@@ -1160,6 +1191,7 @@ $propDescriptors    },
     additionalProperties: $addPropsExpr,
   );''';
 
+  fields.writeln('  final Set<String>? _\$explicitKeys;');
   final deprecatedAttr = schema.isDeprecated
       ? (schema.deprecatedMessage != null
             ? '@Deprecated(${dartStringLiteral(schema.deprecatedMessage!)})\n'
@@ -1167,17 +1199,28 @@ $propDescriptors    },
       : '';
 
   final constructorStr = constructorParams.isEmpty
-      ? '  const $className();'
+      ? '  const $className({Set<String>? explicitKeys}) : _\$explicitKeys = explicitKeys;'
       : '''
   const $className({
-$constructorParams  });''';
+$constructorParams    Set<String>? explicitKeys,
+  }) : _\$explicitKeys = explicitKeys;''';
+
+  final undefinedDecl = copyWithParams.isNotEmpty
+      ? '  static const Object _undefined = Object();\n\n'
+      : '';
 
   final copyWithStr = copyWithParams.isEmpty
-      ? '  $className copyWith() => $className();'
+      ? '  $className copyWith() => $className(explicitKeys: _\$explicitKeys);'
       : '''
   $className copyWith({
-$copyWithParams  }) => $className(
-$copyWithArgs  );''';
+$copyWithParams  }) {
+    final explicit = _\$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+$copyWithKeys
+    return $className(
+$copyWithArgs      explicitKeys: nextKeys,
+    );
+  }''';
 
   return '''
 ${deprecatedAttr}final class $className implements JsonModel {
@@ -1212,7 +1255,7 @@ $constructorStr
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-$copyWithStr
+$undefinedDecl$copyWithStr
 
 $validationMethod
 
@@ -2118,6 +2161,22 @@ String? _getFormatCondition(String valueVar, String format) {
       return 'isValidHostname($valueVar)';
     case 'time':
       return 'isValidTime($valueVar)';
+    case 'duration':
+      return 'isValidDuration($valueVar)';
+    case 'json-pointer':
+      return 'isValidJsonPointer($valueVar)';
+    case 'relative-json-pointer':
+      return 'isValidRelativeJsonPointer($valueVar)';
+    case 'uri-template':
+      return 'isValidUriTemplate($valueVar)';
+    case 'iri':
+      return 'isValidIri($valueVar)';
+    case 'iri-reference':
+      return 'isValidIriReference($valueVar)';
+    case 'idn-email':
+      return 'isValidIdnEmail($valueVar)';
+    case 'idn-hostname':
+      return 'isValidIdnHostname($valueVar)';
     default:
       return null;
   }
@@ -2145,6 +2204,22 @@ String? _getFormatErrorMessage(String name, String format) {
       return 'Property "$name" must be a valid hostname';
     case 'time':
       return 'Property "$name" must be a valid time string';
+    case 'duration':
+      return 'Property "$name" must be a valid RFC 3339 duration';
+    case 'json-pointer':
+      return 'Property "$name" must be a valid JSON pointer';
+    case 'relative-json-pointer':
+      return 'Property "$name" must be a valid relative JSON pointer';
+    case 'uri-template':
+      return 'Property "$name" must be a valid URI template';
+    case 'iri':
+      return 'Property "$name" must be a valid IRI';
+    case 'iri-reference':
+      return 'Property "$name" must be a valid IRI reference';
+    case 'idn-email':
+      return 'Property "$name" must be a valid IDN email';
+    case 'idn-hostname':
+      return 'Property "$name" must be a valid IDN hostname';
     default:
       return null;
   }

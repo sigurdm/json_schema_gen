@@ -22,6 +22,12 @@ Initial release of `json_schema_gen`, a comprehensive JSON Schema (Draft 2020-12
   - Passes all 1,299 core tests in the official [JSON-Schema-Test-Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for Draft 2020-12.
   - Full keyword support: `unevaluatedProperties`, `unevaluatedItems`, `patternProperties`, `dependentRequired`, `dependentSchemas`, `contains`, `minContains`, `maxContains`, `propertyNames`, `not`, `if`/`then`/`else`, and format validations.
   - Dynamic scoping and recursion support via `$dynamicAnchor` and `$dynamicRef`.
+  - Added full format validation suite for `duration` (RFC 3339), `json-pointer` (RFC 6901), `relative-json-pointer`, `uri-template` (RFC 6570), `iri` / `iri-reference` (RFC 3987), and `idn-email` / `idn-hostname` (RFC 5890 / 6531).
+  - Added support for metadata keywords: `readOnly`, `writeOnly`, `$comment`, `contentEncoding`, `contentMediaType`, and `contentSchema`.
+  - Emits field documentation for `readOnly`, `writeOnly`, and `$comment`.
+
+- **Undefined vs. Null Distinction**:
+  - Shadow presence tracking (`_$explicitKeys`) in generated models and sentinel-based defaulting in `copyWith` ensuring explicit `null` properties are distinguished from omitted properties during serialization and deserialization.
 
 - **Comprehensive Validation Error Accumulation**:
   - Multi-error accumulation across fields, array items, and nested objects in a single pass.

@@ -56,8 +56,23 @@ void main() {
       expect(decoded['unionValue'], 'some-string');
       expect(
         decoded.containsKey('nullableString'),
-        false,
-      ); // optional nullable omitted
+        true,
+      ); // explicit null is preserved
+      expect(decoded['nullableString'], isNull);
+
+      // Verify optional property omitted when not provided
+      final modelWithout = TestRoot.fromJson(
+        JsonReader.fromObject({
+          'name': 'John',
+          'age': 35,
+          'isAwesome': true,
+          'address': {'city': 'London', 'street': 'Main Street'},
+        }),
+      );
+      final decodedWithout = readAny(
+        JsonReader.fromString(modelWithout.toJson()),
+      );
+      expect(decodedWithout.containsKey('nullableString'), false);
     });
 
     test('Name collision avoidance - keywords and context names', () {

@@ -27,6 +27,12 @@ final class Schema {
 
   /// The description of the schema, if specified.
   final String? description;
+  final bool readOnly;
+  final bool writeOnly;
+  final String? comment;
+  final String? contentEncoding;
+  final String? contentMediaType;
+  final Schema? contentSchema;
 
   /// Whether this schema is deprecated.
   final bool isDeprecated;
@@ -233,6 +239,12 @@ final class Schema {
     this.hasExplicitType = true,
     this.title,
     this.description,
+    this.readOnly = false,
+    this.writeOnly = false,
+    this.comment,
+    this.contentEncoding,
+    this.contentMediaType,
+    this.contentSchema,
     this.isDeprecated = false,
     this.deprecatedMessage,
     this.hasDefault = false,
@@ -301,6 +313,12 @@ final class Schema {
     bool? hasExplicitType,
     String? title,
     String? description,
+    bool? readOnly,
+    bool? writeOnly,
+    String? comment,
+    String? contentEncoding,
+    String? contentMediaType,
+    Schema? contentSchema,
     bool? isDeprecated,
     String? deprecatedMessage,
     bool? hasDefault,
@@ -365,6 +383,12 @@ final class Schema {
       hasExplicitType: hasExplicitType ?? this.hasExplicitType,
       title: title ?? this.title,
       description: description ?? this.description,
+      readOnly: readOnly ?? this.readOnly,
+      writeOnly: writeOnly ?? this.writeOnly,
+      comment: comment ?? this.comment,
+      contentEncoding: contentEncoding ?? this.contentEncoding,
+      contentMediaType: contentMediaType ?? this.contentMediaType,
+      contentSchema: contentSchema ?? this.contentSchema,
       isDeprecated: isDeprecated ?? this.isDeprecated,
       deprecatedMessage: deprecatedMessage ?? this.deprecatedMessage,
       hasDefault: hasDefault ?? this.hasDefault,
@@ -439,6 +463,12 @@ final class Schema {
       hasExplicitType: hasExplicitType,
       title: title,
       description: description,
+      readOnly: readOnly,
+      writeOnly: writeOnly,
+      comment: comment,
+      contentEncoding: contentEncoding,
+      contentMediaType: contentMediaType,
+      contentSchema: contentSchema?.removeEnum(),
       isDeprecated: isDeprecated,
       deprecatedMessage: deprecatedMessage,
       hasDefault: hasDefault,

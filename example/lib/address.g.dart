@@ -12,13 +12,15 @@ final class Address implements JsonModel {
   final String city;
   final String zipCode;
   final Map<String, Object?> additionalProperties;
+  final Set<String>? _$explicitKeys;
 
   const Address({
     required this.street,
     required this.city,
     required this.zipCode,
     this.additionalProperties = const {},
-  });
+    Set<String>? explicitKeys,
+  }) : _$explicitKeys = explicitKeys;
 
   factory Address.fromJson(JsonReader reader, {bool validate = true}) =>
       parseWithDescriptor(reader, descriptor, validate: validate) as Address;
@@ -48,17 +50,41 @@ final class Address implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
+  static const Object _undefined = Object();
+
   Address copyWith({
-    String? street,
-    String? city,
-    String? zipCode,
-    Map<String, Object?>? additionalProperties,
-  }) => Address(
-    street: street ?? this.street,
-    city: city ?? this.city,
-    zipCode: zipCode ?? this.zipCode,
-    additionalProperties: additionalProperties ?? this.additionalProperties,
-  );
+    Object? street = _undefined,
+    Object? city = _undefined,
+    Object? zipCode = _undefined,
+    Object? additionalProperties = _undefined,
+  }) {
+    final explicit = _$explicitKeys;
+    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    if (!identical(street, _undefined)) {
+      nextKeys.add('street');
+    }
+    if (!identical(city, _undefined)) {
+      nextKeys.add('city');
+    }
+    if (!identical(zipCode, _undefined)) {
+      nextKeys.add('zipCode');
+    }
+    if (!identical(additionalProperties, _undefined)) {
+      nextKeys.add('additionalProperties');
+    }
+
+    return Address(
+      street: !identical(street, _undefined) ? street as String : this.street,
+      city: !identical(city, _undefined) ? city as String : this.city,
+      zipCode: !identical(zipCode, _undefined)
+          ? zipCode as String
+          : this.zipCode,
+      additionalProperties: !identical(additionalProperties, _undefined)
+          ? additionalProperties as Map<String, Object?>
+          : this.additionalProperties,
+      explicitKeys: nextKeys,
+    );
+  }
 
   @override
   List<ValidationError> collectErrors() {
@@ -100,15 +126,23 @@ final class Address implements JsonModel {
             {},
             (m, e) => m..[e.key] = e.value as Object?,
           ),
+      explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
       final typedInstance = instance as Address;
-      return {
+      final map = <String, dynamic>{
         'street': typedInstance.street,
         'city': typedInstance.city,
         'zipCode': typedInstance.zipCode,
         ...typedInstance.additionalProperties,
       };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
     },
     properties: {
       'street': PropertyDescriptor(

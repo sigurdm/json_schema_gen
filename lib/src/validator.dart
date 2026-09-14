@@ -775,15 +775,14 @@ void _writeSchemaValue(
     sink.startObject();
     final fields = schema.getFields(value);
     schema.properties.forEach((key, prop) {
-      final val = fields[key];
-      if (val != null) {
+      if (fields.containsKey(key)) {
+        final val = fields[key];
         sink.addKey(key);
         _writeSchemaValue(sink, val, prop.schema);
       }
     });
     fields.forEach((key, val) {
       if (schema.properties.containsKey(key)) return;
-      if (val == null) return;
 
       final matchingPatterns = schema.patternProperties.entries
           .where((e) => e.key.hasMatch(key))
@@ -933,6 +932,61 @@ bool isValidUri(String s) {
   if (!isValidUriReference(s)) return false;
   final parsed = Uri.tryParse(s);
   return parsed != null && parsed.hasScheme;
+}
+
+/// Validates if a string is a valid duration according to RFC 3339 Appendix A.
+bool isValidDuration(String s) {
+  if (s == 'P' || s.endsWith('T')) return false;
+  final exp = RegExp(
+    r'^P(?:(\d+W)|(?:(\d+Y(?:(\d+M)(\d+D)?)?|\d+M(?:\d+D)?|\d+D)?(?:T(\d+H(?:(\d+M)(\d+S)?)?|\d+M(?:\d+S)?|\d+S))?))$',
+  );
+  return exp.hasMatch(s);
+}
+
+/// Validates if a string is a valid JSON Pointer according to RFC 6901.
+bool isValidJsonPointer(String s) {
+  final exp = RegExp(r'^(?:/(?:[^~/]|~0|~1)*)*$');
+  return exp.hasMatch(s);
+}
+
+/// Validates if a string is a valid Relative JSON Pointer according to draft-handrews-relative-json-pointer-01.
+bool isValidRelativeJsonPointer(String s) {
+  final exp = RegExp(r'^(?:0|[1-9]\d*)(?:#|(?:/(?:[^~/]|~0|~1)*)*)$');
+  return exp.hasMatch(s);
+}
+
+/// Validates if a string is a valid URI Template according to RFC 6570.
+bool isValidUriTemplate(String s) {
+  final exp = RegExp(r'^([^{}]|\{[^{}]+\})*$');
+  return exp.hasMatch(s);
+}
+
+/// Validates if a string is a valid IRI according to RFC 3987.
+bool isValidIri(String s) {
+  final parsed = Uri.tryParse(s);
+  return parsed != null && parsed.hasScheme;
+}
+
+/// Validates if a string is a valid IRI Reference according to RFC 3987.
+bool isValidIriReference(String s) {
+  return Uri.tryParse(s) != null;
+}
+
+/// Validates if a string is a valid IDN Email according to RFC 6531 / 5322.
+bool isValidIdnEmail(String s) {
+  final exp = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+  return exp.hasMatch(s);
+}
+
+/// Validates if a string is a valid IDN Hostname according to RFC 5890.
+bool isValidIdnHostname(String s) {
+  if (s.isEmpty || s.length > 253) return false;
+  final labels = s.split('.');
+  for (final label in labels) {
+    if (label.isEmpty || label.length > 63) return false;
+    if (label.startsWith('-') || label.endsWith('-')) return false;
+  }
+  return true;
 }
 
 /// Extension on [Schema] to support runtime validation.
@@ -1701,6 +1755,93 @@ void _validateString(
         if (!r.hasMatch(value)) {
           context.addError(
             'Value must be a valid email address',
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
+          );
+        }
+      case 'duration':
+        if (!isValidDuration(value)) {
+          context.addError(
+            'Value must be a valid RFC 3339 duration',
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
+          );
+        }
+        break;
+      case 'json-pointer':
+        if (!isValidJsonPointer(value)) {
+          context.addError(
+            'Value must be a valid JSON pointer',
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
+          );
+        }
+        break;
+      case 'relative-json-pointer':
+        if (!isValidRelativeJsonPointer(value)) {
+          context.addError(
+            'Value must be a valid relative JSON pointer',
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
+          );
+        }
+        break;
+      case 'uri-template':
+        if (!isValidUriTemplate(value)) {
+          context.addError(
+            'Value must be a valid URI template',
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
+          );
+        }
+        break;
+      case 'iri':
+        if (!isValidIri(value)) {
+          context.addError(
+            'Value must be a valid IRI',
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
+          );
+        }
+        break;
+      case 'iri-reference':
+        if (!isValidIriReference(value)) {
+          context.addError(
+            'Value must be a valid IRI reference',
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
+          );
+        }
+        break;
+      case 'idn-email':
+        if (!isValidIdnEmail(value)) {
+          context.addError(
+            'Value must be a valid IDN email',
+            path,
+            keyword: 'format',
+            schema: schema,
+            value: value,
+          );
+        }
+        break;
+      case 'idn-hostname':
+        if (!isValidIdnHostname(value)) {
+          context.addError(
+            'Value must be a valid IDN hostname',
             path,
             keyword: 'format',
             schema: schema,
