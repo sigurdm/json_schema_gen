@@ -1,17 +1,18 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
+// ignore_for_file: prefer_is_empty, unnecessary_string_interpolations, avoid_init_to_null, unnecessary_const
+// ignore_for_file: unnecessary_question_mark, unnecessary_cast
 
-import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
-import 'address.g.dart' as _i1;
+import 'address.g.dart' as i1;
 
 final class Order implements JsonModel {
   final String orderId;
   final num total;
-  final _i1.Address shippingAddress;
-  final _i1.Address? billingAddress;
+  final i1.Address shippingAddress;
+  final i1.Address? billingAddress;
   final Map<String, Object?> additionalProperties;
 
   const Order({
@@ -53,8 +54,8 @@ final class Order implements JsonModel {
   Order copyWith({
     String? orderId,
     num? total,
-    _i1.Address? shippingAddress,
-    _i1.Address? billingAddress,
+    i1.Address? shippingAddress,
+    i1.Address? billingAddress,
     Map<String, Object?>? additionalProperties,
   }) => Order(
     orderId: orderId ?? this.orderId,
@@ -89,8 +90,8 @@ final class Order implements JsonModel {
     instantiate: (fields) => Order(
       orderId: fields['orderId'] as String,
       total: fields['total'] as num,
-      shippingAddress: fields['shippingAddress'] as _i1.Address,
-      billingAddress: fields['billingAddress'] as _i1.Address?,
+      shippingAddress: fields['shippingAddress'] as i1.Address,
+      billingAddress: fields['billingAddress'] as i1.Address?,
       additionalProperties: fields.entries
           .where(
             (e) =>
@@ -131,12 +132,12 @@ final class Order implements JsonModel {
       'shippingAddress': PropertyDescriptor(
         name: 'shippingAddress',
         isRequired: true,
-        schema: RefDescriptor<_i1.Address>(() => _i1.Address.descriptor),
+        schema: RefDescriptor<i1.Address>(() => i1.Address.descriptor),
       ),
       'billingAddress': PropertyDescriptor(
         name: 'billingAddress',
         isRequired: false,
-        schema: RefDescriptor<_i1.Address>(() => _i1.Address.descriptor),
+        schema: RefDescriptor<i1.Address>(() => i1.Address.descriptor),
       ),
     },
 

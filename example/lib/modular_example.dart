@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:jsontool/jsontool.dart';
 import 'address.g.dart';
 import 'order.g.dart';

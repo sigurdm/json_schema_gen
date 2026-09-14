@@ -10,7 +10,12 @@ analyzer:
     - debug_*.dart
     - test_*.dart
     - tool/run_json_schema_tests.dart
-    - "**/*.g.dart"
   errors:
     doc_directive_unknown: ignore
 
+linter:
+  rules:
+    # A library must never write to stdout. Leftover debug prints in the
+    # parser previously spammed every consumer's output and surfaced as
+    # build_runner warnings.
+    - avoid_print

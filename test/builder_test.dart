@@ -172,14 +172,14 @@ void main() {
 
         final personOutput =
             personBuildStep.outputs[personSchemaId.changeExtension('.g.dart')]!;
-        expect(personOutput, contains("import 'address.g.dart' as _i1;"));
-        expect(personOutput, contains('final _i1.Address? address;'));
-        expect(personOutput, contains('final _i1.Status? status;'));
+        expect(personOutput, contains("import 'address.g.dart' as i1;"));
+        expect(personOutput, contains('final i1.Address? address;'));
+        expect(personOutput, contains('final i1.Status? status;'));
         expect(
           personOutput,
-          contains('RefDescriptor<_i1.Address>(() => _i1.Address.descriptor)'),
+          contains('RefDescriptor<i1.Address>(() => i1.Address.descriptor)'),
         );
-        expect(personOutput, contains('_i1.Status.descriptor'));
+        expect(personOutput, contains('i1.Status.descriptor'));
         expect(personOutput, isNot(contains('final class Address')));
         expect(personOutput, isNot(contains('enum Status')));
 
@@ -363,8 +363,8 @@ void main() {
 
       final output =
           buildStep.outputs[orderSchemaId.changeExtension('.g.dart')]!;
-      expect(output, contains("import '../common/address.g.dart' as _i1;"));
-      expect(output, contains('final _i1.Address? shipping;'));
+      expect(output, contains("import '../common/address.g.dart' as i1;"));
+      expect(output, contains('final i1.Address? shipping;'));
       expect(output, isNot(contains('final class Address')));
     });
 
@@ -402,8 +402,8 @@ void main() {
 
       final output =
           buildStep.outputs[orderSchemaId.changeExtension('.g.dart')]!;
-      expect(output, contains("import 'package:pkg_b/address.g.dart' as _i1;"));
-      expect(output, contains('final _i1.Address? shipping;'));
+      expect(output, contains("import 'package:pkg_b/address.g.dart' as i1;"));
+      expect(output, contains('final i1.Address? shipping;'));
       expect(output, isNot(contains('final class Address')));
     });
 
@@ -451,9 +451,9 @@ void main() {
             buildStep.outputs[testOrderSchemaId.changeExtension('.g.dart')]!;
         expect(
           output,
-          contains("import 'package:my_package/address.g.dart' as _i1;"),
+          contains("import 'package:my_package/address.g.dart' as i1;"),
         );
-        expect(output, contains('final _i1.Address? shipping;'));
+        expect(output, contains('final i1.Address? shipping;'));
         expect(output, isNot(contains("import '../../lib/address.g.dart'")));
       },
     );
@@ -493,12 +493,12 @@ void main() {
 
       final output =
           buildStep.outputs[orderSchemaId.changeExtension('.g.dart')]!;
-      expect(output, contains("import 'item.g.dart' as _i1;"));
-      expect(output, contains('final List<_i1.Item>? items;'));
-      expect(output, contains('ArrayDescriptor<_i1.Item>('));
+      expect(output, contains("import 'item.g.dart' as i1;"));
+      expect(output, contains('final List<i1.Item>? items;'));
+      expect(output, contains('ArrayDescriptor<i1.Item>('));
       expect(
         output,
-        contains('RefDescriptor<_i1.Item>(() => _i1.Item.descriptor)'),
+        contains('RefDescriptor<i1.Item>(() => i1.Item.descriptor)'),
       );
       expect(output, isNot(contains('final class Item')));
     });
@@ -532,8 +532,8 @@ void main() {
       });
       await builder.build(step1);
       final out1 = step1.outputs[rootId.changeExtension('.g.dart')]!;
-      expect(out1, contains("import 'sub/nested.g.dart' as _i1;"));
-      expect(out1, contains('final _i1.NestedModel? nested;'));
+      expect(out1, contains("import 'sub/nested.g.dart' as i1;"));
+      expect(out1, contains('final i1.NestedModel? nested;'));
 
       // 2. Parent: lib/sub/child.schema.json -> lib/parent.schema.json
       final childId = AssetId('my_package', 'lib/sub/child.schema.json');
@@ -561,8 +561,8 @@ void main() {
       });
       await builder.build(step2);
       final out2 = step2.outputs[childId.changeExtension('.g.dart')]!;
-      expect(out2, contains("import '../parent.g.dart' as _i1;"));
-      expect(out2, contains('final _i1.ParentModel? parent;'));
+      expect(out2, contains("import '../parent.g.dart' as i1;"));
+      expect(out2, contains('final i1.ParentModel? parent;'));
 
       // 3. Sibling: lib/sub/child.schema.json -> lib/sub/sibling.schema.json
       final siblingId = AssetId('my_package', 'lib/sub/sibling.schema.json');
@@ -589,8 +589,8 @@ void main() {
       });
       await builder.build(step3);
       final out3 = step3.outputs[childId.changeExtension('.g.dart')]!;
-      expect(out3, contains("import 'sibling.g.dart' as _i1;"));
-      expect(out3, contains('final _i1.SiblingModel? sibling;'));
+      expect(out3, contains("import 'sibling.g.dart' as i1;"));
+      expect(out3, contains('final i1.SiblingModel? sibling;'));
     });
 
     test(
@@ -634,15 +634,15 @@ void main() {
         expect(
           out,
           contains(
-            "import 'package:core_ui/components/buttons/button.g.dart' as _i1;",
+            "import 'package:core_ui/components/buttons/button.g.dart' as i1;",
           ),
         );
-        expect(out, contains('final _i1.Button? action;'));
+        expect(out, contains('final i1.Button? action;'));
       },
     );
 
     test(
-      'inlines external ref when non-lib asset references non-lib asset',
+      'shares types via a relative import when both assets are outside lib/',
       () async {
         final testAId = AssetId('my_package', 'test/fixtures/a.schema.json');
         final testBId = AssetId('my_package', 'test/fixtures/b.schema.json');
@@ -670,10 +670,46 @@ void main() {
         await builder.build(step);
 
         final out = step.outputs[testAId.changeExtension('.g.dart')]!;
-        // Should NOT generate an import since target is in test/, not lib/
-        expect(out, isNot(contains("import 'b.g.dart'")));
-        expect(out, isNot(contains("import 'package:my_package/")));
-        expect(out, contains('final Helper? helper;'));
+        // Both files sit outside lib/, so a relative import between them is
+        // valid and the type must be shared rather than duplicated.
+        expect(out, contains("import 'b.g.dart' as i1;"));
+        expect(out, contains('final i1.Helper? helper;'));
+        expect(out, isNot(contains('final class Helper implements JsonModel')));
+      },
+    );
+
+    test(
+      'inlines when a library under lib/ references a non-lib asset',
+      () async {
+        final libId = AssetId('my_package', 'lib/a.schema.json');
+        final toolId = AssetId('my_package', 'tool/b.schema.json');
+
+        final bJson = json.encode({
+          r'$defs': {
+            'Helper': {
+              'type': 'object',
+              'properties': {
+                'info': {'type': 'string'},
+              },
+            },
+          },
+        });
+        final aJson = json.encode({
+          'title': 'TestA',
+          'type': 'object',
+          'properties': {
+            'helper': {r'$ref': r'../tool/b.schema.json#/$defs/Helper'},
+          },
+        });
+
+        final builder = jsonSchemaBuilder(BuilderOptions.empty);
+        final step = FakeBuildStep(libId, {libId: aJson, toolId: bJson});
+        await builder.build(step);
+
+        final out = step.outputs[libId.changeExtension('.g.dart')]!;
+        // A published library must not reach outside lib/, so this one really
+        // does have to inline.
+        expect(out, isNot(contains("import '../tool/b.g.dart'")));
         expect(out, contains('final class Helper implements JsonModel'));
       },
     );

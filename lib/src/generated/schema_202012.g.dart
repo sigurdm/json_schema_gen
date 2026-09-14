@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
+// ignore_for_file: prefer_is_empty, unnecessary_string_interpolations, avoid_init_to_null, unnecessary_const
+// ignore_for_file: unnecessary_question_mark, unnecessary_cast
 
 import 'dart:collection';
 import 'package:collection/collection.dart';
@@ -445,8 +447,8 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     if (val_id != null) {
       if (!isValidUriReference(val_id)) {
         throw JsonValidationException(
-          'Property "$id" must be a valid URI reference',
-          ['$id'],
+          'Property "\$id" must be a valid URI reference',
+          ['\$id'],
         );
       }
     }
@@ -454,8 +456,8 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     if (val_schema != null) {
       if (!isValidUri(val_schema)) {
         throw JsonValidationException(
-          'Property "$schema" must be a valid absolute URI',
-          ['$schema'],
+          'Property "\$schema" must be a valid absolute URI',
+          ['\$schema'],
         );
       }
     }
@@ -463,8 +465,8 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     if (val_ref != null) {
       if (!isValidUriReference(val_ref)) {
         throw JsonValidationException(
-          'Property "$ref" must be a valid URI reference',
-          ['$ref'],
+          'Property "\$ref" must be a valid URI reference',
+          ['\$ref'],
         );
       }
     }
@@ -472,8 +474,8 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     if (val_anchor != null) {
       if (!RegExp('^[A-Za-z_][-A-Za-z0-9._]*\$').hasMatch(val_anchor)) {
         throw JsonValidationException(
-          'Property "$anchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
-          ['$anchor'],
+          'Property "\$anchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
+          ['\$anchor'],
         );
       }
     }
@@ -481,8 +483,8 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     if (val_dynamicRef != null) {
       if (!isValidUriReference(val_dynamicRef)) {
         throw JsonValidationException(
-          'Property "$dynamicRef" must be a valid URI reference',
-          ['$dynamicRef'],
+          'Property "\$dynamicRef" must be a valid URI reference',
+          ['\$dynamicRef'],
         );
       }
     }
@@ -490,8 +492,8 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     if (val_dynamicAnchor != null) {
       if (!RegExp('^[A-Za-z_][-A-Za-z0-9._]*\$').hasMatch(val_dynamicAnchor)) {
         throw JsonValidationException(
-          'Property "$dynamicAnchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
-          ['$dynamicAnchor'],
+          'Property "\$dynamicAnchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
+          ['\$dynamicAnchor'],
         );
       }
     }
@@ -500,7 +502,7 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
       try {
         val_vocabulary.validate();
       } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$vocabulary', ...e.path]);
+        throw JsonValidationException(e.message, ['\$vocabulary', ...e.path]);
       }
     }
     final val_comment = comment;
@@ -509,7 +511,7 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
       try {
         val_defs.validate();
       } on JsonValidationException catch (e) {
-        throw JsonValidationException(e.message, ['$defs', ...e.path]);
+        throw JsonValidationException(e.message, ['\$defs', ...e.path]);
       }
     }
     final val_prefixItems = prefixItems;
@@ -835,8 +837,8 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
         '^[A-Za-z_][-A-Za-z0-9._]*\$',
       ).hasMatch(val_recursiveAnchor)) {
         throw JsonValidationException(
-          'Property "$recursiveAnchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
-          ['$recursiveAnchor'],
+          'Property "\$recursiveAnchor" must match pattern "^[A-Za-z_][-A-Za-z0-9._]*\$"',
+          ['\$recursiveAnchor'],
         );
       }
     }
@@ -844,8 +846,8 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     if (val_recursiveRef != null) {
       if (!isValidUriReference(val_recursiveRef)) {
         throw JsonValidationException(
-          'Property "$recursiveRef" must be a valid URI reference',
-          ['$recursiveRef'],
+          'Property "\$recursiveRef" must be a valid URI reference',
+          ['\$recursiveRef'],
         );
       }
     }
@@ -2252,25 +2254,20 @@ sealed class CoreAndValidationSpecificationsMetaSchema1Type
     activeOptions: [
       UnionOptionDescriptor<
         CoreAndValidationSpecificationsMetaSchema1Type,
-        CoreAndValidationSpecificationsMetaSchema1TypeOptionType0
+        SimpleTypes
       >(
-        CoreAndValidationSpecificationsMetaSchema1TypeOptionType0.descriptor,
+        SimpleTypes.descriptor,
         (val) => CoreAndValidationSpecificationsMetaSchema1TypeOption0(
-          val as CoreAndValidationSpecificationsMetaSchema1TypeOptionType0,
+          val as SimpleTypes,
         ),
       ),
       UnionOptionDescriptor<
         CoreAndValidationSpecificationsMetaSchema1Type,
-        List<CoreAndValidationSpecificationsMetaSchema1TypeOptionType0>
+        List<SimpleTypes>
       >(
-        ArrayDescriptor<
-          CoreAndValidationSpecificationsMetaSchema1TypeOptionType0
-        >(CoreAndValidationSpecificationsMetaSchema1TypeOptionType0.descriptor),
+        ArrayDescriptor<SimpleTypes>(SimpleTypes.descriptor),
         (val) => CoreAndValidationSpecificationsMetaSchema1TypeOption1(
-          val
-              as List<
-                CoreAndValidationSpecificationsMetaSchema1TypeOptionType0
-              >,
+          val as List<SimpleTypes>,
         ),
       ),
     ],
@@ -2279,16 +2276,12 @@ sealed class CoreAndValidationSpecificationsMetaSchema1Type
 
 final class CoreAndValidationSpecificationsMetaSchema1TypeOption0
     extends CoreAndValidationSpecificationsMetaSchema1Type {
-  final CoreAndValidationSpecificationsMetaSchema1TypeOptionType0 value;
+  final SimpleTypes value;
   const CoreAndValidationSpecificationsMetaSchema1TypeOption0(this.value);
 
   @override
   void writeJson(JsonSink target) {
-    writeWithDescriptor(
-      target,
-      value,
-      CoreAndValidationSpecificationsMetaSchema1TypeOptionType0.descriptor,
-    );
+    writeWithDescriptor(target, value, SimpleTypes.descriptor);
   }
 
   @override
@@ -2331,7 +2324,7 @@ final class CoreAndValidationSpecificationsMetaSchema1TypeOption0
 
 final class CoreAndValidationSpecificationsMetaSchema1TypeOption1
     extends CoreAndValidationSpecificationsMetaSchema1Type {
-  final List<CoreAndValidationSpecificationsMetaSchema1TypeOptionType0> value;
+  final List<SimpleTypes> value;
   const CoreAndValidationSpecificationsMetaSchema1TypeOption1(this.value);
 
   @override
@@ -2339,9 +2332,7 @@ final class CoreAndValidationSpecificationsMetaSchema1TypeOption1
     writeWithDescriptor(
       target,
       value,
-      ArrayDescriptor<
-        CoreAndValidationSpecificationsMetaSchema1TypeOptionType0
-      >(CoreAndValidationSpecificationsMetaSchema1TypeOptionType0.descriptor),
+      ArrayDescriptor<SimpleTypes>(SimpleTypes.descriptor),
     );
   }
 
@@ -2363,7 +2354,7 @@ final class CoreAndValidationSpecificationsMetaSchema1TypeOption1
       'CoreAndValidationSpecificationsMetaSchema1TypeOption1(value: $value)';
 }
 
-enum CoreAndValidationSpecificationsMetaSchema1TypeOptionType0 {
+enum SimpleTypes {
   array('array'),
   boolean('boolean'),
   integer('integer'),
@@ -2373,20 +2364,14 @@ enum CoreAndValidationSpecificationsMetaSchema1TypeOptionType0 {
   string('string');
 
   final String value;
-  const CoreAndValidationSpecificationsMetaSchema1TypeOptionType0(this.value);
-  static CoreAndValidationSpecificationsMetaSchema1TypeOptionType0 fromValue(
-    String val,
-  ) => values.firstWhere((e) => e.value == val);
-  static final EnumDescriptor<
-    CoreAndValidationSpecificationsMetaSchema1TypeOptionType0
-  >
-  descriptor =
-      EnumDescriptor<CoreAndValidationSpecificationsMetaSchema1TypeOptionType0>(
+  const SimpleTypes(this.value);
+  static SimpleTypes fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
+  static final EnumDescriptor<SimpleTypes> descriptor =
+      EnumDescriptor<SimpleTypes>(
         values: values,
         fromValue: (val) => fromValue(val as String),
-        toValue: (e) =>
-            (e as CoreAndValidationSpecificationsMetaSchema1TypeOptionType0)
-                .value,
+        toValue: (e) => (e as SimpleTypes).value,
         base: const StringDescriptor(),
       );
 }
@@ -2450,7 +2435,7 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
             hashCode: const DeepCollectionEquality().hash,
           )..addAll(value)).length) {
         throw JsonValidationException('Property "$key" items must be unique', [
-          '$key',
+          '\$key',
         ]);
       }
     });

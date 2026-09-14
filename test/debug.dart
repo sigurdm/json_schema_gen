@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:json_schema_gen/json_schema.dart';
 
 void main() async {

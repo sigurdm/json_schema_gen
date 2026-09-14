@@ -11,11 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
+
+      # The conformance suite is not vendored into this repository, but
+      # test/json_schema_suite_test.dart fails hard without it. Without this
+      # step the Draft 2020-12 compliance claim is never actually checked.
+      - name: Fetch JSON Schema Test Suite
+        run: |
+          git clone --depth 1 \
+            https://github.com/json-schema-org/JSON-Schema-Test-Suite.git \
+            third_party/JSON-Schema-Test-Suite
 
       - name: Install dependencies
         run: dart pub get
@@ -27,10 +36,16 @@ jobs:
         run: dart analyze
 
       - name: Run build_runner
-        run: dart run build_runner build -d
+        run: dart run build_runner build
+
+      - name: Regenerate bootstrapped metaschema
+        run: dart run tool/test_bootstrap_gen.dart && dart format lib/src/generated/schema_202012.g.dart
+
+      # Tests run before the up-to-date check so that a stale generated file
+      # cannot mask a genuine test failure. Previously this job never reached
+      # the test step at all.
+      - name: Run tests
+        run: dart test
 
       - name: Ensure generated code is up-to-date
         run: git diff --exit-code
-
-      - name: Run tests
-        run: dart test

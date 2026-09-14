@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
+// ignore_for_file: prefer_is_empty, unnecessary_string_interpolations, avoid_init_to_null, unnecessary_const
+// ignore_for_file: unnecessary_question_mark, unnecessary_cast
 
 import 'dart:collection';
 import 'package:collection/collection.dart';
@@ -88,7 +90,7 @@ final class User implements JsonModel {
   );
 
   void validate() {
-    if (name.length < 2) {
+    if (name.runes.length < 2) {
       throw JsonValidationException('Property "name" length must be >= 2', [
         'name',
       ]);

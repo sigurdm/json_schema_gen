@@ -42,7 +42,7 @@ void main() {
 
   group('generateCode with DartImportResolver', () {
     test(
-      'allocates prefixes _i1, _i2 and uses them for external types',
+      'allocates prefixes i1, i2 and uses them for external types',
       () async {
         final bSchemaJson = json.encode({
           r'$defs': {
@@ -100,17 +100,17 @@ void main() {
           },
         );
 
-        expect(code, contains("import 'b.g.dart' as _i1;"));
-        expect(code, contains("import 'c.g.dart' as _i2;"));
-        expect(code, contains('final _i1.Address? address;'));
-        expect(code, contains('final _i2.Order? order;'));
+        expect(code, contains("import 'b.g.dart' as i1;"));
+        expect(code, contains("import 'c.g.dart' as i2;"));
+        expect(code, contains('final i1.Address? address;'));
+        expect(code, contains('final i2.Order? order;'));
         expect(
           code,
-          contains('RefDescriptor<_i1.Address>(() => _i1.Address.descriptor)'),
+          contains('RefDescriptor<i1.Address>(() => i1.Address.descriptor)'),
         );
         expect(
           code,
-          contains('RefDescriptor<_i2.Order>(() => _i2.Order.descriptor)'),
+          contains('RefDescriptor<i2.Order>(() => i2.Order.descriptor)'),
         );
         expect(code, isNot(contains('final class Address')));
         expect(code, isNot(contains('final class Order')));
@@ -204,12 +204,12 @@ void main() {
         },
       );
 
-      expect(code, contains("import 'b.g.dart' as _i1;"));
-      expect(code, contains('final List<_i1.Address>? addresses;'));
+      expect(code, contains("import 'b.g.dart' as i1;"));
+      expect(code, contains('final List<i1.Address>? addresses;'));
       expect(
         code,
         contains(
-          'ArrayDescriptor<_i1.Address>(RefDescriptor<_i1.Address>(() => _i1.Address.descriptor))',
+          'ArrayDescriptor<i1.Address>(RefDescriptor<i1.Address>(() => i1.Address.descriptor))',
         ),
       );
       expect(code, isNot(contains('final class Address')));
@@ -267,11 +267,11 @@ void main() {
         );
 
         // Only one import for b.g.dart should be emitted
-        expect("import 'b.g.dart' as _i1;".allMatches(code).length, equals(1));
-        expect(code, isNot(contains('_i2')));
-        expect(code, contains('final _i1.Address? address;'));
-        expect(code, contains('final _i1.Address? shippingAddress;'));
-        expect(code, contains('final _i1.Country? country;'));
+        expect("import 'b.g.dart' as i1;".allMatches(code).length, equals(1));
+        expect(code, isNot(contains('i2')));
+        expect(code, contains('final i1.Address? address;'));
+        expect(code, contains('final i1.Address? shippingAddress;'));
+        expect(code, contains('final i1.Country? country;'));
       },
     );
 
@@ -351,15 +351,15 @@ void main() {
           },
         );
 
-        expect(code, contains("import 'b.g.dart' as _i1;"));
-        expect(code, contains("import 'c.g.dart' as _i2;"));
+        expect(code, contains("import 'b.g.dart' as i1;"));
+        expect(code, contains("import 'c.g.dart' as i2;"));
         expect(
           code,
           contains('sealed class CheckoutPayment implements JsonModel'),
         );
-        expect(code, contains('final _i1.CreditCard value;'));
-        expect(code, contains('final _i2.PayPal value;'));
-        expect(code, contains('final _i1.CreditCard? optionalCard;'));
+        expect(code, contains('final i1.CreditCard value;'));
+        expect(code, contains('final i2.PayPal value;'));
+        expect(code, contains('final i1.CreditCard? optionalCard;'));
         expect(code, isNot(contains('final class CreditCard')));
         expect(code, isNot(contains('final class PayPal')));
       },
@@ -397,9 +397,9 @@ void main() {
             uri.path == 'b.schema.json' ? 'b.g.dart' : null,
       );
 
-      expect(code, contains("import 'b.g.dart' as _i1;"));
-      expect(code, contains('final _i1.Status? status;'));
-      expect(code, contains('_i1.Status.descriptor'));
+      expect(code, contains("import 'b.g.dart' as i1;"));
+      expect(code, contains('final i1.Status? status;'));
+      expect(code, contains('i1.Status.descriptor'));
       expect(code, isNot(contains('enum Status')));
     });
 
@@ -441,15 +441,15 @@ void main() {
               uri.path == 'b.schema.json' ? 'b.g.dart' : null,
         );
 
-        expect(code, contains("import 'b.g.dart' as _i1;"));
+        expect(code, contains("import 'b.g.dart' as i1;"));
         expect(
           code,
-          contains('final Map<String, _i1.ConfigItem> additionalProperties;'),
+          contains('final Map<String, i1.ConfigItem> additionalProperties;'),
         );
         expect(
           code,
           contains(
-            "patternProperties: {_patternRegex0: RefDescriptor<_i1.ConfigItem>(() => _i1.ConfigItem.descriptor)}",
+            "patternProperties: {_patternRegex0: RefDescriptor<i1.ConfigItem>(() => i1.ConfigItem.descriptor)}",
           ),
         );
         expect(code, isNot(contains('final class ConfigItem')));
@@ -493,12 +493,12 @@ void main() {
             uri.path == 'b.schema.json' ? 'b.g.dart' : null,
       );
 
-      expect(code, contains("import 'b.g.dart' as _i1;"));
-      expect(code, contains('final _i1.SpecialAddress? location;'));
+      expect(code, contains("import 'b.g.dart' as i1;"));
+      expect(code, contains('final i1.SpecialAddress? location;'));
       expect(
         code,
         contains(
-          'RefDescriptor<_i1.SpecialAddress>(() => _i1.SpecialAddress.descriptor)',
+          'RefDescriptor<i1.SpecialAddress>(() => i1.SpecialAddress.descriptor)',
         ),
       );
     });
@@ -554,10 +554,10 @@ void main() {
           },
         );
 
-        expect(code, contains("import 'b.g.dart' as _i1;"));
-        expect(code, contains("import 'custom_settings.g.dart' as _i2;"));
-        expect(code, contains('final _i1.ExternalRoot? rootModel;'));
-        expect(code, contains('final _i2.CustomSettings? customSettings;'));
+        expect(code, contains("import 'b.g.dart' as i1;"));
+        expect(code, contains("import 'custom_settings.g.dart' as i2;"));
+        expect(code, contains('final i1.ExternalRoot? rootModel;'));
+        expect(code, contains('final i2.CustomSettings? customSettings;'));
       },
     );
 

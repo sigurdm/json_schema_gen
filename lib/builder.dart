@@ -55,6 +55,7 @@ final class JsonSchemaBuilder implements Builder {
         return buildStep.readAsBytes(resolvedId);
       },
       disallowExternalRefs: !allowExternalRefs,
+      onWarning: (message) => log.warning('$inputId: $message'),
     );
     final rootSchema = await parser.parse();
 
@@ -90,13 +91,30 @@ final class JsonSchemaBuilder implements Builder {
         '.g.dart',
       );
 
-      if (resolvedId.package != inputId.package ||
-          !inputId.path.startsWith('lib/')) {
-        if (!resolvedId.path.startsWith('lib/')) return null;
-        final libPath = targetDartPath.substring('lib/'.length);
+      final inputInLib = p.url.isWithin('lib', inputId.path);
+      final targetInLib = p.url.isWithin('lib', resolvedId.path);
+
+      // A different package can only be reached through a `package:` URI,
+      // which in turn is only possible for assets under `lib/`.
+      if (resolvedId.package != inputId.package) {
+        if (!targetInLib) return null;
+        final libPath = p.url.relative(targetDartPath, from: 'lib');
         return 'package:${resolvedId.package}/$libPath';
       }
 
+      // Same package. A library under `lib/` must not reach outside `lib/`:
+      // such an import breaks as soon as the package is consumed as a
+      // dependency, so fall back to inlining.
+      if (inputInLib && !targetInLib) return null;
+
+      // A file outside `lib/` (tests, examples, tools) referring to a public
+      // library uses the canonical `package:` URI.
+      if (!inputInLib && targetInLib) {
+        final libPath = p.url.relative(targetDartPath, from: 'lib');
+        return 'package:${resolvedId.package}/$libPath';
+      }
+
+      // Both on the same side of `lib/`: a relative import is correct.
       final inputDir = p.url.dirname(inputId.path);
       return p.url.relative(targetDartPath, from: inputDir);
     }

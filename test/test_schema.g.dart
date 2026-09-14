@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
+// ignore_for_file: prefer_is_empty, unnecessary_string_interpolations, avoid_init_to_null, unnecessary_const
+// ignore_for_file: unnecessary_question_mark, unnecessary_cast
 
 import 'dart:collection';
 import 'package:collection/collection.dart';
@@ -415,7 +417,7 @@ final class TestRoot implements JsonModel {
         ]);
       }
     }
-    if (name.length < 2) {
+    if (name.runes.length < 2) {
       throw JsonValidationException('Property "name" length must be >= 2', [
         'name',
       ]);
@@ -588,7 +590,7 @@ final class TestRoot implements JsonModel {
             ['primitiveArrayWithValidation', '[$i]'],
           );
         }
-        if (val_primitiveArrayWithValidation[i].length < 3) {
+        if (val_primitiveArrayWithValidation[i].runes.length < 3) {
           throw JsonValidationException(
             'Property "primitiveArrayWithValidation" length must be >= 3',
             ['primitiveArrayWithValidation', '[$i]'],
@@ -906,8 +908,8 @@ final class TestRoot implements JsonModel {
         bool matches = false;
         if (item is String) {
           matches = true;
-          if (item.length < 3) matches = false;
-          if (item.length > 10) matches = false;
+          if (item.runes.length < 3) matches = false;
+          if (item.runes.length > 10) matches = false;
           if (!RegExp('^a').hasMatch(item)) matches = false;
           try {
             if (!RegExp(r'^[^@]+@[^@]+$').hasMatch(item)) {
@@ -1032,7 +1034,7 @@ final class TestRoot implements JsonModel {
             ['tupleSameTypeArray', '[0]'],
           );
         }
-        if (val_tupleSameTypeArray[0].length < 1) {
+        if (val_tupleSameTypeArray[0].runes.length < 1) {
           throw JsonValidationException(
             'Property "tupleSameTypeArray" length must be >= 1',
             ['tupleSameTypeArray', '[0]'],
@@ -1046,7 +1048,7 @@ final class TestRoot implements JsonModel {
             ['tupleSameTypeArray', '[1]'],
           );
         }
-        if (val_tupleSameTypeArray[1].length > 5) {
+        if (val_tupleSameTypeArray[1].runes.length > 5) {
           throw JsonValidationException(
             'Property "tupleSameTypeArray" length must be <= 5',
             ['tupleSameTypeArray', '[1]'],
@@ -2676,7 +2678,7 @@ final class Address implements JsonModel {
   );
 
   void validate() {
-    if (city.length < 3) {
+    if (city.runes.length < 3) {
       throw JsonValidationException('Property "city" length must be >= 3', [
         'city',
       ]);
@@ -5051,12 +5053,12 @@ final class MergedAllOfObject implements JsonModel {
     }
     final val_strVal = strVal;
     if (val_strVal != null) {
-      if (val_strVal.length < 5) {
+      if (val_strVal.runes.length < 5) {
         throw JsonValidationException('Property "strVal" length must be >= 5', [
           'strVal',
         ]);
       }
-      if (val_strVal.length > 8) {
+      if (val_strVal.runes.length > 8) {
         throw JsonValidationException('Property "strVal" length must be <= 8', [
           'strVal',
         ]);
@@ -5245,9 +5247,9 @@ final class ComplexMergedObject implements JsonModel {
       }
     }
     additionalProperties.forEach((key, value) {
-      if (value.length < 3) {
+      if (value.runes.length < 3) {
         throw JsonValidationException('Property "$key" length must be >= 3', [
-          '$key',
+          '\$key',
         ]);
       }
     });
@@ -5394,12 +5396,12 @@ final class TestRootUnionContainsArrayContainsOption0
 
   @override
   void validate() {
-    if (value.length < 3) {
+    if (value.runes.length < 3) {
       throw JsonValidationException('Property "value" length must be >= 3', [
         'value',
       ]);
     }
-    if (value.length > 10) {
+    if (value.runes.length > 10) {
       throw JsonValidationException('Property "value" length must be <= 10', [
         'value',
       ]);
@@ -6189,9 +6191,9 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
 
 final class PatternPropertiesObject implements JsonModel {
   final String? name;
-  static final _patternRegex0 = RegExp(r'^S_');
-  static final _patternRegex1 = RegExp(r'^I_');
-  static final _patternRegex2 = RegExp(r'^O_');
+  static final _patternRegex0 = RegExp('^S_');
+  static final _patternRegex1 = RegExp('^I_');
+  static final _patternRegex2 = RegExp('^O_');
   final Map<String, dynamic> patternProperties;
 
   const PatternPropertiesObject({this.name, this.patternProperties = const {}});
@@ -6247,26 +6249,26 @@ final class PatternPropertiesObject implements JsonModel {
       if (_patternRegex0.hasMatch(key)) {
         if (value is! String) {
           throw JsonValidationException('Property "$key" must be a string', [
-            '$key',
+            '\$key',
           ]);
         }
       }
       if (_patternRegex1.hasMatch(key)) {
         if (value is! int) {
           throw JsonValidationException('Property "$key" must be an integer', [
-            '$key',
+            '\$key',
           ]);
         }
         if (value < 0) {
           throw JsonValidationException('Property "$key" must be >= 0', [
-            '$key',
+            '\$key',
           ]);
         }
       }
       if (_patternRegex2.hasMatch(key)) {
         if (value is! Address) {
           throw JsonValidationException('Property "$key" must be a Address', [
-            '$key',
+            '\$key',
           ]);
         }
         try {
@@ -6499,7 +6501,7 @@ final class OptionA implements JsonModel {
   );
 
   void validate() {
-    if (value.length < 5) {
+    if (value.runes.length < 5) {
       throw JsonValidationException('Property "value" length must be >= 5', [
         'value',
       ]);
@@ -6602,7 +6604,7 @@ final class OptionB implements JsonModel {
   );
 
   void validate() {
-    if (value.length < 2) {
+    if (value.runes.length < 2) {
       throw JsonValidationException('Property "value" length must be >= 2', [
         'value',
       ]);
@@ -7007,13 +7009,13 @@ final class TestRootCoverageTrigger implements JsonModel {
     }
     final val_mergeString = mergeString;
     if (val_mergeString != null) {
-      if (val_mergeString.length < 5) {
+      if (val_mergeString.runes.length < 5) {
         throw JsonValidationException(
           'Property "mergeString" length must be >= 5',
           ['mergeString'],
         );
       }
-      if (val_mergeString.length > 10) {
+      if (val_mergeString.runes.length > 10) {
         throw JsonValidationException(
           'Property "mergeString" length must be <= 10',
           ['mergeString'],

@@ -16,7 +16,6 @@ import 'dart:io' as io;
 import 'dart:math' as math;
 import 'package:jsontool/jsontool.dart';
 import 'package:path/path.dart' as p;
-import 'package:characters/characters.dart';
 import 'descriptors.dart';
 import 'schema.dart';
 import 'parser.dart';
@@ -1285,13 +1284,15 @@ void _validateString(
     }
     return;
   }
-  if (schema.minLength != null && value.characters.length < schema.minLength!) {
+  // JSON Schema counts Unicode code points, not grapheme clusters.
+  if (schema.minLength != null && value.runes.length < schema.minLength!) {
     throw JsonValidationException(
       'Value length must be >= ${schema.minLength}',
       path.toList(),
     );
   }
-  if (schema.maxLength != null && value.characters.length > schema.maxLength!) {
+  // JSON Schema counts Unicode code points, not grapheme clusters.
+  if (schema.maxLength != null && value.runes.length > schema.maxLength!) {
     throw JsonValidationException(
       'Value length must be <= ${schema.maxLength}',
       path.toList(),

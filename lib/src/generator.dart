@@ -117,6 +117,85 @@ String toCamelCase(String text) {
   return candidate;
 }
 
+/// Escapes [value] for embedding inside a single-quoted Dart string literal,
+/// without adding the surrounding quotes.
+///
+/// Use this when the text is interpolated into a larger generated literal, for
+/// example an error message like `'Property "$name" is required'`. When you
+/// need a complete literal, use [dartStringLiteral] instead.
+///
+/// Escapes every character that is significant inside a Dart string literal:
+/// backslashes, single quotes, `$` (which would otherwise begin a string
+/// interpolation), and control characters that cannot appear literally.
+///
+/// All schema-derived text — property names, `pattern` values, `title`s,
+/// deprecation messages — must pass through this function before being written
+/// into generated code. Ad-hoc escaping at the call site has historically
+/// produced output that either failed to compile or let schema content inject
+/// arbitrary Dart.
+String escapeStringContents(String value) {
+  final buffer = StringBuffer();
+  for (final rune in value.runes) {
+    if (rune == 0x5C) {
+      buffer.write(r'\\'); // backslash
+    } else if (rune == 0x27) {
+      buffer.write(r"\'"); // single quote
+    } else if (rune == 0x24) {
+      buffer.write(r'\$'); // dollar sign (interpolation)
+    } else if (rune == 0x0A) {
+      buffer.write(r'\n');
+    } else if (rune == 0x0D) {
+      buffer.write(r'\r');
+    } else if (rune == 0x09) {
+      buffer.write(r'\t');
+    } else if (rune < 0x20 || rune == 0x7F) {
+      buffer.write('\\u{${rune.toRadixString(16)}}');
+    } else {
+      buffer.writeCharCode(rune);
+    }
+  }
+  return buffer.toString();
+}
+
+/// Renders [value] as a complete single-quoted Dart string literal, safe to
+/// embed directly in generated source.
+///
+/// See [escapeStringContents] for the escaping rules.
+String dartStringLiteral(String value) => "'${escapeStringContents(value)}'";
+
+/// Type names that a generated class must never shadow.
+///
+/// Generated libraries reference these types unqualified, so a schema whose
+/// `title` collides with one of them would otherwise emit code that fails to
+/// compile (for example a schema titled `List` produced
+/// `The type 'List' is declared with 0 type parameters`). Names here are
+/// reserved up-front so the normal de-duplication counter renames the class.
+const _reservedTypeNames = {
+  // dart:core
+  'BigInt', 'bool', 'Comparable', 'DateTime', 'Deprecated', 'double',
+  'Duration', 'dynamic', 'Enum', 'Error', 'Exception', 'Function',
+  'Future', 'int', 'Iterable', 'Iterator', 'List', 'Map', 'MapEntry',
+  'Match', 'Never', 'Null', 'num', 'Object', 'Pattern', 'Record',
+  'RegExp', 'Runes', 'Set', 'StackTrace', 'Stream', 'String',
+  'StringBuffer', 'StringSink', 'Symbol', 'Type', 'Uri', 'UriData',
+  // dart:collection (imported when the output uses LinkedHashSet)
+  'HashMap', 'HashSet', 'LinkedHashMap', 'LinkedHashSet', 'ListQueue',
+  'Queue', 'SplayTreeMap', 'SplayTreeSet', 'UnmodifiableListView',
+  'UnmodifiableMapView',
+  // package:collection
+  'DeepCollectionEquality', 'ListEquality', 'MapEquality', 'SetEquality',
+  // package:jsontool
+  'JsonReader', 'JsonSink', 'JsonWriter',
+  // package:json_schema_gen runtime surface referenced by generated code
+  'AnythingDescriptor', 'ArrayDescriptor', 'BoolDescriptor',
+  'EnumDescriptor', 'IntDescriptor', 'JsonModel', 'JsonParseException',
+  'JsonValidationException', 'NeverDescriptor', 'NotDescriptor',
+  'NullableDescriptor', 'NullDescriptor', 'NumDescriptor',
+  'ObjectDescriptor', 'PrimitiveDescriptor', 'PropertyDescriptor',
+  'RefDescriptor', 'SchemaDescriptor', 'StringDescriptor',
+  'UnionDescriptor', 'UnionOptionDescriptor',
+};
+
 const _reservedMemberNames = {
   'validate',
   'writeJson',
@@ -317,7 +396,10 @@ String generateCode(
   }
   _resolveDynamicRefs(rootSchema, rootSchema);
   final classNames = Map<Schema, String>.identity();
-  final usedNames = <String>{};
+  // Seeded with the types that generated libraries reference unqualified, so
+  // that a schema titled e.g. `List` or `Object` is renamed instead of
+  // shadowing the real type and producing code that does not compile.
+  final usedNames = <String>{..._reservedTypeNames};
   final localClasses = <Schema>{};
   final importPrefixes = <String, String>{};
 
@@ -362,7 +444,7 @@ String generateCode(
 
     final prefix = importPrefixes.putIfAbsent(
       importPath,
-      () => '_i${importPrefixes.length + 1}',
+      () => 'i${importPrefixes.length + 1}',
     );
 
     final className = getDefinitionClassName(schema);
@@ -524,13 +606,32 @@ String generateCode(
   });
 
   try {
+    // Generate the class bodies first so the import list can be tailored to
+    // what the output actually references.
+    final body = StringBuffer();
+    for (final schema in localClasses) {
+      final name = classNames[schema]!;
+      if (schema.enumValues != null) {
+        body.writeln(_generateEnumClass(schema, name));
+      } else if (schema.isUnion) {
+        body.writeln(_generateUnionClass(schema, name, classNames));
+      } else if (schema.isObject) {
+        body.writeln(_generateObjectClass(schema, name, classNames));
+      }
+    }
+    final bodyCode = body.toString();
+
     final buffer = StringBuffer();
     buffer.writeln('''
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
-
-import 'dart:collection';
-import 'package:collection/collection.dart';
+// ignore_for_file: prefer_is_empty, unnecessary_string_interpolations, avoid_init_to_null, unnecessary_const
+// ignore_for_file: unnecessary_question_mark, unnecessary_cast
+''');
+    if (bodyCode.contains('LinkedHashSet')) {
+      buffer.writeln("import 'dart:collection';");
+    }
+    buffer.writeln('''import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';''');
 
@@ -538,16 +639,8 @@ import 'package:jsontool/jsontool.dart';''');
       buffer.writeln("import '${entry.key}' as ${entry.value};");
     }
 
-    for (final schema in localClasses) {
-      final name = classNames[schema]!;
-      if (schema.enumValues != null) {
-        buffer.writeln(_generateEnumClass(schema, name));
-      } else if (schema.isUnion) {
-        buffer.writeln(_generateUnionClass(schema, name, classNames));
-      } else if (schema.isObject) {
-        buffer.writeln(_generateObjectClass(schema, name, classNames));
-      }
-    }
+    buffer.writeln();
+    buffer.write(bodyCode);
 
     return buffer.toString();
   } finally {
@@ -588,7 +681,9 @@ String _generateEnumClass(Schema schema, String className) {
 
   if (schema.isDeprecated) {
     if (schema.deprecatedMessage != null) {
-      buffer.writeln("@Deprecated('${schema.deprecatedMessage}')");
+      buffer.writeln(
+        '@Deprecated(${dartStringLiteral(schema.deprecatedMessage!)})',
+      );
     } else {
       buffer.writeln("@Deprecated('deprecated')");
     }
@@ -707,7 +802,7 @@ bool _isNullable(
 String _toBasicDartLiteral(Object? value) {
   if (value == null) return 'null';
   if (value is String) {
-    return "'${value.replaceAll(r'\', r'\\').replaceAll("'", r"\'")}'";
+    return dartStringLiteral(value);
   }
   if (value is num || value is bool) {
     return value.toString();
@@ -720,7 +815,8 @@ String _toBasicDartLiteral(Object? value) {
     final entries = value.entries
         .map(
           (e) =>
-              "'${e.key.toString().replaceAll("'", r"\'")}': ${_toBasicDartLiteral(e.value)}",
+              '${dartStringLiteral(e.key.toString())}: '
+              '${_toBasicDartLiteral(e.value)}',
         )
         .join(', ');
     return 'const {$entries}';
@@ -745,7 +841,7 @@ String? _toDartLiteral(
   }
   if (value == null) return 'null';
   if (value is String) {
-    return "'${value.replaceAll(r'\', r'\\').replaceAll("'", r"\'")}'";
+    return dartStringLiteral(value);
   }
   if (value is num || value is bool) {
     return value.toString();
@@ -847,7 +943,9 @@ String _generateObjectClass(
 
     if (propSchema.isDeprecated) {
       if (propSchema.deprecatedMessage != null) {
-        fields.writeln("  @Deprecated('${propSchema.deprecatedMessage}')");
+        fields.writeln(
+          '  @Deprecated(${dartStringLiteral(propSchema.deprecatedMessage!)})',
+        );
       } else {
         fields.writeln("  @Deprecated('deprecated')");
       }
@@ -894,9 +992,9 @@ String _generateObjectClass(
   if (hasPatternProps) {
     for (var i = 0; i < patterns.length; i++) {
       final pattern = patterns[i];
-      final escapedPattern = pattern.pattern.replaceAll("'", r"\'");
       fields.writeln(
-        '  static final _patternRegex$i = RegExp(r\'$escapedPattern\');',
+        '  static final _patternRegex$i = '
+        'RegExp(${dartStringLiteral(pattern.pattern)});',
       );
     }
     fields.writeln('  final Map<String, dynamic> patternProperties;');
@@ -949,7 +1047,7 @@ String _generateObjectClass(
 
   schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
-    final nameEscaped = name.replaceAll("'", r"\'").replaceAll(r'$', r'\$');
+    final nameEscaped = escapeStringContents(name);
     final isRequired = schema.required?.contains(name) == true;
     final descExpr = _descriptorExpr(propSchema, classNames);
 
@@ -987,7 +1085,7 @@ String _generateObjectClass(
   });
 
   final propKeysLiteral =
-      '<String>{${(schema.properties?.keys ?? []).map((k) => "'${k.replaceAll("'", r"\'").replaceAll(r'$', r'\$')}'").join(', ')}}';
+      '<String>{${(schema.properties?.keys ?? []).map(dartStringLiteral).join(', ')}}';
 
   String patternMatchExpr = 'false';
   if (hasPatternProps) {
@@ -1050,13 +1148,13 @@ $getFieldsMap      };
     properties: {
 $propDescriptors    },
     $patternPropsExpr
-    required: const [${(schema.required ?? const <String>{}).map((r) => "'${r.replaceAll("'", r"\'").replaceAll(r'$', r'\$')}'").join(', ')}],
+    required: const [${(schema.required ?? const <String>{}).map(dartStringLiteral).join(', ')}],
     additionalProperties: $addPropsExpr,
   );''';
 
   final deprecatedAttr = schema.isDeprecated
       ? (schema.deprecatedMessage != null
-            ? "@Deprecated('${schema.deprecatedMessage}')\n"
+            ? '@Deprecated(${dartStringLiteral(schema.deprecatedMessage!)})\n'
             : "@Deprecated('deprecated')\n")
       : '';
 
@@ -1144,21 +1242,18 @@ String _generateMatchBlock(
     buffer.writeln('      $resultVar = true;');
     if (real.minLength != null) {
       buffer.writeln(
-        '      if ($valueVar.length < ${real.minLength}) $resultVar = false;',
+        '      if ($valueVar.runes.length < ${real.minLength}) $resultVar = false;',
       );
     }
     if (real.maxLength != null) {
       buffer.writeln(
-        '      if ($valueVar.length > ${real.maxLength}) $resultVar = false;',
+        '      if ($valueVar.runes.length > ${real.maxLength}) $resultVar = false;',
       );
     }
     if (real.pattern != null) {
-      final patternEscaped = real.pattern!
-          .replaceAll(r'\', r'\\')
-          .replaceAll(r'$', r'\$')
-          .replaceAll("'", r"\'");
       buffer.writeln(
-        '      if (!RegExp(\'$patternEscaped\').hasMatch($valueVar)) $resultVar = false;',
+        '      if (!RegExp(${dartStringLiteral(real.pattern!)})'
+        '.hasMatch($valueVar)) $resultVar = false;',
       );
     }
     if (real.format != null) {
@@ -1377,11 +1472,11 @@ String _generateValidationMethod(
     }
   }
   schema.dependentRequired?.forEach((key, deps) {
-    final escapedKey = key.replaceAll("'", "\\'");
+    final escapedKey = escapeStringContents(key);
     final fieldName = fieldNames[key]!;
     buffer.writeln('    if ($fieldName != null) {');
     for (final dep in deps) {
-      final escapedDep = dep.replaceAll("'", "\\'");
+      final escapedDep = escapeStringContents(dep);
       final depFieldName = fieldNames[dep]!;
       buffer.writeln('      if ($depFieldName == null) {');
       buffer.writeln(
@@ -1434,6 +1529,7 @@ String _generateValidationMethod(
           includeNot: true,
         );
         if (notValBuf.isNotEmpty) {
+          final escapedName = escapeStringContents(name);
           buffer.writeln('    bool notMatches_$fieldName = true;');
           buffer.writeln('    try {');
           buffer.write(notValBuf.toString());
@@ -1442,12 +1538,12 @@ String _generateValidationMethod(
           buffer.writeln('    }');
           buffer.writeln('    if (notMatches_$fieldName) {');
           buffer.writeln(
-            "      throw JsonValidationException('Property \"$name\" must not match the schema', ['$name']);",
+            "      throw JsonValidationException('Property \"$escapedName\" must not match the schema', ['$escapedName']);",
           );
           buffer.writeln('    }');
         }
       } else {
-        final escapedName = name.replaceAll("'", "\\'");
+        final escapedName = escapeStringContents(name);
         final descExpr = _descriptorExpr(propSchema.not!, classNames);
         buffer.writeln('    bool notMatches_$fieldName = true;');
         buffer.writeln('    try {');
@@ -1486,6 +1582,7 @@ String _generateValidationMethod(
         classNames,
         checkType: true,
         includeNot: true,
+        escapeName: false,
       );
       buffer.write(validations.toString());
       buffer.writeln('      }');
@@ -1507,9 +1604,10 @@ String _generateValidationMethod(
         addSchema,
         'value',
         r'$key',
-        [r'$key'],
+        [r"'$key'"],
         0,
         classNames,
+        escapeName: false,
       );
       buffer.writeln('    });');
     } else {
@@ -1521,6 +1619,7 @@ String _generateValidationMethod(
         r'$key',
         classNames,
         includeNot: false,
+        escapeName: false,
       );
       if (validations.isNotEmpty) {
         buffer.writeln('    additionalProperties.forEach((key, value) {');
@@ -1547,17 +1646,18 @@ void _generateArrayItemValidation(
   Schema itemSchema,
   String valueVar,
   String name,
-  List<String> path,
+  List<String> pathExprs,
   int depth,
-  Map<Schema, String> classNames,
-) {
+  Map<Schema, String> classNames, {
+  bool escapeName = true,
+}) {
   final real = itemSchema.realSchema;
   if (real.isObject || real.isUnion) {
     validations.writeln('''
         try {
           $valueVar.validate();
         } on JsonValidationException catch (e) {
-          throw JsonValidationException(e.message, [${path.map((p) => "'${p.replaceAll("'", "\\'")}'").join(', ')}, ...e.path]);
+          throw JsonValidationException(e.message, [${pathExprs.join(', ')}, ...e.path]);
         }''');
   } else if (real.isArray) {
     final itemVar = 'item$depth';
@@ -1574,9 +1674,10 @@ void _generateArrayItemValidation(
         real.items ?? Schema.anything,
         itemVar,
         name,
-        [...path, '[\$$indexVar]'],
+        [...pathExprs, "'[\$$indexVar]'"],
         depth + 1,
         classNames,
+        escapeName: escapeName,
       );
       validations.writeln('        }');
     }
@@ -1589,7 +1690,8 @@ void _generateArrayItemValidation(
       name,
       classNames,
       checkType: true,
-      path: path,
+      pathExprs: pathExprs,
+      escapeName: escapeName,
     );
     if (primitiveValidations.isNotEmpty) {
       final indent = '  ' * (depth + 1);
@@ -1614,14 +1716,18 @@ void _generateSchemaValidations(
   Map<Schema, String> classNames, {
   bool checkType = false,
   bool includeNot = true,
-  List<String>? path,
+  List<String>? pathExprs,
+  bool escapeName = true,
 }) {
   final unescapedName = name;
-  name = name.replaceAll("'", "\\'");
+  // `name` is interpolated into generated error messages. Normally it is a
+  // schema-derived property name and must be escaped; callers that pass a
+  // deliberate code fragment (such as `$key` inside an
+  // `additionalProperties.forEach`) opt out with `escapeName: false`.
+  name = escapeName ? escapeStringContents(name) : name;
   final real = schema.realSchema;
-  final effectivePath = path ?? [unescapedName];
-  final effectivePathExpr =
-      '[${effectivePath.map((p) => "'${p.replaceAll("'", "\\'")}'").join(', ')}]';
+  final effectivePath = pathExprs ?? [dartStringLiteral(unescapedName)];
+  final effectivePathExpr = '[${effectivePath.join(', ')}]';
   if (real.isString) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! String) {');
@@ -1631,31 +1737,28 @@ void _generateSchemaValidations(
       validations.writeln('      }');
     }
     if (real.minLength != null) {
-      validations.writeln('      if ($valueVar.length < ${real.minLength}) {');
+      validations.writeln(
+        '      if ($valueVar.runes.length < ${real.minLength}) {',
+      );
       validations.writeln(
         "        throw JsonValidationException('Property \"$name\" length must be >= ${real.minLength}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.maxLength != null) {
-      validations.writeln('      if ($valueVar.length > ${real.maxLength}) {');
+      validations.writeln(
+        '      if ($valueVar.runes.length > ${real.maxLength}) {',
+      );
       validations.writeln(
         "        throw JsonValidationException('Property \"$name\" length must be <= ${real.maxLength}', $effectivePathExpr);",
       );
       validations.writeln('      }');
     }
     if (real.pattern != null) {
-      final patternEscaped = real.pattern!
-          .replaceAll(r'\', r'\\')
-          .replaceAll(r'$', r'\$')
-          .replaceAll("'", r"\'");
-      final msgPatternEscaped = real.pattern!
-          .replaceAll(r'\', r'\\')
-          .replaceAll(r'$', r'\$')
-          .replaceAll("'", r"\'")
-          .replaceAll('"', '\\"');
+      final patternLiteral = dartStringLiteral(real.pattern!);
+      final msgPatternEscaped = escapeStringContents(real.pattern!);
       validations.writeln('''
-      if (!RegExp('$patternEscaped').hasMatch($valueVar)) {
+      if (!RegExp($patternLiteral).hasMatch($valueVar)) {
         throw JsonValidationException('Property "$name" must match pattern "$msgPatternEscaped"', $effectivePathExpr);
       }''');
     }
@@ -1799,7 +1902,7 @@ void _generateSchemaValidations(
             prefixSchema,
             '$valueVar[$i]',
             name,
-            [...effectivePath, '[$i]'],
+            [...effectivePath, "'[$i]'"],
             0,
             classNames,
           );
@@ -1818,7 +1921,7 @@ void _generateSchemaValidations(
         real.items ?? Schema.anything,
         '$valueVar[i]',
         name,
-        [...effectivePath, '[\$i]'],
+        [...effectivePath, "'[\$i]'"],
         0,
         classNames,
       );
@@ -1850,7 +1953,7 @@ void _generateSchemaValidations(
         unescapedName,
         classNames,
         checkType: true,
-        path: effectivePath,
+        pathExprs: effectivePath,
       );
     }
     final valuesLiterals = real.enumValues!
@@ -1950,7 +2053,8 @@ void _generateFormatValidation(
   String name, {
   String? pathExpr,
 }) {
-  name = name.replaceAll("'", "\\'");
+  // [name] arrives already escaped (or as a deliberate code fragment) from
+  // the caller; escaping again here would double up the backslashes.
   final effectivePathExpr = pathExpr ?? "['$name']";
   switch (format) {
     case 'date-time':
@@ -2094,7 +2198,7 @@ String _generateUnionClass(
 
     final optDeprecatedAttr = sub.isDeprecated
         ? (sub.deprecatedMessage != null
-              ? "@Deprecated('${sub.deprecatedMessage}')\n"
+              ? '@Deprecated(${dartStringLiteral(sub.deprecatedMessage!)})\n'
               : "@Deprecated('deprecated')\n")
         : '';
 
@@ -2198,7 +2302,7 @@ $optionDescriptors    ],
 
   final deprecatedAttr = schema.isDeprecated
       ? (schema.deprecatedMessage != null
-            ? "@Deprecated('${schema.deprecatedMessage}')\n"
+            ? '@Deprecated(${dartStringLiteral(schema.deprecatedMessage!)})\n'
             : "@Deprecated('deprecated')\n")
       : '';
   return '''

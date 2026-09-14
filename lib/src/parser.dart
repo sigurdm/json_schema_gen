@@ -23,6 +23,14 @@ final class SchemaParser {
   final Map<String, Set<String>?> _metaschemaVocabularies = {};
   final Map<String, Schema> _dynamicAnchors = {};
 
+  /// Called with a human-readable message when the parser encounters a
+  /// recoverable problem, such as a metaschema that could not be loaded.
+  ///
+  /// Defaults to doing nothing. A library must not write to stdout, so hosts
+  /// that want these diagnostics (the `build_runner` builder, for example)
+  /// supply their own logger.
+  final void Function(String message)? onWarning;
+
   /// Creates a parser for the given [rootJson] schema definition.
   ///
   /// Preconditions:
@@ -33,6 +41,7 @@ final class SchemaParser {
     this.uriResolver,
     this._disallowExternalRefs = false,
     this.flatten = true,
+    this.onWarning,
   }) {
     _findInlineIds(_rootJson, baseUri, '$baseUri#');
   }
@@ -88,7 +97,7 @@ final class SchemaParser {
           }
         }
       } catch (e) {
-        print('Warning: failed to load metaschema $schemaUrl: $e');
+        onWarning?.call('Failed to load metaschema $schemaUrl: $e');
       }
     }
     _metaschemaVocabularies[schemaUrl] = result;
@@ -173,28 +182,19 @@ final class SchemaParser {
         ? normalizeSchemaUri(dynamicAnchorUrl)
         : null;
 
-    print(
-      'Caching schema ${schema.hashCode}: idUrl parameter: $idUrl, schema.id: ${schema.id}',
-    );
-
     if (normPath.isNotEmpty) {
-      print('Caching path: $normPath');
       _cache[normPath] = schema;
     }
     if (normOriginalPath.isNotEmpty && normOriginalPath != normPath) {
-      print('Caching original path: $normOriginalPath');
       _cache[normOriginalPath] = schema;
     }
     if (normIdUrl != null && normIdUrl != normPath) {
-      print('Caching idUrl: $normIdUrl');
       _cache[normIdUrl] = schema;
     }
     if (normAnchorUrl != null) {
-      print('Caching anchorUrl: $normAnchorUrl');
       _cache[normAnchorUrl] = schema;
     }
     if (normDynamicAnchorUrl != null) {
-      print('Caching dynamicAnchorUrl: $normDynamicAnchorUrl');
       _cache[normDynamicAnchorUrl] = schema;
       _dynamicAnchors[normDynamicAnchorUrl] = schema;
     }
@@ -898,7 +898,10 @@ final class SchemaParser {
       if (!_cache.containsKey(refFile) && !_cache.containsKey(resolvedRefUri)) {
         if (_parsingPaths.contains('$refFile#') ||
             _parsingPaths.contains(resolvedRefUri)) {
-          print('Cycle detected for $resolvedRefUri, skipping parsing');
+          // Cyclic reference: the schema is already being parsed further up
+          // the stack, so skip it here and let that frame finish. This branch
+          // is intentionally empty but must stay to bypass the cases below.
+          onWarning?.call('Cycle detected for $resolvedRefUri, skipping');
         } else if (_inlineSchemas.containsKey(refFile)) {
           final inline = _inlineSchemas[refFile]!;
           await _parseSchema(

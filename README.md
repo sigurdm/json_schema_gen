@@ -99,7 +99,7 @@ Constraints (e.g., `minLength`, `minimum`) are checked at runtime.
 
 ### Modular Schemas & Cross-File References (`$ref`)
 When schemas reference definitions across files within the same package or across packages:
-*   **Automatic Library Imports**: The generator emits prefixed Dart imports (e.g. `import 'address.g.dart' as _i1;`) and reuses external types (`_i1.Address`) and descriptors (`_i1.Address.descriptor`) instead of duplicating code into every output file.
+*   **Automatic Library Imports**: The generator emits prefixed Dart imports (e.g. `import 'address.g.dart' as i1;`) and reuses external types (`i1.Address`) and descriptors (`i1.Address.descriptor`) instead of duplicating code into every output file.
 *   **Shared Type Compatibility**: Instances of shared components can be passed seamlessly between different root models (e.g. sharing an `Address` instance across both `User` and `Order`).
 *   **Standalone Definition Libraries**: Schema files containing only `$defs` or `definitions` without root properties (such as UBL CAC/CBC suites) generate standalone Dart libraries declaring all components.
 *   **Unmapped Remote References**: External references pointing to unmapped `http:` or `https:` URIs automatically fall back to inlining.
@@ -193,6 +193,24 @@ void main() {
   }
 }
 ```
+
+### Working with `Map<String, dynamic>`
+
+Streaming is the fast path, but you do not have to use it. Every generated
+model also has `fromMap` / `toMap` for when you already hold a decoded map
+(for example from `jsonDecode`, an HTTP client, or a database driver):
+
+```dart
+import 'dart:convert';
+
+final map = jsonDecode(jsonPayload) as Map<String, dynamic>;
+final user = User.fromMap(map);
+
+final roundTripped = user.toMap(); // Map<String, dynamic>
+```
+
+Both accept the same `validate: false` flag as the streaming constructors if
+you want to skip validation.
 
 ---
 
