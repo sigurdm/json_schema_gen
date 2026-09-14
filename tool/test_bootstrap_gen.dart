@@ -5,18 +5,20 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:json_schema_gen/json_schema.dart';
 
+/// Directory holding a checked-in copy of the Draft 2020-12 metaschema.
+///
+/// The metaschema is deliberately vendored here rather than read out of the
+/// JSON-Schema-Test-Suite checkout: that checkout is gitignored, does not ship
+/// the metaschema itself, and is therefore unavailable on a fresh clone and in
+/// CI. Vendoring keeps this tool runnable by anyone with just this repository.
+const _metaschemaDir = 'tool/metaschema';
+
 Future<List<int>> uriResolver(Uri uri) async {
   if (uri.host == 'json-schema.org' && uri.path.startsWith('/draft/2020-12/')) {
     final relativePath = uri.path.replaceFirst('/draft/2020-12/', '');
-    final localPath = p.join(
-      Directory.current.path,
-      'third_party',
-      'JSON-Schema-Test-Suite',
-      'remotes',
-      'draft2020-12',
-      relativePath,
+    final file = File(
+      p.join(Directory.current.path, _metaschemaDir, '$relativePath.json'),
     );
-    final file = File(localPath);
     if (await file.exists()) {
       return file.readAsBytes();
     }
@@ -25,9 +27,7 @@ Future<List<int>> uriResolver(Uri uri) async {
 }
 
 void main() async {
-  final schemaFile = File(
-    'third_party/JSON-Schema-Test-Suite/remotes/draft2020-12/schema',
-  );
+  final schemaFile = File(p.join(_metaschemaDir, 'schema.json'));
   final jsonStr = schemaFile.readAsStringSync();
   final decoded = json.decode(jsonStr) as Map<String, dynamic>;
 

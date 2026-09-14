@@ -21,6 +21,20 @@ import 'package:json_schema_gen/json_schema.dart';
 Future<List<int>> uriResolver(Uri uri) async {
   if (uri.host == 'json-schema.org' && uri.path.startsWith('/draft/2020-12/')) {
     final relativePath = uri.path.replaceFirst('/draft/2020-12/', '');
+    // The metaschema is not part of the test suite; it is vendored into this
+    // repository under tool/metaschema so that the suite can be run against a
+    // pristine checkout of JSON-Schema-Test-Suite.
+    final vendored = File(
+      p.join(
+        Directory.current.path,
+        'tool',
+        'metaschema',
+        '$relativePath.json',
+      ),
+    );
+    if (await vendored.exists()) {
+      return vendored.readAsBytes();
+    }
     final localPath = p.join(
       Directory.current.path,
       'third_party',
