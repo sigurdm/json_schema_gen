@@ -1,0 +1,10 @@
+# Files to ignore when publishing to pub.dev
+third_party/
+.github/
+tool/
+scratch/
+coverage/
+*.log
+.DS_Store
+debug_*.dart
+test_failures*.txt

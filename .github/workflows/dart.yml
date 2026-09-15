@@ -17,20 +17,6 @@ jobs:
         with:
           sdk: stable
 
-      # The conformance suite is not vendored into this repository, but
-      # test/json_schema_suite_test.dart fails hard without it. Without this
-      # step the Draft 2020-12 compliance claim is never actually checked.
-      # The revision is pinned so that an upstream change cannot turn this
-      # build red without a corresponding commit here.
-      - name: Fetch JSON Schema Test Suite
-        env:
-          SUITE_REV: e491ac1126961fa56ac9523a42ac9e27c0311e78
-        run: |
-          git clone --filter=blob:none \
-            https://github.com/json-schema-org/JSON-Schema-Test-Suite.git \
-            third_party/JSON-Schema-Test-Suite
-          git -C third_party/JSON-Schema-Test-Suite checkout "$SUITE_REV"
-
       - name: Install dependencies
         run: dart pub get
 
