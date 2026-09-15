@@ -38,10 +38,17 @@ Future<void> main() async {
   final schema = await parser.parse();
 
   // Helper to validate and print results.
-  void validateData(String label, Map<String, dynamic> data) {
+  //
+  // Per the JSON Schema spec, `format` is an annotation rather than an
+  // assertion, so it is only checked when [validateFormats] is set.
+  void validateData(
+    String label,
+    Map<String, dynamic> data, {
+    bool validateFormats = false,
+  }) {
     print('\nValidating $label:');
     try {
-      schema.validate(data);
+      schema.validate(data, validateFormats: validateFormats);
       print('  Success! Data is valid.');
     } on JsonValidationException catch (e) {
       print('  Validation Failed!');
@@ -72,10 +79,17 @@ Future<void> main() async {
   // Test Case 5: Constraint Violation (age minimum)
   validateData('Negative Age', {'name': 'Eve', 'age': -5});
 
-  // Test Case 6: Constraint Violation (email format)
-  validateData('Invalid Email Format', {
+  // Test Case 6: `format` is an annotation by default, so this passes.
+  validateData('Invalid Email Format (formats not asserted)', {
     'name': 'Frank',
     'age': 25,
     'emails': ['frank@example.com', 'not-an-email'],
   });
+
+  // Test Case 7: the same payload, with format assertion opted in.
+  validateData('Invalid Email Format (formats asserted)', {
+    'name': 'Frank',
+    'age': 25,
+    'emails': ['frank@example.com', 'not-an-email'],
+  }, validateFormats: true);
 }

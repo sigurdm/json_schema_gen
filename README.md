@@ -7,7 +7,7 @@ A JSON Schema code generator and runtime validator for Dart. It compiles JSON Sc
 - In-memory `fromMap()` and `toMap()` methods for seamless integration with `dart:convert`, HTTP clients, and database drivers.
 - Supports polymorphic types (`oneOf` / `anyOf`), discriminators, and modular cross-file `$ref` resolution.
 - Comprehensive multi-error accumulation across fields, arrays, and nested models.
-- 100% conformance to JSON Schema Draft 2020-12 across all 1,299 core tests.
+- Passes all 1,299 required Draft 2020-12 tests in the official JSON Schema Test Suite (92.9% including the `optional/` suites — see [Compliance & Testing](#compliance--testing)).
 
 ## JSON Schema Draft Version & Feature Coverage
 
@@ -27,7 +27,7 @@ This package supports schemas conforming to **JSON Schema Draft 2020-12**.
 - `not` is supported. Inverts subschema validation. Fields with only `not` constraints fall back to `dynamic` typing.
 
 ### Supported Validation Constraints
-- **Strings**: `minLength`, `maxLength`, `pattern`, `format` (supporting `date-time`, `date`, `time`, `email`, `ipv4`, `ipv6`, `hostname`, `uri`, `uri-reference`, `uuid`).
+- **Strings**: `minLength`, `maxLength`, `pattern`, `format` (supporting `date-time`, `date`, `time`, `duration`, `email`, `idn-email`, `ipv4`, `ipv6`, `hostname`, `idn-hostname`, `uri`, `uri-reference`, `uri-template`, `iri`, `iri-reference`, `uuid`, `json-pointer`, `relative-json-pointer`).
 - **Numbers/Integers**: `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`, `multipleOf`.
 - **Arrays**: `minItems`, `maxItems`, `uniqueItems`, `contains`, `minContains`, `maxContains`.
 - **Objects**: `required`, `minProperties`, `maxProperties`, `dependentRequired`, `additionalProperties`, `patternProperties`, `unevaluatedProperties`.
@@ -45,7 +45,7 @@ The generator supports custom annotations to configure the generated Dart code:
 ### The `not` Keyword and Typing
 The `not` keyword inverts validation logic.
 - If a property only has a `not` constraint (without an explicit `type`), the generator cannot infer a Dart type and falls back to `dynamic`.
-- If a `not` subschema negates the parent schema's type (e.g., `{ "type": "string", "not": { "type": "string" } }`), validation will always fail at runtime. The generator emits a warning for these cases.
+- If a `not` subschema negates the parent schema's type (e.g., `{ "type": "string", "not": { "type": "string" } }`), validation will always fail at runtime.
 
 ### Floating-Point Precision (`multipleOf`)
 Validation of `multipleOf` on fractional numbers is subject to IEEE 754 double-precision limitations.
@@ -63,7 +63,7 @@ JSON Schema `object` maps to a Dart `final class`.
 *   **Additional Properties**:
     *   If `"additionalProperties": false`, the parser throws an exception on extra properties.
     *   If `"additionalProperties"` has a schema (e.g., `{"type": "string"}`), it maps to a `final Map<String, T> additionalProperties` field.
-    *   If not specified (defaults to `true`), additional properties are ignored.
+    *   If not specified (defaults to `true`), extra properties are captured in a `final Map<String, Object?> additionalProperties` field and round-tripped by `toMap()` / `toJson()`.
 *   **Pattern Properties**: Map to a `final Map<String, dynamic> patternProperties` field.
 
 ### Arrays
@@ -407,7 +407,14 @@ final code = generateCode(
 
 ## Compliance & Testing
 
-The generator and runtime validator are verified against the official [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for Draft 2020-12, passing all 1,299 tests.
+The generator and runtime validator are verified against the official [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for Draft 2020-12, a Draft 2020-12 slice of which is vendored under `third_party/`.
+
+| Suite | Passing |
+| --- | --- |
+| Required (`tests/draft2020-12/*.json`) | 1,299 / 1,299 (100%) |
+| Including `optional/` (formats, non-BMP regexes, big numbers, …) | 1,949 / 2,098 (92.9%) |
+
+Per JSON Schema, `format` is an annotation by default. Runtime validation therefore only asserts formats when you pass `validateFormats: true`; generated models always assert the formats named in their schema. The `duration`, `json-pointer`, `relative-json-pointer` and `uri-template` validators are complete; `idn-hostname`, `idn-email`, `iri` and `iri-reference` are approximations and should not be relied on for security decisions.
 
 ## Implementation Details
 

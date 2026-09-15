@@ -12,11 +12,22 @@ final class SchemaParser {
   final Map<String, Schema> _cache = {};
   final Map<_MergePair, Schema> _mergeCache = {};
   final Map<String, dynamic> _rootJson;
+
+  /// The base URI that relative `$ref`s and `$id`s are resolved against.
   final String baseUri;
+
+  /// Resolves an external schema [Uri] to its raw bytes.
+  ///
+  /// When null, any external `$ref` is an error.
   final Future<List<int>> Function(Uri uri)? uriResolver;
   final Set<String> _loadedFiles = {};
+
+  /// Whether `allOf` and sibling keywords are merged into a single flat
+  /// [Schema] rather than being preserved as separate combinator nodes.
   final bool flatten;
-  final bool _disallowExternalRefs;
+
+  /// Whether `$ref`s pointing outside the root document are rejected.
+  final bool disallowExternalRefs;
   final Map<String, _InlineSchema> _inlineSchemas = {};
   final Set<String> _parsingPaths = {};
   Set<String>? _currentVocabularies;
@@ -31,15 +42,14 @@ final class SchemaParser {
   /// supply their own logger.
   final void Function(String message)? onWarning;
 
-  /// Creates a parser for the given [rootJson] schema definition.
+  /// Creates a parser for the given root schema definition.
   ///
-  /// Preconditions:
-  /// - [rootJson] must not be null.
+  /// The `rootJson` map is the decoded JSON of the schema document.
   SchemaParser(
     this._rootJson, {
     this.baseUri = 'http://localhost/',
     this.uriResolver,
-    this._disallowExternalRefs = false,
+    this.disallowExternalRefs = false,
     this.flatten = true,
     this.onWarning,
   }) {
@@ -48,8 +58,9 @@ final class SchemaParser {
 
   /// Parses the schema and returns the resolved [Schema] AST.
   ///
-  /// It is an error if [rootJson] contains an invalid schema type, or an external
-  /// reference when external references are disallowed or no URI resolver is provided.
+  /// It is an error if the root schema contains an invalid schema type, or an
+  /// external reference when external references are disallowed or no URI
+  /// resolver is provided.
   Future<Schema> parse() async {
     final root = await _parseSchema(
       _rootJson,
@@ -892,7 +903,7 @@ final class SchemaParser {
 
     final refFile = _getFileUri(resolvedRefUri);
     if (refFile != currentFile && refFile.isNotEmpty) {
-      if (_disallowExternalRefs) {
+      if (disallowExternalRefs) {
         throw ArgumentError('External references are disallowed: $ref');
       }
       if (!_cache.containsKey(refFile) && !_cache.containsKey(resolvedRefUri)) {
@@ -952,7 +963,7 @@ final class SchemaParser {
             ).resolve(v as String).toString();
             final refFile = _getFileUri(resolved);
             if (refFile != currentFile && refFile.isNotEmpty) {
-              if (_disallowExternalRefs) {
+              if (disallowExternalRefs) {
                 throw ArgumentError('External references are disallowed: $v');
               }
             }

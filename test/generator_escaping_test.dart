@@ -21,7 +21,8 @@ import 'package:json_schema_gen/json_schema.dart';
 // `dartStringLiteral` is an internal helper, deliberately not part of the
 // public API, but it is the single chokepoint for escaping so it is worth
 // testing directly.
-import 'package:json_schema_gen/src/generator.dart' show dartStringLiteral;
+import 'package:json_schema_gen/src/generator.dart'
+    show dartDocComment, dartStringLiteral;
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 
@@ -258,6 +259,109 @@ void main() {
     }
   });
 
+  group('hostile schema text cannot inject Dart', () {
+    test(r'$comment containing a newline stays inside the doc comment', () async {
+      await expectGeneratesValidDart(
+        {
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'HostileComment',
+          'type': 'object',
+          'properties': {
+            'field': {
+              'type': 'string',
+              r'$comment':
+                  "harmless\n}\n\nvoid injected() { throw 'pwned'; }\n\nclass Leftover {",
+            },
+          },
+        },
+        'HostileComment',
+        workDir: workDir,
+      );
+    });
+
+    test(r'$comment containing quotes and $ interpolation', () async {
+      await expectGeneratesValidDart(
+        {
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'QuotedComment',
+          'type': 'object',
+          'properties': {
+            'field': {
+              'type': 'string',
+              r'$comment': r"it's ${injected} \ [NotAType] */",
+            },
+          },
+        },
+        'QuotedComment',
+        workDir: workDir,
+      );
+    });
+
+    test('enum values containing quotes and backslashes', () async {
+      await expectGeneratesValidDart(
+        {
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'HostileEnum',
+          'type': 'object',
+          'properties': {
+            'kind': {
+              'enum': [r"it's", r'back\slash', r'${injected}', 'line\nbreak'],
+            },
+          },
+          'required': ['kind'],
+        },
+        'HostileEnum',
+        workDir: workDir,
+      );
+    });
+
+    test('discriminator property name containing a quote', () async {
+      await expectGeneratesValidDart(
+        {
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'HostileDiscriminator',
+          'oneOf': [
+            {
+              'type': 'object',
+              'title': 'Cat',
+              'properties': {
+                r"it's a type": {'const': 'cat'},
+              },
+            },
+            {
+              'type': 'object',
+              'title': 'Dog',
+              'properties': {
+                r"it's a type": {'const': 'dog'},
+              },
+            },
+          ],
+          'discriminator': {
+            'propertyName': r"it's a type",
+            'mapping': {r"cat's": '#/oneOf/0', r'dog\s': '#/oneOf/1'},
+          },
+        },
+        'HostileDiscriminator',
+        workDir: workDir,
+      );
+    });
+
+    test('union option titles containing quotes', () async {
+      await expectGeneratesValidDart(
+        {
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'HostileUnionTitles',
+          'oneOf': [
+            {'type': 'object', 'title': r"Alice's ${thing}"},
+            {'type': 'string'},
+          ],
+        },
+        'HostileUnionTitles',
+        workDir: workDir,
+      );
+    });
+  });
+
   group('dartStringLiteral', () {
     test('escapes the characters that are significant in a Dart literal', () {
       expect(dartStringLiteral('plain'), "'plain'");
@@ -271,6 +375,29 @@ void main() {
     test('preserves non-ASCII text verbatim', () {
       expect(dartStringLiteral('日本語'), "'日本語'");
       expect(dartStringLiteral('naïve'), "'naïve'");
+    });
+  });
+
+  group('dartDocComment', () {
+    test('prefixes every line so text cannot escape the comment', () {
+      expect(dartDocComment('one\ntwo'), '  /// one\n  /// two\n');
+      expect(dartDocComment('a\r\nb\rc'), '  /// a\n  /// b\n  /// c\n');
+    });
+
+    test('escapes brackets so they are not dartdoc references', () {
+      expect(
+        dartDocComment('see [NotAType]'),
+        r'  /// see \[NotAType\]'
+        '\n',
+      );
+    });
+
+    test('strips control characters', () {
+      expect(dartDocComment('a\u0000b'), '  /// ab\n');
+    });
+
+    test('keeps blank lines as bare ///', () {
+      expect(dartDocComment('a\n\nb'), '  /// a\n  ///\n  /// b\n');
     });
   });
 }

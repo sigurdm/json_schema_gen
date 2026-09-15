@@ -189,7 +189,7 @@ void main() {
   print('  Generated Parser:  ${generatedParseMs}ms');
   print('  Descriptor Parser: ${descriptorParseMs}ms');
   print(
-    '  Speedup:           ${(descriptorParseMs / generatedParseMs).toStringAsFixed(2)}x faster',
+    '  ${_compare('Generated', generatedParseMs, 'descriptor', descriptorParseMs)}',
   );
 
   print('\nRunning Serialization Benchmark ($iterations iterations)...');
@@ -226,6 +226,26 @@ void main() {
   print('  Generated Serializer:  ${generatedSerializeMs}ms');
   print('  Descriptor Serializer: ${descriptorSerializeMs}ms');
   print(
-    '  Speedup:               ${(descriptorSerializeMs / generatedSerializeMs).toStringAsFixed(2)}x faster',
+    '  ${_compare('Generated', generatedSerializeMs, 'descriptor', descriptorSerializeMs)}',
   );
+}
+
+/// Describes how [subjectMs] compares to [baselineMs], in the correct
+/// direction: a subject that took longer is reported as *slower*, not as a
+/// fractional speedup.
+String _compare(
+  String subject,
+  int subjectMs,
+  String baseline,
+  int baselineMs,
+) {
+  if (subjectMs == 0 || baselineMs == 0) {
+    return '$subject: too fast to compare reliably; raise `iterations`.';
+  }
+  if (subjectMs <= baselineMs) {
+    final ratio = (baselineMs / subjectMs).toStringAsFixed(2);
+    return '$subject is ${ratio}x faster than $baseline.';
+  }
+  final ratio = (subjectMs / baselineMs).toStringAsFixed(2);
+  return '$subject is ${ratio}x slower than $baseline.';
 }

@@ -130,17 +130,26 @@ final class JsonSchemaBuilder implements Builder {
       dartImportResolver: dartImportResolver,
     );
 
-    // Format the generated code using dart_style for clean output
-    String formattedCode;
+    // Format the generated code using dart_style for clean output.
+    //
+    // A failure here means the generator produced source that does not parse,
+    // which is always a bug in this package. Writing the unformatted code out
+    // anyway would hide that behind a confusing analysis error in the
+    // consumer's package, so fail the build instead.
+    final String formattedCode;
     try {
       formattedCode = DartFormatter(
-        languageVersion: Version(3, 12, 0),
+        languageVersion: Version(3, 10, 0),
       ).format(generatedCode);
-    } catch (e) {
-      // In case formatting fails (e.g. syntax error in generated code),
-      // write the raw code to aid debugging.
-      log.warning('Could not format generated code for $inputId: $e');
-      formattedCode = generatedCode;
+    } catch (e, stackTrace) {
+      log.severe(
+        'json_schema_gen produced source that could not be parsed for '
+        '$inputId. This is a bug in json_schema_gen; please report it at '
+        'https://github.com/sigurdm/json_schema_gen/issues.',
+        e,
+        stackTrace,
+      );
+      rethrow;
     }
 
     final outputId = buildStep.allowedOutputs.single;

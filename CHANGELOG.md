@@ -18,11 +18,11 @@ Initial release of `json_schema_gen`, a comprehensive JSON Schema (Draft 2020-12
   - **Stack-Safe Streaming JSON Parser**: Zero-copy, non-recursive frame-based state machine using `package:jsontool`, completely immune to call-stack overflow on deeply nested payloads.
   - **In-Memory Map Support**: High-convenience `fromMap` and `toMap` methods on every generated model for interop with `dart:convert`, HTTP clients, and database drivers.
 
-- **100% JSON Schema Draft 2020-12 Conformance**:
-  - Passes all 1,299 core tests in the official [JSON-Schema-Test-Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for Draft 2020-12.
+- **JSON Schema Draft 2020-12 Conformance**:
+  - Passes all 1,299 required tests in the official [JSON-Schema-Test-Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for Draft 2020-12 (1,949 / 2,098 = 92.9% including the `optional/` suites).
   - Full keyword support: `unevaluatedProperties`, `unevaluatedItems`, `patternProperties`, `dependentRequired`, `dependentSchemas`, `contains`, `minContains`, `maxContains`, `propertyNames`, `not`, `if`/`then`/`else`, and format validations.
   - Dynamic scoping and recursion support via `$dynamicAnchor` and `$dynamicRef`.
-  - Added full format validation suite for `duration` (RFC 3339), `json-pointer` (RFC 6901), `relative-json-pointer`, `uri-template` (RFC 6570), `iri` / `iri-reference` (RFC 3987), and `idn-email` / `idn-hostname` (RFC 5890 / 6531).
+  - Added format validators for `duration` (RFC 3339), `json-pointer` (RFC 6901), `relative-json-pointer` and `uri-template` (RFC 6570), plus best-effort `iri`, `iri-reference`, `idn-email` and `idn-hostname` validators (these last four are approximations and do not implement full IDNA/RFC 3987 processing).
   - Added support for metadata keywords: `readOnly`, `writeOnly`, `$comment`, `contentEncoding`, `contentMediaType`, and `contentSchema`.
   - Emits field documentation for `readOnly`, `writeOnly`, and `$comment`.
 

@@ -163,6 +163,29 @@ String escapeStringContents(String value) {
 /// See [escapeStringContents] for the escaping rules.
 String dartStringLiteral(String value) => "'${escapeStringContents(value)}'";
 
+/// Renders schema-derived [text] as a `///` doc comment, indented by [indent].
+///
+/// A `///` comment is terminated by a line break, so any schema text written
+/// into one must have its line breaks re-prefixed — otherwise a `$comment`
+/// such as `"oops\n}  void evil() {}"` escapes the comment and injects
+/// arbitrary Dart. Carriage returns and other control characters are stripped
+/// for the same reason, and `[` is escaped so that text like `[Foo]` is not
+/// resolved as a dartdoc reference to a type that does not exist.
+String dartDocComment(String text, {String indent = '  '}) {
+  final sanitized = text.replaceAll('[', r'\[').replaceAll(']', r'\]');
+  final lines = sanitized.split(RegExp(r'\r\n|\r|\n'));
+  final buffer = StringBuffer();
+  for (final line in lines) {
+    // Strip any remaining control characters; they cannot appear in source.
+    final clean = line.replaceAll(
+      RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]'),
+      '',
+    );
+    buffer.writeln(clean.isEmpty ? '$indent///' : '$indent/// $clean');
+  }
+  return buffer.toString();
+}
+
 /// Type names that a generated class must never shadow.
 ///
 /// Generated libraries reference these types unqualified, so a schema whose
@@ -951,7 +974,7 @@ String _generateObjectClass(
     final fieldType = _fieldType(propSchema, isRequired, context);
 
     if (propSchema.comment != null) {
-      fields.writeln('  /// Comment: ${propSchema.comment}');
+      fields.write(dartDocComment('Comment: ${propSchema.comment}'));
     }
     if (propSchema.readOnly) {
       fields.writeln('  /// Read-only.');
@@ -2047,8 +2070,9 @@ void _generateSchemaValidations(
     validations.writeln(
       '      if (!const [$valuesLiterals].any((v) => const DeepCollectionEquality().equals(v, $effectiveValue))) {',
     );
+    final enumValuesText = escapeStringContents(real.enumValues.toString());
     validations.writeln(
-      "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be one of ${real.enumValues}', path: $effectivePathExpr, keyword: 'enum'));",
+      "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be one of $enumValuesText', path: $effectivePathExpr, keyword: 'enum'));",
     );
     validations.writeln('      }');
   } else if (real.isObject || real.isUnion) {
@@ -2405,7 +2429,7 @@ $validationBody
 
       for (final label in caseLabels.toSet()) {
         mappingEntries.writeln(
-          "      '$label': UnionOptionDescriptor<$className, $optionType>(${_descriptorExpr(sub, classNames)}, (val) => $subClassName(val as $optionType)),",
+          "      ${dartStringLiteral(label)}: UnionOptionDescriptor<$className, $optionType>(${_descriptorExpr(sub, classNames)}, (val) => $subClassName(val as $optionType)),",
         );
       }
       i++;
@@ -2416,7 +2440,7 @@ $validationBody
       '''
   static final UnionDescriptor<$className> descriptor = UnionDescriptor<$className>(
     title: '$className',
-    ${useDiscriminator ? "discriminatorProperty: '${disc.propertyName}'," : ''}
+    ${useDiscriminator ? 'discriminatorProperty: ${dartStringLiteral(disc.propertyName)},' : ''}
     ${useDiscriminator ? 'discriminatorMapping: {\n$mappingEntries    },' : ''}
     activeOptions: [
 $optionDescriptors    ],

@@ -224,7 +224,7 @@ Future<int> run(
   if (format) {
     try {
       generatedCode = DartFormatter(
-        languageVersion: Version(3, 12, 0),
+        languageVersion: Version(3, 10, 0),
       ).format(generatedCode);
     } catch (e) {
       err.writeln('Error formatting generated code: $e');

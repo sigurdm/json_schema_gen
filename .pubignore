@@ -4,6 +4,7 @@ third_party/
 tool/
 scratch/
 coverage/
+doc/api/
 *.log
 .DS_Store
 debug_*.dart
