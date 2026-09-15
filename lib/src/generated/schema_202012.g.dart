@@ -333,434 +333,328 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1 copyWith({
-    Object? id = _undefined,
-    Object? schema = _undefined,
-    Object? ref = _undefined,
-    Object? anchor = _undefined,
-    Object? dynamicRef = _undefined,
-    Object? dynamicAnchor = _undefined,
-    Object? vocabulary = _undefined,
-    Object? comment = _undefined,
-    Object? defs = _undefined,
-    Object? prefixItems = _undefined,
-    Object? items = _undefined,
-    Object? contains = _undefined,
-    Object? additionalProperties_ = _undefined,
-    Object? properties = _undefined,
-    Object? patternProperties_ = _undefined,
-    Object? dependentSchemas = _undefined,
-    Object? propertyNames = _undefined,
-    Object? if_ = _undefined,
-    Object? then = _undefined,
-    Object? else_ = _undefined,
-    Object? allOf = _undefined,
-    Object? anyOf = _undefined,
-    Object? oneOf = _undefined,
-    Object? not = _undefined,
-    Object? unevaluatedItems = _undefined,
-    Object? unevaluatedProperties = _undefined,
-    Object? type_ = _undefined,
-    Object? const_ = _undefined,
-    Object? enum_ = _undefined,
-    Object? multipleOf = _undefined,
-    Object? maximum = _undefined,
-    Object? exclusiveMaximum = _undefined,
-    Object? minimum = _undefined,
-    Object? exclusiveMinimum = _undefined,
-    Object? maxLength = _undefined,
-    Object? minLength = _undefined,
-    Object? pattern = _undefined,
-    Object? maxItems = _undefined,
-    Object? minItems = _undefined,
-    Object? uniqueItems = _undefined,
-    Object? maxContains = _undefined,
-    Object? minContains = _undefined,
-    Object? maxProperties = _undefined,
-    Object? minProperties = _undefined,
-    Object? required_ = _undefined,
-    Object? dependentRequired = _undefined,
-    Object? title = _undefined,
-    Object? description = _undefined,
-    Object? default_ = _undefined,
-    Object? deprecated = _undefined,
-    Object? readOnly = _undefined,
-    Object? writeOnly = _undefined,
-    Object? examples = _undefined,
-    Object? format = _undefined,
-    Object? contentEncoding = _undefined,
-    Object? contentMediaType = _undefined,
-    Object? contentSchema = _undefined,
-    Object? definitions = _undefined,
-    Object? dependencies = _undefined,
-    Object? recursiveAnchor = _undefined,
-    Object? recursiveRef = _undefined,
-    Object? additionalProperties = _undefined,
+    String? id,
+    String? schema,
+    String? ref,
+    String? anchor,
+    String? dynamicRef,
+    String? dynamicAnchor,
+    CoreAndValidationSpecificationsMetaSchema1Vocabulary? vocabulary,
+    String? comment,
+    CoreAndValidationSpecificationsMetaSchema1Defs? defs,
+    List<CoreAndValidationSpecificationsMetaSchema>? prefixItems,
+    CoreAndValidationSpecificationsMetaSchema? items,
+    CoreAndValidationSpecificationsMetaSchema? contains,
+    CoreAndValidationSpecificationsMetaSchema? additionalProperties_,
+    CoreAndValidationSpecificationsMetaSchema1Properties? properties,
+    CoreAndValidationSpecificationsMetaSchema1PatternProperties?
+    patternProperties_,
+    CoreAndValidationSpecificationsMetaSchema1DependentSchemas?
+    dependentSchemas,
+    CoreAndValidationSpecificationsMetaSchema? propertyNames,
+    CoreAndValidationSpecificationsMetaSchema? if_,
+    CoreAndValidationSpecificationsMetaSchema? then,
+    CoreAndValidationSpecificationsMetaSchema? else_,
+    List<CoreAndValidationSpecificationsMetaSchema>? allOf,
+    List<CoreAndValidationSpecificationsMetaSchema>? anyOf,
+    List<CoreAndValidationSpecificationsMetaSchema>? oneOf,
+    CoreAndValidationSpecificationsMetaSchema? not,
+    CoreAndValidationSpecificationsMetaSchema? unevaluatedItems,
+    CoreAndValidationSpecificationsMetaSchema? unevaluatedProperties,
+    CoreAndValidationSpecificationsMetaSchema1Type? type_,
+    Object? const_,
+    List<Object?>? enum_,
+    num? multipleOf,
+    num? maximum,
+    num? exclusiveMaximum,
+    num? minimum,
+    num? exclusiveMinimum,
+    int? maxLength,
+    int? minLength,
+    String? pattern,
+    int? maxItems,
+    int? minItems,
+    bool? uniqueItems,
+    int? maxContains,
+    int? minContains,
+    int? maxProperties,
+    int? minProperties,
+    List<String>? required_,
+    CoreAndValidationSpecificationsMetaSchema1DependentRequired?
+    dependentRequired,
+    String? title,
+    String? description,
+    Object? default_,
+    bool? deprecated,
+    bool? readOnly,
+    bool? writeOnly,
+    List<Object?>? examples,
+    String? format,
+    String? contentEncoding,
+    String? contentMediaType,
+    CoreAndValidationSpecificationsMetaSchema? contentSchema,
+    CoreAndValidationSpecificationsMetaSchema1Definitions? definitions,
+    CoreAndValidationSpecificationsMetaSchema1Dependencies? dependencies,
+    String? recursiveAnchor,
+    String? recursiveRef,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(id, _undefined)) {
-      nextKeys.add('\$id');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (id != null) {
+      nextKeys?.add('\$id');
     }
-    if (!identical(schema, _undefined)) {
-      nextKeys.add('\$schema');
+    if (schema != null) {
+      nextKeys?.add('\$schema');
     }
-    if (!identical(ref, _undefined)) {
-      nextKeys.add('\$ref');
+    if (ref != null) {
+      nextKeys?.add('\$ref');
     }
-    if (!identical(anchor, _undefined)) {
-      nextKeys.add('\$anchor');
+    if (anchor != null) {
+      nextKeys?.add('\$anchor');
     }
-    if (!identical(dynamicRef, _undefined)) {
-      nextKeys.add('\$dynamicRef');
+    if (dynamicRef != null) {
+      nextKeys?.add('\$dynamicRef');
     }
-    if (!identical(dynamicAnchor, _undefined)) {
-      nextKeys.add('\$dynamicAnchor');
+    if (dynamicAnchor != null) {
+      nextKeys?.add('\$dynamicAnchor');
     }
-    if (!identical(vocabulary, _undefined)) {
-      nextKeys.add('\$vocabulary');
+    if (vocabulary != null) {
+      nextKeys?.add('\$vocabulary');
     }
-    if (!identical(comment, _undefined)) {
-      nextKeys.add('\$comment');
+    if (comment != null) {
+      nextKeys?.add('\$comment');
     }
-    if (!identical(defs, _undefined)) {
-      nextKeys.add('\$defs');
+    if (defs != null) {
+      nextKeys?.add('\$defs');
     }
-    if (!identical(prefixItems, _undefined)) {
-      nextKeys.add('prefixItems');
+    if (prefixItems != null) {
+      nextKeys?.add('prefixItems');
     }
-    if (!identical(items, _undefined)) {
-      nextKeys.add('items');
+    if (items != null) {
+      nextKeys?.add('items');
     }
-    if (!identical(contains, _undefined)) {
-      nextKeys.add('contains');
+    if (contains != null) {
+      nextKeys?.add('contains');
     }
-    if (!identical(additionalProperties_, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties_ != null) {
+      nextKeys?.add('additionalProperties');
     }
-    if (!identical(properties, _undefined)) {
-      nextKeys.add('properties');
+    if (properties != null) {
+      nextKeys?.add('properties');
     }
-    if (!identical(patternProperties_, _undefined)) {
-      nextKeys.add('patternProperties');
+    if (patternProperties_ != null) {
+      nextKeys?.add('patternProperties');
     }
-    if (!identical(dependentSchemas, _undefined)) {
-      nextKeys.add('dependentSchemas');
+    if (dependentSchemas != null) {
+      nextKeys?.add('dependentSchemas');
     }
-    if (!identical(propertyNames, _undefined)) {
-      nextKeys.add('propertyNames');
+    if (propertyNames != null) {
+      nextKeys?.add('propertyNames');
     }
-    if (!identical(if_, _undefined)) {
-      nextKeys.add('if');
+    if (if_ != null) {
+      nextKeys?.add('if');
     }
-    if (!identical(then, _undefined)) {
-      nextKeys.add('then');
+    if (then != null) {
+      nextKeys?.add('then');
     }
-    if (!identical(else_, _undefined)) {
-      nextKeys.add('else');
+    if (else_ != null) {
+      nextKeys?.add('else');
     }
-    if (!identical(allOf, _undefined)) {
-      nextKeys.add('allOf');
+    if (allOf != null) {
+      nextKeys?.add('allOf');
     }
-    if (!identical(anyOf, _undefined)) {
-      nextKeys.add('anyOf');
+    if (anyOf != null) {
+      nextKeys?.add('anyOf');
     }
-    if (!identical(oneOf, _undefined)) {
-      nextKeys.add('oneOf');
+    if (oneOf != null) {
+      nextKeys?.add('oneOf');
     }
-    if (!identical(not, _undefined)) {
-      nextKeys.add('not');
+    if (not != null) {
+      nextKeys?.add('not');
     }
-    if (!identical(unevaluatedItems, _undefined)) {
-      nextKeys.add('unevaluatedItems');
+    if (unevaluatedItems != null) {
+      nextKeys?.add('unevaluatedItems');
     }
-    if (!identical(unevaluatedProperties, _undefined)) {
-      nextKeys.add('unevaluatedProperties');
+    if (unevaluatedProperties != null) {
+      nextKeys?.add('unevaluatedProperties');
     }
-    if (!identical(type_, _undefined)) {
-      nextKeys.add('type');
+    if (type_ != null) {
+      nextKeys?.add('type');
     }
-    if (!identical(const_, _undefined)) {
-      nextKeys.add('const');
+    if (const_ != null) {
+      nextKeys?.add('const');
     }
-    if (!identical(enum_, _undefined)) {
-      nextKeys.add('enum');
+    if (enum_ != null) {
+      nextKeys?.add('enum');
     }
-    if (!identical(multipleOf, _undefined)) {
-      nextKeys.add('multipleOf');
+    if (multipleOf != null) {
+      nextKeys?.add('multipleOf');
     }
-    if (!identical(maximum, _undefined)) {
-      nextKeys.add('maximum');
+    if (maximum != null) {
+      nextKeys?.add('maximum');
     }
-    if (!identical(exclusiveMaximum, _undefined)) {
-      nextKeys.add('exclusiveMaximum');
+    if (exclusiveMaximum != null) {
+      nextKeys?.add('exclusiveMaximum');
     }
-    if (!identical(minimum, _undefined)) {
-      nextKeys.add('minimum');
+    if (minimum != null) {
+      nextKeys?.add('minimum');
     }
-    if (!identical(exclusiveMinimum, _undefined)) {
-      nextKeys.add('exclusiveMinimum');
+    if (exclusiveMinimum != null) {
+      nextKeys?.add('exclusiveMinimum');
     }
-    if (!identical(maxLength, _undefined)) {
-      nextKeys.add('maxLength');
+    if (maxLength != null) {
+      nextKeys?.add('maxLength');
     }
-    if (!identical(minLength, _undefined)) {
-      nextKeys.add('minLength');
+    if (minLength != null) {
+      nextKeys?.add('minLength');
     }
-    if (!identical(pattern, _undefined)) {
-      nextKeys.add('pattern');
+    if (pattern != null) {
+      nextKeys?.add('pattern');
     }
-    if (!identical(maxItems, _undefined)) {
-      nextKeys.add('maxItems');
+    if (maxItems != null) {
+      nextKeys?.add('maxItems');
     }
-    if (!identical(minItems, _undefined)) {
-      nextKeys.add('minItems');
+    if (minItems != null) {
+      nextKeys?.add('minItems');
     }
-    if (!identical(uniqueItems, _undefined)) {
-      nextKeys.add('uniqueItems');
+    if (uniqueItems != null) {
+      nextKeys?.add('uniqueItems');
     }
-    if (!identical(maxContains, _undefined)) {
-      nextKeys.add('maxContains');
+    if (maxContains != null) {
+      nextKeys?.add('maxContains');
     }
-    if (!identical(minContains, _undefined)) {
-      nextKeys.add('minContains');
+    if (minContains != null) {
+      nextKeys?.add('minContains');
     }
-    if (!identical(maxProperties, _undefined)) {
-      nextKeys.add('maxProperties');
+    if (maxProperties != null) {
+      nextKeys?.add('maxProperties');
     }
-    if (!identical(minProperties, _undefined)) {
-      nextKeys.add('minProperties');
+    if (minProperties != null) {
+      nextKeys?.add('minProperties');
     }
-    if (!identical(required_, _undefined)) {
-      nextKeys.add('required');
+    if (required_ != null) {
+      nextKeys?.add('required');
     }
-    if (!identical(dependentRequired, _undefined)) {
-      nextKeys.add('dependentRequired');
+    if (dependentRequired != null) {
+      nextKeys?.add('dependentRequired');
     }
-    if (!identical(title, _undefined)) {
-      nextKeys.add('title');
+    if (title != null) {
+      nextKeys?.add('title');
     }
-    if (!identical(description, _undefined)) {
-      nextKeys.add('description');
+    if (description != null) {
+      nextKeys?.add('description');
     }
-    if (!identical(default_, _undefined)) {
-      nextKeys.add('default');
+    if (default_ != null) {
+      nextKeys?.add('default');
     }
-    if (!identical(deprecated, _undefined)) {
-      nextKeys.add('deprecated');
+    if (deprecated != null) {
+      nextKeys?.add('deprecated');
     }
-    if (!identical(readOnly, _undefined)) {
-      nextKeys.add('readOnly');
+    if (readOnly != null) {
+      nextKeys?.add('readOnly');
     }
-    if (!identical(writeOnly, _undefined)) {
-      nextKeys.add('writeOnly');
+    if (writeOnly != null) {
+      nextKeys?.add('writeOnly');
     }
-    if (!identical(examples, _undefined)) {
-      nextKeys.add('examples');
+    if (examples != null) {
+      nextKeys?.add('examples');
     }
-    if (!identical(format, _undefined)) {
-      nextKeys.add('format');
+    if (format != null) {
+      nextKeys?.add('format');
     }
-    if (!identical(contentEncoding, _undefined)) {
-      nextKeys.add('contentEncoding');
+    if (contentEncoding != null) {
+      nextKeys?.add('contentEncoding');
     }
-    if (!identical(contentMediaType, _undefined)) {
-      nextKeys.add('contentMediaType');
+    if (contentMediaType != null) {
+      nextKeys?.add('contentMediaType');
     }
-    if (!identical(contentSchema, _undefined)) {
-      nextKeys.add('contentSchema');
+    if (contentSchema != null) {
+      nextKeys?.add('contentSchema');
     }
-    if (!identical(definitions, _undefined)) {
-      nextKeys.add('definitions');
+    if (definitions != null) {
+      nextKeys?.add('definitions');
     }
-    if (!identical(dependencies, _undefined)) {
-      nextKeys.add('dependencies');
+    if (dependencies != null) {
+      nextKeys?.add('dependencies');
     }
-    if (!identical(recursiveAnchor, _undefined)) {
-      nextKeys.add('\$recursiveAnchor');
+    if (recursiveAnchor != null) {
+      nextKeys?.add('\$recursiveAnchor');
     }
-    if (!identical(recursiveRef, _undefined)) {
-      nextKeys.add('\$recursiveRef');
+    if (recursiveRef != null) {
+      nextKeys?.add('\$recursiveRef');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1(
-      id: !identical(id, _undefined) ? id as String? : this.id,
-      schema: !identical(schema, _undefined) ? schema as String? : this.schema,
-      ref: !identical(ref, _undefined) ? ref as String? : this.ref,
-      anchor: !identical(anchor, _undefined) ? anchor as String? : this.anchor,
-      dynamicRef: !identical(dynamicRef, _undefined)
-          ? dynamicRef as String?
-          : this.dynamicRef,
-      dynamicAnchor: !identical(dynamicAnchor, _undefined)
-          ? dynamicAnchor as String?
-          : this.dynamicAnchor,
-      vocabulary: !identical(vocabulary, _undefined)
-          ? vocabulary as CoreAndValidationSpecificationsMetaSchema1Vocabulary?
-          : this.vocabulary,
-      comment: !identical(comment, _undefined)
-          ? comment as String?
-          : this.comment,
-      defs: !identical(defs, _undefined)
-          ? defs as CoreAndValidationSpecificationsMetaSchema1Defs?
-          : this.defs,
-      prefixItems: !identical(prefixItems, _undefined)
-          ? prefixItems as List<CoreAndValidationSpecificationsMetaSchema>?
-          : this.prefixItems,
-      items: !identical(items, _undefined)
-          ? items as CoreAndValidationSpecificationsMetaSchema?
-          : this.items,
-      contains: !identical(contains, _undefined)
-          ? contains as CoreAndValidationSpecificationsMetaSchema?
-          : this.contains,
-      additionalProperties_: !identical(additionalProperties_, _undefined)
-          ? additionalProperties_ as CoreAndValidationSpecificationsMetaSchema?
-          : this.additionalProperties_,
-      properties: !identical(properties, _undefined)
-          ? properties as CoreAndValidationSpecificationsMetaSchema1Properties
-          : this.properties,
-      patternProperties_: !identical(patternProperties_, _undefined)
-          ? patternProperties_
-                as CoreAndValidationSpecificationsMetaSchema1PatternProperties
-          : this.patternProperties_,
-      dependentSchemas: !identical(dependentSchemas, _undefined)
-          ? dependentSchemas
-                as CoreAndValidationSpecificationsMetaSchema1DependentSchemas
-          : this.dependentSchemas,
-      propertyNames: !identical(propertyNames, _undefined)
-          ? propertyNames as CoreAndValidationSpecificationsMetaSchema?
-          : this.propertyNames,
-      if_: !identical(if_, _undefined)
-          ? if_ as CoreAndValidationSpecificationsMetaSchema?
-          : this.if_,
-      then: !identical(then, _undefined)
-          ? then as CoreAndValidationSpecificationsMetaSchema?
-          : this.then,
-      else_: !identical(else_, _undefined)
-          ? else_ as CoreAndValidationSpecificationsMetaSchema?
-          : this.else_,
-      allOf: !identical(allOf, _undefined)
-          ? allOf as List<CoreAndValidationSpecificationsMetaSchema>?
-          : this.allOf,
-      anyOf: !identical(anyOf, _undefined)
-          ? anyOf as List<CoreAndValidationSpecificationsMetaSchema>?
-          : this.anyOf,
-      oneOf: !identical(oneOf, _undefined)
-          ? oneOf as List<CoreAndValidationSpecificationsMetaSchema>?
-          : this.oneOf,
-      not: !identical(not, _undefined)
-          ? not as CoreAndValidationSpecificationsMetaSchema?
-          : this.not,
-      unevaluatedItems: !identical(unevaluatedItems, _undefined)
-          ? unevaluatedItems as CoreAndValidationSpecificationsMetaSchema?
-          : this.unevaluatedItems,
-      unevaluatedProperties: !identical(unevaluatedProperties, _undefined)
-          ? unevaluatedProperties as CoreAndValidationSpecificationsMetaSchema?
-          : this.unevaluatedProperties,
-      type_: !identical(type_, _undefined)
-          ? type_ as CoreAndValidationSpecificationsMetaSchema1Type?
-          : this.type_,
-      const_: !identical(const_, _undefined) ? const_ as Object? : this.const_,
-      enum_: !identical(enum_, _undefined)
-          ? enum_ as List<Object?>?
-          : this.enum_,
-      multipleOf: !identical(multipleOf, _undefined)
-          ? multipleOf as num?
-          : this.multipleOf,
-      maximum: !identical(maximum, _undefined) ? maximum as num? : this.maximum,
-      exclusiveMaximum: !identical(exclusiveMaximum, _undefined)
-          ? exclusiveMaximum as num?
-          : this.exclusiveMaximum,
-      minimum: !identical(minimum, _undefined) ? minimum as num? : this.minimum,
-      exclusiveMinimum: !identical(exclusiveMinimum, _undefined)
-          ? exclusiveMinimum as num?
-          : this.exclusiveMinimum,
-      maxLength: !identical(maxLength, _undefined)
-          ? maxLength as int?
-          : this.maxLength,
-      minLength: !identical(minLength, _undefined)
-          ? minLength as int?
-          : this.minLength,
-      pattern: !identical(pattern, _undefined)
-          ? pattern as String?
-          : this.pattern,
-      maxItems: !identical(maxItems, _undefined)
-          ? maxItems as int?
-          : this.maxItems,
-      minItems: !identical(minItems, _undefined)
-          ? minItems as int?
-          : this.minItems,
-      uniqueItems: !identical(uniqueItems, _undefined)
-          ? uniqueItems as bool
-          : this.uniqueItems,
-      maxContains: !identical(maxContains, _undefined)
-          ? maxContains as int?
-          : this.maxContains,
-      minContains: !identical(minContains, _undefined)
-          ? minContains as int
-          : this.minContains,
-      maxProperties: !identical(maxProperties, _undefined)
-          ? maxProperties as int?
-          : this.maxProperties,
-      minProperties: !identical(minProperties, _undefined)
-          ? minProperties as int?
-          : this.minProperties,
-      required_: !identical(required_, _undefined)
-          ? required_ as List<String>?
-          : this.required_,
-      dependentRequired: !identical(dependentRequired, _undefined)
-          ? dependentRequired
-                as CoreAndValidationSpecificationsMetaSchema1DependentRequired?
-          : this.dependentRequired,
-      title: !identical(title, _undefined) ? title as String? : this.title,
-      description: !identical(description, _undefined)
-          ? description as String?
-          : this.description,
-      default_: !identical(default_, _undefined)
-          ? default_ as Object?
-          : this.default_,
-      deprecated: !identical(deprecated, _undefined)
-          ? deprecated as bool
-          : this.deprecated,
-      readOnly: !identical(readOnly, _undefined)
-          ? readOnly as bool
-          : this.readOnly,
-      writeOnly: !identical(writeOnly, _undefined)
-          ? writeOnly as bool
-          : this.writeOnly,
-      examples: !identical(examples, _undefined)
-          ? examples as List<Object?>?
-          : this.examples,
-      format: !identical(format, _undefined) ? format as String? : this.format,
-      contentEncoding: !identical(contentEncoding, _undefined)
-          ? contentEncoding as String?
-          : this.contentEncoding,
-      contentMediaType: !identical(contentMediaType, _undefined)
-          ? contentMediaType as String?
-          : this.contentMediaType,
-      contentSchema: !identical(contentSchema, _undefined)
-          ? contentSchema as CoreAndValidationSpecificationsMetaSchema?
-          : this.contentSchema,
-      definitions: !identical(definitions, _undefined)
-          ? definitions as CoreAndValidationSpecificationsMetaSchema1Definitions
-          : this.definitions,
-      dependencies: !identical(dependencies, _undefined)
-          ? dependencies
-                as CoreAndValidationSpecificationsMetaSchema1Dependencies
-          : this.dependencies,
-      recursiveAnchor: !identical(recursiveAnchor, _undefined)
-          ? recursiveAnchor as String?
-          : this.recursiveAnchor,
-      recursiveRef: !identical(recursiveRef, _undefined)
-          ? recursiveRef as String?
-          : this.recursiveRef,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      id: id ?? this.id,
+      schema: schema ?? this.schema,
+      ref: ref ?? this.ref,
+      anchor: anchor ?? this.anchor,
+      dynamicRef: dynamicRef ?? this.dynamicRef,
+      dynamicAnchor: dynamicAnchor ?? this.dynamicAnchor,
+      vocabulary: vocabulary ?? this.vocabulary,
+      comment: comment ?? this.comment,
+      defs: defs ?? this.defs,
+      prefixItems: prefixItems ?? this.prefixItems,
+      items: items ?? this.items,
+      contains: contains ?? this.contains,
+      additionalProperties_:
+          additionalProperties_ ?? this.additionalProperties_,
+      properties: properties ?? this.properties,
+      patternProperties_: patternProperties_ ?? this.patternProperties_,
+      dependentSchemas: dependentSchemas ?? this.dependentSchemas,
+      propertyNames: propertyNames ?? this.propertyNames,
+      if_: if_ ?? this.if_,
+      then: then ?? this.then,
+      else_: else_ ?? this.else_,
+      allOf: allOf ?? this.allOf,
+      anyOf: anyOf ?? this.anyOf,
+      oneOf: oneOf ?? this.oneOf,
+      not: not ?? this.not,
+      unevaluatedItems: unevaluatedItems ?? this.unevaluatedItems,
+      unevaluatedProperties:
+          unevaluatedProperties ?? this.unevaluatedProperties,
+      type_: type_ ?? this.type_,
+      const_: const_ ?? this.const_,
+      enum_: enum_ ?? this.enum_,
+      multipleOf: multipleOf ?? this.multipleOf,
+      maximum: maximum ?? this.maximum,
+      exclusiveMaximum: exclusiveMaximum ?? this.exclusiveMaximum,
+      minimum: minimum ?? this.minimum,
+      exclusiveMinimum: exclusiveMinimum ?? this.exclusiveMinimum,
+      maxLength: maxLength ?? this.maxLength,
+      minLength: minLength ?? this.minLength,
+      pattern: pattern ?? this.pattern,
+      maxItems: maxItems ?? this.maxItems,
+      minItems: minItems ?? this.minItems,
+      uniqueItems: uniqueItems ?? this.uniqueItems,
+      maxContains: maxContains ?? this.maxContains,
+      minContains: minContains ?? this.minContains,
+      maxProperties: maxProperties ?? this.maxProperties,
+      minProperties: minProperties ?? this.minProperties,
+      required_: required_ ?? this.required_,
+      dependentRequired: dependentRequired ?? this.dependentRequired,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      default_: default_ ?? this.default_,
+      deprecated: deprecated ?? this.deprecated,
+      readOnly: readOnly ?? this.readOnly,
+      writeOnly: writeOnly ?? this.writeOnly,
+      examples: examples ?? this.examples,
+      format: format ?? this.format,
+      contentEncoding: contentEncoding ?? this.contentEncoding,
+      contentMediaType: contentMediaType ?? this.contentMediaType,
+      contentSchema: contentSchema ?? this.contentSchema,
+      definitions: definitions ?? this.definitions,
+      dependencies: dependencies ?? this.dependencies,
+      recursiveAnchor: recursiveAnchor ?? this.recursiveAnchor,
+      recursiveRef: recursiveRef ?? this.recursiveRef,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -900,8 +794,50 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
       }
     }
     final val_items = items;
+    if (val_items != null) {
+      errors.addAll(
+        (val_items as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['items', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_contains = contains;
+    if (val_contains != null) {
+      errors.addAll(
+        (val_contains as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['contains', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_additionalProperties_ = additionalProperties_;
+    if (val_additionalProperties_ != null) {
+      errors.addAll(
+        (val_additionalProperties_ as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['additionalProperties', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     errors.addAll(
       (properties as JsonModel).collectErrors().map(
         (ValidationError e) => ValidationError(
@@ -939,9 +875,65 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
       ),
     );
     final val_propertyNames = propertyNames;
+    if (val_propertyNames != null) {
+      errors.addAll(
+        (val_propertyNames as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['propertyNames', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_if_ = if_;
+    if (val_if_ != null) {
+      errors.addAll(
+        (val_if_ as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['if', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_then = then;
+    if (val_then != null) {
+      errors.addAll(
+        (val_then as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['then', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_else_ = else_;
+    if (val_else_ != null) {
+      errors.addAll(
+        (val_else_ as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['else', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_allOf = allOf;
     if (val_allOf != null) {
       if (val_allOf.length < 1) {
@@ -1021,8 +1013,50 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
       }
     }
     final val_not = not;
+    if (val_not != null) {
+      errors.addAll(
+        (val_not as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['not', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_unevaluatedItems = unevaluatedItems;
+    if (val_unevaluatedItems != null) {
+      errors.addAll(
+        (val_unevaluatedItems as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['unevaluatedItems', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_unevaluatedProperties = unevaluatedProperties;
+    if (val_unevaluatedProperties != null) {
+      errors.addAll(
+        (val_unevaluatedProperties as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['unevaluatedProperties', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_type_ = type_;
     if (val_type_ != null) {
       errors.addAll(
@@ -1189,6 +1223,20 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     final val_contentEncoding = contentEncoding;
     final val_contentMediaType = contentMediaType;
     final val_contentSchema = contentSchema;
+    if (val_contentSchema != null) {
+      errors.addAll(
+        (val_contentSchema as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['contentSchema', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     errors.addAll(
       (definitions as JsonModel).collectErrors().map(
         (ValidationError e) => ValidationError(
@@ -2094,21 +2142,18 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1Vocabulary copyWith({
-    Object? additionalProperties = _undefined,
+    Map<String, bool>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1Vocabulary(
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, bool>
-          : this.additionalProperties,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -2242,22 +2287,19 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1Defs copyWith({
-    Object? additionalProperties = _undefined,
+    Map<String, CoreAndValidationSpecificationsMetaSchema>?
+    additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1Defs(
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties
-                as Map<String, CoreAndValidationSpecificationsMetaSchema>
-          : this.additionalProperties,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -2394,22 +2436,19 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1Properties copyWith({
-    Object? additionalProperties = _undefined,
+    Map<String, CoreAndValidationSpecificationsMetaSchema>?
+    additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1Properties(
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties
-                as Map<String, CoreAndValidationSpecificationsMetaSchema>
-          : this.additionalProperties,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -2551,22 +2590,19 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1PatternProperties copyWith({
-    Object? additionalProperties = _undefined,
+    Map<String, CoreAndValidationSpecificationsMetaSchema>?
+    additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1PatternProperties(
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties
-                as Map<String, CoreAndValidationSpecificationsMetaSchema>
-          : this.additionalProperties,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -2712,22 +2748,19 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1DependentSchemas copyWith({
-    Object? additionalProperties = _undefined,
+    Map<String, CoreAndValidationSpecificationsMetaSchema>?
+    additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1DependentSchemas(
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties
-                as Map<String, CoreAndValidationSpecificationsMetaSchema>
-          : this.additionalProperties,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -3058,21 +3091,18 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1DependentRequired copyWith({
-    Object? additionalProperties = _undefined,
+    Map<String, List<String>>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1DependentRequired(
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, List<String>>
-          : this.additionalProperties,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -3225,22 +3255,19 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1Definitions copyWith({
-    Object? additionalProperties = _undefined,
+    Map<String, CoreAndValidationSpecificationsMetaSchema>?
+    additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1Definitions(
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties
-                as Map<String, CoreAndValidationSpecificationsMetaSchema>
-          : this.additionalProperties,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -3386,25 +3413,22 @@ final class CoreAndValidationSpecificationsMetaSchema1Dependencies
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CoreAndValidationSpecificationsMetaSchema1Dependencies copyWith({
-    Object? additionalProperties = _undefined,
+    Map<
+      String,
+      CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
+    >?
+    additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CoreAndValidationSpecificationsMetaSchema1Dependencies(
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties
-                as Map<
-                  String,
-                  CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
-                >
-          : this.additionalProperties,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }

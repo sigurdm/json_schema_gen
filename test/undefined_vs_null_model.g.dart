@@ -57,31 +57,28 @@ final class UndefinedVsNullModel implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   UndefinedVsNullModel copyWith({
-    Object? foo = _undefined,
-    Object? bar = _undefined,
-    Object? additionalProperties = _undefined,
+    String? foo,
+    int? bar,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(foo, _undefined)) {
-      nextKeys.add('foo');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (foo != null) {
+      nextKeys?.add('foo');
     }
-    if (!identical(bar, _undefined)) {
-      nextKeys.add('bar');
+    if (bar != null) {
+      nextKeys?.add('bar');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return UndefinedVsNullModel(
-      foo: !identical(foo, _undefined) ? foo as String? : this.foo,
-      bar: !identical(bar, _undefined) ? bar as int? : this.bar,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      foo: foo ?? this.foo,
+      bar: bar ?? this.bar,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }

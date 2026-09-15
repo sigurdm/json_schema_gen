@@ -1,0 +1,149 @@
+# Assertions in the vendored JSON Schema Test Suite that json_schema_gen does
+# not pass yet.
+#
+# The list exists so the conformance number can only improve: an entry that
+# starts passing is reported as an error telling you to delete the line, and a
+# failure that is not listed here fails the build. Regenerate with:
+#
+#     dart run tool/run_json_schema_tests.dart --update-known-failures
+#
+# Format: <suite-relative path> :: <group description> :: <test description>
+
+optional/bignum.json :: integer :: a bignum is an integer
+optional/bignum.json :: integer :: a negative bignum is an integer
+optional/cross-draft.json :: refs to historic drafts are processed as historic drafts :: first item not a string is valid
+optional/dependencies-compatibility.json :: boolean subschemas :: object with both properties is invalid
+optional/dependencies-compatibility.json :: boolean subschemas :: object with property having schema false is invalid
+optional/dependencies-compatibility.json :: dependencies with escaped characters :: CRLF missing dependent
+optional/dependencies-compatibility.json :: dependencies with escaped characters :: quoted quotes missing dependent
+optional/dependencies-compatibility.json :: multiple dependents required :: missing both dependencies
+optional/dependencies-compatibility.json :: multiple dependents required :: missing dependency
+optional/dependencies-compatibility.json :: multiple dependents required :: missing other dependency
+optional/dependencies-compatibility.json :: schema dependencies with escaped characters :: quoted quote
+optional/dependencies-compatibility.json :: schema dependencies with escaped characters :: quoted quote invalid under dependent schema
+optional/dependencies-compatibility.json :: schema dependencies with escaped characters :: quoted tab invalid under dependent schema
+optional/dependencies-compatibility.json :: single dependency :: missing dependency
+optional/dependencies-compatibility.json :: single schema dependency :: wrong type
+optional/dependencies-compatibility.json :: single schema dependency :: wrong type both
+optional/dependencies-compatibility.json :: single schema dependency :: wrong type other
+optional/float-overflow.json :: all integers are multiples of 0.5, if overflow is handled :: valid if optional overflow handling is implemented
+optional/format-assertion.json :: schema that uses custom metaschema with format-assertion: false :: format-assertion: false: invalid string
+optional/format-assertion.json :: schema that uses custom metaschema with format-assertion: true :: format-assertion: true: invalid string
+optional/format/date-time.json :: validation of date-time strings :: an invalid date-time past leap second, UTC
+optional/format/date-time.json :: validation of date-time strings :: an invalid date-time with leap second on a wrong hour, UTC
+optional/format/date-time.json :: validation of date-time strings :: an invalid date-time with leap second on a wrong minute, UTC
+optional/format/date-time.json :: validation of date-time strings :: an invalid day in date-time string
+optional/format/date-time.json :: validation of date-time strings :: an invalid hour in date-time string
+optional/format/date-time.json :: validation of date-time strings :: an invalid minute in date-time string
+optional/format/date-time.json :: validation of date-time strings :: an invalid offset in date-time string
+optional/format/date-time.json :: validation of date-time strings :: an invalid offset minute in date-time string
+optional/format/date-time.json :: validation of date-time strings :: case-insensitive T and Z
+optional/format/date.json :: validation of date strings :: 2021 is not a leap year
+optional/format/date.json :: validation of date strings :: a invalid date string with 30 days in February (leap)
+optional/format/date.json :: validation of date strings :: a invalid date string with 31 days in April
+optional/format/date.json :: validation of date strings :: a invalid date string with 31 days in June
+optional/format/date.json :: validation of date strings :: a invalid date string with 31 days in November
+optional/format/date.json :: validation of date strings :: a invalid date string with 31 days in September
+optional/format/date.json :: validation of date strings :: a invalid date string with 32 days in August
+optional/format/date.json :: validation of date strings :: a invalid date string with 32 days in December
+optional/format/date.json :: validation of date strings :: a invalid date string with 32 days in January
+optional/format/date.json :: validation of date strings :: a invalid date string with 32 days in July
+optional/format/date.json :: validation of date strings :: a invalid date string with 32 days in March
+optional/format/date.json :: validation of date strings :: a invalid date string with 32 days in May
+optional/format/date.json :: validation of date strings :: a invalid date string with 32 days in October
+optional/format/date.json :: validation of date strings :: century year 0100 is not a leap year
+optional/format/date.json :: validation of date strings :: century year 2100 is not a leap year
+optional/format/date.json :: validation of date strings :: invalid month
+optional/format/date.json :: validation of date strings :: invalid: day 00 is not valid per date-mday minimum of 01
+optional/format/date.json :: validation of date strings :: invalid: month 00 is not valid per date-month range 01-12
+optional/format/ecmascript-regex.json :: \a is not an ECMA 262 control escape :: when used as a pattern
+optional/format/email.json :: validation of e-mail addresses :: a quoted string with a @ in the local part is valid
+optional/format/email.json :: validation of e-mail addresses :: an IPv6-address-literal after the @ is valid
+optional/format/email.json :: validation of e-mail addresses :: an invalid IPv4-address-literal
+optional/format/email.json :: validation of e-mail addresses :: an invalid domain
+optional/format/email.json :: validation of e-mail addresses :: dot after local part is not valid
+optional/format/email.json :: validation of e-mail addresses :: dot before local part is not valid
+optional/format/email.json :: validation of e-mail addresses :: full "From" header is invalid
+optional/format/email.json :: validation of e-mail addresses :: two subsequent dots inside local part are not valid
+optional/format/email.json :: validation of e-mail addresses :: unquoted space in local part is invalid
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Arabic-Indic digits mixed with Extended Arabic-Indic digits
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Begins with a Nonspacing Mark
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Begins with a Spacing Combining Mark
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Begins with an Enclosing Mark
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Exceptions that are DISALLOWED, left-to-right chars
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Exceptions that are DISALLOWED, right-to-left chars
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Greek KERAIA not followed by Greek
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Greek KERAIA not followed by anything
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Hebrew GERESH not preceded by Hebrew
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Hebrew GERESH not preceded by anything
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Hebrew GERSHAYIM not preceded by Hebrew
+optional/format/hostname.json :: validation of A-label (punycode) host names :: Hebrew GERSHAYIM not preceded by anything
+optional/format/hostname.json :: validation of A-label (punycode) host names :: KATAKANA MIDDLE DOT with no Hiragana, Katakana, or Han
+optional/format/hostname.json :: validation of A-label (punycode) host names :: KATAKANA MIDDLE DOT with no other characters
+optional/format/hostname.json :: validation of A-label (punycode) host names :: MIDDLE DOT with no following 'l'
+optional/format/hostname.json :: validation of A-label (punycode) host names :: MIDDLE DOT with no preceding 'l'
+optional/format/hostname.json :: validation of A-label (punycode) host names :: MIDDLE DOT with nothing following
+optional/format/hostname.json :: validation of A-label (punycode) host names :: MIDDLE DOT with nothing preceding
+optional/format/hostname.json :: validation of A-label (punycode) host names :: ZERO WIDTH JOINER not preceded by Virama
+optional/format/hostname.json :: validation of A-label (punycode) host names :: ZERO WIDTH JOINER not preceded by anything
+optional/format/hostname.json :: validation of A-label (punycode) host names :: contains "--" in the 3rd and 4th position
+optional/format/hostname.json :: validation of A-label (punycode) host names :: contains illegal char U+302E Hangul single dot tone mark
+optional/format/hostname.json :: validation of A-label (punycode) host names :: invalid Punycode
+optional/format/idn-hostname.json :: validation of internationalized host names :: Arabic-Indic digits mixed with Extended Arabic-Indic digits
+optional/format/idn-hostname.json :: validation of internationalized host names :: Begins with a Nonspacing Mark
+optional/format/idn-hostname.json :: validation of internationalized host names :: Begins with a Spacing Combining Mark
+optional/format/idn-hostname.json :: validation of internationalized host names :: Begins with an Enclosing Mark
+optional/format/idn-hostname.json :: validation of internationalized host names :: Exceptions that are DISALLOWED, left-to-right chars
+optional/format/idn-hostname.json :: validation of internationalized host names :: Exceptions that are DISALLOWED, right-to-left chars
+optional/format/idn-hostname.json :: validation of internationalized host names :: Greek KERAIA not followed by Greek
+optional/format/idn-hostname.json :: validation of internationalized host names :: Greek KERAIA not followed by anything
+optional/format/idn-hostname.json :: validation of internationalized host names :: Hebrew GERESH not preceded by Hebrew
+optional/format/idn-hostname.json :: validation of internationalized host names :: Hebrew GERESH not preceded by anything
+optional/format/idn-hostname.json :: validation of internationalized host names :: Hebrew GERSHAYIM not preceded by Hebrew
+optional/format/idn-hostname.json :: validation of internationalized host names :: Hebrew GERSHAYIM not preceded by anything
+optional/format/idn-hostname.json :: validation of internationalized host names :: KATAKANA MIDDLE DOT with no Hiragana, Katakana, or Han
+optional/format/idn-hostname.json :: validation of internationalized host names :: KATAKANA MIDDLE DOT with no other characters
+optional/format/idn-hostname.json :: validation of internationalized host names :: MIDDLE DOT with no following 'l'
+optional/format/idn-hostname.json :: validation of internationalized host names :: MIDDLE DOT with no preceding 'l'
+optional/format/idn-hostname.json :: validation of internationalized host names :: MIDDLE DOT with nothing following
+optional/format/idn-hostname.json :: validation of internationalized host names :: MIDDLE DOT with nothing preceding
+optional/format/idn-hostname.json :: validation of internationalized host names :: U-label contains "--" in the 3rd and 4th position
+optional/format/idn-hostname.json :: validation of internationalized host names :: ZERO WIDTH JOINER not preceded by Virama
+optional/format/idn-hostname.json :: validation of internationalized host names :: ZERO WIDTH JOINER not preceded by anything
+optional/format/idn-hostname.json :: validation of internationalized host names :: contains illegal char U+302E Hangul single dot tone mark
+optional/format/idn-hostname.json :: validation of internationalized host names :: illegal first char U+302E Hangul single dot tone mark
+optional/format/idn-hostname.json :: validation of internationalized host names :: invalid Punycode
+optional/format/idn-hostname.json :: validation of internationalized host names :: non-canonical Punycode that does not re-encode to itself is invalid
+optional/format/ipv6.json :: validation of IPv6 addresses :: a long valid ipv6
+optional/format/ipv6.json :: validation of IPv6 addresses :: mixed format with double colons between the sections
+optional/format/ipv6.json :: validation of IPv6 addresses :: mixed format with leading double colons (ipv4-mapped ipv6 address)
+optional/format/ipv6.json :: validation of IPv6 addresses :: mixed format with the ipv4 section as decimal octets
+optional/format/time.json :: validation of time strings :: a valid time string with leap second, Zulu
+optional/format/time.json :: validation of time strings :: valid leap second, large negative time-offset
+optional/format/time.json :: validation of time strings :: valid leap second, large positive time-offset
+optional/format/time.json :: validation of time strings :: valid leap second, negative time-offset
+optional/format/time.json :: validation of time strings :: valid leap second, positive time-offset
+optional/format/time.json :: validation of time strings :: valid leap second, zero time-offset
+optional/format/uri.json :: validation of URIs :: an invalid URI with spaces
+optional/format/uri.json :: validation of URIs :: incomplete percent-encoding triplet
+optional/format/uri.json :: validation of URIs :: invalid " character
+optional/format/uri.json :: validation of URIs :: invalid <> characters
+optional/format/uri.json :: validation of URIs :: invalid SPACE character
+optional/format/uri.json :: validation of URIs :: invalid ^ character
+optional/format/uri.json :: validation of URIs :: invalid ` character
+optional/format/uri.json :: validation of URIs :: invalid backslash character
+optional/format/uri.json :: validation of URIs :: invalid percent-encoding with non-hex digits
+optional/format/uri.json :: validation of URIs :: invalid {} characters
+optional/format/uri.json :: validation of URIs :: invalid | character
+optional/format/uri.json :: validation of URIs :: lone percent sign is invalid
+optional/format/uri.json :: validation of URIs :: unescaped non US-ASCII characters
+optional/refOfUnknownKeyword.json :: reference internals of known non-applicator :: match
+optional/refOfUnknownKeyword.json :: reference internals of known non-applicator :: mismatch
+optional/refOfUnknownKeyword.json :: reference of a root arbitrary keyword  :: match
+optional/refOfUnknownKeyword.json :: reference of a root arbitrary keyword  :: mismatch
+optional/refOfUnknownKeyword.json :: reference of a root arbitrary keyword with encoded ref :: match
+optional/refOfUnknownKeyword.json :: reference of a root arbitrary keyword with encoded ref :: mismatch
+optional/refOfUnknownKeyword.json :: reference of an arbitrary keyword of a sub-schema :: match
+optional/refOfUnknownKeyword.json :: reference of an arbitrary keyword of a sub-schema :: mismatch
+optional/refOfUnknownKeyword.json :: reference of an arbitrary keyword of a sub-schema with encoded ref :: match
+optional/refOfUnknownKeyword.json :: reference of an arbitrary keyword of a sub-schema with encoded ref :: mismatch

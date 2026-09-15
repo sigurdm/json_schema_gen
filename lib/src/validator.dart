@@ -963,25 +963,47 @@ bool isValidUriTemplate(String s) {
 
 /// Validates if a string is a valid IRI according to RFC 3987.
 bool isValidIri(String s) {
+  if (!isValidIriReference(s)) return false;
   final parsed = Uri.tryParse(s);
   return parsed != null && parsed.hasScheme;
 }
 
 /// Validates if a string is a valid IRI Reference according to RFC 3987.
 bool isValidIriReference(String s) {
-  return Uri.tryParse(s) != null;
+  if (Uri.tryParse(s) == null) return false;
+  if (RegExp(r'[\s<>{}\|\\^`]').hasMatch(s)) return false;
+  final percentCheck = RegExp(r'%[0-9a-fA-F]{2}');
+  var index = 0;
+  while ((index = s.indexOf('%', index)) != -1) {
+    if (index + 2 >= s.length) return false;
+    final part = s.substring(index, index + 3);
+    if (!percentCheck.hasMatch(part)) return false;
+    index += 3;
+  }
+  return true;
 }
 
 /// Validates if a string is a valid IDN Email according to RFC 6531 / 5322.
 bool isValidIdnEmail(String s) {
-  final exp = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-  return exp.hasMatch(s);
+  if (s.isEmpty || s.contains(' ') || s.length > 254) return false;
+  final atIndex = s.lastIndexOf('@');
+  if (atIndex <= 0 || atIndex == s.length - 1) return false;
+  final local = s.substring(0, atIndex);
+  final domain = s.substring(atIndex + 1);
+  if (local.isEmpty || domain.isEmpty) return false;
+  if (!local.startsWith('"') &&
+      (local.startsWith('.') || local.endsWith('.') || local.contains('..'))) {
+    return false;
+  }
+  return isValidIdnHostname(domain);
 }
 
 /// Validates if a string is a valid IDN Hostname according to RFC 5890.
 bool isValidIdnHostname(String s) {
   if (s.isEmpty || s.length > 253) return false;
-  final labels = s.split('.');
+  if (RegExp(r'[\s/\\@!#%<>{}\|`~]').hasMatch(s)) return false;
+  // RFC 3490: recognizes U+002E (.), U+3002, U+FF0E, U+FF61 as dot separators.
+  final labels = s.split(RegExp(r'[\.\u3002\uff0e\uff61]'));
   for (final label in labels) {
     if (label.isEmpty || label.length > 63) return false;
     if (label.startsWith('-') || label.endsWith('-')) return false;
@@ -1146,12 +1168,16 @@ class _ValidationContext {
   final bool validateFormats;
   final Map<String, Schema> dynamicAnchors;
   final List<String> dynamicScope;
+  int depth;
+
+  static const int maxDepth = 500;
 
   _ValidationContext({
     this.failFast = false,
     this.validateFormats = false,
     this.dynamicAnchors = const {},
     List<String>? dynamicScope,
+    this.depth = 0,
   }) : dynamicScope = dynamicScope ?? [];
 
   bool get hasErrors => errors.isNotEmpty;
@@ -1185,6 +1211,7 @@ class _ValidationContext {
       validateFormats: validateFormats,
       dynamicAnchors: dynamicAnchors,
       dynamicScope: List.of(dynamicScope),
+      depth: depth,
     );
   }
 }
@@ -1198,37 +1225,50 @@ class _Validator {
     _ValidationPath path,
     _ValidationContext context,
   ) {
+    if (context.depth >= _ValidationContext.maxDepth) {
+      throw JsonValidationException([
+        ValidationError(
+          message:
+              'Validation recursion depth exceeded maximum limit of ${_ValidationContext.maxDepth}',
+          path: path.toList(),
+          keyword: 'depth',
+          schema: schema,
+          value: value,
+        ),
+      ]);
+    }
+    context.depth++;
     final tracker = _EvaluationTracker();
-
-    if (schema.isNever) {
-      context.addError(
-        'Value matches "never" schema',
-        path,
-        keyword: 'false',
-        schema: schema,
-        value: value,
-      );
-      return tracker;
-    }
-
-    if (schema.isAnything) {
-      return tracker;
-    }
-
-    final vocabs = schema.vocabularies;
-    final hasValidation = vocabs == null || vocabs.contains(_vocabValidation);
-    final hasApplicator = vocabs == null || vocabs.contains(_vocabApplicator);
-
-    final resourceUri = schema.resourceUri;
-    final pushed =
-        resourceUri != null &&
-        (context.dynamicScope.isEmpty ||
-            context.dynamicScope.last != resourceUri);
-    if (pushed) {
-      context.dynamicScope.add(resourceUri);
-    }
-
+    var pushed = false;
     try {
+      if (schema.isNever) {
+        context.addError(
+          'Value matches "never" schema',
+          path,
+          keyword: 'false',
+          schema: schema,
+          value: value,
+        );
+        return tracker;
+      }
+
+      if (schema.isAnything) {
+        return tracker;
+      }
+
+      final vocabs = schema.vocabularies;
+      final hasValidation = vocabs == null || vocabs.contains(_vocabValidation);
+      final hasApplicator = vocabs == null || vocabs.contains(_vocabApplicator);
+
+      final resourceUri = schema.resourceUri;
+      pushed =
+          resourceUri != null &&
+          (context.dynamicScope.isEmpty ||
+              context.dynamicScope.last != resourceUri);
+      if (pushed) {
+        context.dynamicScope.add(resourceUri);
+      }
+
       // Check 'not'
       if (hasApplicator && schema.not != null) {
         final branch = context.createBranch(failFast: true);
@@ -1523,6 +1563,7 @@ class _Validator {
         }
       }
     } finally {
+      context.depth--;
       if (pushed) {
         context.dynamicScope.removeLast();
       }

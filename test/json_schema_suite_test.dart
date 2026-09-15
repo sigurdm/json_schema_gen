@@ -12,110 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:convert';
-import 'dart:io';
-import 'package:path/path.dart' as p;
-import 'package:test/test.dart';
+@Timeout(Duration(minutes: 10))
+library;
+
 import 'package:json_schema_gen/json_schema.dart';
+import 'package:test/test.dart';
 
-Future<List<int>> uriResolver(Uri uri) async {
-  if (uri.host == 'json-schema.org' && uri.path.startsWith('/draft/2020-12/')) {
-    final relativePath = uri.path.replaceFirst('/draft/2020-12/', '');
-    // The metaschema is not part of the test suite; it is vendored into this
-    // repository under tool/metaschema so that the suite can be run against a
-    // pristine checkout of JSON-Schema-Test-Suite.
-    final vendored = File(
-      p.join(
-        Directory.current.path,
-        'tool',
-        'metaschema',
-        '$relativePath.json',
-      ),
-    );
-    if (await vendored.exists()) {
-      return vendored.readAsBytes();
-    }
-    final localPath = p.join(
-      Directory.current.path,
-      'third_party',
-      'JSON-Schema-Test-Suite',
-      'remotes',
-      'draft2020-12',
-      relativePath,
-    );
-    final file = File(localPath);
-    if (await file.exists()) {
-      return file.readAsBytes();
-    }
-  }
-  if (uri.host == 'localhost' && uri.port == 1234) {
-    final relativePath = uri.path;
-    final localPath = p.join(
-      Directory.current.path,
-      'third_party',
-      'JSON-Schema-Test-Suite',
-      'remotes',
-      relativePath.startsWith('/') ? relativePath.substring(1) : relativePath,
-    );
-    final file = File(localPath);
-    if (await file.exists()) {
-      return file.readAsBytes();
-    }
-  }
-  throw ArgumentError('Cannot resolve URI: $uri');
-}
+import 'json_schema_suite_support.dart';
 
-void main() async {
-  final testSuiteDir = Directory(
-    p.join(
-      Directory.current.path,
-      'third_party',
-      'JSON-Schema-Test-Suite',
-      'tests',
-      'draft2020-12',
-    ),
-  );
-
-  if (!await testSuiteDir.exists()) {
-    fail('Test suite directory not found: ${testSuiteDir.path}');
+void main() {
+  final root = suiteRoot();
+  if (!root.existsSync()) {
+    fail('Test suite directory not found: ${root.path}');
   }
+
+  final knownFailures = loadKnownFailures();
+  final allKeys = <String>{};
 
   group('JSON Schema Test Suite (Draft 2020-12)', () {
-    // We must list files synchronously or use a setup to load them if we want to define tests dynamically.
-    // Since main can be async, we can await the file list before registering tests.
-    final files = testSuiteDir
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.json'))
-        .toList();
+    for (final file in suiteFiles(root)) {
+      final relativePath = suiteRelativePath(root, file);
+      final validateFormats = assertsFormats(relativePath);
 
-    // Sort files for deterministic run order
-    files.sort((a, b) => p.basename(a.path).compareTo(p.basename(b.path)));
+      group(relativePath, () {
+        for (final suiteGroup in readSuiteGroups(file)) {
+          group(suiteGroup.description, () {
+            final schema = suiteGroup.schema;
 
-    for (final file in files) {
-      final filename = p.basename(file.path);
-
-      group(filename, () {
-        final content = file.readAsStringSync();
-        final List<dynamic> suites = jsonDecode(content) as List<dynamic>;
-
-        for (final suite in suites) {
-          final suiteDesc = suite['description'] as String;
-          final schema = suite['schema'];
-          final tests = suite['tests'] as List;
-
-          group(suiteDesc, () {
-            // Parse schema once per suite if possible, but createValidator is async.
-            // In package:test, we can use setUpAll to parse the schema.
-            late void Function(dynamic) validator;
+            late void Function(Object?) validator;
             Object? parseError;
-            var parsed = false;
 
             setUpAll(() async {
               try {
                 if (schema is bool) {
-                  validator = (dynamic value) {
-                    if (schema == false) {
+                  validator = (Object? value) {
+                    if (!schema) {
                       throw JsonValidationException.single(
                         'Value not allowed by false schema',
                       );
@@ -126,6 +57,7 @@ void main() async {
                     schema,
                     uriResolver: uriResolver,
                     disallowExternalRefs: false,
+                    validateFormats: validateFormats,
                   );
                 } else {
                   throw UnsupportedError(
@@ -134,39 +66,77 @@ void main() async {
                 }
               } catch (e) {
                 parseError = e;
-              } finally {
-                parsed = true;
               }
             });
 
-            for (final testCase in tests) {
-              final testDesc = testCase['description'] as String;
-              final data = testCase['data'];
-              final expectedValid = testCase['valid'] as bool;
+            for (final testCase in suiteGroup.cases) {
+              final key = testKey(
+                relativePath,
+                suiteGroup.description,
+                testCase.description,
+              );
+              allKeys.add(key);
+              final isKnownFailure = knownFailures.contains(key);
 
-              test(testDesc, () {
-                if (!parsed) {
-                  fail(
-                    'Schema was not parsed (setUpAll did not run or finished after test started)',
+              test(testCase.description, () {
+                String? failure;
+                if (parseError != null) {
+                  failure = 'Failed to parse schema: $parseError';
+                } else {
+                  var actualValid = true;
+                  Object? error;
+                  try {
+                    validator(testCase.data);
+                  } on JsonValidationException catch (e) {
+                    actualValid = false;
+                    error = e;
+                  }
+                  if (actualValid != testCase.valid) {
+                    failure =
+                        'Expected valid: ${testCase.valid}, got: $actualValid'
+                        '${error == null ? '' : ' ($error)'}';
+                  }
+                }
+
+                if (isKnownFailure) {
+                  expect(
+                    failure,
+                    isNotNull,
+                    reason:
+                        'This assertion is listed as a known failure but now '
+                        'passes. Remove this line from '
+                        '${knownFailuresFile().path}:\n  $key',
+                  );
+                } else {
+                  expect(
+                    failure,
+                    isNull,
+                    reason:
+                        '$failure\n\nIf this is a deliberate, documented gap, '
+                        'add this line to ${knownFailuresFile().path}:\n  $key',
                   );
                 }
-                if (parseError != null) {
-                  fail('Failed to parse schema: $parseError');
-                }
-
-                bool actualValid = true;
-                try {
-                  validator(data);
-                } on JsonValidationException {
-                  actualValid = false;
-                }
-
-                expect(actualValid, expectedValid);
               });
             }
           });
         }
       });
     }
+  });
+
+  // Registration above is synchronous, so by the time this test body runs
+  // `allKeys` holds every assertion in the suite. A stale allow-list entry
+  // (from a renamed or deleted upstream case) would otherwise mask a real
+  // regression forever.
+  test('known-failure allow-list has no stale entries', () {
+    final stale = knownFailures.difference(allKeys)..remove('');
+    expect(
+      stale,
+      isEmpty,
+      reason:
+          'These allow-list entries do not match any assertion in the suite '
+          '(upstream probably renamed or removed them). Remove them from '
+          '${knownFailuresFile().path}:\n  ${stale.join('\n  ')}',
+    );
   });
 }

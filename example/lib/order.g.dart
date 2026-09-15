@@ -53,47 +53,38 @@ final class Order implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   Order copyWith({
-    Object? orderId = _undefined,
-    Object? total = _undefined,
-    Object? shippingAddress = _undefined,
-    Object? billingAddress = _undefined,
-    Object? additionalProperties = _undefined,
+    String? orderId,
+    num? total,
+    i1.Address? shippingAddress,
+    i1.Address? billingAddress,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(orderId, _undefined)) {
-      nextKeys.add('orderId');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (orderId != null) {
+      nextKeys?.add('orderId');
     }
-    if (!identical(total, _undefined)) {
-      nextKeys.add('total');
+    if (total != null) {
+      nextKeys?.add('total');
     }
-    if (!identical(shippingAddress, _undefined)) {
-      nextKeys.add('shippingAddress');
+    if (shippingAddress != null) {
+      nextKeys?.add('shippingAddress');
     }
-    if (!identical(billingAddress, _undefined)) {
-      nextKeys.add('billingAddress');
+    if (billingAddress != null) {
+      nextKeys?.add('billingAddress');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return Order(
-      orderId: !identical(orderId, _undefined)
-          ? orderId as String
-          : this.orderId,
-      total: !identical(total, _undefined) ? total as num : this.total,
-      shippingAddress: !identical(shippingAddress, _undefined)
-          ? shippingAddress as i1.Address
-          : this.shippingAddress,
-      billingAddress: !identical(billingAddress, _undefined)
-          ? billingAddress as i1.Address?
-          : this.billingAddress,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      orderId: orderId ?? this.orderId,
+      total: total ?? this.total,
+      shippingAddress: shippingAddress ?? this.shippingAddress,
+      billingAddress: billingAddress ?? this.billingAddress,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }

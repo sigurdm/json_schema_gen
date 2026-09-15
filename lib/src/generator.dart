@@ -234,6 +234,7 @@ const _reservedMemberNames = {
   'descriptor',
   'additionalProperties',
   'patternProperties',
+  'explicitKeys',
 };
 
 const _dartKeywords = {
@@ -335,6 +336,7 @@ String dartType(Schema schema, Map<Schema, String> classNames) {
         : (classNames[real] ?? 'dynamic');
     return analysis.isNullable ? '$baseType?' : baseType;
   } else if (real.enumValues != null) {
+    if (real.enumValues!.isEmpty) return 'Never';
     return classNames[real] ?? _enumBackingType(real);
   } else if (real.isObject) {
     return classNames[real] ?? 'Map<String, dynamic>';
@@ -523,7 +525,7 @@ String generateCode(
       return;
     }
 
-    if (real.enumValues != null) {
+    if (real.enumValues != null && real.enumValues!.isNotEmpty) {
       final name =
           real.dartName ?? real.title ?? real.definitionKey ?? preferredName;
       var className = toPascalCase(name);
@@ -564,6 +566,7 @@ String generateCode(
 
       int index = 0;
       for (final sub in analysis.activeSchemas) {
+        usedNames.add('${candidate}Option$index');
         discoverClasses(sub, '${candidate}_OptionType$index');
         index++;
       }
@@ -877,12 +880,30 @@ String? _toDartLiteral(
   }
   if (value == null) return 'null';
   if (value is String) {
+    if (real.hasExplicitType && !real.isString && !real.isAnything) {
+      return null;
+    }
     return dartStringLiteral(value);
   }
-  if (value is num || value is bool) {
+  if (value is num) {
+    if (real.hasExplicitType &&
+        !real.isNumber &&
+        !real.isInteger &&
+        !real.isAnything) {
+      return null;
+    }
+    return value.toString();
+  }
+  if (value is bool) {
+    if (real.hasExplicitType && !real.isBoolean && !real.isAnything) {
+      return null;
+    }
     return value.toString();
   }
   if (value is List) {
+    if (real.hasExplicitType && !real.isArray && !real.isAnything) {
+      return null;
+    }
     if (value.isEmpty) {
       if (real.isArray) {
         final itemType = dartType(real.items ?? Schema.anything, classNames);
@@ -1001,13 +1022,12 @@ String _generateObjectClass(
       constructorParams.writeln('    this.$fieldName,');
     }
 
-    copyWithParams.writeln('    Object? $fieldName = _undefined,');
-    copyWithArgs.writeln(
-      '      $fieldName: !identical($fieldName, _undefined) ? $fieldName as $fieldType : this.$fieldName,',
-    );
-    copyWithKeys.writeln('    if (!identical($fieldName, _undefined)) {');
+    final copyType = fieldType.endsWith('?') ? fieldType : '$fieldType?';
+    copyWithParams.writeln('    $copyType $fieldName,');
+    copyWithArgs.writeln('      $fieldName: $fieldName ?? this.$fieldName,');
+    copyWithKeys.writeln('    if ($fieldName != null) {');
     copyWithKeys.writeln(
-      "      nextKeys.add('${escapeStringContents(name)}');",
+      "      nextKeys?.add('${escapeStringContents(name)}');",
     );
     copyWithKeys.writeln('    }');
 
@@ -1045,14 +1065,12 @@ String _generateObjectClass(
     }
     fields.writeln('  final Map<String, dynamic> patternProperties;');
     constructorParams.writeln('    this.patternProperties = const {},');
-    copyWithParams.writeln('    Object? patternProperties = _undefined,');
-    copyWithKeys.writeln(
-      '    if (!identical(patternProperties, _undefined)) {',
-    );
-    copyWithKeys.writeln("      nextKeys.add('patternProperties');");
+    copyWithParams.writeln('    Map<String, dynamic>? patternProperties,');
+    copyWithKeys.writeln('    if (patternProperties != null) {');
+    copyWithKeys.writeln("      nextKeys?.add('patternProperties');");
     copyWithKeys.writeln('    }');
     copyWithArgs.writeln(
-      '      patternProperties: !identical(patternProperties, _undefined) ? patternProperties as Map<String, dynamic> : this.patternProperties,',
+      '      patternProperties: patternProperties ?? this.patternProperties,',
     );
     equalityProps.add(
       'const DeepCollectionEquality().equals(patternProperties, other.patternProperties)',
@@ -1068,14 +1086,14 @@ String _generateObjectClass(
     );
     fields.writeln('  final Map<String, $addPropsType> additionalProperties;');
     constructorParams.writeln('    this.additionalProperties = const {},');
-    copyWithParams.writeln('    Object? additionalProperties = _undefined,');
-    copyWithKeys.writeln(
-      '    if (!identical(additionalProperties, _undefined)) {',
+    copyWithParams.writeln(
+      '    Map<String, $addPropsType>? additionalProperties,',
     );
-    copyWithKeys.writeln("      nextKeys.add('additionalProperties');");
+    copyWithKeys.writeln('    if (additionalProperties != null) {');
+    copyWithKeys.writeln("      nextKeys?.add('additionalProperties');");
     copyWithKeys.writeln('    }');
     copyWithArgs.writeln(
-      '      additionalProperties: !identical(additionalProperties, _undefined) ? additionalProperties as Map<String, $addPropsType> : this.additionalProperties,',
+      '      additionalProperties: additionalProperties ?? this.additionalProperties,',
     );
     equalityProps.add(
       'const DeepCollectionEquality().equals(additionalProperties, other.additionalProperties)',
@@ -1228,17 +1246,12 @@ $propDescriptors    },
 $constructorParams    Set<String>? explicitKeys,
   }) : _\$explicitKeys = explicitKeys;''';
 
-  final undefinedDecl = copyWithParams.isNotEmpty
-      ? '  static const Object _undefined = Object();\n\n'
-      : '';
-
   final copyWithStr = copyWithParams.isEmpty
       ? '  $className copyWith() => $className(explicitKeys: _\$explicitKeys);'
       : '''
   $className copyWith({
 $copyWithParams  }) {
-    final explicit = _\$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
+    final nextKeys = _\$explicitKeys != null ? Set<String>.from(_\$explicitKeys) : null;
 $copyWithKeys
     return $className(
 $copyWithArgs      explicitKeys: nextKeys,
@@ -1278,7 +1291,7 @@ $constructorStr
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-$undefinedDecl$copyWithStr
+$copyWithStr
 
 $validationMethod
 
@@ -1544,21 +1557,49 @@ String _generateValidationMethod(
       buffer.writeln('    }');
     }
   }
-  schema.dependentRequired?.forEach((key, deps) {
-    final escapedKey = escapeStringContents(key);
-    final fieldName = fieldNames[key]!;
-    buffer.writeln('    if ($fieldName != null) {');
-    for (final dep in deps) {
-      final escapedDep = escapeStringContents(dep);
-      final depFieldName = fieldNames[dep]!;
-      buffer.writeln('      if ($depFieldName == null) {');
-      buffer.writeln(
-        "        errors.add(ValidationError(message: 'Property \"$escapedDep\" is required because \"$escapedKey\" is present', path: ['$escapedDep'], keyword: 'dependentRequired'));",
-      );
-      buffer.writeln('      }');
+  if (schema.dependentRequired != null) {
+    final hasAdditionalProps =
+        schema.additionalProperties == null ||
+        !schema.additionalProperties!.isNever;
+
+    String? presenceExpr(String key) {
+      final fieldName = fieldNames[key];
+      if (fieldName != null) {
+        final propSchema = schema.properties![key]!;
+        final isRequired = schema.required?.contains(key) == true;
+        if (!_isNullable(propSchema, isRequired, context)) {
+          return 'true';
+        }
+        return '$fieldName != null';
+      }
+      if (!hasAdditionalProps) return null;
+      return 'additionalProperties.containsKey(${dartStringLiteral(key)})';
     }
-    buffer.writeln('    }');
-  });
+
+    schema.dependentRequired!.forEach((key, deps) {
+      final escapedKey = escapeStringContents(key);
+      final keyPresent = presenceExpr(key);
+      if (keyPresent == null) return;
+
+      final checks = StringBuffer();
+      for (final dep in deps) {
+        final escapedDep = escapeStringContents(dep);
+        final depPresent = presenceExpr(dep);
+        if (depPresent == 'true') continue;
+        final missing = depPresent == null ? 'true' : '!($depPresent)';
+        checks.writeln('      if ($missing) {');
+        checks.writeln(
+          "        errors.add(ValidationError(message: 'Property \"$escapedDep\" is required because \"$escapedKey\" is present', path: ['$escapedDep'], keyword: 'dependentRequired'));",
+        );
+        checks.writeln('      }');
+      }
+      if (checks.isEmpty) return;
+
+      buffer.writeln('    if ($keyPresent) {');
+      buffer.write(checks);
+      buffer.writeln('    }');
+    });
+  }
   schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
     final isRequired = schema.required?.contains(name) == true;
@@ -1820,7 +1861,44 @@ void _generateSchemaValidations(
   final real = schema.realSchema;
   final effectivePath = pathExprs ?? [dartStringLiteral(unescapedName)];
   final effectivePathExpr = '[${effectivePath.join(', ')}]';
-  if (real.isString) {
+  if ((classNames.containsKey(real) && real.enumValues == null) ||
+      real.isObject ||
+      real.isUnion) {
+    if (checkType) {
+      final className =
+          classNames[real] ??
+          (real.isObject ? 'Map<String, dynamic>' : 'dynamic');
+      if (className != 'dynamic') {
+        validations.writeln('      if ($valueVar is! $className) {');
+        validations.writeln(
+          "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a $className', path: $effectivePathExpr, keyword: 'type'));",
+        );
+        if (_hasValidationMethod(real) && classNames.containsKey(real)) {
+          validations.writeln('      } else {');
+          validations.writeln('''
+        $errorsVar.addAll(($valueVar as JsonModel).collectErrors().map((ValidationError e) => ValidationError(
+          message: e.message,
+          path: [${effectivePath.join(', ')}, ...e.path],
+          keyword: e.keyword,
+          schema: e.schema,
+          value: e.value,
+          nestedErrors: e.nestedErrors,
+        )));''');
+        }
+        validations.writeln('      }');
+      }
+    } else if (_hasValidationMethod(real) && classNames.containsKey(real)) {
+      validations.writeln('''
+      $errorsVar.addAll(($valueVar as JsonModel).collectErrors().map((ValidationError e) => ValidationError(
+        message: e.message,
+        path: [${effectivePath.join(', ')}, ...e.path],
+        keyword: e.keyword,
+        schema: e.schema,
+        value: e.value,
+        nestedErrors: e.nestedErrors,
+      )));''');
+    }
+  } else if (real.isString) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! String) {');
       validations.writeln(
@@ -2075,37 +2153,6 @@ void _generateSchemaValidations(
       "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be one of $enumValuesText', path: $effectivePathExpr, keyword: 'enum'));",
     );
     validations.writeln('      }');
-  } else if (real.isObject || real.isUnion) {
-    if (checkType) {
-      final className = classNames[real]!;
-      validations.writeln('      if ($valueVar is! $className) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a $className', path: $effectivePathExpr, keyword: 'type'));",
-      );
-      if (_hasValidationMethod(real)) {
-        validations.writeln('      } else {');
-        validations.writeln('''
-        $errorsVar.addAll(($valueVar as JsonModel).collectErrors().map((ValidationError e) => ValidationError(
-          message: e.message,
-          path: [${effectivePath.join(', ')}, ...e.path],
-          keyword: e.keyword,
-          schema: e.schema,
-          value: e.value,
-          nestedErrors: e.nestedErrors,
-        )));''');
-      }
-      validations.writeln('      }');
-    } else if (_hasValidationMethod(real)) {
-      validations.writeln('''
-      $errorsVar.addAll(($valueVar as JsonModel).collectErrors().map((ValidationError e) => ValidationError(
-        message: e.message,
-        path: [${effectivePath.join(', ')}, ...e.path],
-        keyword: e.keyword,
-        schema: e.schema,
-        value: e.value,
-        nestedErrors: e.nestedErrors,
-      )));''');
-    }
   } else if (real.isAnything) {
     // Always succeeds, so do nothing.
   } else if (real.isNever) {
@@ -2291,9 +2338,15 @@ String _generateUnionClass(
     final validationBody = StringBuffer();
     if (hasNestedValidation) {
       validationBody.writeln('  @override');
-      validationBody.writeln(
-        '  List<ValidationError> collectErrors() => value.collectErrors();',
-      );
+      if (optionType.endsWith('?')) {
+        validationBody.writeln(
+          '  List<ValidationError> collectErrors() => value?.collectErrors() ?? const [];',
+        );
+      } else {
+        validationBody.writeln(
+          '  List<ValidationError> collectErrors() => value.collectErrors();',
+        );
+      }
     } else if (sub.realSchema.isArray) {
       final itemReal = sub.realSchema.items?.realSchema ?? Schema.anything;
       final hasItemValidation =
@@ -2498,22 +2551,6 @@ $subclasses
 ''';
 }
 
-bool _isSameSchemaResource(Schema a, Schema b) {
-  if (a.id != null && b.id != null) {
-    final idA = a.id!.endsWith('#')
-        ? a.id!.substring(0, a.id!.length - 1)
-        : a.id!;
-    final idB = b.id!.endsWith('#')
-        ? b.id!.substring(0, b.id!.length - 1)
-        : b.id!;
-    return idA == idB;
-  }
-  if (a.resourceUri != null && b.resourceUri != null) {
-    return a.resourceUri == b.resourceUri;
-  }
-  return false;
-}
-
 /// Resolves `$dynamicRef` references to their corresponding `$dynamicAnchor` definitions for code generation.
 ///
 /// Under Draft 2020-12, a `$dynamicRef` behaves like a normal `$ref` unless the
@@ -2543,11 +2580,10 @@ void _resolveDynamicRefs(Schema root, Schema current, [Set<Schema>? seen]) {
       final rootAnchorUri = '$normalizedRootId#$fragment';
       if (root.dynamicAnchors != null &&
           root.dynamicAnchors!.containsKey(rootAnchorUri)) {
-        var target = root.dynamicAnchors![rootAnchorUri]!;
-        if (target != root && _isSameSchemaResource(target, root)) {
-          target = root;
-        }
-        current.resolvedRef = target;
+        final target = root.dynamicAnchors![rootAnchorUri]!;
+        current.resolvedRef = (target == root || root.dynamicAnchor == fragment)
+            ? root
+            : target;
       }
     }
   }

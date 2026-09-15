@@ -20,7 +20,7 @@ void main() {
     final generatedCode = generateCode(rootSchema, rootName);
 
     final formattedCode = DartFormatter(
-      languageVersion: Version(3, 12, 0),
+      languageVersion: Version(3, 10, 0),
     ).format(generatedCode);
 
     final expectedFile = File('test/test_schema.g.dart');

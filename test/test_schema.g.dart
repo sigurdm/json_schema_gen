@@ -215,592 +215,444 @@ final class TestRoot implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   TestRoot copyWith({
-    Object? deprecated = _undefined,
-    Object? idField = _undefined,
-    Object? unionWithObjectAndBoolean = _undefined,
-    Object? recursiveNodeField = _undefined,
-    Object? name = _undefined,
-    Object? constValue = _undefined,
-    Object? age = _undefined,
-    Object? exclusiveAge = _undefined,
-    Object? height = _undefined,
-    Object? email = _undefined,
-    Object? uuid = _undefined,
-    Object? isAwesome = _undefined,
-    Object? class_ = _undefined,
-    Object? reader = _undefined,
-    Object? stack = _undefined,
-    Object? validate_ = _undefined,
-    Object? result = _undefined,
-    Object? address = _undefined,
-    Object? tags = _undefined,
-    Object? scores = _undefined,
-    Object? unionValue = _undefined,
-    Object? nullableUnionValue = _undefined,
-    Object? requiredNullableUnionObject = _undefined,
-    Object? nullableString = _undefined,
-    Object? pet = _undefined,
-    Object? restrictedObject = _undefined,
-    Object? dependentObject = _undefined,
-    Object? primitiveArrayWithValidation = _undefined,
-    Object? restrictedArray = _undefined,
-    Object? deprecatedField = _undefined,
-    Object? deprecatedRef = _undefined,
-    Object? defaultString = _undefined,
-    Object? defaultBackslash = _undefined,
-    Object? nestedArray = _undefined,
-    Object? singleQuoteKey = _undefined,
-    Object? mixedEnum = _undefined,
-    Object? defaultInt = _undefined,
-    Object? defaultBool = _undefined,
-    Object? defaultList = _undefined,
-    Object? defaultObject = _undefined,
-    Object? defaultNullableString = _undefined,
-    Object? mergedValue = _undefined,
-    Object? tupleArray = _undefined,
-    Object? tupleObjectArray = _undefined,
-    Object? ipv6Value = _undefined,
-    Object? hostnameValue = _undefined,
-    Object? timeValue = _undefined,
-    Object? uriReferenceValue = _undefined,
-    Object? additionalPropertiesObject = _undefined,
-    Object? strictObject = _undefined,
-    Object? notObject = _undefined,
-    Object? anyOfValue = _undefined,
-    Object? mergedAllOfObject = _undefined,
-    Object? complexMerged = _undefined,
-    Object? myEnumField = _undefined,
-    Object? unionContainsArray = _undefined,
-    Object? objectContainsArray = _undefined,
-    Object? enumContainsArray = _undefined,
-    Object? booleanContainsArray = _undefined,
-    Object? nullContainsArray = _undefined,
-    Object? anyContainsArray = _undefined,
-    Object? stringContainsArray = _undefined,
-    Object? numberContainsArray = _undefined,
-    Object? dynamicProps = _undefined,
-    Object? dateTimeField = _undefined,
-    Object? dateField = _undefined,
-    Object? ipv4Field = _undefined,
-    Object? uriField = _undefined,
-    Object? defaultEmptyList = _undefined,
-    Object? defaultEmptyObject = _undefined,
-    Object? unionWithArrayOption = _undefined,
-    Object? impossibleField = _undefined,
-    Object? tupleSameTypeArray = _undefined,
-    Object? arrayWithAllOfItems = _undefined,
-    Object? unionWithAllOfOption = _undefined,
-    Object? patternPropsField = _undefined,
-    Object? overlappingUnion = _undefined,
-    Object? deprecatedFieldWithMessage = _undefined,
-    Object? customNamedObject = _undefined,
-    Object? customNamedUnion = _undefined,
-    Object? customNamedEnum = _undefined,
-    Object? coverageTrigger = _undefined,
-    Object? collidingEnumField = _undefined,
-    Object? collidingObjectField = _undefined,
-    Object? additionalProperties = _undefined,
+    String? deprecated,
+    String? idField,
+    TestRootUnionWithObjectAndBoolean? unionWithObjectAndBoolean,
+    RecursiveNode? recursiveNodeField,
+    String? name,
+    TestRootConstValue? constValue,
+    int? age,
+    int? exclusiveAge,
+    num? height,
+    String? email,
+    String? uuid,
+    bool? isAwesome,
+    String? class_,
+    String? reader,
+    String? stack,
+    String? validate_,
+    String? result,
+    Address? address,
+    List<String>? tags,
+    List<Score>? scores,
+    TestRootUnionValue? unionValue,
+    TestRootNullableUnionValue? nullableUnionValue,
+    RequiredNullableUnionObject? requiredNullableUnionObject,
+    String? nullableString,
+    Pet? pet,
+    RestrictedObject? restrictedObject,
+    DependentObject? dependentObject,
+    List<String>? primitiveArrayWithValidation,
+    List<int>? restrictedArray,
+    String? deprecatedField,
+    DeprecatedObject? deprecatedRef,
+    String? defaultString,
+    String? defaultBackslash,
+    List<List<Address>>? nestedArray,
+    String? singleQuoteKey,
+    TestRootMixedEnum? mixedEnum,
+    int? defaultInt,
+    bool? defaultBool,
+    List<String>? defaultList,
+    Address? defaultObject,
+    String? defaultNullableString,
+    Merged? mergedValue,
+    List<dynamic>? tupleArray,
+    List<dynamic>? tupleObjectArray,
+    String? ipv6Value,
+    String? hostnameValue,
+    String? timeValue,
+    String? uriReferenceValue,
+    MapObject? additionalPropertiesObject,
+    StrictObject? strictObject,
+    NotObject? notObject,
+    TestRootAnyOfValue? anyOfValue,
+    MergedAllOfObject? mergedAllOfObject,
+    ComplexMergedObject? complexMerged,
+    MyEnum? myEnumField,
+    List<Object?>? unionContainsArray,
+    List<Object?>? objectContainsArray,
+    List<Object?>? enumContainsArray,
+    List<Object?>? booleanContainsArray,
+    List<Object?>? nullContainsArray,
+    List<Object?>? anyContainsArray,
+    List<Object?>? stringContainsArray,
+    List<Object?>? numberContainsArray,
+    ObjectWithDynamicProps? dynamicProps,
+    String? dateTimeField,
+    String? dateField,
+    String? ipv4Field,
+    String? uriField,
+    List<String>? defaultEmptyList,
+    MapObject? defaultEmptyObject,
+    TestRootUnionWithArrayOption? unionWithArrayOption,
+    Never? impossibleField,
+    List<String>? tupleSameTypeArray,
+    List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems,
+    TestRootUnionWithAllOfOption? unionWithAllOfOption,
+    PatternPropertiesObject? patternPropsField,
+    OverlappingUnion? overlappingUnion,
+    String? deprecatedFieldWithMessage,
+    MyCustomClassName? customNamedObject,
+    MyCustomUnionName? customNamedUnion,
+    MyCustomEnumName? customNamedEnum,
+    TestRootCoverageTrigger? coverageTrigger,
+    CollidingEnum? collidingEnumField,
+    CollidingObject? collidingObjectField,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(deprecated, _undefined)) {
-      nextKeys.add('deprecated');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (deprecated != null) {
+      nextKeys?.add('deprecated');
     }
-    if (!identical(idField, _undefined)) {
-      nextKeys.add('\$idField');
+    if (idField != null) {
+      nextKeys?.add('\$idField');
     }
-    if (!identical(unionWithObjectAndBoolean, _undefined)) {
-      nextKeys.add('unionWithObjectAndBoolean');
+    if (unionWithObjectAndBoolean != null) {
+      nextKeys?.add('unionWithObjectAndBoolean');
     }
-    if (!identical(recursiveNodeField, _undefined)) {
-      nextKeys.add('recursiveNodeField');
+    if (recursiveNodeField != null) {
+      nextKeys?.add('recursiveNodeField');
     }
-    if (!identical(name, _undefined)) {
-      nextKeys.add('name');
+    if (name != null) {
+      nextKeys?.add('name');
     }
-    if (!identical(constValue, _undefined)) {
-      nextKeys.add('constValue');
+    if (constValue != null) {
+      nextKeys?.add('constValue');
     }
-    if (!identical(age, _undefined)) {
-      nextKeys.add('age');
+    if (age != null) {
+      nextKeys?.add('age');
     }
-    if (!identical(exclusiveAge, _undefined)) {
-      nextKeys.add('exclusiveAge');
+    if (exclusiveAge != null) {
+      nextKeys?.add('exclusiveAge');
     }
-    if (!identical(height, _undefined)) {
-      nextKeys.add('height');
+    if (height != null) {
+      nextKeys?.add('height');
     }
-    if (!identical(email, _undefined)) {
-      nextKeys.add('email');
+    if (email != null) {
+      nextKeys?.add('email');
     }
-    if (!identical(uuid, _undefined)) {
-      nextKeys.add('uuid');
+    if (uuid != null) {
+      nextKeys?.add('uuid');
     }
-    if (!identical(isAwesome, _undefined)) {
-      nextKeys.add('isAwesome');
+    if (isAwesome != null) {
+      nextKeys?.add('isAwesome');
     }
-    if (!identical(class_, _undefined)) {
-      nextKeys.add('class');
+    if (class_ != null) {
+      nextKeys?.add('class');
     }
-    if (!identical(reader, _undefined)) {
-      nextKeys.add('reader');
+    if (reader != null) {
+      nextKeys?.add('reader');
     }
-    if (!identical(stack, _undefined)) {
-      nextKeys.add('stack');
+    if (stack != null) {
+      nextKeys?.add('stack');
     }
-    if (!identical(validate_, _undefined)) {
-      nextKeys.add('validate');
+    if (validate_ != null) {
+      nextKeys?.add('validate');
     }
-    if (!identical(result, _undefined)) {
-      nextKeys.add('result');
+    if (result != null) {
+      nextKeys?.add('result');
     }
-    if (!identical(address, _undefined)) {
-      nextKeys.add('address');
+    if (address != null) {
+      nextKeys?.add('address');
     }
-    if (!identical(tags, _undefined)) {
-      nextKeys.add('tags');
+    if (tags != null) {
+      nextKeys?.add('tags');
     }
-    if (!identical(scores, _undefined)) {
-      nextKeys.add('scores');
+    if (scores != null) {
+      nextKeys?.add('scores');
     }
-    if (!identical(unionValue, _undefined)) {
-      nextKeys.add('unionValue');
+    if (unionValue != null) {
+      nextKeys?.add('unionValue');
     }
-    if (!identical(nullableUnionValue, _undefined)) {
-      nextKeys.add('nullableUnionValue');
+    if (nullableUnionValue != null) {
+      nextKeys?.add('nullableUnionValue');
     }
-    if (!identical(requiredNullableUnionObject, _undefined)) {
-      nextKeys.add('requiredNullableUnionObject');
+    if (requiredNullableUnionObject != null) {
+      nextKeys?.add('requiredNullableUnionObject');
     }
-    if (!identical(nullableString, _undefined)) {
-      nextKeys.add('nullableString');
+    if (nullableString != null) {
+      nextKeys?.add('nullableString');
     }
-    if (!identical(pet, _undefined)) {
-      nextKeys.add('pet');
+    if (pet != null) {
+      nextKeys?.add('pet');
     }
-    if (!identical(restrictedObject, _undefined)) {
-      nextKeys.add('restrictedObject');
+    if (restrictedObject != null) {
+      nextKeys?.add('restrictedObject');
     }
-    if (!identical(dependentObject, _undefined)) {
-      nextKeys.add('dependentObject');
+    if (dependentObject != null) {
+      nextKeys?.add('dependentObject');
     }
-    if (!identical(primitiveArrayWithValidation, _undefined)) {
-      nextKeys.add('primitiveArrayWithValidation');
+    if (primitiveArrayWithValidation != null) {
+      nextKeys?.add('primitiveArrayWithValidation');
     }
-    if (!identical(restrictedArray, _undefined)) {
-      nextKeys.add('restrictedArray');
+    if (restrictedArray != null) {
+      nextKeys?.add('restrictedArray');
     }
-    if (!identical(deprecatedField, _undefined)) {
-      nextKeys.add('deprecatedField');
+    if (deprecatedField != null) {
+      nextKeys?.add('deprecatedField');
     }
-    if (!identical(deprecatedRef, _undefined)) {
-      nextKeys.add('deprecatedRef');
+    if (deprecatedRef != null) {
+      nextKeys?.add('deprecatedRef');
     }
-    if (!identical(defaultString, _undefined)) {
-      nextKeys.add('defaultString');
+    if (defaultString != null) {
+      nextKeys?.add('defaultString');
     }
-    if (!identical(defaultBackslash, _undefined)) {
-      nextKeys.add('defaultBackslash');
+    if (defaultBackslash != null) {
+      nextKeys?.add('defaultBackslash');
     }
-    if (!identical(nestedArray, _undefined)) {
-      nextKeys.add('nestedArray');
+    if (nestedArray != null) {
+      nextKeys?.add('nestedArray');
     }
-    if (!identical(singleQuoteKey, _undefined)) {
-      nextKeys.add('single\'quote\'key');
+    if (singleQuoteKey != null) {
+      nextKeys?.add('single\'quote\'key');
     }
-    if (!identical(mixedEnum, _undefined)) {
-      nextKeys.add('mixedEnum');
+    if (mixedEnum != null) {
+      nextKeys?.add('mixedEnum');
     }
-    if (!identical(defaultInt, _undefined)) {
-      nextKeys.add('defaultInt');
+    if (defaultInt != null) {
+      nextKeys?.add('defaultInt');
     }
-    if (!identical(defaultBool, _undefined)) {
-      nextKeys.add('defaultBool');
+    if (defaultBool != null) {
+      nextKeys?.add('defaultBool');
     }
-    if (!identical(defaultList, _undefined)) {
-      nextKeys.add('defaultList');
+    if (defaultList != null) {
+      nextKeys?.add('defaultList');
     }
-    if (!identical(defaultObject, _undefined)) {
-      nextKeys.add('defaultObject');
+    if (defaultObject != null) {
+      nextKeys?.add('defaultObject');
     }
-    if (!identical(defaultNullableString, _undefined)) {
-      nextKeys.add('defaultNullableString');
+    if (defaultNullableString != null) {
+      nextKeys?.add('defaultNullableString');
     }
-    if (!identical(mergedValue, _undefined)) {
-      nextKeys.add('mergedValue');
+    if (mergedValue != null) {
+      nextKeys?.add('mergedValue');
     }
-    if (!identical(tupleArray, _undefined)) {
-      nextKeys.add('tupleArray');
+    if (tupleArray != null) {
+      nextKeys?.add('tupleArray');
     }
-    if (!identical(tupleObjectArray, _undefined)) {
-      nextKeys.add('tupleObjectArray');
+    if (tupleObjectArray != null) {
+      nextKeys?.add('tupleObjectArray');
     }
-    if (!identical(ipv6Value, _undefined)) {
-      nextKeys.add('ipv6Value');
+    if (ipv6Value != null) {
+      nextKeys?.add('ipv6Value');
     }
-    if (!identical(hostnameValue, _undefined)) {
-      nextKeys.add('hostnameValue');
+    if (hostnameValue != null) {
+      nextKeys?.add('hostnameValue');
     }
-    if (!identical(timeValue, _undefined)) {
-      nextKeys.add('timeValue');
+    if (timeValue != null) {
+      nextKeys?.add('timeValue');
     }
-    if (!identical(uriReferenceValue, _undefined)) {
-      nextKeys.add('uriReferenceValue');
+    if (uriReferenceValue != null) {
+      nextKeys?.add('uriReferenceValue');
     }
-    if (!identical(additionalPropertiesObject, _undefined)) {
-      nextKeys.add('additionalPropertiesObject');
+    if (additionalPropertiesObject != null) {
+      nextKeys?.add('additionalPropertiesObject');
     }
-    if (!identical(strictObject, _undefined)) {
-      nextKeys.add('strictObject');
+    if (strictObject != null) {
+      nextKeys?.add('strictObject');
     }
-    if (!identical(notObject, _undefined)) {
-      nextKeys.add('notObject');
+    if (notObject != null) {
+      nextKeys?.add('notObject');
     }
-    if (!identical(anyOfValue, _undefined)) {
-      nextKeys.add('anyOfValue');
+    if (anyOfValue != null) {
+      nextKeys?.add('anyOfValue');
     }
-    if (!identical(mergedAllOfObject, _undefined)) {
-      nextKeys.add('mergedAllOfObject');
+    if (mergedAllOfObject != null) {
+      nextKeys?.add('mergedAllOfObject');
     }
-    if (!identical(complexMerged, _undefined)) {
-      nextKeys.add('complexMerged');
+    if (complexMerged != null) {
+      nextKeys?.add('complexMerged');
     }
-    if (!identical(myEnumField, _undefined)) {
-      nextKeys.add('myEnumField');
+    if (myEnumField != null) {
+      nextKeys?.add('myEnumField');
     }
-    if (!identical(unionContainsArray, _undefined)) {
-      nextKeys.add('unionContainsArray');
+    if (unionContainsArray != null) {
+      nextKeys?.add('unionContainsArray');
     }
-    if (!identical(objectContainsArray, _undefined)) {
-      nextKeys.add('objectContainsArray');
+    if (objectContainsArray != null) {
+      nextKeys?.add('objectContainsArray');
     }
-    if (!identical(enumContainsArray, _undefined)) {
-      nextKeys.add('enumContainsArray');
+    if (enumContainsArray != null) {
+      nextKeys?.add('enumContainsArray');
     }
-    if (!identical(booleanContainsArray, _undefined)) {
-      nextKeys.add('booleanContainsArray');
+    if (booleanContainsArray != null) {
+      nextKeys?.add('booleanContainsArray');
     }
-    if (!identical(nullContainsArray, _undefined)) {
-      nextKeys.add('nullContainsArray');
+    if (nullContainsArray != null) {
+      nextKeys?.add('nullContainsArray');
     }
-    if (!identical(anyContainsArray, _undefined)) {
-      nextKeys.add('anyContainsArray');
+    if (anyContainsArray != null) {
+      nextKeys?.add('anyContainsArray');
     }
-    if (!identical(stringContainsArray, _undefined)) {
-      nextKeys.add('stringContainsArray');
+    if (stringContainsArray != null) {
+      nextKeys?.add('stringContainsArray');
     }
-    if (!identical(numberContainsArray, _undefined)) {
-      nextKeys.add('numberContainsArray');
+    if (numberContainsArray != null) {
+      nextKeys?.add('numberContainsArray');
     }
-    if (!identical(dynamicProps, _undefined)) {
-      nextKeys.add('dynamicProps');
+    if (dynamicProps != null) {
+      nextKeys?.add('dynamicProps');
     }
-    if (!identical(dateTimeField, _undefined)) {
-      nextKeys.add('dateTimeField');
+    if (dateTimeField != null) {
+      nextKeys?.add('dateTimeField');
     }
-    if (!identical(dateField, _undefined)) {
-      nextKeys.add('dateField');
+    if (dateField != null) {
+      nextKeys?.add('dateField');
     }
-    if (!identical(ipv4Field, _undefined)) {
-      nextKeys.add('ipv4Field');
+    if (ipv4Field != null) {
+      nextKeys?.add('ipv4Field');
     }
-    if (!identical(uriField, _undefined)) {
-      nextKeys.add('uriField');
+    if (uriField != null) {
+      nextKeys?.add('uriField');
     }
-    if (!identical(defaultEmptyList, _undefined)) {
-      nextKeys.add('defaultEmptyList');
+    if (defaultEmptyList != null) {
+      nextKeys?.add('defaultEmptyList');
     }
-    if (!identical(defaultEmptyObject, _undefined)) {
-      nextKeys.add('defaultEmptyObject');
+    if (defaultEmptyObject != null) {
+      nextKeys?.add('defaultEmptyObject');
     }
-    if (!identical(unionWithArrayOption, _undefined)) {
-      nextKeys.add('unionWithArrayOption');
+    if (unionWithArrayOption != null) {
+      nextKeys?.add('unionWithArrayOption');
     }
-    if (!identical(impossibleField, _undefined)) {
-      nextKeys.add('impossibleField');
+    if (impossibleField != null) {
+      nextKeys?.add('impossibleField');
     }
-    if (!identical(tupleSameTypeArray, _undefined)) {
-      nextKeys.add('tupleSameTypeArray');
+    if (tupleSameTypeArray != null) {
+      nextKeys?.add('tupleSameTypeArray');
     }
-    if (!identical(arrayWithAllOfItems, _undefined)) {
-      nextKeys.add('arrayWithAllOfItems');
+    if (arrayWithAllOfItems != null) {
+      nextKeys?.add('arrayWithAllOfItems');
     }
-    if (!identical(unionWithAllOfOption, _undefined)) {
-      nextKeys.add('unionWithAllOfOption');
+    if (unionWithAllOfOption != null) {
+      nextKeys?.add('unionWithAllOfOption');
     }
-    if (!identical(patternPropsField, _undefined)) {
-      nextKeys.add('patternPropsField');
+    if (patternPropsField != null) {
+      nextKeys?.add('patternPropsField');
     }
-    if (!identical(overlappingUnion, _undefined)) {
-      nextKeys.add('overlappingUnion');
+    if (overlappingUnion != null) {
+      nextKeys?.add('overlappingUnion');
     }
-    if (!identical(deprecatedFieldWithMessage, _undefined)) {
-      nextKeys.add('deprecatedFieldWithMessage');
+    if (deprecatedFieldWithMessage != null) {
+      nextKeys?.add('deprecatedFieldWithMessage');
     }
-    if (!identical(customNamedObject, _undefined)) {
-      nextKeys.add('customNamedObject');
+    if (customNamedObject != null) {
+      nextKeys?.add('customNamedObject');
     }
-    if (!identical(customNamedUnion, _undefined)) {
-      nextKeys.add('customNamedUnion');
+    if (customNamedUnion != null) {
+      nextKeys?.add('customNamedUnion');
     }
-    if (!identical(customNamedEnum, _undefined)) {
-      nextKeys.add('customNamedEnum');
+    if (customNamedEnum != null) {
+      nextKeys?.add('customNamedEnum');
     }
-    if (!identical(coverageTrigger, _undefined)) {
-      nextKeys.add('coverageTrigger');
+    if (coverageTrigger != null) {
+      nextKeys?.add('coverageTrigger');
     }
-    if (!identical(collidingEnumField, _undefined)) {
-      nextKeys.add('collidingEnumField');
+    if (collidingEnumField != null) {
+      nextKeys?.add('collidingEnumField');
     }
-    if (!identical(collidingObjectField, _undefined)) {
-      nextKeys.add('collidingObjectField');
+    if (collidingObjectField != null) {
+      nextKeys?.add('collidingObjectField');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return TestRoot(
-      deprecated: !identical(deprecated, _undefined)
-          ? deprecated as String?
-          : this.deprecated,
-      idField: !identical(idField, _undefined)
-          ? idField as String?
-          : this.idField,
+      deprecated: deprecated ?? this.deprecated,
+      idField: idField ?? this.idField,
       unionWithObjectAndBoolean:
-          !identical(unionWithObjectAndBoolean, _undefined)
-          ? unionWithObjectAndBoolean as TestRootUnionWithObjectAndBoolean?
-          : this.unionWithObjectAndBoolean,
-      recursiveNodeField: !identical(recursiveNodeField, _undefined)
-          ? recursiveNodeField as RecursiveNode?
-          : this.recursiveNodeField,
-      name: !identical(name, _undefined) ? name as String : this.name,
-      constValue: !identical(constValue, _undefined)
-          ? constValue as TestRootConstValue?
-          : this.constValue,
-      age: !identical(age, _undefined) ? age as int : this.age,
-      exclusiveAge: !identical(exclusiveAge, _undefined)
-          ? exclusiveAge as int?
-          : this.exclusiveAge,
-      height: !identical(height, _undefined) ? height as num? : this.height,
-      email: !identical(email, _undefined) ? email as String? : this.email,
-      uuid: !identical(uuid, _undefined) ? uuid as String? : this.uuid,
-      isAwesome: !identical(isAwesome, _undefined)
-          ? isAwesome as bool
-          : this.isAwesome,
-      class_: !identical(class_, _undefined) ? class_ as String? : this.class_,
-      reader: !identical(reader, _undefined) ? reader as String? : this.reader,
-      stack: !identical(stack, _undefined) ? stack as String? : this.stack,
-      validate_: !identical(validate_, _undefined)
-          ? validate_ as String?
-          : this.validate_,
-      result: !identical(result, _undefined) ? result as String? : this.result,
-      address: !identical(address, _undefined)
-          ? address as Address
-          : this.address,
-      tags: !identical(tags, _undefined) ? tags as List<String>? : this.tags,
-      scores: !identical(scores, _undefined)
-          ? scores as List<Score>?
-          : this.scores,
-      unionValue: !identical(unionValue, _undefined)
-          ? unionValue as TestRootUnionValue?
-          : this.unionValue,
-      nullableUnionValue: !identical(nullableUnionValue, _undefined)
-          ? nullableUnionValue as TestRootNullableUnionValue?
-          : this.nullableUnionValue,
+          unionWithObjectAndBoolean ?? this.unionWithObjectAndBoolean,
+      recursiveNodeField: recursiveNodeField ?? this.recursiveNodeField,
+      name: name ?? this.name,
+      constValue: constValue ?? this.constValue,
+      age: age ?? this.age,
+      exclusiveAge: exclusiveAge ?? this.exclusiveAge,
+      height: height ?? this.height,
+      email: email ?? this.email,
+      uuid: uuid ?? this.uuid,
+      isAwesome: isAwesome ?? this.isAwesome,
+      class_: class_ ?? this.class_,
+      reader: reader ?? this.reader,
+      stack: stack ?? this.stack,
+      validate_: validate_ ?? this.validate_,
+      result: result ?? this.result,
+      address: address ?? this.address,
+      tags: tags ?? this.tags,
+      scores: scores ?? this.scores,
+      unionValue: unionValue ?? this.unionValue,
+      nullableUnionValue: nullableUnionValue ?? this.nullableUnionValue,
       requiredNullableUnionObject:
-          !identical(requiredNullableUnionObject, _undefined)
-          ? requiredNullableUnionObject as RequiredNullableUnionObject?
-          : this.requiredNullableUnionObject,
-      nullableString: !identical(nullableString, _undefined)
-          ? nullableString as String?
-          : this.nullableString,
-      pet: !identical(pet, _undefined) ? pet as Pet? : this.pet,
-      restrictedObject: !identical(restrictedObject, _undefined)
-          ? restrictedObject as RestrictedObject?
-          : this.restrictedObject,
-      dependentObject: !identical(dependentObject, _undefined)
-          ? dependentObject as DependentObject?
-          : this.dependentObject,
+          requiredNullableUnionObject ?? this.requiredNullableUnionObject,
+      nullableString: nullableString ?? this.nullableString,
+      pet: pet ?? this.pet,
+      restrictedObject: restrictedObject ?? this.restrictedObject,
+      dependentObject: dependentObject ?? this.dependentObject,
       primitiveArrayWithValidation:
-          !identical(primitiveArrayWithValidation, _undefined)
-          ? primitiveArrayWithValidation as List<String>?
-          : this.primitiveArrayWithValidation,
-      restrictedArray: !identical(restrictedArray, _undefined)
-          ? restrictedArray as List<int>?
-          : this.restrictedArray,
-      deprecatedField: !identical(deprecatedField, _undefined)
-          ? deprecatedField as String?
-          : this.deprecatedField,
-      deprecatedRef: !identical(deprecatedRef, _undefined)
-          ? deprecatedRef as DeprecatedObject?
-          : this.deprecatedRef,
-      defaultString: !identical(defaultString, _undefined)
-          ? defaultString as String
-          : this.defaultString,
-      defaultBackslash: !identical(defaultBackslash, _undefined)
-          ? defaultBackslash as String
-          : this.defaultBackslash,
-      nestedArray: !identical(nestedArray, _undefined)
-          ? nestedArray as List<List<Address>>?
-          : this.nestedArray,
-      singleQuoteKey: !identical(singleQuoteKey, _undefined)
-          ? singleQuoteKey as String?
-          : this.singleQuoteKey,
-      mixedEnum: !identical(mixedEnum, _undefined)
-          ? mixedEnum as TestRootMixedEnum?
-          : this.mixedEnum,
-      defaultInt: !identical(defaultInt, _undefined)
-          ? defaultInt as int
-          : this.defaultInt,
-      defaultBool: !identical(defaultBool, _undefined)
-          ? defaultBool as bool
-          : this.defaultBool,
-      defaultList: !identical(defaultList, _undefined)
-          ? defaultList as List<String>
-          : this.defaultList,
-      defaultObject: !identical(defaultObject, _undefined)
-          ? defaultObject as Address
-          : this.defaultObject,
-      defaultNullableString: !identical(defaultNullableString, _undefined)
-          ? defaultNullableString as String?
-          : this.defaultNullableString,
-      mergedValue: !identical(mergedValue, _undefined)
-          ? mergedValue as Merged?
-          : this.mergedValue,
-      tupleArray: !identical(tupleArray, _undefined)
-          ? tupleArray as List<dynamic>?
-          : this.tupleArray,
-      tupleObjectArray: !identical(tupleObjectArray, _undefined)
-          ? tupleObjectArray as List<dynamic>?
-          : this.tupleObjectArray,
-      ipv6Value: !identical(ipv6Value, _undefined)
-          ? ipv6Value as String?
-          : this.ipv6Value,
-      hostnameValue: !identical(hostnameValue, _undefined)
-          ? hostnameValue as String?
-          : this.hostnameValue,
-      timeValue: !identical(timeValue, _undefined)
-          ? timeValue as String?
-          : this.timeValue,
-      uriReferenceValue: !identical(uriReferenceValue, _undefined)
-          ? uriReferenceValue as String?
-          : this.uriReferenceValue,
+          primitiveArrayWithValidation ?? this.primitiveArrayWithValidation,
+      restrictedArray: restrictedArray ?? this.restrictedArray,
+      deprecatedField: deprecatedField ?? this.deprecatedField,
+      deprecatedRef: deprecatedRef ?? this.deprecatedRef,
+      defaultString: defaultString ?? this.defaultString,
+      defaultBackslash: defaultBackslash ?? this.defaultBackslash,
+      nestedArray: nestedArray ?? this.nestedArray,
+      singleQuoteKey: singleQuoteKey ?? this.singleQuoteKey,
+      mixedEnum: mixedEnum ?? this.mixedEnum,
+      defaultInt: defaultInt ?? this.defaultInt,
+      defaultBool: defaultBool ?? this.defaultBool,
+      defaultList: defaultList ?? this.defaultList,
+      defaultObject: defaultObject ?? this.defaultObject,
+      defaultNullableString:
+          defaultNullableString ?? this.defaultNullableString,
+      mergedValue: mergedValue ?? this.mergedValue,
+      tupleArray: tupleArray ?? this.tupleArray,
+      tupleObjectArray: tupleObjectArray ?? this.tupleObjectArray,
+      ipv6Value: ipv6Value ?? this.ipv6Value,
+      hostnameValue: hostnameValue ?? this.hostnameValue,
+      timeValue: timeValue ?? this.timeValue,
+      uriReferenceValue: uriReferenceValue ?? this.uriReferenceValue,
       additionalPropertiesObject:
-          !identical(additionalPropertiesObject, _undefined)
-          ? additionalPropertiesObject as MapObject?
-          : this.additionalPropertiesObject,
-      strictObject: !identical(strictObject, _undefined)
-          ? strictObject as StrictObject?
-          : this.strictObject,
-      notObject: !identical(notObject, _undefined)
-          ? notObject as NotObject?
-          : this.notObject,
-      anyOfValue: !identical(anyOfValue, _undefined)
-          ? anyOfValue as TestRootAnyOfValue?
-          : this.anyOfValue,
-      mergedAllOfObject: !identical(mergedAllOfObject, _undefined)
-          ? mergedAllOfObject as MergedAllOfObject?
-          : this.mergedAllOfObject,
-      complexMerged: !identical(complexMerged, _undefined)
-          ? complexMerged as ComplexMergedObject?
-          : this.complexMerged,
-      myEnumField: !identical(myEnumField, _undefined)
-          ? myEnumField as MyEnum?
-          : this.myEnumField,
-      unionContainsArray: !identical(unionContainsArray, _undefined)
-          ? unionContainsArray as List<Object?>?
-          : this.unionContainsArray,
-      objectContainsArray: !identical(objectContainsArray, _undefined)
-          ? objectContainsArray as List<Object?>?
-          : this.objectContainsArray,
-      enumContainsArray: !identical(enumContainsArray, _undefined)
-          ? enumContainsArray as List<Object?>?
-          : this.enumContainsArray,
-      booleanContainsArray: !identical(booleanContainsArray, _undefined)
-          ? booleanContainsArray as List<Object?>?
-          : this.booleanContainsArray,
-      nullContainsArray: !identical(nullContainsArray, _undefined)
-          ? nullContainsArray as List<Object?>?
-          : this.nullContainsArray,
-      anyContainsArray: !identical(anyContainsArray, _undefined)
-          ? anyContainsArray as List<Object?>?
-          : this.anyContainsArray,
-      stringContainsArray: !identical(stringContainsArray, _undefined)
-          ? stringContainsArray as List<Object?>?
-          : this.stringContainsArray,
-      numberContainsArray: !identical(numberContainsArray, _undefined)
-          ? numberContainsArray as List<Object?>?
-          : this.numberContainsArray,
-      dynamicProps: !identical(dynamicProps, _undefined)
-          ? dynamicProps as ObjectWithDynamicProps?
-          : this.dynamicProps,
-      dateTimeField: !identical(dateTimeField, _undefined)
-          ? dateTimeField as String?
-          : this.dateTimeField,
-      dateField: !identical(dateField, _undefined)
-          ? dateField as String?
-          : this.dateField,
-      ipv4Field: !identical(ipv4Field, _undefined)
-          ? ipv4Field as String?
-          : this.ipv4Field,
-      uriField: !identical(uriField, _undefined)
-          ? uriField as String?
-          : this.uriField,
-      defaultEmptyList: !identical(defaultEmptyList, _undefined)
-          ? defaultEmptyList as List<String>
-          : this.defaultEmptyList,
-      defaultEmptyObject: !identical(defaultEmptyObject, _undefined)
-          ? defaultEmptyObject as MapObject
-          : this.defaultEmptyObject,
-      unionWithArrayOption: !identical(unionWithArrayOption, _undefined)
-          ? unionWithArrayOption as TestRootUnionWithArrayOption?
-          : this.unionWithArrayOption,
-      impossibleField: !identical(impossibleField, _undefined)
-          ? impossibleField as Never?
-          : this.impossibleField,
-      tupleSameTypeArray: !identical(tupleSameTypeArray, _undefined)
-          ? tupleSameTypeArray as List<String>?
-          : this.tupleSameTypeArray,
-      arrayWithAllOfItems: !identical(arrayWithAllOfItems, _undefined)
-          ? arrayWithAllOfItems as List<TestRootArrayWithAllOfItemsItem>?
-          : this.arrayWithAllOfItems,
-      unionWithAllOfOption: !identical(unionWithAllOfOption, _undefined)
-          ? unionWithAllOfOption as TestRootUnionWithAllOfOption?
-          : this.unionWithAllOfOption,
-      patternPropsField: !identical(patternPropsField, _undefined)
-          ? patternPropsField as PatternPropertiesObject?
-          : this.patternPropsField,
-      overlappingUnion: !identical(overlappingUnion, _undefined)
-          ? overlappingUnion as OverlappingUnion?
-          : this.overlappingUnion,
+          additionalPropertiesObject ?? this.additionalPropertiesObject,
+      strictObject: strictObject ?? this.strictObject,
+      notObject: notObject ?? this.notObject,
+      anyOfValue: anyOfValue ?? this.anyOfValue,
+      mergedAllOfObject: mergedAllOfObject ?? this.mergedAllOfObject,
+      complexMerged: complexMerged ?? this.complexMerged,
+      myEnumField: myEnumField ?? this.myEnumField,
+      unionContainsArray: unionContainsArray ?? this.unionContainsArray,
+      objectContainsArray: objectContainsArray ?? this.objectContainsArray,
+      enumContainsArray: enumContainsArray ?? this.enumContainsArray,
+      booleanContainsArray: booleanContainsArray ?? this.booleanContainsArray,
+      nullContainsArray: nullContainsArray ?? this.nullContainsArray,
+      anyContainsArray: anyContainsArray ?? this.anyContainsArray,
+      stringContainsArray: stringContainsArray ?? this.stringContainsArray,
+      numberContainsArray: numberContainsArray ?? this.numberContainsArray,
+      dynamicProps: dynamicProps ?? this.dynamicProps,
+      dateTimeField: dateTimeField ?? this.dateTimeField,
+      dateField: dateField ?? this.dateField,
+      ipv4Field: ipv4Field ?? this.ipv4Field,
+      uriField: uriField ?? this.uriField,
+      defaultEmptyList: defaultEmptyList ?? this.defaultEmptyList,
+      defaultEmptyObject: defaultEmptyObject ?? this.defaultEmptyObject,
+      unionWithArrayOption: unionWithArrayOption ?? this.unionWithArrayOption,
+      impossibleField: impossibleField ?? this.impossibleField,
+      tupleSameTypeArray: tupleSameTypeArray ?? this.tupleSameTypeArray,
+      arrayWithAllOfItems: arrayWithAllOfItems ?? this.arrayWithAllOfItems,
+      unionWithAllOfOption: unionWithAllOfOption ?? this.unionWithAllOfOption,
+      patternPropsField: patternPropsField ?? this.patternPropsField,
+      overlappingUnion: overlappingUnion ?? this.overlappingUnion,
       deprecatedFieldWithMessage:
-          !identical(deprecatedFieldWithMessage, _undefined)
-          ? deprecatedFieldWithMessage as String?
-          : this.deprecatedFieldWithMessage,
-      customNamedObject: !identical(customNamedObject, _undefined)
-          ? customNamedObject as MyCustomClassName?
-          : this.customNamedObject,
-      customNamedUnion: !identical(customNamedUnion, _undefined)
-          ? customNamedUnion as MyCustomUnionName?
-          : this.customNamedUnion,
-      customNamedEnum: !identical(customNamedEnum, _undefined)
-          ? customNamedEnum as MyCustomEnumName?
-          : this.customNamedEnum,
-      coverageTrigger: !identical(coverageTrigger, _undefined)
-          ? coverageTrigger as TestRootCoverageTrigger?
-          : this.coverageTrigger,
-      collidingEnumField: !identical(collidingEnumField, _undefined)
-          ? collidingEnumField as CollidingEnum?
-          : this.collidingEnumField,
-      collidingObjectField: !identical(collidingObjectField, _undefined)
-          ? collidingObjectField as CollidingObject?
-          : this.collidingObjectField,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+          deprecatedFieldWithMessage ?? this.deprecatedFieldWithMessage,
+      customNamedObject: customNamedObject ?? this.customNamedObject,
+      customNamedUnion: customNamedUnion ?? this.customNamedUnion,
+      customNamedEnum: customNamedEnum ?? this.customNamedEnum,
+      coverageTrigger: coverageTrigger ?? this.coverageTrigger,
+      collidingEnumField: collidingEnumField ?? this.collidingEnumField,
+      collidingObjectField: collidingObjectField ?? this.collidingObjectField,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -811,6 +663,20 @@ final class TestRoot implements JsonModel {
     final val_deprecated = deprecated;
     final val_idField = idField;
     final val_unionWithObjectAndBoolean = unionWithObjectAndBoolean;
+    if (val_unionWithObjectAndBoolean != null) {
+      errors.addAll(
+        (val_unionWithObjectAndBoolean as JsonModel).collectErrors().map(
+          (ValidationError e) => ValidationError(
+            message: e.message,
+            path: ['unionWithObjectAndBoolean', ...e.path],
+            keyword: e.keyword,
+            schema: e.schema,
+            value: e.value,
+            nestedErrors: e.nestedErrors,
+          ),
+        ),
+      );
+    }
     final val_recursiveNodeField = recursiveNodeField;
     if (val_recursiveNodeField != null) {
       errors.addAll(
@@ -3105,26 +2971,23 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   TestRootUnionWithObjectAndBooleanOptionType0 copyWith({
-    Object? foo = _undefined,
-    Object? additionalProperties = _undefined,
+    String? foo,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(foo, _undefined)) {
-      nextKeys.add('foo');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (foo != null) {
+      nextKeys?.add('foo');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return TestRootUnionWithObjectAndBooleanOptionType0(
-      foo: !identical(foo, _undefined) ? foo as String? : this.foo,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      foo: foo ?? this.foo,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -3254,40 +3117,33 @@ final class RecursiveNode implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   RecursiveNode copyWith({
-    Object? name = _undefined,
-    Object? parent = _undefined,
-    Object? children = _undefined,
-    Object? additionalProperties = _undefined,
+    String? name,
+    RecursiveNode? parent,
+    List<RecursiveNode>? children,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(name, _undefined)) {
-      nextKeys.add('name');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (name != null) {
+      nextKeys?.add('name');
     }
-    if (!identical(parent, _undefined)) {
-      nextKeys.add('parent');
+    if (parent != null) {
+      nextKeys?.add('parent');
     }
-    if (!identical(children, _undefined)) {
-      nextKeys.add('children');
+    if (children != null) {
+      nextKeys?.add('children');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return RecursiveNode(
-      name: !identical(name, _undefined) ? name as String? : this.name,
-      parent: !identical(parent, _undefined)
-          ? parent as RecursiveNode?
-          : this.parent,
-      children: !identical(children, _undefined)
-          ? children as List<RecursiveNode>?
-          : this.children,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      name: name ?? this.name,
+      parent: parent ?? this.parent,
+      children: children ?? this.children,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -3482,31 +3338,28 @@ final class Address implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   Address copyWith({
-    Object? city = _undefined,
-    Object? street = _undefined,
-    Object? additionalProperties = _undefined,
+    String? city,
+    String? street,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(city, _undefined)) {
-      nextKeys.add('city');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (city != null) {
+      nextKeys?.add('city');
     }
-    if (!identical(street, _undefined)) {
-      nextKeys.add('street');
+    if (street != null) {
+      nextKeys?.add('street');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return Address(
-      city: !identical(city, _undefined) ? city as String : this.city,
-      street: !identical(street, _undefined) ? street as String? : this.street,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      city: city ?? this.city,
+      street: street ?? this.street,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -3646,26 +3499,20 @@ final class Score implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
-  Score copyWith({
-    Object? value = _undefined,
-    Object? additionalProperties = _undefined,
-  }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(value, _undefined)) {
-      nextKeys.add('value');
+  Score copyWith({num? value, Map<String, Object?>? additionalProperties}) {
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (value != null) {
+      nextKeys?.add('value');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return Score(
-      value: !identical(value, _undefined) ? value as num : this.value,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      value: value ?? this.value,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -4050,28 +3897,23 @@ final class RequiredNullableUnionObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   RequiredNullableUnionObject copyWith({
-    Object? nullableUnion = _undefined,
-    Object? additionalProperties = _undefined,
+    RequiredNullableUnionObjectNullableUnion? nullableUnion,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(nullableUnion, _undefined)) {
-      nextKeys.add('nullableUnion');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (nullableUnion != null) {
+      nextKeys?.add('nullableUnion');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return RequiredNullableUnionObject(
-      nullableUnion: !identical(nullableUnion, _undefined)
-          ? nullableUnion as RequiredNullableUnionObjectNullableUnion?
-          : this.nullableUnion,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      nullableUnion: nullableUnion ?? this.nullableUnion,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -4482,33 +4324,28 @@ final class Cat implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   Cat copyWith({
-    Object? kind = _undefined,
-    Object? meowVolume = _undefined,
-    Object? additionalProperties = _undefined,
+    String? kind,
+    num? meowVolume,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(kind, _undefined)) {
-      nextKeys.add('kind');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (kind != null) {
+      nextKeys?.add('kind');
     }
-    if (!identical(meowVolume, _undefined)) {
-      nextKeys.add('meowVolume');
+    if (meowVolume != null) {
+      nextKeys?.add('meowVolume');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return Cat(
-      kind: !identical(kind, _undefined) ? kind as String : this.kind,
-      meowVolume: !identical(meowVolume, _undefined)
-          ? meowVolume as num?
-          : this.meowVolume,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      kind: kind ?? this.kind,
+      meowVolume: meowVolume ?? this.meowVolume,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -4642,33 +4479,28 @@ final class Dog implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   Dog copyWith({
-    Object? kind = _undefined,
-    Object? barkVolume = _undefined,
-    Object? additionalProperties = _undefined,
+    String? kind,
+    num? barkVolume,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(kind, _undefined)) {
-      nextKeys.add('kind');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (kind != null) {
+      nextKeys?.add('kind');
     }
-    if (!identical(barkVolume, _undefined)) {
-      nextKeys.add('barkVolume');
+    if (barkVolume != null) {
+      nextKeys?.add('barkVolume');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return Dog(
-      kind: !identical(kind, _undefined) ? kind as String : this.kind,
-      barkVolume: !identical(barkVolume, _undefined)
-          ? barkVolume as num?
-          : this.barkVolume,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      kind: kind ?? this.kind,
+      barkVolume: barkVolume ?? this.barkVolume,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -4811,36 +4643,33 @@ final class RestrictedObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   RestrictedObject copyWith({
-    Object? a = _undefined,
-    Object? b = _undefined,
-    Object? c = _undefined,
-    Object? additionalProperties = _undefined,
+    String? a,
+    String? b,
+    String? c,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(a, _undefined)) {
-      nextKeys.add('a');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (a != null) {
+      nextKeys?.add('a');
     }
-    if (!identical(b, _undefined)) {
-      nextKeys.add('b');
+    if (b != null) {
+      nextKeys?.add('b');
     }
-    if (!identical(c, _undefined)) {
-      nextKeys.add('c');
+    if (c != null) {
+      nextKeys?.add('c');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return RestrictedObject(
-      a: !identical(a, _undefined) ? a as String? : this.a,
-      b: !identical(b, _undefined) ? b as String? : this.b,
-      c: !identical(c, _undefined) ? c as String? : this.c,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      a: a ?? this.a,
+      b: b ?? this.b,
+      c: c ?? this.c,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -5010,35 +4839,28 @@ final class DependentObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   DependentObject copyWith({
-    Object? creditCard = _undefined,
-    Object? billingAddress = _undefined,
-    Object? additionalProperties = _undefined,
+    num? creditCard,
+    String? billingAddress,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(creditCard, _undefined)) {
-      nextKeys.add('creditCard');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (creditCard != null) {
+      nextKeys?.add('creditCard');
     }
-    if (!identical(billingAddress, _undefined)) {
-      nextKeys.add('billingAddress');
+    if (billingAddress != null) {
+      nextKeys?.add('billingAddress');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return DependentObject(
-      creditCard: !identical(creditCard, _undefined)
-          ? creditCard as num?
-          : this.creditCard,
-      billingAddress: !identical(billingAddress, _undefined)
-          ? billingAddress as String?
-          : this.billingAddress,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      creditCard: creditCard ?? this.creditCard,
+      billingAddress: billingAddress ?? this.billingAddress,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -5047,7 +4869,7 @@ final class DependentObject implements JsonModel {
   List<ValidationError> collectErrors() {
     final errors = <ValidationError>[];
     if (creditCard != null) {
-      if (billingAddress == null) {
+      if (!(billingAddress != null)) {
         errors.add(
           ValidationError(
             message:
@@ -5196,26 +5018,23 @@ final class DeprecatedObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   DeprecatedObject copyWith({
-    Object? value = _undefined,
-    Object? additionalProperties = _undefined,
+    String? value,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(value, _undefined)) {
-      nextKeys.add('value');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (value != null) {
+      nextKeys?.add('value');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return DeprecatedObject(
-      value: !identical(value, _undefined) ? value as String? : this.value,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      value: value ?? this.value,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -5480,36 +5299,33 @@ final class Merged implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   Merged copyWith({
-    Object? a = _undefined,
-    Object? b = _undefined,
-    Object? c = _undefined,
-    Object? additionalProperties = _undefined,
+    String? a,
+    int? b,
+    bool? c,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(a, _undefined)) {
-      nextKeys.add('a');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (a != null) {
+      nextKeys?.add('a');
     }
-    if (!identical(b, _undefined)) {
-      nextKeys.add('b');
+    if (b != null) {
+      nextKeys?.add('b');
     }
-    if (!identical(c, _undefined)) {
-      nextKeys.add('c');
+    if (c != null) {
+      nextKeys?.add('c');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return Merged(
-      a: !identical(a, _undefined) ? a as String? : this.a,
-      b: !identical(b, _undefined) ? b as int? : this.b,
-      c: !identical(c, _undefined) ? c as bool? : this.c,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      a: a ?? this.a,
+      b: b ?? this.b,
+      c: c ?? this.c,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -5649,26 +5465,23 @@ final class MapObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   MapObject copyWith({
-    Object? name = _undefined,
-    Object? additionalProperties = _undefined,
+    String? name,
+    Map<String, String>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(name, _undefined)) {
-      nextKeys.add('name');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (name != null) {
+      nextKeys?.add('name');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return MapObject(
-      name: !identical(name, _undefined) ? name as String? : this.name,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, String>
-          : this.additionalProperties,
+      name: name ?? this.name,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -5799,19 +5612,15 @@ final class StrictObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
-  StrictObject copyWith({Object? name = _undefined}) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(name, _undefined)) {
-      nextKeys.add('name');
+  StrictObject copyWith({String? name}) {
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (name != null) {
+      nextKeys?.add('name');
     }
 
-    return StrictObject(
-      name: !identical(name, _undefined) ? name as String? : this.name,
-      explicitKeys: nextKeys,
-    );
+    return StrictObject(name: name ?? this.name, explicitKeys: nextKeys);
   }
 
   @override
@@ -5919,49 +5728,38 @@ final class NotObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   NotObject copyWith({
-    Object? notPatternString = _undefined,
-    Object? notEnumInt = _undefined,
-    Object? notNullValue = _undefined,
-    Object? notObjectValue = _undefined,
-    Object? additionalProperties = _undefined,
+    String? notPatternString,
+    int? notEnumInt,
+    dynamic? notNullValue,
+    dynamic? notObjectValue,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(notPatternString, _undefined)) {
-      nextKeys.add('notPatternString');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (notPatternString != null) {
+      nextKeys?.add('notPatternString');
     }
-    if (!identical(notEnumInt, _undefined)) {
-      nextKeys.add('notEnumInt');
+    if (notEnumInt != null) {
+      nextKeys?.add('notEnumInt');
     }
-    if (!identical(notNullValue, _undefined)) {
-      nextKeys.add('notNullValue');
+    if (notNullValue != null) {
+      nextKeys?.add('notNullValue');
     }
-    if (!identical(notObjectValue, _undefined)) {
-      nextKeys.add('notObjectValue');
+    if (notObjectValue != null) {
+      nextKeys?.add('notObjectValue');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return NotObject(
-      notPatternString: !identical(notPatternString, _undefined)
-          ? notPatternString as String
-          : this.notPatternString,
-      notEnumInt: !identical(notEnumInt, _undefined)
-          ? notEnumInt as int
-          : this.notEnumInt,
-      notNullValue: !identical(notNullValue, _undefined)
-          ? notNullValue as dynamic
-          : this.notNullValue,
-      notObjectValue: !identical(notObjectValue, _undefined)
-          ? notObjectValue as dynamic
-          : this.notObjectValue,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      notPatternString: notPatternString ?? this.notPatternString,
+      notEnumInt: notEnumInt ?? this.notEnumInt,
+      notNullValue: notNullValue ?? this.notNullValue,
+      notObjectValue: notObjectValue ?? this.notObjectValue,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -6256,28 +6054,23 @@ final class NotObjectNotObjectValueNot implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   NotObjectNotObjectValueNot copyWith({
-    Object? forbiddenProp = _undefined,
-    Object? additionalProperties = _undefined,
+    String? forbiddenProp,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(forbiddenProp, _undefined)) {
-      nextKeys.add('forbiddenProp');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (forbiddenProp != null) {
+      nextKeys?.add('forbiddenProp');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return NotObjectNotObjectValueNot(
-      forbiddenProp: !identical(forbiddenProp, _undefined)
-          ? forbiddenProp as String
-          : this.forbiddenProp,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      forbiddenProp: forbiddenProp ?? this.forbiddenProp,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -6531,31 +6324,28 @@ final class MergedAllOfObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   MergedAllOfObject copyWith({
-    Object? strVal = _undefined,
-    Object? numVal = _undefined,
-    Object? additionalProperties = _undefined,
+    String? strVal,
+    num? numVal,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(strVal, _undefined)) {
-      nextKeys.add('strVal');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (strVal != null) {
+      nextKeys?.add('strVal');
     }
-    if (!identical(numVal, _undefined)) {
-      nextKeys.add('numVal');
+    if (numVal != null) {
+      nextKeys?.add('numVal');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return MergedAllOfObject(
-      strVal: !identical(strVal, _undefined) ? strVal as String? : this.strVal,
-      numVal: !identical(numVal, _undefined) ? numVal as num? : this.numVal,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      strVal: strVal ?? this.strVal,
+      numVal: numVal ?? this.numVal,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -6564,7 +6354,7 @@ final class MergedAllOfObject implements JsonModel {
   List<ValidationError> collectErrors() {
     final errors = <ValidationError>[];
     if (strVal != null) {
-      if (numVal == null) {
+      if (!(numVal != null)) {
         errors.add(
           ValidationError(
             message:
@@ -6784,26 +6574,23 @@ final class ComplexMergedObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   ComplexMergedObject copyWith({
-    Object? numVal = _undefined,
-    Object? additionalProperties = _undefined,
+    num? numVal,
+    Map<String, String>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(numVal, _undefined)) {
-      nextKeys.add('numVal');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (numVal != null) {
+      nextKeys?.add('numVal');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return ComplexMergedObject(
-      numVal: !identical(numVal, _undefined) ? numVal as num? : this.numVal,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, String>
-          : this.additionalProperties,
+      numVal: numVal ?? this.numVal,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -7271,31 +7058,28 @@ final class ObjectWithDynamicProps implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   ObjectWithDynamicProps copyWith({
-    Object? notInt = _undefined,
-    Object? notNum = _undefined,
-    Object? additionalProperties = _undefined,
+    dynamic? notInt,
+    dynamic? notNum,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(notInt, _undefined)) {
-      nextKeys.add('notInt');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (notInt != null) {
+      nextKeys?.add('notInt');
     }
-    if (!identical(notNum, _undefined)) {
-      nextKeys.add('notNum');
+    if (notNum != null) {
+      nextKeys?.add('notNum');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return ObjectWithDynamicProps(
-      notInt: !identical(notInt, _undefined) ? notInt as dynamic : this.notInt,
-      notNum: !identical(notNum, _undefined) ? notNum as dynamic : this.notNum,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      notInt: notInt ?? this.notInt,
+      notNum: notNum ?? this.notNum,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -7628,31 +7412,28 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   TestRootArrayWithAllOfItemsItem copyWith({
-    Object? a = _undefined,
-    Object? b = _undefined,
-    Object? additionalProperties = _undefined,
+    String? a,
+    int? b,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(a, _undefined)) {
-      nextKeys.add('a');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (a != null) {
+      nextKeys?.add('a');
     }
-    if (!identical(b, _undefined)) {
-      nextKeys.add('b');
+    if (b != null) {
+      nextKeys?.add('b');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return TestRootArrayWithAllOfItemsItem(
-      a: !identical(a, _undefined) ? a as String? : this.a,
-      b: !identical(b, _undefined) ? b as int? : this.b,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      a: a ?? this.a,
+      b: b ?? this.b,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -7928,31 +7709,28 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   TestRootUnionWithAllOfOptionOptionType1 copyWith({
-    Object? a = _undefined,
-    Object? b = _undefined,
-    Object? additionalProperties = _undefined,
+    String? a,
+    int? b,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(a, _undefined)) {
-      nextKeys.add('a');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (a != null) {
+      nextKeys?.add('a');
     }
-    if (!identical(b, _undefined)) {
-      nextKeys.add('b');
+    if (b != null) {
+      nextKeys?.add('b');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return TestRootUnionWithAllOfOptionOptionType1(
-      a: !identical(a, _undefined) ? a as String? : this.a,
-      b: !identical(b, _undefined) ? b as int? : this.b,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      a: a ?? this.a,
+      b: b ?? this.b,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -8095,26 +7873,23 @@ final class PatternPropertiesObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   PatternPropertiesObject copyWith({
-    Object? name = _undefined,
-    Object? patternProperties = _undefined,
+    String? name,
+    Map<String, dynamic>? patternProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(name, _undefined)) {
-      nextKeys.add('name');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (name != null) {
+      nextKeys?.add('name');
     }
-    if (!identical(patternProperties, _undefined)) {
-      nextKeys.add('patternProperties');
+    if (patternProperties != null) {
+      nextKeys?.add('patternProperties');
     }
 
     return PatternPropertiesObject(
-      name: !identical(name, _undefined) ? name as String? : this.name,
-      patternProperties: !identical(patternProperties, _undefined)
-          ? patternProperties as Map<String, dynamic>
-          : this.patternProperties,
+      name: name ?? this.name,
+      patternProperties: patternProperties ?? this.patternProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -8424,26 +8199,23 @@ final class OptionA implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   OptionA copyWith({
-    Object? value = _undefined,
-    Object? additionalProperties = _undefined,
+    String? value,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(value, _undefined)) {
-      nextKeys.add('value');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (value != null) {
+      nextKeys?.add('value');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return OptionA(
-      value: !identical(value, _undefined) ? value as String : this.value,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      value: value ?? this.value,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -8571,26 +8343,23 @@ final class OptionB implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   OptionB copyWith({
-    Object? value = _undefined,
-    Object? additionalProperties = _undefined,
+    String? value,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(value, _undefined)) {
-      nextKeys.add('value');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (value != null) {
+      nextKeys?.add('value');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return OptionB(
-      value: !identical(value, _undefined) ? value as String : this.value,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      value: value ?? this.value,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -8727,26 +8496,23 @@ final class MyCustomClassName implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   MyCustomClassName copyWith({
-    Object? foo = _undefined,
-    Object? additionalProperties = _undefined,
+    String? foo,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(foo, _undefined)) {
-      nextKeys.add('foo');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (foo != null) {
+      nextKeys?.add('foo');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return MyCustomClassName(
-      foo: !identical(foo, _undefined) ? foo as String? : this.foo,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      foo: foo ?? this.foo,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -9037,107 +8803,80 @@ final class TestRootCoverageTrigger implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   TestRootCoverageTrigger copyWith({
-    Object? mergeArray = _undefined,
-    Object? mergeObject = _undefined,
-    Object? mergeString = _undefined,
-    Object? mergeNumber = _undefined,
-    Object? mergeBoolean = _undefined,
-    Object? mergeNull = _undefined,
-    Object? mergeAnything = _undefined,
-    Object? mergeNever = _undefined,
-    Object? mergeRef = _undefined,
-    Object? mergeEnum = _undefined,
-    Object? mergeUnion = _undefined,
-    Object? mergeObjectsWithNoAdditional = _undefined,
-    Object? additionalProperties = _undefined,
+    List<String>? mergeArray,
+    TestRootCoverageTriggerMergeObject? mergeObject,
+    String? mergeString,
+    Never? mergeNumber,
+    bool? mergeBoolean,
+    Null? mergeNull,
+    Object? mergeAnything,
+    TestRootCoverageTriggerMergeNever? mergeNever,
+    MapObject1? mergeRef,
+    TestRootCoverageTriggerMergeEnum? mergeEnum,
+    TestRootCoverageTriggerMergeUnion? mergeUnion,
+    TestRootCoverageTriggerMergeObjectsWithNoAdditional?
+    mergeObjectsWithNoAdditional,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(mergeArray, _undefined)) {
-      nextKeys.add('mergeArray');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (mergeArray != null) {
+      nextKeys?.add('mergeArray');
     }
-    if (!identical(mergeObject, _undefined)) {
-      nextKeys.add('mergeObject');
+    if (mergeObject != null) {
+      nextKeys?.add('mergeObject');
     }
-    if (!identical(mergeString, _undefined)) {
-      nextKeys.add('mergeString');
+    if (mergeString != null) {
+      nextKeys?.add('mergeString');
     }
-    if (!identical(mergeNumber, _undefined)) {
-      nextKeys.add('mergeNumber');
+    if (mergeNumber != null) {
+      nextKeys?.add('mergeNumber');
     }
-    if (!identical(mergeBoolean, _undefined)) {
-      nextKeys.add('mergeBoolean');
+    if (mergeBoolean != null) {
+      nextKeys?.add('mergeBoolean');
     }
-    if (!identical(mergeNull, _undefined)) {
-      nextKeys.add('mergeNull');
+    if (mergeNull != null) {
+      nextKeys?.add('mergeNull');
     }
-    if (!identical(mergeAnything, _undefined)) {
-      nextKeys.add('mergeAnything');
+    if (mergeAnything != null) {
+      nextKeys?.add('mergeAnything');
     }
-    if (!identical(mergeNever, _undefined)) {
-      nextKeys.add('mergeNever');
+    if (mergeNever != null) {
+      nextKeys?.add('mergeNever');
     }
-    if (!identical(mergeRef, _undefined)) {
-      nextKeys.add('mergeRef');
+    if (mergeRef != null) {
+      nextKeys?.add('mergeRef');
     }
-    if (!identical(mergeEnum, _undefined)) {
-      nextKeys.add('mergeEnum');
+    if (mergeEnum != null) {
+      nextKeys?.add('mergeEnum');
     }
-    if (!identical(mergeUnion, _undefined)) {
-      nextKeys.add('mergeUnion');
+    if (mergeUnion != null) {
+      nextKeys?.add('mergeUnion');
     }
-    if (!identical(mergeObjectsWithNoAdditional, _undefined)) {
-      nextKeys.add('mergeObjectsWithNoAdditional');
+    if (mergeObjectsWithNoAdditional != null) {
+      nextKeys?.add('mergeObjectsWithNoAdditional');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return TestRootCoverageTrigger(
-      mergeArray: !identical(mergeArray, _undefined)
-          ? mergeArray as List<String>?
-          : this.mergeArray,
-      mergeObject: !identical(mergeObject, _undefined)
-          ? mergeObject as TestRootCoverageTriggerMergeObject?
-          : this.mergeObject,
-      mergeString: !identical(mergeString, _undefined)
-          ? mergeString as String?
-          : this.mergeString,
-      mergeNumber: !identical(mergeNumber, _undefined)
-          ? mergeNumber as Never?
-          : this.mergeNumber,
-      mergeBoolean: !identical(mergeBoolean, _undefined)
-          ? mergeBoolean as bool?
-          : this.mergeBoolean,
-      mergeNull: !identical(mergeNull, _undefined)
-          ? mergeNull as Null
-          : this.mergeNull,
-      mergeAnything: !identical(mergeAnything, _undefined)
-          ? mergeAnything as Object?
-          : this.mergeAnything,
-      mergeNever: !identical(mergeNever, _undefined)
-          ? mergeNever as TestRootCoverageTriggerMergeNever?
-          : this.mergeNever,
-      mergeRef: !identical(mergeRef, _undefined)
-          ? mergeRef as MapObject1?
-          : this.mergeRef,
-      mergeEnum: !identical(mergeEnum, _undefined)
-          ? mergeEnum as TestRootCoverageTriggerMergeEnum?
-          : this.mergeEnum,
-      mergeUnion: !identical(mergeUnion, _undefined)
-          ? mergeUnion as TestRootCoverageTriggerMergeUnion?
-          : this.mergeUnion,
+      mergeArray: mergeArray ?? this.mergeArray,
+      mergeObject: mergeObject ?? this.mergeObject,
+      mergeString: mergeString ?? this.mergeString,
+      mergeNumber: mergeNumber ?? this.mergeNumber,
+      mergeBoolean: mergeBoolean ?? this.mergeBoolean,
+      mergeNull: mergeNull ?? this.mergeNull,
+      mergeAnything: mergeAnything ?? this.mergeAnything,
+      mergeNever: mergeNever ?? this.mergeNever,
+      mergeRef: mergeRef ?? this.mergeRef,
+      mergeEnum: mergeEnum ?? this.mergeEnum,
+      mergeUnion: mergeUnion ?? this.mergeUnion,
       mergeObjectsWithNoAdditional:
-          !identical(mergeObjectsWithNoAdditional, _undefined)
-          ? mergeObjectsWithNoAdditional
-                as TestRootCoverageTriggerMergeObjectsWithNoAdditional?
-          : this.mergeObjectsWithNoAdditional,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+          mergeObjectsWithNoAdditional ?? this.mergeObjectsWithNoAdditional,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -9510,31 +9249,28 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   TestRootCoverageTriggerMergeObject copyWith({
-    Object? a = _undefined,
-    Object? b = _undefined,
-    Object? additionalProperties = _undefined,
+    String? a,
+    int? b,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(a, _undefined)) {
-      nextKeys.add('a');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (a != null) {
+      nextKeys?.add('a');
     }
-    if (!identical(b, _undefined)) {
-      nextKeys.add('b');
+    if (b != null) {
+      nextKeys?.add('b');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return TestRootCoverageTriggerMergeObject(
-      a: !identical(a, _undefined) ? a as String? : this.a,
-      b: !identical(b, _undefined) ? b as int? : this.b,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      a: a ?? this.a,
+      b: b ?? this.b,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -9765,26 +9501,23 @@ final class MapObject1 implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   MapObject1 copyWith({
-    Object? name = _undefined,
-    Object? additionalProperties = _undefined,
+    String? name,
+    Map<String, String>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(name, _undefined)) {
-      nextKeys.add('name');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (name != null) {
+      nextKeys?.add('name');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return MapObject1(
-      name: !identical(name, _undefined) ? name as String? : this.name,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, String>
-          : this.additionalProperties,
+      name: name ?? this.name,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }
@@ -10201,48 +9934,43 @@ final class CollidingObject implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   CollidingObject copyWith({
-    Object? foo = _undefined,
-    Object? foo_1 = _undefined,
-    Object? bar = _undefined,
-    Object? bar1 = _undefined,
-    Object? validate_ = _undefined,
-    Object? additionalProperties = _undefined,
+    String? foo,
+    String? foo_1,
+    String? bar,
+    String? bar1,
+    String? validate_,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(foo, _undefined)) {
-      nextKeys.add('foo');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (foo != null) {
+      nextKeys?.add('foo');
     }
-    if (!identical(foo_1, _undefined)) {
-      nextKeys.add('@foo');
+    if (foo_1 != null) {
+      nextKeys?.add('@foo');
     }
-    if (!identical(bar, _undefined)) {
-      nextKeys.add('bar');
+    if (bar != null) {
+      nextKeys?.add('bar');
     }
-    if (!identical(bar1, _undefined)) {
-      nextKeys.add('bar_1');
+    if (bar1 != null) {
+      nextKeys?.add('bar_1');
     }
-    if (!identical(validate_, _undefined)) {
-      nextKeys.add('validate');
+    if (validate_ != null) {
+      nextKeys?.add('validate');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return CollidingObject(
-      foo: !identical(foo, _undefined) ? foo as String? : this.foo,
-      foo_1: !identical(foo_1, _undefined) ? foo_1 as String? : this.foo_1,
-      bar: !identical(bar, _undefined) ? bar as String? : this.bar,
-      bar1: !identical(bar1, _undefined) ? bar1 as String? : this.bar1,
-      validate_: !identical(validate_, _undefined)
-          ? validate_ as String?
-          : this.validate_,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      foo: foo ?? this.foo,
+      foo_1: foo_1 ?? this.foo_1,
+      bar: bar ?? this.bar,
+      bar1: bar1 ?? this.bar1,
+      validate_: validate_ ?? this.validate_,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }

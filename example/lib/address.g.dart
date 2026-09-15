@@ -50,38 +50,33 @@ final class Address implements JsonModel {
   /// Converts this instance to a JSON Map.
   Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
 
-  static const Object _undefined = Object();
-
   Address copyWith({
-    Object? street = _undefined,
-    Object? city = _undefined,
-    Object? zipCode = _undefined,
-    Object? additionalProperties = _undefined,
+    String? street,
+    String? city,
+    String? zipCode,
+    Map<String, Object?>? additionalProperties,
   }) {
-    final explicit = _$explicitKeys;
-    final nextKeys = explicit != null ? Set<String>.from(explicit) : <String>{};
-    if (!identical(street, _undefined)) {
-      nextKeys.add('street');
+    final nextKeys = _$explicitKeys != null
+        ? Set<String>.from(_$explicitKeys)
+        : null;
+    if (street != null) {
+      nextKeys?.add('street');
     }
-    if (!identical(city, _undefined)) {
-      nextKeys.add('city');
+    if (city != null) {
+      nextKeys?.add('city');
     }
-    if (!identical(zipCode, _undefined)) {
-      nextKeys.add('zipCode');
+    if (zipCode != null) {
+      nextKeys?.add('zipCode');
     }
-    if (!identical(additionalProperties, _undefined)) {
-      nextKeys.add('additionalProperties');
+    if (additionalProperties != null) {
+      nextKeys?.add('additionalProperties');
     }
 
     return Address(
-      street: !identical(street, _undefined) ? street as String : this.street,
-      city: !identical(city, _undefined) ? city as String : this.city,
-      zipCode: !identical(zipCode, _undefined)
-          ? zipCode as String
-          : this.zipCode,
-      additionalProperties: !identical(additionalProperties, _undefined)
-          ? additionalProperties as Map<String, Object?>
-          : this.additionalProperties,
+      street: street ?? this.street,
+      city: city ?? this.city,
+      zipCode: zipCode ?? this.zipCode,
+      additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
     );
   }

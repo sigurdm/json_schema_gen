@@ -7,9 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  # Formatting, analysis and publish readiness only need one SDK. Running them
+  # on every entry of the matrix produces duplicate noise, and `dart format`
+  # output legitimately differs between SDK versions.
+  static:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v5
 
@@ -26,17 +28,52 @@ jobs:
       - name: Analyze project
         run: dart analyze
 
+      - name: Verify the package is publishable
+        run: dart pub publish --dry-run
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.10.0 is the floor declared in pubspec.yaml; if it stops working the
+        # constraint is wrong. `beta` is advisory — it catches upcoming
+        # breakage early but must not block the branch.
+        sdk: [stable, '3.10.0', beta]
+    continue-on-error: ${{ matrix.sdk == 'beta' }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+
+      - name: Install dependencies
+        run: dart pub get
+
+      # Run tests first so that test/generator_test.dart verifies the checked-in
+      # generated code before build_runner regenerates anything.
+      - name: Run tests
+        run: dart test
+
       - name: Run build_runner
         run: dart run build_runner build
 
       - name: Regenerate bootstrapped metaschema
         run: dart run tool/test_bootstrap_gen.dart && dart format lib/src/generated/schema_202012.g.dart
 
-      # Tests run before the up-to-date check so that a stale generated file
-      # cannot mask a genuine test failure. Previously this job never reached
-      # the test step at all.
-      - name: Run tests
-        run: dart test
+      - name: Report JSON Schema Test Suite conformance
+        run: dart run tool/run_json_schema_tests.dart
 
-      - name: Ensure generated code is up-to-date
-        run: git diff --exit-code
+      # `git diff --exit-code` only looks at tracked files, so a build that
+      # started emitting a brand new .g.dart would have gone unnoticed.
+      - name: Ensure generated code is up-to-date and fully tracked
+        run: |
+          git diff --exit-code
+          untracked="$(git ls-files --others --exclude-standard)"
+          if [ -n "$untracked" ]; then
+            echo "Build produced files that are not checked in:" >&2
+            echo "$untracked" >&2
+            exit 1
+          fi

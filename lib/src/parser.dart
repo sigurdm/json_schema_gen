@@ -71,13 +71,21 @@ final class SchemaParser {
     if (flatten) {
       final flattened = _flatten(root);
       _updateResolvedRefs(flattened);
-      final flattenedDynamicAnchors = _dynamicAnchors.map(
-        (k, v) => MapEntry(k, _flattenCache[v] ?? v),
-      );
-      return flattened.copyWith(dynamicAnchors: flattenedDynamicAnchors);
+      final anchors = <String, Schema>{};
+      final result = flattened.copyWith(dynamicAnchors: anchors);
+      for (final entry in _dynamicAnchors.entries) {
+        final resolved = _flattenCache[entry.value] ?? entry.value;
+        anchors[entry.key] = resolved == flattened ? result : resolved;
+      }
+      return result;
     } else {
       _updateResolvedRefs(root);
-      return root.copyWith(dynamicAnchors: _dynamicAnchors);
+      final anchors = <String, Schema>{};
+      final result = root.copyWith(dynamicAnchors: anchors);
+      for (final entry in _dynamicAnchors.entries) {
+        anchors[entry.key] = entry.value == root ? result : entry.value;
+      }
+      return result;
     }
   }
 

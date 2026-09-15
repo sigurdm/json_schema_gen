@@ -1,0 +1,10 @@
+# Group schemas the generator cannot currently turn into Dart.
+#
+# Keyed by `<suite-relative path> :: <group description>`.
+#
+# $ref pointing to arbitrary non-schema keywords or non-applicator internals:
+optional/refOfUnknownKeyword.json :: reference of a root arbitrary keyword 
+optional/refOfUnknownKeyword.json :: reference of a root arbitrary keyword with encoded ref
+optional/refOfUnknownKeyword.json :: reference of an arbitrary keyword of a sub-schema
+optional/refOfUnknownKeyword.json :: reference internals of known non-applicator
+optional/refOfUnknownKeyword.json :: reference of an arbitrary keyword of a sub-schema with encoded ref
