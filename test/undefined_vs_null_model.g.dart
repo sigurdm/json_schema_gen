@@ -8,11 +8,6 @@ import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
 final class UndefinedVsNullModel implements JsonModel {
-  final String? foo;
-  final int? bar;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const UndefinedVsNullModel({
     this.foo,
     this.bar,
@@ -35,6 +30,63 @@ final class UndefinedVsNullModel implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final String? foo;
+
+  final int? bar;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<UndefinedVsNullModel> descriptor =
+      ObjectDescriptor<UndefinedVsNullModel>(
+        title: 'UndefinedVsNullModel',
+        matches: (instance) => instance is UndefinedVsNullModel,
+        instantiate: (fields) => UndefinedVsNullModel(
+          foo: fields['foo'] as String?,
+          bar: fields['bar'] as int?,
+          additionalProperties: fields.entries
+              .where(
+                (e) => !const <String>{'foo', 'bar'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as UndefinedVsNullModel;
+          final map = <String, dynamic>{
+            'foo': typedInstance.foo,
+            'bar': typedInstance.bar,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'foo': PropertyDescriptor(
+            name: 'foo',
+            isRequired: false,
+            schema: NullableDescriptor(const StringDescriptor()),
+          ),
+          'bar': PropertyDescriptor(
+            name: 'bar',
+            isRequired: false,
+            schema: NullableDescriptor(const IntDescriptor()),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -98,55 +150,6 @@ final class UndefinedVsNullModel implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final ObjectDescriptor<UndefinedVsNullModel> descriptor =
-      ObjectDescriptor<UndefinedVsNullModel>(
-        title: 'UndefinedVsNullModel',
-        matches: (instance) => instance is UndefinedVsNullModel,
-        instantiate: (fields) => UndefinedVsNullModel(
-          foo: fields['foo'] as String?,
-          bar: fields['bar'] as int?,
-          additionalProperties: fields.entries
-              .where(
-                (e) => !const <String>{'foo', 'bar'}.contains(e.key) && true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as UndefinedVsNullModel;
-          final map = <String, dynamic>{
-            'foo': typedInstance.foo,
-            'bar': typedInstance.bar,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'foo': PropertyDescriptor(
-            name: 'foo',
-            isRequired: false,
-            schema: NullableDescriptor(const StringDescriptor()),
-          ),
-          'bar': PropertyDescriptor(
-            name: 'bar',
-            isRequired: false,
-            schema: NullableDescriptor(const IntDescriptor()),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
 
   @override
   bool operator ==(Object other) =>

@@ -4,24 +4,12 @@
 // ignore_for_file: unnecessary_question_mark, unnecessary_cast
 
 import 'dart:collection';
+
 import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
 final class User implements JsonModel {
-  final int id;
-  final String name;
-  final String email;
-  final int? age;
-  final UserRole role;
-  final UserProfile? profile;
-  final Address? address;
-  final List<String>? tags;
-  final UserPreferences? preferences;
-  final String? createdAt;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const User({
     required this.id,
     required this.name,
@@ -43,6 +31,151 @@ final class User implements JsonModel {
   /// Creates an instance of [User] from a JSON Map.
   factory User.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       User.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final int id;
+
+  final String name;
+
+  final String email;
+
+  final int? age;
+
+  final UserRole role;
+
+  final UserProfile? profile;
+
+  final Address? address;
+
+  final List<String>? tags;
+
+  final UserPreferences? preferences;
+
+  final String? createdAt;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<User> descriptor = ObjectDescriptor<User>(
+    title: 'User',
+    matches: (instance) => instance is User,
+    instantiate: (fields) => User(
+      id: fields['id'] as int,
+      name: fields['name'] as String,
+      email: fields['email'] as String,
+      age: fields['age'] as int?,
+      role: fields.containsKey('role')
+          ? fields['role'] as UserRole
+          : UserRole.user,
+      profile: fields['profile'] as UserProfile?,
+      address: fields['address'] as Address?,
+      tags: fields['tags'] as List<String>?,
+      preferences: fields['preferences'] as UserPreferences?,
+      createdAt: fields['createdAt'] as String?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{
+                  'id',
+                  'name',
+                  'email',
+                  'age',
+                  'role',
+                  'profile',
+                  'address',
+                  'tags',
+                  'preferences',
+                  'createdAt',
+                }.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as User;
+      final map = <String, dynamic>{
+        'id': typedInstance.id,
+        'name': typedInstance.name,
+        'email': typedInstance.email,
+        'age': typedInstance.age,
+        'role': typedInstance.role,
+        'profile': typedInstance.profile,
+        'address': typedInstance.address,
+        'tags': typedInstance.tags,
+        'preferences': typedInstance.preferences,
+        'createdAt': typedInstance.createdAt,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'id': PropertyDescriptor(
+        name: 'id',
+        isRequired: true,
+        schema: const IntDescriptor(),
+      ),
+      'name': PropertyDescriptor(
+        name: 'name',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'email': PropertyDescriptor(
+        name: 'email',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'age': PropertyDescriptor(
+        name: 'age',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'role': PropertyDescriptor(
+        name: 'role',
+        isRequired: false,
+        schema: UserRole.descriptor,
+      ),
+      'profile': PropertyDescriptor(
+        name: 'profile',
+        isRequired: false,
+        schema: RefDescriptor<UserProfile>(() => UserProfile.descriptor),
+      ),
+      'address': PropertyDescriptor(
+        name: 'address',
+        isRequired: false,
+        schema: RefDescriptor<Address>(() => Address.descriptor),
+      ),
+      'tags': PropertyDescriptor(
+        name: 'tags',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'preferences': PropertyDescriptor(
+        name: 'preferences',
+        isRequired: false,
+        schema: RefDescriptor<UserPreferences>(
+          () => UserPreferences.descriptor,
+        ),
+      ),
+      'createdAt': PropertyDescriptor(
+        name: 'createdAt',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const ['id', 'name', 'email'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -249,127 +382,6 @@ final class User implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<User> descriptor = ObjectDescriptor<User>(
-    title: 'User',
-    matches: (instance) => instance is User,
-    instantiate: (fields) => User(
-      id: fields['id'] as int,
-      name: fields['name'] as String,
-      email: fields['email'] as String,
-      age: fields['age'] as int?,
-      role: fields.containsKey('role')
-          ? fields['role'] as UserRole
-          : UserRole.user,
-      profile: fields['profile'] as UserProfile?,
-      address: fields['address'] as Address?,
-      tags: fields['tags'] as List<String>?,
-      preferences: fields['preferences'] as UserPreferences?,
-      createdAt: fields['createdAt'] as String?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{
-                  'id',
-                  'name',
-                  'email',
-                  'age',
-                  'role',
-                  'profile',
-                  'address',
-                  'tags',
-                  'preferences',
-                  'createdAt',
-                }.contains(e.key) &&
-                true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as User;
-      final map = <String, dynamic>{
-        'id': typedInstance.id,
-        'name': typedInstance.name,
-        'email': typedInstance.email,
-        'age': typedInstance.age,
-        'role': typedInstance.role,
-        'profile': typedInstance.profile,
-        'address': typedInstance.address,
-        'tags': typedInstance.tags,
-        'preferences': typedInstance.preferences,
-        'createdAt': typedInstance.createdAt,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'id': PropertyDescriptor(
-        name: 'id',
-        isRequired: true,
-        schema: const IntDescriptor(),
-      ),
-      'name': PropertyDescriptor(
-        name: 'name',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'email': PropertyDescriptor(
-        name: 'email',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'age': PropertyDescriptor(
-        name: 'age',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'role': PropertyDescriptor(
-        name: 'role',
-        isRequired: false,
-        schema: UserRole.descriptor,
-      ),
-      'profile': PropertyDescriptor(
-        name: 'profile',
-        isRequired: false,
-        schema: RefDescriptor<UserProfile>(() => UserProfile.descriptor),
-      ),
-      'address': PropertyDescriptor(
-        name: 'address',
-        isRequired: false,
-        schema: RefDescriptor<Address>(() => Address.descriptor),
-      ),
-      'tags': PropertyDescriptor(
-        name: 'tags',
-        isRequired: false,
-        schema: ArrayDescriptor<String>(const StringDescriptor()),
-      ),
-      'preferences': PropertyDescriptor(
-        name: 'preferences',
-        isRequired: false,
-        schema: RefDescriptor<UserPreferences>(
-          () => UserPreferences.descriptor,
-        ),
-      ),
-      'createdAt': PropertyDescriptor(
-        name: 'createdAt',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-    },
-
-    required: const ['id', 'name', 'email'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -415,24 +427,22 @@ enum UserRole {
   editor('editor'),
   user('user');
 
-  final String value;
   const UserRole(this.value);
-  static UserRole fromValue(String val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final String value;
+
   static final EnumDescriptor<UserRole> descriptor = EnumDescriptor<UserRole>(
     values: values,
     fromValue: (val) => fromValue(val as String),
     toValue: (e) => (e as UserRole).value,
     base: const StringDescriptor(),
   );
+
+  static UserRole fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 final class UserProfile implements JsonModel {
-  final String? avatarUrl;
-  final String? bio;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const UserProfile({
     this.avatarUrl,
     this.bio,
@@ -449,6 +459,64 @@ final class UserProfile implements JsonModel {
     Map<String, dynamic> map, {
     bool validate = true,
   }) => UserProfile.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? avatarUrl;
+
+  final String? bio;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<UserProfile> descriptor =
+      ObjectDescriptor<UserProfile>(
+        title: 'UserProfile',
+        matches: (instance) => instance is UserProfile,
+        instantiate: (fields) => UserProfile(
+          avatarUrl: fields['avatarUrl'] as String?,
+          bio: fields['bio'] as String?,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{'avatarUrl', 'bio'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as UserProfile;
+          final map = <String, dynamic>{
+            'avatarUrl': typedInstance.avatarUrl,
+            'bio': typedInstance.bio,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'avatarUrl': PropertyDescriptor(
+            name: 'avatarUrl',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'bio': PropertyDescriptor(
+            name: 'bio',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -524,56 +592,6 @@ final class UserProfile implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<UserProfile> descriptor =
-      ObjectDescriptor<UserProfile>(
-        title: 'UserProfile',
-        matches: (instance) => instance is UserProfile,
-        instantiate: (fields) => UserProfile(
-          avatarUrl: fields['avatarUrl'] as String?,
-          bio: fields['bio'] as String?,
-          additionalProperties: fields.entries
-              .where(
-                (e) =>
-                    !const <String>{'avatarUrl', 'bio'}.contains(e.key) && true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as UserProfile;
-          final map = <String, dynamic>{
-            'avatarUrl': typedInstance.avatarUrl,
-            'bio': typedInstance.bio,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'avatarUrl': PropertyDescriptor(
-            name: 'avatarUrl',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'bio': PropertyDescriptor(
-            name: 'bio',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -599,12 +617,6 @@ final class UserProfile implements JsonModel {
 }
 
 final class Address implements JsonModel {
-  final String? street;
-  final String city;
-  final String? zipCode;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const Address({
     this.street,
     required this.city,
@@ -619,6 +631,73 @@ final class Address implements JsonModel {
   /// Creates an instance of [Address] from a JSON Map.
   factory Address.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       Address.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? street;
+
+  final String city;
+
+  final String? zipCode;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<Address> descriptor = ObjectDescriptor<Address>(
+    title: 'Address',
+    matches: (instance) => instance is Address,
+    instantiate: (fields) => Address(
+      street: fields['street'] as String?,
+      city: fields['city'] as String,
+      zipCode: fields['zipCode'] as String?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'street', 'city', 'zipCode'}.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as Address;
+      final map = <String, dynamic>{
+        'street': typedInstance.street,
+        'city': typedInstance.city,
+        'zipCode': typedInstance.zipCode,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'street': PropertyDescriptor(
+        name: 'street',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'city': PropertyDescriptor(
+        name: 'city',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'zipCode': PropertyDescriptor(
+        name: 'zipCode',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const ['city'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -699,63 +778,6 @@ final class Address implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<Address> descriptor = ObjectDescriptor<Address>(
-    title: 'Address',
-    matches: (instance) => instance is Address,
-    instantiate: (fields) => Address(
-      street: fields['street'] as String?,
-      city: fields['city'] as String,
-      zipCode: fields['zipCode'] as String?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{'street', 'city', 'zipCode'}.contains(e.key) &&
-                true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as Address;
-      final map = <String, dynamic>{
-        'street': typedInstance.street,
-        'city': typedInstance.city,
-        'zipCode': typedInstance.zipCode,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'street': PropertyDescriptor(
-        name: 'street',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'city': PropertyDescriptor(
-        name: 'city',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'zipCode': PropertyDescriptor(
-        name: 'zipCode',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-    },
-
-    required: const ['city'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -783,9 +805,6 @@ final class Address implements JsonModel {
 }
 
 final class UserPreferences implements JsonModel {
-  final Map<String, String> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const UserPreferences({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -801,6 +820,40 @@ final class UserPreferences implements JsonModel {
     bool validate = true,
   }) =>
       UserPreferences.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final Map<String, String> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<UserPreferences> descriptor =
+      ObjectDescriptor<UserPreferences>(
+        title: 'UserPreferences',
+        matches: (instance) => instance is UserPreferences,
+        instantiate: (fields) => UserPreferences(
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{}.contains(e.key) && true)
+              .fold<Map<String, String>>(
+                {},
+                (m, e) => m..[e.key] = e.value as String,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as UserPreferences;
+          final map = <String, dynamic>{...typedInstance.additionalProperties};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties: const StringDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -861,36 +914,6 @@ final class UserPreferences implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final ObjectDescriptor<UserPreferences> descriptor =
-      ObjectDescriptor<UserPreferences>(
-        title: 'UserPreferences',
-        matches: (instance) => instance is UserPreferences,
-        instantiate: (fields) => UserPreferences(
-          additionalProperties: fields.entries
-              .where((e) => !const <String>{}.contains(e.key) && true)
-              .fold<Map<String, String>>(
-                {},
-                (m, e) => m..[e.key] = e.value as String,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as UserPreferences;
-          final map = <String, dynamic>{...typedInstance.additionalProperties};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties: const StringDescriptor(),
-      );
 
   @override
   bool operator ==(Object other) =>

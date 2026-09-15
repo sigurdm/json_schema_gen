@@ -4,100 +4,12 @@
 // ignore_for_file: unnecessary_question_mark, unnecessary_cast
 
 import 'dart:collection';
+
 import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
 final class TestRoot implements JsonModel {
-  @Deprecated('deprecated')
-  final String? deprecated;
-  final String? idField;
-  final TestRootUnionWithObjectAndBoolean? unionWithObjectAndBoolean;
-  final RecursiveNode? recursiveNodeField;
-  final String name;
-  final TestRootConstValue? constValue;
-  final int age;
-  final int? exclusiveAge;
-  final num? height;
-  final String? email;
-  final String? uuid;
-  final bool isAwesome;
-  final String? class_;
-  final String? reader;
-  final String? stack;
-  final String? validate_;
-  final String? result;
-  final Address address;
-  final List<String>? tags;
-  final List<Score>? scores;
-  final TestRootUnionValue? unionValue;
-  final TestRootNullableUnionValue? nullableUnionValue;
-  final RequiredNullableUnionObject? requiredNullableUnionObject;
-  final String? nullableString;
-  final Pet? pet;
-  final RestrictedObject? restrictedObject;
-  final DependentObject? dependentObject;
-  final List<String>? primitiveArrayWithValidation;
-  final List<int>? restrictedArray;
-  @Deprecated('deprecated')
-  final String? deprecatedField;
-  final DeprecatedObject? deprecatedRef;
-  final String defaultString;
-  final String defaultBackslash;
-  final List<List<Address>>? nestedArray;
-  final String? singleQuoteKey;
-  final TestRootMixedEnum? mixedEnum;
-  final int defaultInt;
-  final bool defaultBool;
-  final List<String> defaultList;
-  final Address defaultObject;
-  final String? defaultNullableString;
-  final Merged? mergedValue;
-  final List<dynamic>? tupleArray;
-  final List<dynamic>? tupleObjectArray;
-  final String? ipv6Value;
-  final String? hostnameValue;
-  final String? timeValue;
-  final String? uriReferenceValue;
-  final MapObject? additionalPropertiesObject;
-  final StrictObject? strictObject;
-  final NotObject? notObject;
-  final TestRootAnyOfValue? anyOfValue;
-  final MergedAllOfObject? mergedAllOfObject;
-  final ComplexMergedObject? complexMerged;
-  final MyEnum? myEnumField;
-  final List<Object?>? unionContainsArray;
-  final List<Object?>? objectContainsArray;
-  final List<Object?>? enumContainsArray;
-  final List<Object?>? booleanContainsArray;
-  final List<Object?>? nullContainsArray;
-  final List<Object?>? anyContainsArray;
-  final List<Object?>? stringContainsArray;
-  final List<Object?>? numberContainsArray;
-  final ObjectWithDynamicProps? dynamicProps;
-  final String? dateTimeField;
-  final String? dateField;
-  final String? ipv4Field;
-  final String? uriField;
-  final List<String> defaultEmptyList;
-  final MapObject defaultEmptyObject;
-  final TestRootUnionWithArrayOption? unionWithArrayOption;
-  final Never? impossibleField;
-  final List<String>? tupleSameTypeArray;
-  final List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems;
-  final TestRootUnionWithAllOfOption? unionWithAllOfOption;
-  final PatternPropertiesObject? patternPropsField;
-  final OverlappingUnion? overlappingUnion;
-  final String? deprecatedFieldWithMessage;
-  final MyCustomClassName? customNamedObject;
-  final MyCustomUnionName? customNamedUnion;
-  final MyCustomEnumName? customNamedEnum;
-  final TestRootCoverageTrigger? coverageTrigger;
-  final CollidingEnum? collidingEnumField;
-  final CollidingObject? collidingObjectField;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const TestRoot({
     this.deprecated,
     this.idField,
@@ -193,6 +105,986 @@ final class TestRoot implements JsonModel {
   /// Creates an instance of [TestRoot] from a JSON Map.
   factory TestRoot.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       TestRoot.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  @Deprecated('deprecated')
+  final String? deprecated;
+
+  final String? idField;
+
+  final TestRootUnionWithObjectAndBoolean? unionWithObjectAndBoolean;
+
+  final RecursiveNode? recursiveNodeField;
+
+  final String name;
+
+  final TestRootConstValue? constValue;
+
+  final int age;
+
+  final int? exclusiveAge;
+
+  final num? height;
+
+  final String? email;
+
+  final String? uuid;
+
+  final bool isAwesome;
+
+  final String? class_;
+
+  final String? reader;
+
+  final String? stack;
+
+  final String? validate_;
+
+  final String? result;
+
+  final Address address;
+
+  final List<String>? tags;
+
+  final List<Score>? scores;
+
+  final TestRootUnionValue? unionValue;
+
+  final TestRootNullableUnionValue? nullableUnionValue;
+
+  final RequiredNullableUnionObject? requiredNullableUnionObject;
+
+  final String? nullableString;
+
+  final Pet? pet;
+
+  final RestrictedObject? restrictedObject;
+
+  final DependentObject? dependentObject;
+
+  final List<String>? primitiveArrayWithValidation;
+
+  final List<int>? restrictedArray;
+
+  @Deprecated('deprecated')
+  final String? deprecatedField;
+
+  final DeprecatedObject? deprecatedRef;
+
+  final String defaultString;
+
+  final String defaultBackslash;
+
+  final List<List<Address>>? nestedArray;
+
+  final String? singleQuoteKey;
+
+  final TestRootMixedEnum? mixedEnum;
+
+  final int defaultInt;
+
+  final bool defaultBool;
+
+  final List<String> defaultList;
+
+  final Address defaultObject;
+
+  final String? defaultNullableString;
+
+  final Merged? mergedValue;
+
+  final List<dynamic>? tupleArray;
+
+  final List<dynamic>? tupleObjectArray;
+
+  final String? ipv6Value;
+
+  final String? hostnameValue;
+
+  final String? timeValue;
+
+  final String? uriReferenceValue;
+
+  final MapObject? additionalPropertiesObject;
+
+  final StrictObject? strictObject;
+
+  final NotObject? notObject;
+
+  final TestRootAnyOfValue? anyOfValue;
+
+  final MergedAllOfObject? mergedAllOfObject;
+
+  final ComplexMergedObject? complexMerged;
+
+  final MyEnum? myEnumField;
+
+  final List<Object?>? unionContainsArray;
+
+  final List<Object?>? objectContainsArray;
+
+  final List<Object?>? enumContainsArray;
+
+  final List<Object?>? booleanContainsArray;
+
+  final List<Object?>? nullContainsArray;
+
+  final List<Object?>? anyContainsArray;
+
+  final List<Object?>? stringContainsArray;
+
+  final List<Object?>? numberContainsArray;
+
+  final ObjectWithDynamicProps? dynamicProps;
+
+  final String? dateTimeField;
+
+  final String? dateField;
+
+  final String? ipv4Field;
+
+  final String? uriField;
+
+  final List<String> defaultEmptyList;
+
+  final MapObject defaultEmptyObject;
+
+  final TestRootUnionWithArrayOption? unionWithArrayOption;
+
+  final Never? impossibleField;
+
+  final List<String>? tupleSameTypeArray;
+
+  final List<TestRootArrayWithAllOfItemsItem>? arrayWithAllOfItems;
+
+  final TestRootUnionWithAllOfOption? unionWithAllOfOption;
+
+  final PatternPropertiesObject? patternPropsField;
+
+  final OverlappingUnion? overlappingUnion;
+
+  final String? deprecatedFieldWithMessage;
+
+  final MyCustomClassName? customNamedObject;
+
+  final MyCustomUnionName? customNamedUnion;
+
+  final MyCustomEnumName? customNamedEnum;
+
+  final TestRootCoverageTrigger? coverageTrigger;
+
+  final CollidingEnum? collidingEnumField;
+
+  final CollidingObject? collidingObjectField;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<TestRoot>
+  descriptor = ObjectDescriptor<TestRoot>(
+    title: 'TestRoot',
+    matches: (instance) => instance is TestRoot,
+    instantiate: (fields) => TestRoot(
+      deprecated: fields['deprecated'] as String?,
+      idField: fields['\$idField'] as String?,
+      unionWithObjectAndBoolean:
+          fields['unionWithObjectAndBoolean']
+              as TestRootUnionWithObjectAndBoolean?,
+      recursiveNodeField: fields['recursiveNodeField'] as RecursiveNode?,
+      name: fields['name'] as String,
+      constValue: fields['constValue'] as TestRootConstValue?,
+      age: fields['age'] as int,
+      exclusiveAge: fields['exclusiveAge'] as int?,
+      height: fields['height'] as num?,
+      email: fields['email'] as String?,
+      uuid: fields['uuid'] as String?,
+      isAwesome: fields['isAwesome'] as bool,
+      class_: fields['class'] as String?,
+      reader: fields['reader'] as String?,
+      stack: fields['stack'] as String?,
+      validate_: fields['validate'] as String?,
+      result: fields['result'] as String?,
+      address: fields['address'] as Address,
+      tags: fields['tags'] as List<String>?,
+      scores: fields['scores'] as List<Score>?,
+      unionValue: fields['unionValue'] as TestRootUnionValue?,
+      nullableUnionValue:
+          fields['nullableUnionValue'] as TestRootNullableUnionValue?,
+      requiredNullableUnionObject:
+          fields['requiredNullableUnionObject'] as RequiredNullableUnionObject?,
+      nullableString: fields['nullableString'] as String?,
+      pet: fields['pet'] as Pet?,
+      restrictedObject: fields['restrictedObject'] as RestrictedObject?,
+      dependentObject: fields['dependentObject'] as DependentObject?,
+      primitiveArrayWithValidation:
+          fields['primitiveArrayWithValidation'] as List<String>?,
+      restrictedArray: fields['restrictedArray'] as List<int>?,
+      deprecatedField: fields['deprecatedField'] as String?,
+      deprecatedRef: fields['deprecatedRef'] as DeprecatedObject?,
+      defaultString: fields.containsKey('defaultString')
+          ? fields['defaultString'] as String
+          : 'default value',
+      defaultBackslash: fields.containsKey('defaultBackslash')
+          ? fields['defaultBackslash'] as String
+          : 'foo\\sbar',
+      nestedArray: fields['nestedArray'] as List<List<Address>>?,
+      singleQuoteKey: fields['single\'quote\'key'] as String?,
+      mixedEnum: fields['mixedEnum'] as TestRootMixedEnum?,
+      defaultInt: fields.containsKey('defaultInt')
+          ? fields['defaultInt'] as int
+          : 42,
+      defaultBool: fields.containsKey('defaultBool')
+          ? fields['defaultBool'] as bool
+          : true,
+      defaultList: fields.containsKey('defaultList')
+          ? fields['defaultList'] as List<String>
+          : const <String>['a', 'b'],
+      defaultObject: fields.containsKey('defaultObject')
+          ? fields['defaultObject'] as Address
+          : const Address(city: 'Default City'),
+      defaultNullableString: fields.containsKey('defaultNullableString')
+          ? fields['defaultNullableString'] as String?
+          : null,
+      mergedValue: fields['mergedValue'] as Merged?,
+      tupleArray: fields['tupleArray'] as List<dynamic>?,
+      tupleObjectArray: fields['tupleObjectArray'] as List<dynamic>?,
+      ipv6Value: fields['ipv6Value'] as String?,
+      hostnameValue: fields['hostnameValue'] as String?,
+      timeValue: fields['timeValue'] as String?,
+      uriReferenceValue: fields['uriReferenceValue'] as String?,
+      additionalPropertiesObject:
+          fields['additionalPropertiesObject'] as MapObject?,
+      strictObject: fields['strictObject'] as StrictObject?,
+      notObject: fields['notObject'] as NotObject?,
+      anyOfValue: fields['anyOfValue'] as TestRootAnyOfValue?,
+      mergedAllOfObject: fields['mergedAllOfObject'] as MergedAllOfObject?,
+      complexMerged: fields['complexMerged'] as ComplexMergedObject?,
+      myEnumField: fields['myEnumField'] as MyEnum?,
+      unionContainsArray: fields['unionContainsArray'] as List<Object?>?,
+      objectContainsArray: fields['objectContainsArray'] as List<Object?>?,
+      enumContainsArray: fields['enumContainsArray'] as List<Object?>?,
+      booleanContainsArray: fields['booleanContainsArray'] as List<Object?>?,
+      nullContainsArray: fields['nullContainsArray'] as List<Object?>?,
+      anyContainsArray: fields['anyContainsArray'] as List<Object?>?,
+      stringContainsArray: fields['stringContainsArray'] as List<Object?>?,
+      numberContainsArray: fields['numberContainsArray'] as List<Object?>?,
+      dynamicProps: fields['dynamicProps'] as ObjectWithDynamicProps?,
+      dateTimeField: fields['dateTimeField'] as String?,
+      dateField: fields['dateField'] as String?,
+      ipv4Field: fields['ipv4Field'] as String?,
+      uriField: fields['uriField'] as String?,
+      defaultEmptyList: fields.containsKey('defaultEmptyList')
+          ? fields['defaultEmptyList'] as List<String>
+          : const <String>[],
+      defaultEmptyObject: fields.containsKey('defaultEmptyObject')
+          ? fields['defaultEmptyObject'] as MapObject
+          : const MapObject(),
+      unionWithArrayOption:
+          fields['unionWithArrayOption'] as TestRootUnionWithArrayOption?,
+      impossibleField: fields['impossibleField'] as Never?,
+      tupleSameTypeArray: fields['tupleSameTypeArray'] as List<String>?,
+      arrayWithAllOfItems:
+          fields['arrayWithAllOfItems']
+              as List<TestRootArrayWithAllOfItemsItem>?,
+      unionWithAllOfOption:
+          fields['unionWithAllOfOption'] as TestRootUnionWithAllOfOption?,
+      patternPropsField:
+          fields['patternPropsField'] as PatternPropertiesObject?,
+      overlappingUnion: fields['overlappingUnion'] as OverlappingUnion?,
+      deprecatedFieldWithMessage:
+          fields['deprecatedFieldWithMessage'] as String?,
+      customNamedObject: fields['customNamedObject'] as MyCustomClassName?,
+      customNamedUnion: fields['customNamedUnion'] as MyCustomUnionName?,
+      customNamedEnum: fields['customNamedEnum'] as MyCustomEnumName?,
+      coverageTrigger: fields['coverageTrigger'] as TestRootCoverageTrigger?,
+      collidingEnumField: fields['collidingEnumField'] as CollidingEnum?,
+      collidingObjectField: fields['collidingObjectField'] as CollidingObject?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{
+                  'deprecated',
+                  '\$idField',
+                  'unionWithObjectAndBoolean',
+                  'recursiveNodeField',
+                  'name',
+                  'constValue',
+                  'age',
+                  'exclusiveAge',
+                  'height',
+                  'email',
+                  'uuid',
+                  'isAwesome',
+                  'class',
+                  'reader',
+                  'stack',
+                  'validate',
+                  'result',
+                  'address',
+                  'tags',
+                  'scores',
+                  'unionValue',
+                  'nullableUnionValue',
+                  'requiredNullableUnionObject',
+                  'nullableString',
+                  'pet',
+                  'restrictedObject',
+                  'dependentObject',
+                  'primitiveArrayWithValidation',
+                  'restrictedArray',
+                  'deprecatedField',
+                  'deprecatedRef',
+                  'defaultString',
+                  'defaultBackslash',
+                  'nestedArray',
+                  'single\'quote\'key',
+                  'mixedEnum',
+                  'defaultInt',
+                  'defaultBool',
+                  'defaultList',
+                  'defaultObject',
+                  'defaultNullableString',
+                  'mergedValue',
+                  'tupleArray',
+                  'tupleObjectArray',
+                  'ipv6Value',
+                  'hostnameValue',
+                  'timeValue',
+                  'uriReferenceValue',
+                  'additionalPropertiesObject',
+                  'strictObject',
+                  'notObject',
+                  'anyOfValue',
+                  'mergedAllOfObject',
+                  'complexMerged',
+                  'myEnumField',
+                  'unionContainsArray',
+                  'objectContainsArray',
+                  'enumContainsArray',
+                  'booleanContainsArray',
+                  'nullContainsArray',
+                  'anyContainsArray',
+                  'stringContainsArray',
+                  'numberContainsArray',
+                  'dynamicProps',
+                  'dateTimeField',
+                  'dateField',
+                  'ipv4Field',
+                  'uriField',
+                  'defaultEmptyList',
+                  'defaultEmptyObject',
+                  'unionWithArrayOption',
+                  'impossibleField',
+                  'tupleSameTypeArray',
+                  'arrayWithAllOfItems',
+                  'unionWithAllOfOption',
+                  'patternPropsField',
+                  'overlappingUnion',
+                  'deprecatedFieldWithMessage',
+                  'customNamedObject',
+                  'customNamedUnion',
+                  'customNamedEnum',
+                  'coverageTrigger',
+                  'collidingEnumField',
+                  'collidingObjectField',
+                }.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as TestRoot;
+      final map = <String, dynamic>{
+        'deprecated': typedInstance.deprecated,
+        '\$idField': typedInstance.idField,
+        'unionWithObjectAndBoolean': typedInstance.unionWithObjectAndBoolean,
+        'recursiveNodeField': typedInstance.recursiveNodeField,
+        'name': typedInstance.name,
+        'constValue': typedInstance.constValue,
+        'age': typedInstance.age,
+        'exclusiveAge': typedInstance.exclusiveAge,
+        'height': typedInstance.height,
+        'email': typedInstance.email,
+        'uuid': typedInstance.uuid,
+        'isAwesome': typedInstance.isAwesome,
+        'class': typedInstance.class_,
+        'reader': typedInstance.reader,
+        'stack': typedInstance.stack,
+        'validate': typedInstance.validate_,
+        'result': typedInstance.result,
+        'address': typedInstance.address,
+        'tags': typedInstance.tags,
+        'scores': typedInstance.scores,
+        'unionValue': typedInstance.unionValue,
+        'nullableUnionValue': typedInstance.nullableUnionValue,
+        'requiredNullableUnionObject':
+            typedInstance.requiredNullableUnionObject,
+        'nullableString': typedInstance.nullableString,
+        'pet': typedInstance.pet,
+        'restrictedObject': typedInstance.restrictedObject,
+        'dependentObject': typedInstance.dependentObject,
+        'primitiveArrayWithValidation':
+            typedInstance.primitiveArrayWithValidation,
+        'restrictedArray': typedInstance.restrictedArray,
+        'deprecatedField': typedInstance.deprecatedField,
+        'deprecatedRef': typedInstance.deprecatedRef,
+        'defaultString': typedInstance.defaultString,
+        'defaultBackslash': typedInstance.defaultBackslash,
+        'nestedArray': typedInstance.nestedArray,
+        'single\'quote\'key': typedInstance.singleQuoteKey,
+        'mixedEnum': typedInstance.mixedEnum,
+        'defaultInt': typedInstance.defaultInt,
+        'defaultBool': typedInstance.defaultBool,
+        'defaultList': typedInstance.defaultList,
+        'defaultObject': typedInstance.defaultObject,
+        'defaultNullableString': typedInstance.defaultNullableString,
+        'mergedValue': typedInstance.mergedValue,
+        'tupleArray': typedInstance.tupleArray,
+        'tupleObjectArray': typedInstance.tupleObjectArray,
+        'ipv6Value': typedInstance.ipv6Value,
+        'hostnameValue': typedInstance.hostnameValue,
+        'timeValue': typedInstance.timeValue,
+        'uriReferenceValue': typedInstance.uriReferenceValue,
+        'additionalPropertiesObject': typedInstance.additionalPropertiesObject,
+        'strictObject': typedInstance.strictObject,
+        'notObject': typedInstance.notObject,
+        'anyOfValue': typedInstance.anyOfValue,
+        'mergedAllOfObject': typedInstance.mergedAllOfObject,
+        'complexMerged': typedInstance.complexMerged,
+        'myEnumField': typedInstance.myEnumField,
+        'unionContainsArray': typedInstance.unionContainsArray,
+        'objectContainsArray': typedInstance.objectContainsArray,
+        'enumContainsArray': typedInstance.enumContainsArray,
+        'booleanContainsArray': typedInstance.booleanContainsArray,
+        'nullContainsArray': typedInstance.nullContainsArray,
+        'anyContainsArray': typedInstance.anyContainsArray,
+        'stringContainsArray': typedInstance.stringContainsArray,
+        'numberContainsArray': typedInstance.numberContainsArray,
+        'dynamicProps': typedInstance.dynamicProps,
+        'dateTimeField': typedInstance.dateTimeField,
+        'dateField': typedInstance.dateField,
+        'ipv4Field': typedInstance.ipv4Field,
+        'uriField': typedInstance.uriField,
+        'defaultEmptyList': typedInstance.defaultEmptyList,
+        'defaultEmptyObject': typedInstance.defaultEmptyObject,
+        'unionWithArrayOption': typedInstance.unionWithArrayOption,
+        'impossibleField': typedInstance.impossibleField,
+        'tupleSameTypeArray': typedInstance.tupleSameTypeArray,
+        'arrayWithAllOfItems': typedInstance.arrayWithAllOfItems,
+        'unionWithAllOfOption': typedInstance.unionWithAllOfOption,
+        'patternPropsField': typedInstance.patternPropsField,
+        'overlappingUnion': typedInstance.overlappingUnion,
+        'deprecatedFieldWithMessage': typedInstance.deprecatedFieldWithMessage,
+        'customNamedObject': typedInstance.customNamedObject,
+        'customNamedUnion': typedInstance.customNamedUnion,
+        'customNamedEnum': typedInstance.customNamedEnum,
+        'coverageTrigger': typedInstance.coverageTrigger,
+        'collidingEnumField': typedInstance.collidingEnumField,
+        'collidingObjectField': typedInstance.collidingObjectField,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'deprecated': PropertyDescriptor(
+        name: 'deprecated',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$idField': PropertyDescriptor(
+        name: '\$idField',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'unionWithObjectAndBoolean': PropertyDescriptor(
+        name: 'unionWithObjectAndBoolean',
+        isRequired: false,
+        schema: RefDescriptor<TestRootUnionWithObjectAndBoolean>(
+          () => TestRootUnionWithObjectAndBoolean.descriptor,
+        ),
+      ),
+      'recursiveNodeField': PropertyDescriptor(
+        name: 'recursiveNodeField',
+        isRequired: false,
+        schema: RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
+      ),
+      'name': PropertyDescriptor(
+        name: 'name',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'constValue': PropertyDescriptor(
+        name: 'constValue',
+        isRequired: false,
+        schema: TestRootConstValue.descriptor,
+      ),
+      'age': PropertyDescriptor(
+        name: 'age',
+        isRequired: true,
+        schema: const IntDescriptor(),
+      ),
+      'exclusiveAge': PropertyDescriptor(
+        name: 'exclusiveAge',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'height': PropertyDescriptor(
+        name: 'height',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+      'email': PropertyDescriptor(
+        name: 'email',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'uuid': PropertyDescriptor(
+        name: 'uuid',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'isAwesome': PropertyDescriptor(
+        name: 'isAwesome',
+        isRequired: true,
+        schema: const BoolDescriptor(),
+      ),
+      'class': PropertyDescriptor(
+        name: 'class',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'reader': PropertyDescriptor(
+        name: 'reader',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'stack': PropertyDescriptor(
+        name: 'stack',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'validate': PropertyDescriptor(
+        name: 'validate',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'result': PropertyDescriptor(
+        name: 'result',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'address': PropertyDescriptor(
+        name: 'address',
+        isRequired: true,
+        schema: RefDescriptor<Address>(() => Address.descriptor),
+      ),
+      'tags': PropertyDescriptor(
+        name: 'tags',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'scores': PropertyDescriptor(
+        name: 'scores',
+        isRequired: false,
+        schema: ArrayDescriptor<Score>(
+          RefDescriptor<Score>(() => Score.descriptor),
+        ),
+      ),
+      'unionValue': PropertyDescriptor(
+        name: 'unionValue',
+        isRequired: false,
+        schema: RefDescriptor<TestRootUnionValue>(
+          () => TestRootUnionValue.descriptor,
+        ),
+      ),
+      'nullableUnionValue': PropertyDescriptor(
+        name: 'nullableUnionValue',
+        isRequired: false,
+        schema: NullableDescriptor(
+          RefDescriptor<TestRootNullableUnionValue>(
+            () => TestRootNullableUnionValue.descriptor,
+          ),
+        ),
+      ),
+      'requiredNullableUnionObject': PropertyDescriptor(
+        name: 'requiredNullableUnionObject',
+        isRequired: false,
+        schema: RefDescriptor<RequiredNullableUnionObject>(
+          () => RequiredNullableUnionObject.descriptor,
+        ),
+      ),
+      'nullableString': PropertyDescriptor(
+        name: 'nullableString',
+        isRequired: false,
+        schema: NullableDescriptor(const StringDescriptor()),
+      ),
+      'pet': PropertyDescriptor(
+        name: 'pet',
+        isRequired: false,
+        schema: RefDescriptor<Pet>(() => Pet.descriptor),
+      ),
+      'restrictedObject': PropertyDescriptor(
+        name: 'restrictedObject',
+        isRequired: false,
+        schema: RefDescriptor<RestrictedObject>(
+          () => RestrictedObject.descriptor,
+        ),
+      ),
+      'dependentObject': PropertyDescriptor(
+        name: 'dependentObject',
+        isRequired: false,
+        schema: RefDescriptor<DependentObject>(
+          () => DependentObject.descriptor,
+        ),
+      ),
+      'primitiveArrayWithValidation': PropertyDescriptor(
+        name: 'primitiveArrayWithValidation',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'restrictedArray': PropertyDescriptor(
+        name: 'restrictedArray',
+        isRequired: false,
+        schema: ArrayDescriptor<int>(const IntDescriptor()),
+      ),
+      'deprecatedField': PropertyDescriptor(
+        name: 'deprecatedField',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'deprecatedRef': PropertyDescriptor(
+        name: 'deprecatedRef',
+        isRequired: false,
+        schema: RefDescriptor<DeprecatedObject>(
+          () => DeprecatedObject.descriptor,
+        ),
+      ),
+      'defaultString': PropertyDescriptor(
+        name: 'defaultString',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'defaultBackslash': PropertyDescriptor(
+        name: 'defaultBackslash',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'nestedArray': PropertyDescriptor(
+        name: 'nestedArray',
+        isRequired: false,
+        schema: ArrayDescriptor<List<Address>>(
+          ArrayDescriptor<Address>(
+            RefDescriptor<Address>(() => Address.descriptor),
+          ),
+        ),
+      ),
+      'single\'quote\'key': PropertyDescriptor(
+        name: 'single\'quote\'key',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'mixedEnum': PropertyDescriptor(
+        name: 'mixedEnum',
+        isRequired: false,
+        schema: RefDescriptor<TestRootMixedEnum>(
+          () => TestRootMixedEnum.descriptor,
+        ),
+      ),
+      'defaultInt': PropertyDescriptor(
+        name: 'defaultInt',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'defaultBool': PropertyDescriptor(
+        name: 'defaultBool',
+        isRequired: false,
+        schema: const BoolDescriptor(),
+      ),
+      'defaultList': PropertyDescriptor(
+        name: 'defaultList',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'defaultObject': PropertyDescriptor(
+        name: 'defaultObject',
+        isRequired: false,
+        schema: RefDescriptor<Address>(() => Address.descriptor),
+      ),
+      'defaultNullableString': PropertyDescriptor(
+        name: 'defaultNullableString',
+        isRequired: false,
+        schema: NullableDescriptor(const StringDescriptor()),
+      ),
+      'mergedValue': PropertyDescriptor(
+        name: 'mergedValue',
+        isRequired: false,
+        schema: RefDescriptor<Merged>(() => Merged.descriptor),
+      ),
+      'tupleArray': PropertyDescriptor(
+        name: 'tupleArray',
+        isRequired: false,
+        schema: ArrayDescriptor<dynamic>(
+          const BoolDescriptor(),
+          prefixItems: [const StringDescriptor(), const IntDescriptor()],
+        ),
+      ),
+      'tupleObjectArray': PropertyDescriptor(
+        name: 'tupleObjectArray',
+        isRequired: false,
+        schema: ArrayDescriptor<dynamic>(
+          const AnythingDescriptor(),
+          prefixItems: [
+            RefDescriptor<Address>(() => Address.descriptor),
+            RefDescriptor<Cat>(() => Cat.descriptor),
+          ],
+        ),
+      ),
+      'ipv6Value': PropertyDescriptor(
+        name: 'ipv6Value',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'hostnameValue': PropertyDescriptor(
+        name: 'hostnameValue',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'timeValue': PropertyDescriptor(
+        name: 'timeValue',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'uriReferenceValue': PropertyDescriptor(
+        name: 'uriReferenceValue',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'additionalPropertiesObject': PropertyDescriptor(
+        name: 'additionalPropertiesObject',
+        isRequired: false,
+        schema: RefDescriptor<MapObject>(() => MapObject.descriptor),
+      ),
+      'strictObject': PropertyDescriptor(
+        name: 'strictObject',
+        isRequired: false,
+        schema: RefDescriptor<StrictObject>(() => StrictObject.descriptor),
+      ),
+      'notObject': PropertyDescriptor(
+        name: 'notObject',
+        isRequired: false,
+        schema: RefDescriptor<NotObject>(() => NotObject.descriptor),
+      ),
+      'anyOfValue': PropertyDescriptor(
+        name: 'anyOfValue',
+        isRequired: false,
+        schema: RefDescriptor<TestRootAnyOfValue>(
+          () => TestRootAnyOfValue.descriptor,
+        ),
+      ),
+      'mergedAllOfObject': PropertyDescriptor(
+        name: 'mergedAllOfObject',
+        isRequired: false,
+        schema: RefDescriptor<MergedAllOfObject>(
+          () => MergedAllOfObject.descriptor,
+        ),
+      ),
+      'complexMerged': PropertyDescriptor(
+        name: 'complexMerged',
+        isRequired: false,
+        schema: RefDescriptor<ComplexMergedObject>(
+          () => ComplexMergedObject.descriptor,
+        ),
+      ),
+      'myEnumField': PropertyDescriptor(
+        name: 'myEnumField',
+        isRequired: false,
+        schema: MyEnum.descriptor,
+      ),
+      'unionContainsArray': PropertyDescriptor(
+        name: 'unionContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'objectContainsArray': PropertyDescriptor(
+        name: 'objectContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'enumContainsArray': PropertyDescriptor(
+        name: 'enumContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'booleanContainsArray': PropertyDescriptor(
+        name: 'booleanContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'nullContainsArray': PropertyDescriptor(
+        name: 'nullContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'anyContainsArray': PropertyDescriptor(
+        name: 'anyContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'stringContainsArray': PropertyDescriptor(
+        name: 'stringContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'numberContainsArray': PropertyDescriptor(
+        name: 'numberContainsArray',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'dynamicProps': PropertyDescriptor(
+        name: 'dynamicProps',
+        isRequired: false,
+        schema: RefDescriptor<ObjectWithDynamicProps>(
+          () => ObjectWithDynamicProps.descriptor,
+        ),
+      ),
+      'dateTimeField': PropertyDescriptor(
+        name: 'dateTimeField',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'dateField': PropertyDescriptor(
+        name: 'dateField',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'ipv4Field': PropertyDescriptor(
+        name: 'ipv4Field',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'uriField': PropertyDescriptor(
+        name: 'uriField',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'defaultEmptyList': PropertyDescriptor(
+        name: 'defaultEmptyList',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'defaultEmptyObject': PropertyDescriptor(
+        name: 'defaultEmptyObject',
+        isRequired: false,
+        schema: RefDescriptor<MapObject>(() => MapObject.descriptor),
+      ),
+      'unionWithArrayOption': PropertyDescriptor(
+        name: 'unionWithArrayOption',
+        isRequired: false,
+        schema: RefDescriptor<TestRootUnionWithArrayOption>(
+          () => TestRootUnionWithArrayOption.descriptor,
+        ),
+      ),
+      'impossibleField': PropertyDescriptor(
+        name: 'impossibleField',
+        isRequired: false,
+        schema: const NeverDescriptor(),
+      ),
+      'tupleSameTypeArray': PropertyDescriptor(
+        name: 'tupleSameTypeArray',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(
+          const StringDescriptor(),
+          prefixItems: [const StringDescriptor(), const StringDescriptor()],
+        ),
+      ),
+      'arrayWithAllOfItems': PropertyDescriptor(
+        name: 'arrayWithAllOfItems',
+        isRequired: false,
+        schema: ArrayDescriptor<TestRootArrayWithAllOfItemsItem>(
+          RefDescriptor<TestRootArrayWithAllOfItemsItem>(
+            () => TestRootArrayWithAllOfItemsItem.descriptor,
+          ),
+        ),
+      ),
+      'unionWithAllOfOption': PropertyDescriptor(
+        name: 'unionWithAllOfOption',
+        isRequired: false,
+        schema: RefDescriptor<TestRootUnionWithAllOfOption>(
+          () => TestRootUnionWithAllOfOption.descriptor,
+        ),
+      ),
+      'patternPropsField': PropertyDescriptor(
+        name: 'patternPropsField',
+        isRequired: false,
+        schema: RefDescriptor<PatternPropertiesObject>(
+          () => PatternPropertiesObject.descriptor,
+        ),
+      ),
+      'overlappingUnion': PropertyDescriptor(
+        name: 'overlappingUnion',
+        isRequired: false,
+        schema: RefDescriptor<OverlappingUnion>(
+          () => OverlappingUnion.descriptor,
+        ),
+      ),
+      'deprecatedFieldWithMessage': PropertyDescriptor(
+        name: 'deprecatedFieldWithMessage',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'customNamedObject': PropertyDescriptor(
+        name: 'customNamedObject',
+        isRequired: false,
+        schema: RefDescriptor<MyCustomClassName>(
+          () => MyCustomClassName.descriptor,
+        ),
+      ),
+      'customNamedUnion': PropertyDescriptor(
+        name: 'customNamedUnion',
+        isRequired: false,
+        schema: RefDescriptor<MyCustomUnionName>(
+          () => MyCustomUnionName.descriptor,
+        ),
+      ),
+      'customNamedEnum': PropertyDescriptor(
+        name: 'customNamedEnum',
+        isRequired: false,
+        schema: MyCustomEnumName.descriptor,
+      ),
+      'coverageTrigger': PropertyDescriptor(
+        name: 'coverageTrigger',
+        isRequired: false,
+        schema: RefDescriptor<TestRootCoverageTrigger>(
+          () => TestRootCoverageTrigger.descriptor,
+        ),
+      ),
+      'collidingEnumField': PropertyDescriptor(
+        name: 'collidingEnumField',
+        isRequired: false,
+        schema: CollidingEnum.descriptor,
+      ),
+      'collidingObjectField': PropertyDescriptor(
+        name: 'collidingObjectField',
+        isRequired: false,
+        schema: RefDescriptor<CollidingObject>(
+          () => CollidingObject.descriptor,
+        ),
+      ),
+    },
+
+    required: const ['name', 'age', 'isAwesome', 'address'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -1739,812 +2631,6 @@ final class TestRoot implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<TestRoot>
-  descriptor = ObjectDescriptor<TestRoot>(
-    title: 'TestRoot',
-    matches: (instance) => instance is TestRoot,
-    instantiate: (fields) => TestRoot(
-      deprecated: fields['deprecated'] as String?,
-      idField: fields['\$idField'] as String?,
-      unionWithObjectAndBoolean:
-          fields['unionWithObjectAndBoolean']
-              as TestRootUnionWithObjectAndBoolean?,
-      recursiveNodeField: fields['recursiveNodeField'] as RecursiveNode?,
-      name: fields['name'] as String,
-      constValue: fields['constValue'] as TestRootConstValue?,
-      age: fields['age'] as int,
-      exclusiveAge: fields['exclusiveAge'] as int?,
-      height: fields['height'] as num?,
-      email: fields['email'] as String?,
-      uuid: fields['uuid'] as String?,
-      isAwesome: fields['isAwesome'] as bool,
-      class_: fields['class'] as String?,
-      reader: fields['reader'] as String?,
-      stack: fields['stack'] as String?,
-      validate_: fields['validate'] as String?,
-      result: fields['result'] as String?,
-      address: fields['address'] as Address,
-      tags: fields['tags'] as List<String>?,
-      scores: fields['scores'] as List<Score>?,
-      unionValue: fields['unionValue'] as TestRootUnionValue?,
-      nullableUnionValue:
-          fields['nullableUnionValue'] as TestRootNullableUnionValue?,
-      requiredNullableUnionObject:
-          fields['requiredNullableUnionObject'] as RequiredNullableUnionObject?,
-      nullableString: fields['nullableString'] as String?,
-      pet: fields['pet'] as Pet?,
-      restrictedObject: fields['restrictedObject'] as RestrictedObject?,
-      dependentObject: fields['dependentObject'] as DependentObject?,
-      primitiveArrayWithValidation:
-          fields['primitiveArrayWithValidation'] as List<String>?,
-      restrictedArray: fields['restrictedArray'] as List<int>?,
-      deprecatedField: fields['deprecatedField'] as String?,
-      deprecatedRef: fields['deprecatedRef'] as DeprecatedObject?,
-      defaultString: fields.containsKey('defaultString')
-          ? fields['defaultString'] as String
-          : 'default value',
-      defaultBackslash: fields.containsKey('defaultBackslash')
-          ? fields['defaultBackslash'] as String
-          : 'foo\\sbar',
-      nestedArray: fields['nestedArray'] as List<List<Address>>?,
-      singleQuoteKey: fields['single\'quote\'key'] as String?,
-      mixedEnum: fields['mixedEnum'] as TestRootMixedEnum?,
-      defaultInt: fields.containsKey('defaultInt')
-          ? fields['defaultInt'] as int
-          : 42,
-      defaultBool: fields.containsKey('defaultBool')
-          ? fields['defaultBool'] as bool
-          : true,
-      defaultList: fields.containsKey('defaultList')
-          ? fields['defaultList'] as List<String>
-          : const <String>['a', 'b'],
-      defaultObject: fields.containsKey('defaultObject')
-          ? fields['defaultObject'] as Address
-          : const Address(city: 'Default City'),
-      defaultNullableString: fields.containsKey('defaultNullableString')
-          ? fields['defaultNullableString'] as String?
-          : null,
-      mergedValue: fields['mergedValue'] as Merged?,
-      tupleArray: fields['tupleArray'] as List<dynamic>?,
-      tupleObjectArray: fields['tupleObjectArray'] as List<dynamic>?,
-      ipv6Value: fields['ipv6Value'] as String?,
-      hostnameValue: fields['hostnameValue'] as String?,
-      timeValue: fields['timeValue'] as String?,
-      uriReferenceValue: fields['uriReferenceValue'] as String?,
-      additionalPropertiesObject:
-          fields['additionalPropertiesObject'] as MapObject?,
-      strictObject: fields['strictObject'] as StrictObject?,
-      notObject: fields['notObject'] as NotObject?,
-      anyOfValue: fields['anyOfValue'] as TestRootAnyOfValue?,
-      mergedAllOfObject: fields['mergedAllOfObject'] as MergedAllOfObject?,
-      complexMerged: fields['complexMerged'] as ComplexMergedObject?,
-      myEnumField: fields['myEnumField'] as MyEnum?,
-      unionContainsArray: fields['unionContainsArray'] as List<Object?>?,
-      objectContainsArray: fields['objectContainsArray'] as List<Object?>?,
-      enumContainsArray: fields['enumContainsArray'] as List<Object?>?,
-      booleanContainsArray: fields['booleanContainsArray'] as List<Object?>?,
-      nullContainsArray: fields['nullContainsArray'] as List<Object?>?,
-      anyContainsArray: fields['anyContainsArray'] as List<Object?>?,
-      stringContainsArray: fields['stringContainsArray'] as List<Object?>?,
-      numberContainsArray: fields['numberContainsArray'] as List<Object?>?,
-      dynamicProps: fields['dynamicProps'] as ObjectWithDynamicProps?,
-      dateTimeField: fields['dateTimeField'] as String?,
-      dateField: fields['dateField'] as String?,
-      ipv4Field: fields['ipv4Field'] as String?,
-      uriField: fields['uriField'] as String?,
-      defaultEmptyList: fields.containsKey('defaultEmptyList')
-          ? fields['defaultEmptyList'] as List<String>
-          : const <String>[],
-      defaultEmptyObject: fields.containsKey('defaultEmptyObject')
-          ? fields['defaultEmptyObject'] as MapObject
-          : const MapObject(),
-      unionWithArrayOption:
-          fields['unionWithArrayOption'] as TestRootUnionWithArrayOption?,
-      impossibleField: fields['impossibleField'] as Never?,
-      tupleSameTypeArray: fields['tupleSameTypeArray'] as List<String>?,
-      arrayWithAllOfItems:
-          fields['arrayWithAllOfItems']
-              as List<TestRootArrayWithAllOfItemsItem>?,
-      unionWithAllOfOption:
-          fields['unionWithAllOfOption'] as TestRootUnionWithAllOfOption?,
-      patternPropsField:
-          fields['patternPropsField'] as PatternPropertiesObject?,
-      overlappingUnion: fields['overlappingUnion'] as OverlappingUnion?,
-      deprecatedFieldWithMessage:
-          fields['deprecatedFieldWithMessage'] as String?,
-      customNamedObject: fields['customNamedObject'] as MyCustomClassName?,
-      customNamedUnion: fields['customNamedUnion'] as MyCustomUnionName?,
-      customNamedEnum: fields['customNamedEnum'] as MyCustomEnumName?,
-      coverageTrigger: fields['coverageTrigger'] as TestRootCoverageTrigger?,
-      collidingEnumField: fields['collidingEnumField'] as CollidingEnum?,
-      collidingObjectField: fields['collidingObjectField'] as CollidingObject?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{
-                  'deprecated',
-                  '\$idField',
-                  'unionWithObjectAndBoolean',
-                  'recursiveNodeField',
-                  'name',
-                  'constValue',
-                  'age',
-                  'exclusiveAge',
-                  'height',
-                  'email',
-                  'uuid',
-                  'isAwesome',
-                  'class',
-                  'reader',
-                  'stack',
-                  'validate',
-                  'result',
-                  'address',
-                  'tags',
-                  'scores',
-                  'unionValue',
-                  'nullableUnionValue',
-                  'requiredNullableUnionObject',
-                  'nullableString',
-                  'pet',
-                  'restrictedObject',
-                  'dependentObject',
-                  'primitiveArrayWithValidation',
-                  'restrictedArray',
-                  'deprecatedField',
-                  'deprecatedRef',
-                  'defaultString',
-                  'defaultBackslash',
-                  'nestedArray',
-                  'single\'quote\'key',
-                  'mixedEnum',
-                  'defaultInt',
-                  'defaultBool',
-                  'defaultList',
-                  'defaultObject',
-                  'defaultNullableString',
-                  'mergedValue',
-                  'tupleArray',
-                  'tupleObjectArray',
-                  'ipv6Value',
-                  'hostnameValue',
-                  'timeValue',
-                  'uriReferenceValue',
-                  'additionalPropertiesObject',
-                  'strictObject',
-                  'notObject',
-                  'anyOfValue',
-                  'mergedAllOfObject',
-                  'complexMerged',
-                  'myEnumField',
-                  'unionContainsArray',
-                  'objectContainsArray',
-                  'enumContainsArray',
-                  'booleanContainsArray',
-                  'nullContainsArray',
-                  'anyContainsArray',
-                  'stringContainsArray',
-                  'numberContainsArray',
-                  'dynamicProps',
-                  'dateTimeField',
-                  'dateField',
-                  'ipv4Field',
-                  'uriField',
-                  'defaultEmptyList',
-                  'defaultEmptyObject',
-                  'unionWithArrayOption',
-                  'impossibleField',
-                  'tupleSameTypeArray',
-                  'arrayWithAllOfItems',
-                  'unionWithAllOfOption',
-                  'patternPropsField',
-                  'overlappingUnion',
-                  'deprecatedFieldWithMessage',
-                  'customNamedObject',
-                  'customNamedUnion',
-                  'customNamedEnum',
-                  'coverageTrigger',
-                  'collidingEnumField',
-                  'collidingObjectField',
-                }.contains(e.key) &&
-                true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as TestRoot;
-      final map = <String, dynamic>{
-        'deprecated': typedInstance.deprecated,
-        '\$idField': typedInstance.idField,
-        'unionWithObjectAndBoolean': typedInstance.unionWithObjectAndBoolean,
-        'recursiveNodeField': typedInstance.recursiveNodeField,
-        'name': typedInstance.name,
-        'constValue': typedInstance.constValue,
-        'age': typedInstance.age,
-        'exclusiveAge': typedInstance.exclusiveAge,
-        'height': typedInstance.height,
-        'email': typedInstance.email,
-        'uuid': typedInstance.uuid,
-        'isAwesome': typedInstance.isAwesome,
-        'class': typedInstance.class_,
-        'reader': typedInstance.reader,
-        'stack': typedInstance.stack,
-        'validate': typedInstance.validate_,
-        'result': typedInstance.result,
-        'address': typedInstance.address,
-        'tags': typedInstance.tags,
-        'scores': typedInstance.scores,
-        'unionValue': typedInstance.unionValue,
-        'nullableUnionValue': typedInstance.nullableUnionValue,
-        'requiredNullableUnionObject':
-            typedInstance.requiredNullableUnionObject,
-        'nullableString': typedInstance.nullableString,
-        'pet': typedInstance.pet,
-        'restrictedObject': typedInstance.restrictedObject,
-        'dependentObject': typedInstance.dependentObject,
-        'primitiveArrayWithValidation':
-            typedInstance.primitiveArrayWithValidation,
-        'restrictedArray': typedInstance.restrictedArray,
-        'deprecatedField': typedInstance.deprecatedField,
-        'deprecatedRef': typedInstance.deprecatedRef,
-        'defaultString': typedInstance.defaultString,
-        'defaultBackslash': typedInstance.defaultBackslash,
-        'nestedArray': typedInstance.nestedArray,
-        'single\'quote\'key': typedInstance.singleQuoteKey,
-        'mixedEnum': typedInstance.mixedEnum,
-        'defaultInt': typedInstance.defaultInt,
-        'defaultBool': typedInstance.defaultBool,
-        'defaultList': typedInstance.defaultList,
-        'defaultObject': typedInstance.defaultObject,
-        'defaultNullableString': typedInstance.defaultNullableString,
-        'mergedValue': typedInstance.mergedValue,
-        'tupleArray': typedInstance.tupleArray,
-        'tupleObjectArray': typedInstance.tupleObjectArray,
-        'ipv6Value': typedInstance.ipv6Value,
-        'hostnameValue': typedInstance.hostnameValue,
-        'timeValue': typedInstance.timeValue,
-        'uriReferenceValue': typedInstance.uriReferenceValue,
-        'additionalPropertiesObject': typedInstance.additionalPropertiesObject,
-        'strictObject': typedInstance.strictObject,
-        'notObject': typedInstance.notObject,
-        'anyOfValue': typedInstance.anyOfValue,
-        'mergedAllOfObject': typedInstance.mergedAllOfObject,
-        'complexMerged': typedInstance.complexMerged,
-        'myEnumField': typedInstance.myEnumField,
-        'unionContainsArray': typedInstance.unionContainsArray,
-        'objectContainsArray': typedInstance.objectContainsArray,
-        'enumContainsArray': typedInstance.enumContainsArray,
-        'booleanContainsArray': typedInstance.booleanContainsArray,
-        'nullContainsArray': typedInstance.nullContainsArray,
-        'anyContainsArray': typedInstance.anyContainsArray,
-        'stringContainsArray': typedInstance.stringContainsArray,
-        'numberContainsArray': typedInstance.numberContainsArray,
-        'dynamicProps': typedInstance.dynamicProps,
-        'dateTimeField': typedInstance.dateTimeField,
-        'dateField': typedInstance.dateField,
-        'ipv4Field': typedInstance.ipv4Field,
-        'uriField': typedInstance.uriField,
-        'defaultEmptyList': typedInstance.defaultEmptyList,
-        'defaultEmptyObject': typedInstance.defaultEmptyObject,
-        'unionWithArrayOption': typedInstance.unionWithArrayOption,
-        'impossibleField': typedInstance.impossibleField,
-        'tupleSameTypeArray': typedInstance.tupleSameTypeArray,
-        'arrayWithAllOfItems': typedInstance.arrayWithAllOfItems,
-        'unionWithAllOfOption': typedInstance.unionWithAllOfOption,
-        'patternPropsField': typedInstance.patternPropsField,
-        'overlappingUnion': typedInstance.overlappingUnion,
-        'deprecatedFieldWithMessage': typedInstance.deprecatedFieldWithMessage,
-        'customNamedObject': typedInstance.customNamedObject,
-        'customNamedUnion': typedInstance.customNamedUnion,
-        'customNamedEnum': typedInstance.customNamedEnum,
-        'coverageTrigger': typedInstance.coverageTrigger,
-        'collidingEnumField': typedInstance.collidingEnumField,
-        'collidingObjectField': typedInstance.collidingObjectField,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'deprecated': PropertyDescriptor(
-        name: 'deprecated',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$idField': PropertyDescriptor(
-        name: '\$idField',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'unionWithObjectAndBoolean': PropertyDescriptor(
-        name: 'unionWithObjectAndBoolean',
-        isRequired: false,
-        schema: RefDescriptor<TestRootUnionWithObjectAndBoolean>(
-          () => TestRootUnionWithObjectAndBoolean.descriptor,
-        ),
-      ),
-      'recursiveNodeField': PropertyDescriptor(
-        name: 'recursiveNodeField',
-        isRequired: false,
-        schema: RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
-      ),
-      'name': PropertyDescriptor(
-        name: 'name',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'constValue': PropertyDescriptor(
-        name: 'constValue',
-        isRequired: false,
-        schema: TestRootConstValue.descriptor,
-      ),
-      'age': PropertyDescriptor(
-        name: 'age',
-        isRequired: true,
-        schema: const IntDescriptor(),
-      ),
-      'exclusiveAge': PropertyDescriptor(
-        name: 'exclusiveAge',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'height': PropertyDescriptor(
-        name: 'height',
-        isRequired: false,
-        schema: const NumDescriptor(),
-      ),
-      'email': PropertyDescriptor(
-        name: 'email',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'uuid': PropertyDescriptor(
-        name: 'uuid',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'isAwesome': PropertyDescriptor(
-        name: 'isAwesome',
-        isRequired: true,
-        schema: const BoolDescriptor(),
-      ),
-      'class': PropertyDescriptor(
-        name: 'class',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'reader': PropertyDescriptor(
-        name: 'reader',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'stack': PropertyDescriptor(
-        name: 'stack',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'validate': PropertyDescriptor(
-        name: 'validate',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'result': PropertyDescriptor(
-        name: 'result',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'address': PropertyDescriptor(
-        name: 'address',
-        isRequired: true,
-        schema: RefDescriptor<Address>(() => Address.descriptor),
-      ),
-      'tags': PropertyDescriptor(
-        name: 'tags',
-        isRequired: false,
-        schema: ArrayDescriptor<String>(const StringDescriptor()),
-      ),
-      'scores': PropertyDescriptor(
-        name: 'scores',
-        isRequired: false,
-        schema: ArrayDescriptor<Score>(
-          RefDescriptor<Score>(() => Score.descriptor),
-        ),
-      ),
-      'unionValue': PropertyDescriptor(
-        name: 'unionValue',
-        isRequired: false,
-        schema: RefDescriptor<TestRootUnionValue>(
-          () => TestRootUnionValue.descriptor,
-        ),
-      ),
-      'nullableUnionValue': PropertyDescriptor(
-        name: 'nullableUnionValue',
-        isRequired: false,
-        schema: NullableDescriptor(
-          RefDescriptor<TestRootNullableUnionValue>(
-            () => TestRootNullableUnionValue.descriptor,
-          ),
-        ),
-      ),
-      'requiredNullableUnionObject': PropertyDescriptor(
-        name: 'requiredNullableUnionObject',
-        isRequired: false,
-        schema: RefDescriptor<RequiredNullableUnionObject>(
-          () => RequiredNullableUnionObject.descriptor,
-        ),
-      ),
-      'nullableString': PropertyDescriptor(
-        name: 'nullableString',
-        isRequired: false,
-        schema: NullableDescriptor(const StringDescriptor()),
-      ),
-      'pet': PropertyDescriptor(
-        name: 'pet',
-        isRequired: false,
-        schema: RefDescriptor<Pet>(() => Pet.descriptor),
-      ),
-      'restrictedObject': PropertyDescriptor(
-        name: 'restrictedObject',
-        isRequired: false,
-        schema: RefDescriptor<RestrictedObject>(
-          () => RestrictedObject.descriptor,
-        ),
-      ),
-      'dependentObject': PropertyDescriptor(
-        name: 'dependentObject',
-        isRequired: false,
-        schema: RefDescriptor<DependentObject>(
-          () => DependentObject.descriptor,
-        ),
-      ),
-      'primitiveArrayWithValidation': PropertyDescriptor(
-        name: 'primitiveArrayWithValidation',
-        isRequired: false,
-        schema: ArrayDescriptor<String>(const StringDescriptor()),
-      ),
-      'restrictedArray': PropertyDescriptor(
-        name: 'restrictedArray',
-        isRequired: false,
-        schema: ArrayDescriptor<int>(const IntDescriptor()),
-      ),
-      'deprecatedField': PropertyDescriptor(
-        name: 'deprecatedField',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'deprecatedRef': PropertyDescriptor(
-        name: 'deprecatedRef',
-        isRequired: false,
-        schema: RefDescriptor<DeprecatedObject>(
-          () => DeprecatedObject.descriptor,
-        ),
-      ),
-      'defaultString': PropertyDescriptor(
-        name: 'defaultString',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'defaultBackslash': PropertyDescriptor(
-        name: 'defaultBackslash',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'nestedArray': PropertyDescriptor(
-        name: 'nestedArray',
-        isRequired: false,
-        schema: ArrayDescriptor<List<Address>>(
-          ArrayDescriptor<Address>(
-            RefDescriptor<Address>(() => Address.descriptor),
-          ),
-        ),
-      ),
-      'single\'quote\'key': PropertyDescriptor(
-        name: 'single\'quote\'key',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'mixedEnum': PropertyDescriptor(
-        name: 'mixedEnum',
-        isRequired: false,
-        schema: RefDescriptor<TestRootMixedEnum>(
-          () => TestRootMixedEnum.descriptor,
-        ),
-      ),
-      'defaultInt': PropertyDescriptor(
-        name: 'defaultInt',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'defaultBool': PropertyDescriptor(
-        name: 'defaultBool',
-        isRequired: false,
-        schema: const BoolDescriptor(),
-      ),
-      'defaultList': PropertyDescriptor(
-        name: 'defaultList',
-        isRequired: false,
-        schema: ArrayDescriptor<String>(const StringDescriptor()),
-      ),
-      'defaultObject': PropertyDescriptor(
-        name: 'defaultObject',
-        isRequired: false,
-        schema: RefDescriptor<Address>(() => Address.descriptor),
-      ),
-      'defaultNullableString': PropertyDescriptor(
-        name: 'defaultNullableString',
-        isRequired: false,
-        schema: NullableDescriptor(const StringDescriptor()),
-      ),
-      'mergedValue': PropertyDescriptor(
-        name: 'mergedValue',
-        isRequired: false,
-        schema: RefDescriptor<Merged>(() => Merged.descriptor),
-      ),
-      'tupleArray': PropertyDescriptor(
-        name: 'tupleArray',
-        isRequired: false,
-        schema: ArrayDescriptor<dynamic>(
-          const BoolDescriptor(),
-          prefixItems: [const StringDescriptor(), const IntDescriptor()],
-        ),
-      ),
-      'tupleObjectArray': PropertyDescriptor(
-        name: 'tupleObjectArray',
-        isRequired: false,
-        schema: ArrayDescriptor<dynamic>(
-          const AnythingDescriptor(),
-          prefixItems: [
-            RefDescriptor<Address>(() => Address.descriptor),
-            RefDescriptor<Cat>(() => Cat.descriptor),
-          ],
-        ),
-      ),
-      'ipv6Value': PropertyDescriptor(
-        name: 'ipv6Value',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'hostnameValue': PropertyDescriptor(
-        name: 'hostnameValue',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'timeValue': PropertyDescriptor(
-        name: 'timeValue',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'uriReferenceValue': PropertyDescriptor(
-        name: 'uriReferenceValue',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'additionalPropertiesObject': PropertyDescriptor(
-        name: 'additionalPropertiesObject',
-        isRequired: false,
-        schema: RefDescriptor<MapObject>(() => MapObject.descriptor),
-      ),
-      'strictObject': PropertyDescriptor(
-        name: 'strictObject',
-        isRequired: false,
-        schema: RefDescriptor<StrictObject>(() => StrictObject.descriptor),
-      ),
-      'notObject': PropertyDescriptor(
-        name: 'notObject',
-        isRequired: false,
-        schema: RefDescriptor<NotObject>(() => NotObject.descriptor),
-      ),
-      'anyOfValue': PropertyDescriptor(
-        name: 'anyOfValue',
-        isRequired: false,
-        schema: RefDescriptor<TestRootAnyOfValue>(
-          () => TestRootAnyOfValue.descriptor,
-        ),
-      ),
-      'mergedAllOfObject': PropertyDescriptor(
-        name: 'mergedAllOfObject',
-        isRequired: false,
-        schema: RefDescriptor<MergedAllOfObject>(
-          () => MergedAllOfObject.descriptor,
-        ),
-      ),
-      'complexMerged': PropertyDescriptor(
-        name: 'complexMerged',
-        isRequired: false,
-        schema: RefDescriptor<ComplexMergedObject>(
-          () => ComplexMergedObject.descriptor,
-        ),
-      ),
-      'myEnumField': PropertyDescriptor(
-        name: 'myEnumField',
-        isRequired: false,
-        schema: MyEnum.descriptor,
-      ),
-      'unionContainsArray': PropertyDescriptor(
-        name: 'unionContainsArray',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'objectContainsArray': PropertyDescriptor(
-        name: 'objectContainsArray',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'enumContainsArray': PropertyDescriptor(
-        name: 'enumContainsArray',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'booleanContainsArray': PropertyDescriptor(
-        name: 'booleanContainsArray',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'nullContainsArray': PropertyDescriptor(
-        name: 'nullContainsArray',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'anyContainsArray': PropertyDescriptor(
-        name: 'anyContainsArray',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'stringContainsArray': PropertyDescriptor(
-        name: 'stringContainsArray',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'numberContainsArray': PropertyDescriptor(
-        name: 'numberContainsArray',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'dynamicProps': PropertyDescriptor(
-        name: 'dynamicProps',
-        isRequired: false,
-        schema: RefDescriptor<ObjectWithDynamicProps>(
-          () => ObjectWithDynamicProps.descriptor,
-        ),
-      ),
-      'dateTimeField': PropertyDescriptor(
-        name: 'dateTimeField',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'dateField': PropertyDescriptor(
-        name: 'dateField',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'ipv4Field': PropertyDescriptor(
-        name: 'ipv4Field',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'uriField': PropertyDescriptor(
-        name: 'uriField',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'defaultEmptyList': PropertyDescriptor(
-        name: 'defaultEmptyList',
-        isRequired: false,
-        schema: ArrayDescriptor<String>(const StringDescriptor()),
-      ),
-      'defaultEmptyObject': PropertyDescriptor(
-        name: 'defaultEmptyObject',
-        isRequired: false,
-        schema: RefDescriptor<MapObject>(() => MapObject.descriptor),
-      ),
-      'unionWithArrayOption': PropertyDescriptor(
-        name: 'unionWithArrayOption',
-        isRequired: false,
-        schema: RefDescriptor<TestRootUnionWithArrayOption>(
-          () => TestRootUnionWithArrayOption.descriptor,
-        ),
-      ),
-      'impossibleField': PropertyDescriptor(
-        name: 'impossibleField',
-        isRequired: false,
-        schema: const NeverDescriptor(),
-      ),
-      'tupleSameTypeArray': PropertyDescriptor(
-        name: 'tupleSameTypeArray',
-        isRequired: false,
-        schema: ArrayDescriptor<String>(
-          const StringDescriptor(),
-          prefixItems: [const StringDescriptor(), const StringDescriptor()],
-        ),
-      ),
-      'arrayWithAllOfItems': PropertyDescriptor(
-        name: 'arrayWithAllOfItems',
-        isRequired: false,
-        schema: ArrayDescriptor<TestRootArrayWithAllOfItemsItem>(
-          RefDescriptor<TestRootArrayWithAllOfItemsItem>(
-            () => TestRootArrayWithAllOfItemsItem.descriptor,
-          ),
-        ),
-      ),
-      'unionWithAllOfOption': PropertyDescriptor(
-        name: 'unionWithAllOfOption',
-        isRequired: false,
-        schema: RefDescriptor<TestRootUnionWithAllOfOption>(
-          () => TestRootUnionWithAllOfOption.descriptor,
-        ),
-      ),
-      'patternPropsField': PropertyDescriptor(
-        name: 'patternPropsField',
-        isRequired: false,
-        schema: RefDescriptor<PatternPropertiesObject>(
-          () => PatternPropertiesObject.descriptor,
-        ),
-      ),
-      'overlappingUnion': PropertyDescriptor(
-        name: 'overlappingUnion',
-        isRequired: false,
-        schema: RefDescriptor<OverlappingUnion>(
-          () => OverlappingUnion.descriptor,
-        ),
-      ),
-      'deprecatedFieldWithMessage': PropertyDescriptor(
-        name: 'deprecatedFieldWithMessage',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'customNamedObject': PropertyDescriptor(
-        name: 'customNamedObject',
-        isRequired: false,
-        schema: RefDescriptor<MyCustomClassName>(
-          () => MyCustomClassName.descriptor,
-        ),
-      ),
-      'customNamedUnion': PropertyDescriptor(
-        name: 'customNamedUnion',
-        isRequired: false,
-        schema: RefDescriptor<MyCustomUnionName>(
-          () => MyCustomUnionName.descriptor,
-        ),
-      ),
-      'customNamedEnum': PropertyDescriptor(
-        name: 'customNamedEnum',
-        isRequired: false,
-        schema: MyCustomEnumName.descriptor,
-      ),
-      'coverageTrigger': PropertyDescriptor(
-        name: 'coverageTrigger',
-        isRequired: false,
-        schema: RefDescriptor<TestRootCoverageTrigger>(
-          () => TestRootCoverageTrigger.descriptor,
-        ),
-      ),
-      'collidingEnumField': PropertyDescriptor(
-        name: 'collidingEnumField',
-        isRequired: false,
-        schema: CollidingEnum.descriptor,
-      ),
-      'collidingObjectField': PropertyDescriptor(
-        name: 'collidingObjectField',
-        isRequired: false,
-        schema: RefDescriptor<CollidingObject>(
-          () => CollidingObject.descriptor,
-        ),
-      ),
-    },
-
-    required: const ['name', 'age', 'isAwesome', 'address'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2806,35 +2892,6 @@ sealed class TestRootUnionWithObjectAndBoolean implements JsonModel {
     validate: validate,
   );
 
-  @override
-  void writeJson(JsonSink target) =>
-      writeWithDescriptor(target, this, descriptor);
-
-  String toJson() {
-    final buffer = StringBuffer();
-    writeJson(jsonStringWriter(buffer));
-    return buffer.toString();
-  }
-
-  @override
-  Object? toJsonValue() {
-    Object? result;
-    final sink = jsonObjectWriter((obj) => result = obj);
-    writeJson(sink);
-    return result;
-  }
-
-  @override
-  List<ValidationError> collectErrors();
-
-  @override
-  void validate() {
-    final errors = collectErrors();
-    if (errors.isNotEmpty) {
-      throw JsonValidationException(errors);
-    }
-  }
-
   static final UnionDescriptor<TestRootUnionWithObjectAndBoolean> descriptor =
       UnionDescriptor<TestRootUnionWithObjectAndBoolean>(
         title: 'TestRootUnionWithObjectAndBoolean',
@@ -2857,12 +2914,41 @@ sealed class TestRootUnionWithObjectAndBoolean implements JsonModel {
           ),
         ],
       );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  @override
+  List<ValidationError> collectErrors();
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 }
 
 final class TestRootUnionWithObjectAndBooleanOption0
     extends TestRootUnionWithObjectAndBoolean {
-  final TestRootUnionWithObjectAndBooleanOptionType0 value;
   const TestRootUnionWithObjectAndBooleanOption0(this.value);
+
+  final TestRootUnionWithObjectAndBooleanOptionType0 value;
 
   @override
   void writeJson(JsonSink target) {
@@ -2895,8 +2981,9 @@ final class TestRootUnionWithObjectAndBooleanOption0
 
 final class TestRootUnionWithObjectAndBooleanOption1
     extends TestRootUnionWithObjectAndBoolean {
-  final bool value;
   const TestRootUnionWithObjectAndBooleanOption1(this.value);
+
+  final bool value;
 
   @override
   void writeJson(JsonSink target) {
@@ -2924,10 +3011,6 @@ final class TestRootUnionWithObjectAndBooleanOption1
 }
 
 final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
-  final String? foo;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const TestRootUnionWithObjectAndBooleanOptionType0({
     this.foo,
     this.additionalProperties = const {},
@@ -2948,6 +3031,54 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
   }) => TestRootUnionWithObjectAndBooleanOptionType0.fromJson(
     JsonReader.fromObject(map),
     validate: validate,
+  );
+
+  final String? foo;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<TestRootUnionWithObjectAndBooleanOptionType0>
+  descriptor = ObjectDescriptor<TestRootUnionWithObjectAndBooleanOptionType0>(
+    title: 'TestRootUnionWithObjectAndBooleanOptionType0',
+    matches: (instance) =>
+        instance is TestRootUnionWithObjectAndBooleanOptionType0,
+    instantiate: (fields) => TestRootUnionWithObjectAndBooleanOptionType0(
+      foo: fields['foo'] as String?,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'foo'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance =
+          instance as TestRootUnionWithObjectAndBooleanOptionType0;
+      final map = <String, dynamic>{
+        'foo': typedInstance.foo,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'foo': PropertyDescriptor(
+        name: 'foo',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const [],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -3007,48 +3138,6 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<TestRootUnionWithObjectAndBooleanOptionType0>
-  descriptor = ObjectDescriptor<TestRootUnionWithObjectAndBooleanOptionType0>(
-    title: 'TestRootUnionWithObjectAndBooleanOptionType0',
-    matches: (instance) =>
-        instance is TestRootUnionWithObjectAndBooleanOptionType0,
-    instantiate: (fields) => TestRootUnionWithObjectAndBooleanOptionType0(
-      foo: fields['foo'] as String?,
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{'foo'}.contains(e.key) && true)
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance =
-          instance as TestRootUnionWithObjectAndBooleanOptionType0;
-      final map = <String, dynamic>{
-        'foo': typedInstance.foo,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'foo': PropertyDescriptor(
-        name: 'foo',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-    },
-
-    required: const [],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3072,12 +3161,6 @@ final class TestRootUnionWithObjectAndBooleanOptionType0 implements JsonModel {
 }
 
 final class RecursiveNode implements JsonModel {
-  final String? name;
-  final RecursiveNode? parent;
-  final List<RecursiveNode>? children;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const RecursiveNode({
     this.name,
     this.parent,
@@ -3095,6 +3178,76 @@ final class RecursiveNode implements JsonModel {
     Map<String, dynamic> map, {
     bool validate = true,
   }) => RecursiveNode.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? name;
+
+  final RecursiveNode? parent;
+
+  final List<RecursiveNode>? children;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<RecursiveNode>
+  descriptor = ObjectDescriptor<RecursiveNode>(
+    title: 'RecursiveNode',
+    matches: (instance) => instance is RecursiveNode,
+    instantiate: (fields) => RecursiveNode(
+      name: fields['name'] as String?,
+      parent: fields['parent'] as RecursiveNode?,
+      children: fields['children'] as List<RecursiveNode>?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'name', 'parent', 'children'}.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as RecursiveNode;
+      final map = <String, dynamic>{
+        'name': typedInstance.name,
+        'parent': typedInstance.parent,
+        'children': typedInstance.children,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'name': PropertyDescriptor(
+        name: 'name',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'parent': PropertyDescriptor(
+        name: 'parent',
+        isRequired: false,
+        schema: RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
+      ),
+      'children': PropertyDescriptor(
+        name: 'children',
+        isRequired: false,
+        schema: ArrayDescriptor<RecursiveNode>(
+          RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
+        ),
+      ),
+    },
+
+    required: const [],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -3195,66 +3348,6 @@ final class RecursiveNode implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<RecursiveNode>
-  descriptor = ObjectDescriptor<RecursiveNode>(
-    title: 'RecursiveNode',
-    matches: (instance) => instance is RecursiveNode,
-    instantiate: (fields) => RecursiveNode(
-      name: fields['name'] as String?,
-      parent: fields['parent'] as RecursiveNode?,
-      children: fields['children'] as List<RecursiveNode>?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{'name', 'parent', 'children'}.contains(e.key) &&
-                true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as RecursiveNode;
-      final map = <String, dynamic>{
-        'name': typedInstance.name,
-        'parent': typedInstance.parent,
-        'children': typedInstance.children,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'name': PropertyDescriptor(
-        name: 'name',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'parent': PropertyDescriptor(
-        name: 'parent',
-        isRequired: false,
-        schema: RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
-      ),
-      'children': PropertyDescriptor(
-        name: 'children',
-        isRequired: false,
-        schema: ArrayDescriptor<RecursiveNode>(
-          RefDescriptor<RecursiveNode>(() => RecursiveNode.descriptor),
-        ),
-      ),
-    },
-
-    required: const [],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3284,10 +3377,10 @@ final class RecursiveNode implements JsonModel {
 enum TestRootConstValue {
   alwaysThisValue('always-this-value');
 
-  final String value;
   const TestRootConstValue(this.value);
-  static TestRootConstValue fromValue(String val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final String value;
+
   static final EnumDescriptor<TestRootConstValue> descriptor =
       EnumDescriptor<TestRootConstValue>(
         values: values,
@@ -3295,14 +3388,12 @@ enum TestRootConstValue {
         toValue: (e) => (e as TestRootConstValue).value,
         base: const StringDescriptor(),
       );
+
+  static TestRootConstValue fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 final class Address implements JsonModel {
-  final String city;
-  final String? street;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const Address({
     required this.city,
     this.street,
@@ -3316,6 +3407,62 @@ final class Address implements JsonModel {
   /// Creates an instance of [Address] from a JSON Map.
   factory Address.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       Address.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String city;
+
+  final String? street;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<Address> descriptor = ObjectDescriptor<Address>(
+    title: 'Address',
+    matches: (instance) => instance is Address,
+    instantiate: (fields) => Address(
+      city: fields['city'] as String,
+      street: fields['street'] as String?,
+      additionalProperties: fields.entries
+          .where(
+            (e) => !const <String>{'city', 'street'}.contains(e.key) && true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as Address;
+      final map = <String, dynamic>{
+        'city': typedInstance.city,
+        'street': typedInstance.street,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'city': PropertyDescriptor(
+        name: 'city',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'street': PropertyDescriptor(
+        name: 'street',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const ['city'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -3388,54 +3535,6 @@ final class Address implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<Address> descriptor = ObjectDescriptor<Address>(
-    title: 'Address',
-    matches: (instance) => instance is Address,
-    instantiate: (fields) => Address(
-      city: fields['city'] as String,
-      street: fields['street'] as String?,
-      additionalProperties: fields.entries
-          .where(
-            (e) => !const <String>{'city', 'street'}.contains(e.key) && true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as Address;
-      final map = <String, dynamic>{
-        'city': typedInstance.city,
-        'street': typedInstance.street,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'city': PropertyDescriptor(
-        name: 'city',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'street': PropertyDescriptor(
-        name: 'street',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-    },
-
-    required: const ['city'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3461,10 +3560,6 @@ final class Address implements JsonModel {
 }
 
 final class Score implements JsonModel {
-  final num value;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const Score({
     required this.value,
     this.additionalProperties = const {},
@@ -3477,6 +3572,51 @@ final class Score implements JsonModel {
   /// Creates an instance of [Score] from a JSON Map.
   factory Score.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       Score.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final num value;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<Score> descriptor = ObjectDescriptor<Score>(
+    title: 'Score',
+    matches: (instance) => instance is Score,
+    instantiate: (fields) => Score(
+      value: fields['value'] as num,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'value'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as Score;
+      final map = <String, dynamic>{
+        'value': typedInstance.value,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'value': PropertyDescriptor(
+        name: 'value',
+        isRequired: true,
+        schema: const NumDescriptor(),
+      ),
+    },
+
+    required: const ['value'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -3540,45 +3680,6 @@ final class Score implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<Score> descriptor = ObjectDescriptor<Score>(
-    title: 'Score',
-    matches: (instance) => instance is Score,
-    instantiate: (fields) => Score(
-      value: fields['value'] as num,
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{'value'}.contains(e.key) && true)
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as Score;
-      final map = <String, dynamic>{
-        'value': typedInstance.value,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'value': PropertyDescriptor(
-        name: 'value',
-        isRequired: true,
-        schema: const NumDescriptor(),
-      ),
-    },
-
-    required: const ['value'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3620,6 +3721,22 @@ sealed class TestRootUnionValue implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<TestRootUnionValue> descriptor =
+      UnionDescriptor<TestRootUnionValue>(
+        title: 'TestRootUnionValue',
+
+        activeOptions: [
+          UnionOptionDescriptor<TestRootUnionValue, String>(
+            const StringDescriptor(),
+            (val) => TestRootUnionValueOption0(val as String),
+          ),
+          UnionOptionDescriptor<TestRootUnionValue, Address>(
+            RefDescriptor<Address>(() => Address.descriptor),
+            (val) => TestRootUnionValueOption1(val as Address),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -3640,7 +3757,6 @@ sealed class TestRootUnionValue implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -3648,27 +3764,12 @@ sealed class TestRootUnionValue implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<TestRootUnionValue> descriptor =
-      UnionDescriptor<TestRootUnionValue>(
-        title: 'TestRootUnionValue',
-
-        activeOptions: [
-          UnionOptionDescriptor<TestRootUnionValue, String>(
-            const StringDescriptor(),
-            (val) => TestRootUnionValueOption0(val as String),
-          ),
-          UnionOptionDescriptor<TestRootUnionValue, Address>(
-            RefDescriptor<Address>(() => Address.descriptor),
-            (val) => TestRootUnionValueOption1(val as Address),
-          ),
-        ],
-      );
 }
 
 final class TestRootUnionValueOption0 extends TestRootUnionValue {
-  final String value;
   const TestRootUnionValueOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -3695,8 +3796,9 @@ final class TestRootUnionValueOption0 extends TestRootUnionValue {
 }
 
 final class TestRootUnionValueOption1 extends TestRootUnionValue {
-  final Address value;
   const TestRootUnionValueOption1(this.value);
+
+  final Address value;
 
   @override
   void writeJson(JsonSink target) {
@@ -3743,6 +3845,22 @@ sealed class TestRootNullableUnionValue implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<TestRootNullableUnionValue> descriptor =
+      UnionDescriptor<TestRootNullableUnionValue>(
+        title: 'TestRootNullableUnionValue',
+
+        activeOptions: [
+          UnionOptionDescriptor<TestRootNullableUnionValue, String>(
+            const StringDescriptor(),
+            (val) => TestRootNullableUnionValueOption0(val as String),
+          ),
+          UnionOptionDescriptor<TestRootNullableUnionValue, Address>(
+            RefDescriptor<Address>(() => Address.descriptor),
+            (val) => TestRootNullableUnionValueOption1(val as Address),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -3763,7 +3881,6 @@ sealed class TestRootNullableUnionValue implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -3771,28 +3888,13 @@ sealed class TestRootNullableUnionValue implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<TestRootNullableUnionValue> descriptor =
-      UnionDescriptor<TestRootNullableUnionValue>(
-        title: 'TestRootNullableUnionValue',
-
-        activeOptions: [
-          UnionOptionDescriptor<TestRootNullableUnionValue, String>(
-            const StringDescriptor(),
-            (val) => TestRootNullableUnionValueOption0(val as String),
-          ),
-          UnionOptionDescriptor<TestRootNullableUnionValue, Address>(
-            RefDescriptor<Address>(() => Address.descriptor),
-            (val) => TestRootNullableUnionValueOption1(val as Address),
-          ),
-        ],
-      );
 }
 
 final class TestRootNullableUnionValueOption0
     extends TestRootNullableUnionValue {
-  final String value;
   const TestRootNullableUnionValueOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -3820,8 +3922,9 @@ final class TestRootNullableUnionValueOption0
 
 final class TestRootNullableUnionValueOption1
     extends TestRootNullableUnionValue {
-  final Address value;
   const TestRootNullableUnionValueOption1(this.value);
+
+  final Address value;
 
   @override
   void writeJson(JsonSink target) {
@@ -3850,10 +3953,6 @@ final class TestRootNullableUnionValueOption1
 }
 
 final class RequiredNullableUnionObject implements JsonModel {
-  final RequiredNullableUnionObjectNullableUnion? nullableUnion;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const RequiredNullableUnionObject({
     required this.nullableUnion,
     this.additionalProperties = const {},
@@ -3875,6 +3974,60 @@ final class RequiredNullableUnionObject implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final RequiredNullableUnionObjectNullableUnion? nullableUnion;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<RequiredNullableUnionObject> descriptor =
+      ObjectDescriptor<RequiredNullableUnionObject>(
+        title: 'RequiredNullableUnionObject',
+        matches: (instance) => instance is RequiredNullableUnionObject,
+        instantiate: (fields) => RequiredNullableUnionObject(
+          nullableUnion:
+              fields['nullableUnion']
+                  as RequiredNullableUnionObjectNullableUnion?,
+          additionalProperties: fields.entries
+              .where(
+                (e) => !const <String>{'nullableUnion'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as RequiredNullableUnionObject;
+          final map = <String, dynamic>{
+            'nullableUnion': typedInstance.nullableUnion,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'nullableUnion': PropertyDescriptor(
+            name: 'nullableUnion',
+            isRequired: true,
+            schema: NullableDescriptor(
+              RefDescriptor<RequiredNullableUnionObjectNullableUnion>(
+                () => RequiredNullableUnionObjectNullableUnion.descriptor,
+              ),
+            ),
+          ),
+        },
+
+        required: const ['nullableUnion'],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -3947,54 +4100,6 @@ final class RequiredNullableUnionObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<RequiredNullableUnionObject> descriptor =
-      ObjectDescriptor<RequiredNullableUnionObject>(
-        title: 'RequiredNullableUnionObject',
-        matches: (instance) => instance is RequiredNullableUnionObject,
-        instantiate: (fields) => RequiredNullableUnionObject(
-          nullableUnion:
-              fields['nullableUnion']
-                  as RequiredNullableUnionObjectNullableUnion?,
-          additionalProperties: fields.entries
-              .where(
-                (e) => !const <String>{'nullableUnion'}.contains(e.key) && true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as RequiredNullableUnionObject;
-          final map = <String, dynamic>{
-            'nullableUnion': typedInstance.nullableUnion,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'nullableUnion': PropertyDescriptor(
-            name: 'nullableUnion',
-            isRequired: true,
-            schema: NullableDescriptor(
-              RefDescriptor<RequiredNullableUnionObjectNullableUnion>(
-                () => RequiredNullableUnionObjectNullableUnion.descriptor,
-              ),
-            ),
-          ),
-        },
-
-        required: const ['nullableUnion'],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4036,6 +4141,22 @@ sealed class RequiredNullableUnionObjectNullableUnion implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<RequiredNullableUnionObjectNullableUnion>
+  descriptor = UnionDescriptor<RequiredNullableUnionObjectNullableUnion>(
+    title: 'RequiredNullableUnionObjectNullableUnion',
+
+    activeOptions: [
+      UnionOptionDescriptor<RequiredNullableUnionObjectNullableUnion, String>(
+        const StringDescriptor(),
+        (val) => RequiredNullableUnionObjectNullableUnionOption0(val as String),
+      ),
+      UnionOptionDescriptor<RequiredNullableUnionObjectNullableUnion, int>(
+        const IntDescriptor(),
+        (val) => RequiredNullableUnionObjectNullableUnionOption1(val as int),
+      ),
+    ],
+  );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -4056,7 +4177,6 @@ sealed class RequiredNullableUnionObjectNullableUnion implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -4064,28 +4184,13 @@ sealed class RequiredNullableUnionObjectNullableUnion implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<RequiredNullableUnionObjectNullableUnion>
-  descriptor = UnionDescriptor<RequiredNullableUnionObjectNullableUnion>(
-    title: 'RequiredNullableUnionObjectNullableUnion',
-
-    activeOptions: [
-      UnionOptionDescriptor<RequiredNullableUnionObjectNullableUnion, String>(
-        const StringDescriptor(),
-        (val) => RequiredNullableUnionObjectNullableUnionOption0(val as String),
-      ),
-      UnionOptionDescriptor<RequiredNullableUnionObjectNullableUnion, int>(
-        const IntDescriptor(),
-        (val) => RequiredNullableUnionObjectNullableUnionOption1(val as int),
-      ),
-    ],
-  );
 }
 
 final class RequiredNullableUnionObjectNullableUnionOption0
     extends RequiredNullableUnionObjectNullableUnion {
-  final String value;
   const RequiredNullableUnionObjectNullableUnionOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -4114,8 +4219,9 @@ final class RequiredNullableUnionObjectNullableUnionOption0
 
 final class RequiredNullableUnionObjectNullableUnionOption1
     extends RequiredNullableUnionObjectNullableUnion {
-  final int value;
   const RequiredNullableUnionObjectNullableUnionOption1(this.value);
+
+  final int value;
 
   @override
   void writeJson(JsonSink target) {
@@ -4151,35 +4257,6 @@ sealed class Pet implements JsonModel {
   /// Creates an instance of [Pet] from a JSON-compatible Dart value.
   factory Pet.fromJsonValue(Object? value, {bool validate = true}) =>
       Pet.fromJson(JsonReader.fromObject(value), validate: validate);
-
-  @override
-  void writeJson(JsonSink target) =>
-      writeWithDescriptor(target, this, descriptor);
-
-  String toJson() {
-    final buffer = StringBuffer();
-    writeJson(jsonStringWriter(buffer));
-    return buffer.toString();
-  }
-
-  @override
-  Object? toJsonValue() {
-    Object? result;
-    final sink = jsonObjectWriter((obj) => result = obj);
-    writeJson(sink);
-    return result;
-  }
-
-  @override
-  List<ValidationError> collectErrors();
-
-  @override
-  void validate() {
-    final errors = collectErrors();
-    if (errors.isNotEmpty) {
-      throw JsonValidationException(errors);
-    }
-  }
 
   static final UnionDescriptor<Pet> descriptor = UnionDescriptor<Pet>(
     title: 'Pet',
@@ -4221,11 +4298,40 @@ sealed class Pet implements JsonModel {
       ),
     ],
   );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  @override
+  List<ValidationError> collectErrors();
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 }
 
 final class PetOption0 extends Pet {
-  final Cat value;
   const PetOption0(this.value);
+
+  final Cat value;
 
   @override
   void writeJson(JsonSink target) {
@@ -4254,8 +4360,9 @@ final class PetOption0 extends Pet {
 }
 
 final class PetOption1 extends Pet {
-  final Dog value;
   const PetOption1(this.value);
+
+  final Dog value;
 
   @override
   void writeJson(JsonSink target) {
@@ -4284,11 +4391,6 @@ final class PetOption1 extends Pet {
 }
 
 final class Cat implements JsonModel {
-  final String kind;
-  final num? meowVolume;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const Cat({
     required this.kind,
     this.meowVolume,
@@ -4302,6 +4404,63 @@ final class Cat implements JsonModel {
   /// Creates an instance of [Cat] from a JSON Map.
   factory Cat.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       Cat.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String kind;
+
+  final num? meowVolume;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<Cat> descriptor = ObjectDescriptor<Cat>(
+    title: 'Cat',
+    matches: (instance) => instance is Cat,
+    instantiate: (fields) => Cat(
+      kind: fields['kind'] as String,
+      meowVolume: fields['meowVolume'] as num?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'kind', 'meowVolume'}.contains(e.key) && true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as Cat;
+      final map = <String, dynamic>{
+        'kind': typedInstance.kind,
+        'meowVolume': typedInstance.meowVolume,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'kind': PropertyDescriptor(
+        name: 'kind',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'meowVolume': PropertyDescriptor(
+        name: 'meowVolume',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+    },
+
+    required: const ['kind'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -4365,55 +4524,6 @@ final class Cat implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<Cat> descriptor = ObjectDescriptor<Cat>(
-    title: 'Cat',
-    matches: (instance) => instance is Cat,
-    instantiate: (fields) => Cat(
-      kind: fields['kind'] as String,
-      meowVolume: fields['meowVolume'] as num?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{'kind', 'meowVolume'}.contains(e.key) && true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as Cat;
-      final map = <String, dynamic>{
-        'kind': typedInstance.kind,
-        'meowVolume': typedInstance.meowVolume,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'kind': PropertyDescriptor(
-        name: 'kind',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'meowVolume': PropertyDescriptor(
-        name: 'meowVolume',
-        isRequired: false,
-        schema: const NumDescriptor(),
-      ),
-    },
-
-    required: const ['kind'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4439,11 +4549,6 @@ final class Cat implements JsonModel {
 }
 
 final class Dog implements JsonModel {
-  final String kind;
-  final num? barkVolume;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const Dog({
     required this.kind,
     this.barkVolume,
@@ -4457,6 +4562,63 @@ final class Dog implements JsonModel {
   /// Creates an instance of [Dog] from a JSON Map.
   factory Dog.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       Dog.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String kind;
+
+  final num? barkVolume;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<Dog> descriptor = ObjectDescriptor<Dog>(
+    title: 'Dog',
+    matches: (instance) => instance is Dog,
+    instantiate: (fields) => Dog(
+      kind: fields['kind'] as String,
+      barkVolume: fields['barkVolume'] as num?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'kind', 'barkVolume'}.contains(e.key) && true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as Dog;
+      final map = <String, dynamic>{
+        'kind': typedInstance.kind,
+        'barkVolume': typedInstance.barkVolume,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'kind': PropertyDescriptor(
+        name: 'kind',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'barkVolume': PropertyDescriptor(
+        name: 'barkVolume',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+    },
+
+    required: const ['kind'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -4520,55 +4682,6 @@ final class Dog implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<Dog> descriptor = ObjectDescriptor<Dog>(
-    title: 'Dog',
-    matches: (instance) => instance is Dog,
-    instantiate: (fields) => Dog(
-      kind: fields['kind'] as String,
-      barkVolume: fields['barkVolume'] as num?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{'kind', 'barkVolume'}.contains(e.key) && true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as Dog;
-      final map = <String, dynamic>{
-        'kind': typedInstance.kind,
-        'barkVolume': typedInstance.barkVolume,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'kind': PropertyDescriptor(
-        name: 'kind',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'barkVolume': PropertyDescriptor(
-        name: 'barkVolume',
-        isRequired: false,
-        schema: const NumDescriptor(),
-      ),
-    },
-
-    required: const ['kind'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4594,12 +4707,6 @@ final class Dog implements JsonModel {
 }
 
 final class RestrictedObject implements JsonModel {
-  final String? a;
-  final String? b;
-  final String? c;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const RestrictedObject({
     this.a,
     this.b,
@@ -4621,6 +4728,72 @@ final class RestrictedObject implements JsonModel {
     bool validate = true,
   }) =>
       RestrictedObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? a;
+
+  final String? b;
+
+  final String? c;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<RestrictedObject> descriptor =
+      ObjectDescriptor<RestrictedObject>(
+        title: 'RestrictedObject',
+        matches: (instance) => instance is RestrictedObject,
+        instantiate: (fields) => RestrictedObject(
+          a: fields['a'] as String?,
+          b: fields['b'] as String?,
+          c: fields['c'] as String?,
+          additionalProperties: fields.entries
+              .where(
+                (e) => !const <String>{'a', 'b', 'c'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as RestrictedObject;
+          final map = <String, dynamic>{
+            'a': typedInstance.a,
+            'b': typedInstance.b,
+            'c': typedInstance.c,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'a': PropertyDescriptor(
+            name: 'a',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'b': PropertyDescriptor(
+            name: 'b',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'c': PropertyDescriptor(
+            name: 'c',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -4712,62 +4885,6 @@ final class RestrictedObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<RestrictedObject> descriptor =
-      ObjectDescriptor<RestrictedObject>(
-        title: 'RestrictedObject',
-        matches: (instance) => instance is RestrictedObject,
-        instantiate: (fields) => RestrictedObject(
-          a: fields['a'] as String?,
-          b: fields['b'] as String?,
-          c: fields['c'] as String?,
-          additionalProperties: fields.entries
-              .where(
-                (e) => !const <String>{'a', 'b', 'c'}.contains(e.key) && true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as RestrictedObject;
-          final map = <String, dynamic>{
-            'a': typedInstance.a,
-            'b': typedInstance.b,
-            'c': typedInstance.c,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'a': PropertyDescriptor(
-            name: 'a',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'b': PropertyDescriptor(
-            name: 'b',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'c': PropertyDescriptor(
-            name: 'c',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4795,11 +4912,6 @@ final class RestrictedObject implements JsonModel {
 }
 
 final class DependentObject implements JsonModel {
-  final num? creditCard;
-  final String? billingAddress;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const DependentObject({
     this.creditCard,
     this.billingAddress,
@@ -4817,6 +4929,68 @@ final class DependentObject implements JsonModel {
     bool validate = true,
   }) =>
       DependentObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final num? creditCard;
+
+  final String? billingAddress;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<DependentObject> descriptor =
+      ObjectDescriptor<DependentObject>(
+        title: 'DependentObject',
+        matches: (instance) => instance is DependentObject,
+        instantiate: (fields) => DependentObject(
+          creditCard: fields['creditCard'] as num?,
+          billingAddress: fields['billingAddress'] as String?,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{
+                      'creditCard',
+                      'billingAddress',
+                    }.contains(e.key) &&
+                    true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as DependentObject;
+          final map = <String, dynamic>{
+            'creditCard': typedInstance.creditCard,
+            'billingAddress': typedInstance.billingAddress,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'creditCard': PropertyDescriptor(
+            name: 'creditCard',
+            isRequired: false,
+            schema: const NumDescriptor(),
+          ),
+          'billingAddress': PropertyDescriptor(
+            name: 'billingAddress',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -4893,60 +5067,6 @@ final class DependentObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<DependentObject> descriptor =
-      ObjectDescriptor<DependentObject>(
-        title: 'DependentObject',
-        matches: (instance) => instance is DependentObject,
-        instantiate: (fields) => DependentObject(
-          creditCard: fields['creditCard'] as num?,
-          billingAddress: fields['billingAddress'] as String?,
-          additionalProperties: fields.entries
-              .where(
-                (e) =>
-                    !const <String>{
-                      'creditCard',
-                      'billingAddress',
-                    }.contains(e.key) &&
-                    true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as DependentObject;
-          final map = <String, dynamic>{
-            'creditCard': typedInstance.creditCard,
-            'billingAddress': typedInstance.billingAddress,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'creditCard': PropertyDescriptor(
-            name: 'creditCard',
-            isRequired: false,
-            schema: const NumDescriptor(),
-          ),
-          'billingAddress': PropertyDescriptor(
-            name: 'billingAddress',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4973,10 +5093,6 @@ final class DependentObject implements JsonModel {
 
 @Deprecated('deprecated')
 final class DeprecatedObject implements JsonModel {
-  final String? value;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const DeprecatedObject({
     this.value,
     this.additionalProperties = const {},
@@ -4996,6 +5112,52 @@ final class DeprecatedObject implements JsonModel {
     bool validate = true,
   }) =>
       DeprecatedObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? value;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<DeprecatedObject> descriptor =
+      ObjectDescriptor<DeprecatedObject>(
+        title: 'DeprecatedObject',
+        matches: (instance) => instance is DeprecatedObject,
+        instantiate: (fields) => DeprecatedObject(
+          value: fields['value'] as String?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'value'}.contains(e.key) && true)
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as DeprecatedObject;
+          final map = <String, dynamic>{
+            'value': typedInstance.value,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'value': PropertyDescriptor(
+            name: 'value',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -5054,46 +5216,6 @@ final class DeprecatedObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<DeprecatedObject> descriptor =
-      ObjectDescriptor<DeprecatedObject>(
-        title: 'DeprecatedObject',
-        matches: (instance) => instance is DeprecatedObject,
-        instantiate: (fields) => DeprecatedObject(
-          value: fields['value'] as String?,
-          additionalProperties: fields.entries
-              .where((e) => !const <String>{'value'}.contains(e.key) && true)
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as DeprecatedObject;
-          final map = <String, dynamic>{
-            'value': typedInstance.value,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'value': PropertyDescriptor(
-            name: 'value',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5122,10 +5244,10 @@ enum TestRootMixedEnum {
   bar('bar'),
   value100(100);
 
-  final dynamic value;
   const TestRootMixedEnum(this.value);
-  static TestRootMixedEnum fromValue(dynamic val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final dynamic value;
+
   static final EnumDescriptor<TestRootMixedEnum> descriptor =
       EnumDescriptor<TestRootMixedEnum>(
         values: values,
@@ -5133,6 +5255,9 @@ enum TestRootMixedEnum {
         toValue: (e) => (e as TestRootMixedEnum).value,
         base: const AnythingDescriptor(),
       );
+
+  static TestRootMixedEnum fromValue(dynamic val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 sealed class TestRootMixedEnumBase implements JsonModel {
@@ -5154,6 +5279,22 @@ sealed class TestRootMixedEnumBase implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<TestRootMixedEnumBase> descriptor =
+      UnionDescriptor<TestRootMixedEnumBase>(
+        title: 'TestRootMixedEnumBase',
+
+        activeOptions: [
+          UnionOptionDescriptor<TestRootMixedEnumBase, String>(
+            const StringDescriptor(),
+            (val) => TestRootMixedEnumBaseOption0(val as String),
+          ),
+          UnionOptionDescriptor<TestRootMixedEnumBase, int>(
+            const IntDescriptor(),
+            (val) => TestRootMixedEnumBaseOption1(val as int),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -5174,7 +5315,6 @@ sealed class TestRootMixedEnumBase implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -5182,27 +5322,12 @@ sealed class TestRootMixedEnumBase implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<TestRootMixedEnumBase> descriptor =
-      UnionDescriptor<TestRootMixedEnumBase>(
-        title: 'TestRootMixedEnumBase',
-
-        activeOptions: [
-          UnionOptionDescriptor<TestRootMixedEnumBase, String>(
-            const StringDescriptor(),
-            (val) => TestRootMixedEnumBaseOption0(val as String),
-          ),
-          UnionOptionDescriptor<TestRootMixedEnumBase, int>(
-            const IntDescriptor(),
-            (val) => TestRootMixedEnumBaseOption1(val as int),
-          ),
-        ],
-      );
 }
 
 final class TestRootMixedEnumBaseOption0 extends TestRootMixedEnumBase {
-  final String value;
   const TestRootMixedEnumBaseOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -5229,8 +5354,9 @@ final class TestRootMixedEnumBaseOption0 extends TestRootMixedEnumBase {
 }
 
 final class TestRootMixedEnumBaseOption1 extends TestRootMixedEnumBase {
-  final int value;
   const TestRootMixedEnumBaseOption1(this.value);
+
+  final int value;
 
   @override
   void writeJson(JsonSink target) {
@@ -5257,12 +5383,6 @@ final class TestRootMixedEnumBaseOption1 extends TestRootMixedEnumBase {
 }
 
 final class Merged implements JsonModel {
-  final String? a;
-  final int? b;
-  final bool? c;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const Merged({
     this.a,
     this.b,
@@ -5277,6 +5397,69 @@ final class Merged implements JsonModel {
   /// Creates an instance of [Merged] from a JSON Map.
   factory Merged.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       Merged.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? a;
+
+  final int? b;
+
+  final bool? c;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<Merged> descriptor = ObjectDescriptor<Merged>(
+    title: 'Merged',
+    matches: (instance) => instance is Merged,
+    instantiate: (fields) => Merged(
+      a: fields['a'] as String?,
+      b: fields['b'] as int?,
+      c: fields['c'] as bool?,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'a', 'b', 'c'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as Merged;
+      final map = <String, dynamic>{
+        'a': typedInstance.a,
+        'b': typedInstance.b,
+        'c': typedInstance.c,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'a': PropertyDescriptor(
+        name: 'a',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'b': PropertyDescriptor(
+        name: 'b',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'c': PropertyDescriptor(
+        name: 'c',
+        isRequired: false,
+        schema: const BoolDescriptor(),
+      ),
+    },
+
+    required: const [],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -5347,59 +5530,6 @@ final class Merged implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<Merged> descriptor = ObjectDescriptor<Merged>(
-    title: 'Merged',
-    matches: (instance) => instance is Merged,
-    instantiate: (fields) => Merged(
-      a: fields['a'] as String?,
-      b: fields['b'] as int?,
-      c: fields['c'] as bool?,
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{'a', 'b', 'c'}.contains(e.key) && true)
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as Merged;
-      final map = <String, dynamic>{
-        'a': typedInstance.a,
-        'b': typedInstance.b,
-        'c': typedInstance.c,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'a': PropertyDescriptor(
-        name: 'a',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'b': PropertyDescriptor(
-        name: 'b',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'c': PropertyDescriptor(
-        name: 'c',
-        isRequired: false,
-        schema: const BoolDescriptor(),
-      ),
-    },
-
-    required: const [],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5427,10 +5557,6 @@ final class Merged implements JsonModel {
 }
 
 final class MapObject implements JsonModel {
-  final String? name;
-  final Map<String, String> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const MapObject({
     this.name,
     this.additionalProperties = const {},
@@ -5443,6 +5569,52 @@ final class MapObject implements JsonModel {
   /// Creates an instance of [MapObject] from a JSON Map.
   factory MapObject.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       MapObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? name;
+
+  final Map<String, String> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<MapObject> descriptor =
+      ObjectDescriptor<MapObject>(
+        title: 'MapObject',
+        matches: (instance) => instance is MapObject,
+        instantiate: (fields) => MapObject(
+          name: fields['name'] as String?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'name'}.contains(e.key) && true)
+              .fold<Map<String, String>>(
+                {},
+                (m, e) => m..[e.key] = e.value as String,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as MapObject;
+          final map = <String, dynamic>{
+            'name': typedInstance.name,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'name': PropertyDescriptor(
+            name: 'name',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const StringDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -5512,46 +5684,6 @@ final class MapObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<MapObject> descriptor =
-      ObjectDescriptor<MapObject>(
-        title: 'MapObject',
-        matches: (instance) => instance is MapObject,
-        instantiate: (fields) => MapObject(
-          name: fields['name'] as String?,
-          additionalProperties: fields.entries
-              .where((e) => !const <String>{'name'}.contains(e.key) && true)
-              .fold<Map<String, String>>(
-                {},
-                (m, e) => m..[e.key] = e.value as String,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as MapObject;
-          final map = <String, dynamic>{
-            'name': typedInstance.name,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'name': PropertyDescriptor(
-            name: 'name',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const StringDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5575,9 +5707,6 @@ final class MapObject implements JsonModel {
 }
 
 final class StrictObject implements JsonModel {
-  final String? name;
-  final Set<String>? _$explicitKeys;
-
   const StrictObject({this.name, Set<String>? explicitKeys})
     : _$explicitKeys = explicitKeys;
 
@@ -5590,6 +5719,41 @@ final class StrictObject implements JsonModel {
     Map<String, dynamic> map, {
     bool validate = true,
   }) => StrictObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? name;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<StrictObject> descriptor =
+      ObjectDescriptor<StrictObject>(
+        title: 'StrictObject',
+        matches: (instance) => instance is StrictObject,
+        instantiate: (fields) => StrictObject(
+          name: fields['name'] as String?,
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as StrictObject;
+          final map = <String, dynamic>{'name': typedInstance.name};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'name': PropertyDescriptor(
+            name: 'name',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const NeverDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -5638,37 +5802,6 @@ final class StrictObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<StrictObject> descriptor =
-      ObjectDescriptor<StrictObject>(
-        title: 'StrictObject',
-        matches: (instance) => instance is StrictObject,
-        instantiate: (fields) => StrictObject(
-          name: fields['name'] as String?,
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as StrictObject;
-          final map = <String, dynamic>{'name': typedInstance.name};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'name': PropertyDescriptor(
-            name: 'name',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const NeverDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5684,13 +5817,6 @@ final class StrictObject implements JsonModel {
 }
 
 final class NotObject implements JsonModel {
-  final String notPatternString;
-  final int notEnumInt;
-  final dynamic notNullValue;
-  final dynamic notObjectValue;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const NotObject({
     required this.notPatternString,
     required this.notEnumInt,
@@ -5706,6 +5832,88 @@ final class NotObject implements JsonModel {
   /// Creates an instance of [NotObject] from a JSON Map.
   factory NotObject.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       NotObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String notPatternString;
+
+  final int notEnumInt;
+
+  final dynamic notNullValue;
+
+  final dynamic notObjectValue;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<NotObject> descriptor =
+      ObjectDescriptor<NotObject>(
+        title: 'NotObject',
+        matches: (instance) => instance is NotObject,
+        instantiate: (fields) => NotObject(
+          notPatternString: fields['notPatternString'] as String,
+          notEnumInt: fields['notEnumInt'] as int,
+          notNullValue: fields['notNullValue'] as dynamic,
+          notObjectValue: fields['notObjectValue'] as dynamic,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{
+                      'notPatternString',
+                      'notEnumInt',
+                      'notNullValue',
+                      'notObjectValue',
+                    }.contains(e.key) &&
+                    true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as NotObject;
+          final map = <String, dynamic>{
+            'notPatternString': typedInstance.notPatternString,
+            'notEnumInt': typedInstance.notEnumInt,
+            'notNullValue': typedInstance.notNullValue,
+            'notObjectValue': typedInstance.notObjectValue,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'notPatternString': PropertyDescriptor(
+            name: 'notPatternString',
+            isRequired: true,
+            schema: const StringDescriptor(),
+          ),
+          'notEnumInt': PropertyDescriptor(
+            name: 'notEnumInt',
+            isRequired: true,
+            schema: const IntDescriptor(),
+          ),
+          'notNullValue': PropertyDescriptor(
+            name: 'notNullValue',
+            isRequired: true,
+            schema: const AnythingDescriptor(),
+          ),
+          'notObjectValue': PropertyDescriptor(
+            name: 'notObjectValue',
+            isRequired: false,
+            schema: const AnythingDescriptor(),
+          ),
+        },
+
+        required: const ['notPatternString', 'notEnumInt', 'notNullValue'],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -5885,76 +6093,6 @@ final class NotObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<NotObject> descriptor =
-      ObjectDescriptor<NotObject>(
-        title: 'NotObject',
-        matches: (instance) => instance is NotObject,
-        instantiate: (fields) => NotObject(
-          notPatternString: fields['notPatternString'] as String,
-          notEnumInt: fields['notEnumInt'] as int,
-          notNullValue: fields['notNullValue'] as dynamic,
-          notObjectValue: fields['notObjectValue'] as dynamic,
-          additionalProperties: fields.entries
-              .where(
-                (e) =>
-                    !const <String>{
-                      'notPatternString',
-                      'notEnumInt',
-                      'notNullValue',
-                      'notObjectValue',
-                    }.contains(e.key) &&
-                    true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as NotObject;
-          final map = <String, dynamic>{
-            'notPatternString': typedInstance.notPatternString,
-            'notEnumInt': typedInstance.notEnumInt,
-            'notNullValue': typedInstance.notNullValue,
-            'notObjectValue': typedInstance.notObjectValue,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'notPatternString': PropertyDescriptor(
-            name: 'notPatternString',
-            isRequired: true,
-            schema: const StringDescriptor(),
-          ),
-          'notEnumInt': PropertyDescriptor(
-            name: 'notEnumInt',
-            isRequired: true,
-            schema: const IntDescriptor(),
-          ),
-          'notNullValue': PropertyDescriptor(
-            name: 'notNullValue',
-            isRequired: true,
-            schema: const AnythingDescriptor(),
-          ),
-          'notObjectValue': PropertyDescriptor(
-            name: 'notObjectValue',
-            isRequired: false,
-            schema: const AnythingDescriptor(),
-          ),
-        },
-
-        required: const ['notPatternString', 'notEnumInt', 'notNullValue'],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5993,10 +6131,10 @@ enum NotObjectNotEnumIntNot {
   value13(13),
   value17(17);
 
-  final int value;
   const NotObjectNotEnumIntNot(this.value);
-  static NotObjectNotEnumIntNot fromValue(int val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final int value;
+
   static final EnumDescriptor<NotObjectNotEnumIntNot> descriptor =
       EnumDescriptor<NotObjectNotEnumIntNot>(
         values: values,
@@ -6004,13 +6142,12 @@ enum NotObjectNotEnumIntNot {
         toValue: (e) => (e as NotObjectNotEnumIntNot).value,
         base: const IntDescriptor(),
       );
+
+  static NotObjectNotEnumIntNot fromValue(int val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 final class NotObjectNotObjectValueNot implements JsonModel {
-  final String forbiddenProp;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const NotObjectNotObjectValueNot({
     required this.forbiddenProp,
     this.additionalProperties = const {},
@@ -6032,6 +6169,54 @@ final class NotObjectNotObjectValueNot implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final String forbiddenProp;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<NotObjectNotObjectValueNot> descriptor =
+      ObjectDescriptor<NotObjectNotObjectValueNot>(
+        title: 'NotObjectNotObjectValueNot',
+        matches: (instance) => instance is NotObjectNotObjectValueNot,
+        instantiate: (fields) => NotObjectNotObjectValueNot(
+          forbiddenProp: fields['forbiddenProp'] as String,
+          additionalProperties: fields.entries
+              .where(
+                (e) => !const <String>{'forbiddenProp'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as NotObjectNotObjectValueNot;
+          final map = <String, dynamic>{
+            'forbiddenProp': typedInstance.forbiddenProp,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'forbiddenProp': PropertyDescriptor(
+            name: 'forbiddenProp',
+            isRequired: true,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const ['forbiddenProp'],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -6089,48 +6274,6 @@ final class NotObjectNotObjectValueNot implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<NotObjectNotObjectValueNot> descriptor =
-      ObjectDescriptor<NotObjectNotObjectValueNot>(
-        title: 'NotObjectNotObjectValueNot',
-        matches: (instance) => instance is NotObjectNotObjectValueNot,
-        instantiate: (fields) => NotObjectNotObjectValueNot(
-          forbiddenProp: fields['forbiddenProp'] as String,
-          additionalProperties: fields.entries
-              .where(
-                (e) => !const <String>{'forbiddenProp'}.contains(e.key) && true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as NotObjectNotObjectValueNot;
-          final map = <String, dynamic>{
-            'forbiddenProp': typedInstance.forbiddenProp,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'forbiddenProp': PropertyDescriptor(
-            name: 'forbiddenProp',
-            isRequired: true,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const ['forbiddenProp'],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6172,6 +6315,22 @@ sealed class TestRootAnyOfValue implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<TestRootAnyOfValue> descriptor =
+      UnionDescriptor<TestRootAnyOfValue>(
+        title: 'TestRootAnyOfValue',
+
+        activeOptions: [
+          UnionOptionDescriptor<TestRootAnyOfValue, String>(
+            const StringDescriptor(),
+            (val) => TestRootAnyOfValueOption0(val as String),
+          ),
+          UnionOptionDescriptor<TestRootAnyOfValue, int>(
+            const IntDescriptor(),
+            (val) => TestRootAnyOfValueOption1(val as int),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -6192,7 +6351,6 @@ sealed class TestRootAnyOfValue implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -6200,27 +6358,12 @@ sealed class TestRootAnyOfValue implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<TestRootAnyOfValue> descriptor =
-      UnionDescriptor<TestRootAnyOfValue>(
-        title: 'TestRootAnyOfValue',
-
-        activeOptions: [
-          UnionOptionDescriptor<TestRootAnyOfValue, String>(
-            const StringDescriptor(),
-            (val) => TestRootAnyOfValueOption0(val as String),
-          ),
-          UnionOptionDescriptor<TestRootAnyOfValue, int>(
-            const IntDescriptor(),
-            (val) => TestRootAnyOfValueOption1(val as int),
-          ),
-        ],
-      );
 }
 
 final class TestRootAnyOfValueOption0 extends TestRootAnyOfValue {
-  final String value;
   const TestRootAnyOfValueOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -6247,8 +6390,9 @@ final class TestRootAnyOfValueOption0 extends TestRootAnyOfValue {
 }
 
 final class TestRootAnyOfValueOption1 extends TestRootAnyOfValue {
-  final int value;
   const TestRootAnyOfValueOption1(this.value);
+
+  final int value;
 
   @override
   void writeJson(JsonSink target) {
@@ -6275,11 +6419,6 @@ final class TestRootAnyOfValueOption1 extends TestRootAnyOfValue {
 }
 
 final class MergedAllOfObject implements JsonModel {
-  final String? strVal;
-  final num? numVal;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const MergedAllOfObject({
     this.strVal,
     this.numVal,
@@ -6302,6 +6441,64 @@ final class MergedAllOfObject implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final String? strVal;
+
+  final num? numVal;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<MergedAllOfObject> descriptor =
+      ObjectDescriptor<MergedAllOfObject>(
+        title: 'MergedAllOfObject',
+        matches: (instance) => instance is MergedAllOfObject,
+        instantiate: (fields) => MergedAllOfObject(
+          strVal: fields['strVal'] as String?,
+          numVal: fields['numVal'] as num?,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{'strVal', 'numVal'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as MergedAllOfObject;
+          final map = <String, dynamic>{
+            'strVal': typedInstance.strVal,
+            'numVal': typedInstance.numVal,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'strVal': PropertyDescriptor(
+            name: 'strVal',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'numVal': PropertyDescriptor(
+            name: 'numVal',
+            isRequired: false,
+            schema: const NumDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -6452,56 +6649,6 @@ final class MergedAllOfObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<MergedAllOfObject> descriptor =
-      ObjectDescriptor<MergedAllOfObject>(
-        title: 'MergedAllOfObject',
-        matches: (instance) => instance is MergedAllOfObject,
-        instantiate: (fields) => MergedAllOfObject(
-          strVal: fields['strVal'] as String?,
-          numVal: fields['numVal'] as num?,
-          additionalProperties: fields.entries
-              .where(
-                (e) =>
-                    !const <String>{'strVal', 'numVal'}.contains(e.key) && true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as MergedAllOfObject;
-          final map = <String, dynamic>{
-            'strVal': typedInstance.strVal,
-            'numVal': typedInstance.numVal,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'strVal': PropertyDescriptor(
-            name: 'strVal',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'numVal': PropertyDescriptor(
-            name: 'numVal',
-            isRequired: false,
-            schema: const NumDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6527,10 +6674,6 @@ final class MergedAllOfObject implements JsonModel {
 }
 
 final class ComplexMergedObject implements JsonModel {
-  final num? numVal;
-  final Map<String, String> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const ComplexMergedObject({
     this.numVal,
     this.additionalProperties = const {},
@@ -6552,6 +6695,52 @@ final class ComplexMergedObject implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final num? numVal;
+
+  final Map<String, String> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<ComplexMergedObject> descriptor =
+      ObjectDescriptor<ComplexMergedObject>(
+        title: 'ComplexMergedObject',
+        matches: (instance) => instance is ComplexMergedObject,
+        instantiate: (fields) => ComplexMergedObject(
+          numVal: fields['numVal'] as num?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'numVal'}.contains(e.key) && true)
+              .fold<Map<String, String>>(
+                {},
+                (m, e) => m..[e.key] = e.value as String,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as ComplexMergedObject;
+          final map = <String, dynamic>{
+            'numVal': typedInstance.numVal,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'numVal': PropertyDescriptor(
+            name: 'numVal',
+            isRequired: false,
+            schema: const NumDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const StringDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -6670,46 +6859,6 @@ final class ComplexMergedObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<ComplexMergedObject> descriptor =
-      ObjectDescriptor<ComplexMergedObject>(
-        title: 'ComplexMergedObject',
-        matches: (instance) => instance is ComplexMergedObject,
-        instantiate: (fields) => ComplexMergedObject(
-          numVal: fields['numVal'] as num?,
-          additionalProperties: fields.entries
-              .where((e) => !const <String>{'numVal'}.contains(e.key) && true)
-              .fold<Map<String, String>>(
-                {},
-                (m, e) => m..[e.key] = e.value as String,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as ComplexMergedObject;
-          final map = <String, dynamic>{
-            'numVal': typedInstance.numVal,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'numVal': PropertyDescriptor(
-            name: 'numVal',
-            isRequired: false,
-            schema: const NumDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const StringDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6737,16 +6886,19 @@ enum MyEnum {
   beta('beta'),
   gamma('gamma');
 
-  final String value;
   const MyEnum(this.value);
-  static MyEnum fromValue(String val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final String value;
+
   static final EnumDescriptor<MyEnum> descriptor = EnumDescriptor<MyEnum>(
     values: values,
     fromValue: (val) => fromValue(val as String),
     toValue: (e) => (e as MyEnum).value,
     base: const StringDescriptor(),
   );
+
+  static MyEnum fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 sealed class TestRootUnionContainsArrayContains implements JsonModel {
@@ -6768,6 +6920,26 @@ sealed class TestRootUnionContainsArrayContains implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<TestRootUnionContainsArrayContains> descriptor =
+      UnionDescriptor<TestRootUnionContainsArrayContains>(
+        title: 'TestRootUnionContainsArrayContains',
+
+        activeOptions: [
+          UnionOptionDescriptor<TestRootUnionContainsArrayContains, String>(
+            const StringDescriptor(),
+            (val) => TestRootUnionContainsArrayContainsOption0(val as String),
+          ),
+          UnionOptionDescriptor<TestRootUnionContainsArrayContains, int>(
+            const IntDescriptor(),
+            (val) => TestRootUnionContainsArrayContainsOption1(val as int),
+          ),
+          UnionOptionDescriptor<TestRootUnionContainsArrayContains, num>(
+            const NumDescriptor(),
+            (val) => TestRootUnionContainsArrayContainsOption2(val as num),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -6788,7 +6960,6 @@ sealed class TestRootUnionContainsArrayContains implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -6796,32 +6967,13 @@ sealed class TestRootUnionContainsArrayContains implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<TestRootUnionContainsArrayContains> descriptor =
-      UnionDescriptor<TestRootUnionContainsArrayContains>(
-        title: 'TestRootUnionContainsArrayContains',
-
-        activeOptions: [
-          UnionOptionDescriptor<TestRootUnionContainsArrayContains, String>(
-            const StringDescriptor(),
-            (val) => TestRootUnionContainsArrayContainsOption0(val as String),
-          ),
-          UnionOptionDescriptor<TestRootUnionContainsArrayContains, int>(
-            const IntDescriptor(),
-            (val) => TestRootUnionContainsArrayContainsOption1(val as int),
-          ),
-          UnionOptionDescriptor<TestRootUnionContainsArrayContains, num>(
-            const NumDescriptor(),
-            (val) => TestRootUnionContainsArrayContainsOption2(val as num),
-          ),
-        ],
-      );
 }
 
 final class TestRootUnionContainsArrayContainsOption0
     extends TestRootUnionContainsArrayContains {
-  final String value;
   const TestRootUnionContainsArrayContainsOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -6867,6 +7019,7 @@ final class TestRootUnionContainsArrayContainsOption0
         ),
       );
     }
+
     return errors;
   }
 
@@ -6887,8 +7040,9 @@ final class TestRootUnionContainsArrayContainsOption0
 
 final class TestRootUnionContainsArrayContainsOption1
     extends TestRootUnionContainsArrayContains {
-  final int value;
   const TestRootUnionContainsArrayContainsOption1(this.value);
+
+  final int value;
 
   @override
   void writeJson(JsonSink target) {
@@ -6925,6 +7079,7 @@ final class TestRootUnionContainsArrayContainsOption1
         ),
       );
     }
+
     return errors;
   }
 
@@ -6945,8 +7100,9 @@ final class TestRootUnionContainsArrayContainsOption1
 
 final class TestRootUnionContainsArrayContainsOption2
     extends TestRootUnionContainsArrayContains {
-  final num value;
   const TestRootUnionContainsArrayContainsOption2(this.value);
+
+  final num value;
 
   @override
   void writeJson(JsonSink target) {
@@ -6990,6 +7146,7 @@ final class TestRootUnionContainsArrayContainsOption2
         ),
       );
     }
+
     return errors;
   }
 
@@ -7009,11 +7166,6 @@ final class TestRootUnionContainsArrayContainsOption2
 }
 
 final class ObjectWithDynamicProps implements JsonModel {
-  final dynamic notInt;
-  final dynamic notNum;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const ObjectWithDynamicProps({
     this.notInt,
     this.notNum,
@@ -7036,6 +7188,64 @@ final class ObjectWithDynamicProps implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final dynamic notInt;
+
+  final dynamic notNum;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<ObjectWithDynamicProps> descriptor =
+      ObjectDescriptor<ObjectWithDynamicProps>(
+        title: 'ObjectWithDynamicProps',
+        matches: (instance) => instance is ObjectWithDynamicProps,
+        instantiate: (fields) => ObjectWithDynamicProps(
+          notInt: fields['notInt'] as dynamic,
+          notNum: fields['notNum'] as dynamic,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{'notInt', 'notNum'}.contains(e.key) && true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as ObjectWithDynamicProps;
+          final map = <String, dynamic>{
+            'notInt': typedInstance.notInt,
+            'notNum': typedInstance.notNum,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'notInt': PropertyDescriptor(
+            name: 'notInt',
+            isRequired: false,
+            schema: const AnythingDescriptor(),
+          ),
+          'notNum': PropertyDescriptor(
+            name: 'notNum',
+            isRequired: false,
+            schema: const AnythingDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -7142,56 +7352,6 @@ final class ObjectWithDynamicProps implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<ObjectWithDynamicProps> descriptor =
-      ObjectDescriptor<ObjectWithDynamicProps>(
-        title: 'ObjectWithDynamicProps',
-        matches: (instance) => instance is ObjectWithDynamicProps,
-        instantiate: (fields) => ObjectWithDynamicProps(
-          notInt: fields['notInt'] as dynamic,
-          notNum: fields['notNum'] as dynamic,
-          additionalProperties: fields.entries
-              .where(
-                (e) =>
-                    !const <String>{'notInt', 'notNum'}.contains(e.key) && true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as ObjectWithDynamicProps;
-          final map = <String, dynamic>{
-            'notInt': typedInstance.notInt,
-            'notNum': typedInstance.notNum,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'notInt': PropertyDescriptor(
-            name: 'notInt',
-            isRequired: false,
-            schema: const AnythingDescriptor(),
-          ),
-          'notNum': PropertyDescriptor(
-            name: 'notNum',
-            isRequired: false,
-            schema: const AnythingDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7235,6 +7395,24 @@ sealed class TestRootUnionWithArrayOption implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<TestRootUnionWithArrayOption> descriptor =
+      UnionDescriptor<TestRootUnionWithArrayOption>(
+        title: 'TestRootUnionWithArrayOption',
+
+        activeOptions: [
+          UnionOptionDescriptor<TestRootUnionWithArrayOption, String>(
+            const StringDescriptor(),
+            (val) => TestRootUnionWithArrayOptionOption0(val as String),
+          ),
+          UnionOptionDescriptor<TestRootUnionWithArrayOption, List<Address>>(
+            ArrayDescriptor<Address>(
+              RefDescriptor<Address>(() => Address.descriptor),
+            ),
+            (val) => TestRootUnionWithArrayOptionOption1(val as List<Address>),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -7255,7 +7433,6 @@ sealed class TestRootUnionWithArrayOption implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -7263,30 +7440,13 @@ sealed class TestRootUnionWithArrayOption implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<TestRootUnionWithArrayOption> descriptor =
-      UnionDescriptor<TestRootUnionWithArrayOption>(
-        title: 'TestRootUnionWithArrayOption',
-
-        activeOptions: [
-          UnionOptionDescriptor<TestRootUnionWithArrayOption, String>(
-            const StringDescriptor(),
-            (val) => TestRootUnionWithArrayOptionOption0(val as String),
-          ),
-          UnionOptionDescriptor<TestRootUnionWithArrayOption, List<Address>>(
-            ArrayDescriptor<Address>(
-              RefDescriptor<Address>(() => Address.descriptor),
-            ),
-            (val) => TestRootUnionWithArrayOptionOption1(val as List<Address>),
-          ),
-        ],
-      );
 }
 
 final class TestRootUnionWithArrayOptionOption0
     extends TestRootUnionWithArrayOption {
-  final String value;
   const TestRootUnionWithArrayOptionOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -7314,8 +7474,9 @@ final class TestRootUnionWithArrayOptionOption0
 
 final class TestRootUnionWithArrayOptionOption1
     extends TestRootUnionWithArrayOption {
-  final List<Address> value;
   const TestRootUnionWithArrayOptionOption1(this.value);
+
+  final List<Address> value;
 
   @override
   void writeJson(JsonSink target) {
@@ -7363,11 +7524,6 @@ final class TestRootUnionWithArrayOptionOption1
 }
 
 final class TestRootArrayWithAllOfItemsItem implements JsonModel {
-  final String? a;
-  final int? b;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const TestRootArrayWithAllOfItemsItem({
     this.a,
     this.b,
@@ -7390,6 +7546,61 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final String? a;
+
+  final int? b;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<TestRootArrayWithAllOfItemsItem> descriptor =
+      ObjectDescriptor<TestRootArrayWithAllOfItemsItem>(
+        title: 'TestRootArrayWithAllOfItemsItem',
+        matches: (instance) => instance is TestRootArrayWithAllOfItemsItem,
+        instantiate: (fields) => TestRootArrayWithAllOfItemsItem(
+          a: fields['a'] as String?,
+          b: fields['b'] as int?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as TestRootArrayWithAllOfItemsItem;
+          final map = <String, dynamic>{
+            'a': typedInstance.a,
+            'b': typedInstance.b,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'a': PropertyDescriptor(
+            name: 'a',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'b': PropertyDescriptor(
+            name: 'b',
+            isRequired: false,
+            schema: const IntDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -7454,53 +7665,6 @@ final class TestRootArrayWithAllOfItemsItem implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<TestRootArrayWithAllOfItemsItem> descriptor =
-      ObjectDescriptor<TestRootArrayWithAllOfItemsItem>(
-        title: 'TestRootArrayWithAllOfItemsItem',
-        matches: (instance) => instance is TestRootArrayWithAllOfItemsItem,
-        instantiate: (fields) => TestRootArrayWithAllOfItemsItem(
-          a: fields['a'] as String?,
-          b: fields['b'] as int?,
-          additionalProperties: fields.entries
-              .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as TestRootArrayWithAllOfItemsItem;
-          final map = <String, dynamic>{
-            'a': typedInstance.a,
-            'b': typedInstance.b,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'a': PropertyDescriptor(
-            name: 'a',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'b': PropertyDescriptor(
-            name: 'b',
-            isRequired: false,
-            schema: const IntDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7544,35 +7708,6 @@ sealed class TestRootUnionWithAllOfOption implements JsonModel {
     validate: validate,
   );
 
-  @override
-  void writeJson(JsonSink target) =>
-      writeWithDescriptor(target, this, descriptor);
-
-  String toJson() {
-    final buffer = StringBuffer();
-    writeJson(jsonStringWriter(buffer));
-    return buffer.toString();
-  }
-
-  @override
-  Object? toJsonValue() {
-    Object? result;
-    final sink = jsonObjectWriter((obj) => result = obj);
-    writeJson(sink);
-    return result;
-  }
-
-  @override
-  List<ValidationError> collectErrors();
-
-  @override
-  void validate() {
-    final errors = collectErrors();
-    if (errors.isNotEmpty) {
-      throw JsonValidationException(errors);
-    }
-  }
-
   static final UnionDescriptor<TestRootUnionWithAllOfOption> descriptor =
       UnionDescriptor<TestRootUnionWithAllOfOption>(
         title: 'TestRootUnionWithAllOfOption',
@@ -7595,12 +7730,41 @@ sealed class TestRootUnionWithAllOfOption implements JsonModel {
           ),
         ],
       );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  @override
+  List<ValidationError> collectErrors();
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 }
 
 final class TestRootUnionWithAllOfOptionOption0
     extends TestRootUnionWithAllOfOption {
-  final String value;
   const TestRootUnionWithAllOfOptionOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -7628,8 +7792,9 @@ final class TestRootUnionWithAllOfOptionOption0
 
 final class TestRootUnionWithAllOfOptionOption1
     extends TestRootUnionWithAllOfOption {
-  final TestRootUnionWithAllOfOptionOptionType1 value;
   const TestRootUnionWithAllOfOptionOption1(this.value);
+
+  final TestRootUnionWithAllOfOptionOptionType1 value;
 
   @override
   void writeJson(JsonSink target) {
@@ -7660,11 +7825,6 @@ final class TestRootUnionWithAllOfOptionOption1
 }
 
 final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
-  final String? a;
-  final int? b;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const TestRootUnionWithAllOfOptionOptionType1({
     this.a,
     this.b,
@@ -7686,6 +7846,61 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
   }) => TestRootUnionWithAllOfOptionOptionType1.fromJson(
     JsonReader.fromObject(map),
     validate: validate,
+  );
+
+  final String? a;
+
+  final int? b;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<TestRootUnionWithAllOfOptionOptionType1>
+  descriptor = ObjectDescriptor<TestRootUnionWithAllOfOptionOptionType1>(
+    title: 'TestRootUnionWithAllOfOptionOptionType1',
+    matches: (instance) => instance is TestRootUnionWithAllOfOptionOptionType1,
+    instantiate: (fields) => TestRootUnionWithAllOfOptionOptionType1(
+      a: fields['a'] as String?,
+      b: fields['b'] as int?,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as TestRootUnionWithAllOfOptionOptionType1;
+      final map = <String, dynamic>{
+        'a': typedInstance.a,
+        'b': typedInstance.b,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'a': PropertyDescriptor(
+        name: 'a',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'b': PropertyDescriptor(
+        name: 'b',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+    },
+
+    required: const [],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -7751,53 +7966,6 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<TestRootUnionWithAllOfOptionOptionType1>
-  descriptor = ObjectDescriptor<TestRootUnionWithAllOfOptionOptionType1>(
-    title: 'TestRootUnionWithAllOfOptionOptionType1',
-    matches: (instance) => instance is TestRootUnionWithAllOfOptionOptionType1,
-    instantiate: (fields) => TestRootUnionWithAllOfOptionOptionType1(
-      a: fields['a'] as String?,
-      b: fields['b'] as int?,
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as TestRootUnionWithAllOfOptionOptionType1;
-      final map = <String, dynamic>{
-        'a': typedInstance.a,
-        'b': typedInstance.b,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'a': PropertyDescriptor(
-        name: 'a',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'b': PropertyDescriptor(
-        name: 'b',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-    },
-
-    required: const [],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7823,13 +7991,6 @@ final class TestRootUnionWithAllOfOptionOptionType1 implements JsonModel {
 }
 
 final class PatternPropertiesObject implements JsonModel {
-  final String? name;
-  static final _patternRegex0 = RegExp('^S_');
-  static final _patternRegex1 = RegExp('^I_');
-  static final _patternRegex2 = RegExp('^O_');
-  final Map<String, dynamic> patternProperties;
-  final Set<String>? _$explicitKeys;
-
   const PatternPropertiesObject({
     this.name,
     this.patternProperties = const {},
@@ -7851,6 +8012,64 @@ final class PatternPropertiesObject implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final String? name;
+
+  static final _patternRegex0 = RegExp('^S_');
+
+  static final _patternRegex1 = RegExp('^I_');
+
+  static final _patternRegex2 = RegExp('^O_');
+
+  final Map<String, dynamic> patternProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<PatternPropertiesObject> descriptor =
+      ObjectDescriptor<PatternPropertiesObject>(
+        title: 'PatternPropertiesObject',
+        matches: (instance) => instance is PatternPropertiesObject,
+        instantiate: (fields) => PatternPropertiesObject(
+          name: fields['name'] as String?,
+          patternProperties: fields.entries
+              .where((e) {
+                if (const <String>{'name'}.contains(e.key)) return false;
+                return _patternRegex0.hasMatch(e.key) ||
+                    _patternRegex1.hasMatch(e.key) ||
+                    _patternRegex2.hasMatch(e.key);
+              })
+              .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as PatternPropertiesObject;
+          final map = <String, dynamic>{
+            'name': typedInstance.name,
+            ...typedInstance.patternProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'name': PropertyDescriptor(
+            name: 'name',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+        patternProperties: {
+          _patternRegex0: const StringDescriptor(),
+          _patternRegex1: const IntDescriptor(),
+          _patternRegex2: RefDescriptor<Address>(() => Address.descriptor),
+        },
+        required: const [],
+        additionalProperties: const NeverDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -7967,52 +8186,6 @@ final class PatternPropertiesObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<PatternPropertiesObject> descriptor =
-      ObjectDescriptor<PatternPropertiesObject>(
-        title: 'PatternPropertiesObject',
-        matches: (instance) => instance is PatternPropertiesObject,
-        instantiate: (fields) => PatternPropertiesObject(
-          name: fields['name'] as String?,
-          patternProperties: fields.entries
-              .where((e) {
-                if (const <String>{'name'}.contains(e.key)) return false;
-                return _patternRegex0.hasMatch(e.key) ||
-                    _patternRegex1.hasMatch(e.key) ||
-                    _patternRegex2.hasMatch(e.key);
-              })
-              .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as PatternPropertiesObject;
-          final map = <String, dynamic>{
-            'name': typedInstance.name,
-            ...typedInstance.patternProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'name': PropertyDescriptor(
-            name: 'name',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-        patternProperties: {
-          _patternRegex0: const StringDescriptor(),
-          _patternRegex1: const IntDescriptor(),
-          _patternRegex2: RefDescriptor<Address>(() => Address.descriptor),
-        },
-        required: const [],
-        additionalProperties: const NeverDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8054,6 +8227,22 @@ sealed class OverlappingUnion implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<OverlappingUnion> descriptor =
+      UnionDescriptor<OverlappingUnion>(
+        title: 'OverlappingUnion',
+
+        activeOptions: [
+          UnionOptionDescriptor<OverlappingUnion, OptionA>(
+            RefDescriptor<OptionA>(() => OptionA.descriptor),
+            (val) => OverlappingUnionOption0(val as OptionA),
+          ),
+          UnionOptionDescriptor<OverlappingUnion, OptionB>(
+            RefDescriptor<OptionB>(() => OptionB.descriptor),
+            (val) => OverlappingUnionOption1(val as OptionB),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -8074,7 +8263,6 @@ sealed class OverlappingUnion implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -8082,27 +8270,12 @@ sealed class OverlappingUnion implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<OverlappingUnion> descriptor =
-      UnionDescriptor<OverlappingUnion>(
-        title: 'OverlappingUnion',
-
-        activeOptions: [
-          UnionOptionDescriptor<OverlappingUnion, OptionA>(
-            RefDescriptor<OptionA>(() => OptionA.descriptor),
-            (val) => OverlappingUnionOption0(val as OptionA),
-          ),
-          UnionOptionDescriptor<OverlappingUnion, OptionB>(
-            RefDescriptor<OptionB>(() => OptionB.descriptor),
-            (val) => OverlappingUnionOption1(val as OptionB),
-          ),
-        ],
-      );
 }
 
 final class OverlappingUnionOption0 extends OverlappingUnion {
-  final OptionA value;
   const OverlappingUnionOption0(this.value);
+
+  final OptionA value;
 
   @override
   void writeJson(JsonSink target) {
@@ -8131,8 +8304,9 @@ final class OverlappingUnionOption0 extends OverlappingUnion {
 }
 
 final class OverlappingUnionOption1 extends OverlappingUnion {
-  final OptionB value;
   const OverlappingUnionOption1(this.value);
+
+  final OptionB value;
 
   @override
   void writeJson(JsonSink target) {
@@ -8161,10 +8335,6 @@ final class OverlappingUnionOption1 extends OverlappingUnion {
 }
 
 final class OptionA implements JsonModel {
-  final String value;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const OptionA({
     required this.value,
     this.additionalProperties = const {},
@@ -8177,6 +8347,51 @@ final class OptionA implements JsonModel {
   /// Creates an instance of [OptionA] from a JSON Map.
   factory OptionA.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       OptionA.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String value;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<OptionA> descriptor = ObjectDescriptor<OptionA>(
+    title: 'OptionA',
+    matches: (instance) => instance is OptionA,
+    instantiate: (fields) => OptionA(
+      value: fields['value'] as String,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'value'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as OptionA;
+      final map = <String, dynamic>{
+        'value': typedInstance.value,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'value': PropertyDescriptor(
+        name: 'value',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const ['value'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -8243,45 +8458,6 @@ final class OptionA implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<OptionA> descriptor = ObjectDescriptor<OptionA>(
-    title: 'OptionA',
-    matches: (instance) => instance is OptionA,
-    instantiate: (fields) => OptionA(
-      value: fields['value'] as String,
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{'value'}.contains(e.key) && true)
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as OptionA;
-      final map = <String, dynamic>{
-        'value': typedInstance.value,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'value': PropertyDescriptor(
-        name: 'value',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-    },
-
-    required: const ['value'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8305,10 +8481,6 @@ final class OptionA implements JsonModel {
 }
 
 final class OptionB implements JsonModel {
-  final String value;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const OptionB({
     required this.value,
     this.additionalProperties = const {},
@@ -8321,6 +8493,51 @@ final class OptionB implements JsonModel {
   /// Creates an instance of [OptionB] from a JSON Map.
   factory OptionB.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       OptionB.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String value;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<OptionB> descriptor = ObjectDescriptor<OptionB>(
+    title: 'OptionB',
+    matches: (instance) => instance is OptionB,
+    instantiate: (fields) => OptionB(
+      value: fields['value'] as String,
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{'value'}.contains(e.key) && true)
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as OptionB;
+      final map = <String, dynamic>{
+        'value': typedInstance.value,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'value': PropertyDescriptor(
+        name: 'value',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const ['value'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -8387,45 +8604,6 @@ final class OptionB implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<OptionB> descriptor = ObjectDescriptor<OptionB>(
-    title: 'OptionB',
-    matches: (instance) => instance is OptionB,
-    instantiate: (fields) => OptionB(
-      value: fields['value'] as String,
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{'value'}.contains(e.key) && true)
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as OptionB;
-      final map = <String, dynamic>{
-        'value': typedInstance.value,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'value': PropertyDescriptor(
-        name: 'value',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-    },
-
-    required: const ['value'],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8449,10 +8627,6 @@ final class OptionB implements JsonModel {
 }
 
 final class MyCustomClassName implements JsonModel {
-  final String? foo;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const MyCustomClassName({
     this.foo,
     this.additionalProperties = const {},
@@ -8474,6 +8648,52 @@ final class MyCustomClassName implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final String? foo;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<MyCustomClassName> descriptor =
+      ObjectDescriptor<MyCustomClassName>(
+        title: 'MyCustomClassName',
+        matches: (instance) => instance is MyCustomClassName,
+        instantiate: (fields) => MyCustomClassName(
+          foo: fields['foo'] as String?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'foo'}.contains(e.key) && true)
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as MyCustomClassName;
+          final map = <String, dynamic>{
+            'foo': typedInstance.foo,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'foo': PropertyDescriptor(
+            name: 'foo',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -8532,46 +8752,6 @@ final class MyCustomClassName implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<MyCustomClassName> descriptor =
-      ObjectDescriptor<MyCustomClassName>(
-        title: 'MyCustomClassName',
-        matches: (instance) => instance is MyCustomClassName,
-        instantiate: (fields) => MyCustomClassName(
-          foo: fields['foo'] as String?,
-          additionalProperties: fields.entries
-              .where((e) => !const <String>{'foo'}.contains(e.key) && true)
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as MyCustomClassName;
-          final map = <String, dynamic>{
-            'foo': typedInstance.foo,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'foo': PropertyDescriptor(
-            name: 'foo',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8613,6 +8793,22 @@ sealed class MyCustomUnionName implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<MyCustomUnionName> descriptor =
+      UnionDescriptor<MyCustomUnionName>(
+        title: 'MyCustomUnionName',
+
+        activeOptions: [
+          UnionOptionDescriptor<MyCustomUnionName, String>(
+            const StringDescriptor(),
+            (val) => MyCustomUnionNameOption0(val as String),
+          ),
+          UnionOptionDescriptor<MyCustomUnionName, int>(
+            const IntDescriptor(),
+            (val) => MyCustomUnionNameOption1(val as int),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -8633,7 +8829,6 @@ sealed class MyCustomUnionName implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -8641,27 +8836,12 @@ sealed class MyCustomUnionName implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<MyCustomUnionName> descriptor =
-      UnionDescriptor<MyCustomUnionName>(
-        title: 'MyCustomUnionName',
-
-        activeOptions: [
-          UnionOptionDescriptor<MyCustomUnionName, String>(
-            const StringDescriptor(),
-            (val) => MyCustomUnionNameOption0(val as String),
-          ),
-          UnionOptionDescriptor<MyCustomUnionName, int>(
-            const IntDescriptor(),
-            (val) => MyCustomUnionNameOption1(val as int),
-          ),
-        ],
-      );
 }
 
 final class MyCustomUnionNameOption0 extends MyCustomUnionName {
-  final String value;
   const MyCustomUnionNameOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -8688,8 +8868,9 @@ final class MyCustomUnionNameOption0 extends MyCustomUnionName {
 }
 
 final class MyCustomUnionNameOption1 extends MyCustomUnionName {
-  final int value;
   const MyCustomUnionNameOption1(this.value);
+
+  final int value;
 
   @override
   void writeJson(JsonSink target) {
@@ -8719,10 +8900,10 @@ enum MyCustomEnumName {
   one('one'),
   two('two');
 
-  final String value;
   const MyCustomEnumName(this.value);
-  static MyCustomEnumName fromValue(String val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final String value;
+
   static final EnumDescriptor<MyCustomEnumName> descriptor =
       EnumDescriptor<MyCustomEnumName>(
         values: values,
@@ -8730,25 +8911,12 @@ enum MyCustomEnumName {
         toValue: (e) => (e as MyCustomEnumName).value,
         base: const StringDescriptor(),
       );
+
+  static MyCustomEnumName fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 final class TestRootCoverageTrigger implements JsonModel {
-  final List<String>? mergeArray;
-  final TestRootCoverageTriggerMergeObject? mergeObject;
-  final String? mergeString;
-  final Never? mergeNumber;
-  final bool? mergeBoolean;
-  final Null mergeNull;
-  final Object? mergeAnything;
-  final TestRootCoverageTriggerMergeNever? mergeNever;
-  final MapObject1? mergeRef;
-  final TestRootCoverageTriggerMergeEnum? mergeEnum;
-  final TestRootCoverageTriggerMergeUnion? mergeUnion;
-  final TestRootCoverageTriggerMergeObjectsWithNoAdditional?
-  mergeObjectsWithNoAdditional;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const TestRootCoverageTrigger({
     this.mergeArray,
     this.mergeObject,
@@ -8780,6 +8948,182 @@ final class TestRootCoverageTrigger implements JsonModel {
   }) => TestRootCoverageTrigger.fromJson(
     JsonReader.fromObject(map),
     validate: validate,
+  );
+
+  final List<String>? mergeArray;
+
+  final TestRootCoverageTriggerMergeObject? mergeObject;
+
+  final String? mergeString;
+
+  final Never? mergeNumber;
+
+  final bool? mergeBoolean;
+
+  final Null mergeNull;
+
+  final Object? mergeAnything;
+
+  final TestRootCoverageTriggerMergeNever? mergeNever;
+
+  final MapObject1? mergeRef;
+
+  final TestRootCoverageTriggerMergeEnum? mergeEnum;
+
+  final TestRootCoverageTriggerMergeUnion? mergeUnion;
+
+  final TestRootCoverageTriggerMergeObjectsWithNoAdditional?
+  mergeObjectsWithNoAdditional;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<TestRootCoverageTrigger>
+  descriptor = ObjectDescriptor<TestRootCoverageTrigger>(
+    title: 'TestRootCoverageTrigger',
+    matches: (instance) => instance is TestRootCoverageTrigger,
+    instantiate: (fields) => TestRootCoverageTrigger(
+      mergeArray: fields['mergeArray'] as List<String>?,
+      mergeObject: fields['mergeObject'] as TestRootCoverageTriggerMergeObject?,
+      mergeString: fields['mergeString'] as String?,
+      mergeNumber: fields['mergeNumber'] as Never?,
+      mergeBoolean: fields['mergeBoolean'] as bool?,
+      mergeNull: fields['mergeNull'] as Null,
+      mergeAnything: fields['mergeAnything'] as Object?,
+      mergeNever: fields['mergeNever'] as TestRootCoverageTriggerMergeNever?,
+      mergeRef: fields['mergeRef'] as MapObject1?,
+      mergeEnum: fields['mergeEnum'] as TestRootCoverageTriggerMergeEnum?,
+      mergeUnion: fields['mergeUnion'] as TestRootCoverageTriggerMergeUnion?,
+      mergeObjectsWithNoAdditional:
+          fields['mergeObjectsWithNoAdditional']
+              as TestRootCoverageTriggerMergeObjectsWithNoAdditional?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{
+                  'mergeArray',
+                  'mergeObject',
+                  'mergeString',
+                  'mergeNumber',
+                  'mergeBoolean',
+                  'mergeNull',
+                  'mergeAnything',
+                  'mergeNever',
+                  'mergeRef',
+                  'mergeEnum',
+                  'mergeUnion',
+                  'mergeObjectsWithNoAdditional',
+                }.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as TestRootCoverageTrigger;
+      final map = <String, dynamic>{
+        'mergeArray': typedInstance.mergeArray,
+        'mergeObject': typedInstance.mergeObject,
+        'mergeString': typedInstance.mergeString,
+        'mergeNumber': typedInstance.mergeNumber,
+        'mergeBoolean': typedInstance.mergeBoolean,
+        'mergeNull': typedInstance.mergeNull,
+        'mergeAnything': typedInstance.mergeAnything,
+        'mergeNever': typedInstance.mergeNever,
+        'mergeRef': typedInstance.mergeRef,
+        'mergeEnum': typedInstance.mergeEnum,
+        'mergeUnion': typedInstance.mergeUnion,
+        'mergeObjectsWithNoAdditional':
+            typedInstance.mergeObjectsWithNoAdditional,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'mergeArray': PropertyDescriptor(
+        name: 'mergeArray',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'mergeObject': PropertyDescriptor(
+        name: 'mergeObject',
+        isRequired: false,
+        schema: RefDescriptor<TestRootCoverageTriggerMergeObject>(
+          () => TestRootCoverageTriggerMergeObject.descriptor,
+        ),
+      ),
+      'mergeString': PropertyDescriptor(
+        name: 'mergeString',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'mergeNumber': PropertyDescriptor(
+        name: 'mergeNumber',
+        isRequired: false,
+        schema: const NeverDescriptor(),
+      ),
+      'mergeBoolean': PropertyDescriptor(
+        name: 'mergeBoolean',
+        isRequired: false,
+        schema: const BoolDescriptor(),
+      ),
+      'mergeNull': PropertyDescriptor(
+        name: 'mergeNull',
+        isRequired: false,
+        schema: const NullDescriptor(),
+      ),
+      'mergeAnything': PropertyDescriptor(
+        name: 'mergeAnything',
+        isRequired: false,
+        schema: const AnythingDescriptor(),
+      ),
+      'mergeNever': PropertyDescriptor(
+        name: 'mergeNever',
+        isRequired: false,
+        schema: RefDescriptor<TestRootCoverageTriggerMergeNever>(
+          () => TestRootCoverageTriggerMergeNever.descriptor,
+        ),
+      ),
+      'mergeRef': PropertyDescriptor(
+        name: 'mergeRef',
+        isRequired: false,
+        schema: RefDescriptor<MapObject1>(() => MapObject1.descriptor),
+      ),
+      'mergeEnum': PropertyDescriptor(
+        name: 'mergeEnum',
+        isRequired: false,
+        schema: TestRootCoverageTriggerMergeEnum.descriptor,
+      ),
+      'mergeUnion': PropertyDescriptor(
+        name: 'mergeUnion',
+        isRequired: false,
+        schema: RefDescriptor<TestRootCoverageTriggerMergeUnion>(
+          () => TestRootCoverageTriggerMergeUnion.descriptor,
+        ),
+      ),
+      'mergeObjectsWithNoAdditional': PropertyDescriptor(
+        name: 'mergeObjectsWithNoAdditional',
+        isRequired: false,
+        schema:
+            RefDescriptor<TestRootCoverageTriggerMergeObjectsWithNoAdditional>(
+              () => TestRootCoverageTriggerMergeObjectsWithNoAdditional
+                  .descriptor,
+            ),
+      ),
+    },
+
+    required: const [],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -9005,153 +9349,6 @@ final class TestRootCoverageTrigger implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<TestRootCoverageTrigger>
-  descriptor = ObjectDescriptor<TestRootCoverageTrigger>(
-    title: 'TestRootCoverageTrigger',
-    matches: (instance) => instance is TestRootCoverageTrigger,
-    instantiate: (fields) => TestRootCoverageTrigger(
-      mergeArray: fields['mergeArray'] as List<String>?,
-      mergeObject: fields['mergeObject'] as TestRootCoverageTriggerMergeObject?,
-      mergeString: fields['mergeString'] as String?,
-      mergeNumber: fields['mergeNumber'] as Never?,
-      mergeBoolean: fields['mergeBoolean'] as bool?,
-      mergeNull: fields['mergeNull'] as Null,
-      mergeAnything: fields['mergeAnything'] as Object?,
-      mergeNever: fields['mergeNever'] as TestRootCoverageTriggerMergeNever?,
-      mergeRef: fields['mergeRef'] as MapObject1?,
-      mergeEnum: fields['mergeEnum'] as TestRootCoverageTriggerMergeEnum?,
-      mergeUnion: fields['mergeUnion'] as TestRootCoverageTriggerMergeUnion?,
-      mergeObjectsWithNoAdditional:
-          fields['mergeObjectsWithNoAdditional']
-              as TestRootCoverageTriggerMergeObjectsWithNoAdditional?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{
-                  'mergeArray',
-                  'mergeObject',
-                  'mergeString',
-                  'mergeNumber',
-                  'mergeBoolean',
-                  'mergeNull',
-                  'mergeAnything',
-                  'mergeNever',
-                  'mergeRef',
-                  'mergeEnum',
-                  'mergeUnion',
-                  'mergeObjectsWithNoAdditional',
-                }.contains(e.key) &&
-                true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as TestRootCoverageTrigger;
-      final map = <String, dynamic>{
-        'mergeArray': typedInstance.mergeArray,
-        'mergeObject': typedInstance.mergeObject,
-        'mergeString': typedInstance.mergeString,
-        'mergeNumber': typedInstance.mergeNumber,
-        'mergeBoolean': typedInstance.mergeBoolean,
-        'mergeNull': typedInstance.mergeNull,
-        'mergeAnything': typedInstance.mergeAnything,
-        'mergeNever': typedInstance.mergeNever,
-        'mergeRef': typedInstance.mergeRef,
-        'mergeEnum': typedInstance.mergeEnum,
-        'mergeUnion': typedInstance.mergeUnion,
-        'mergeObjectsWithNoAdditional':
-            typedInstance.mergeObjectsWithNoAdditional,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'mergeArray': PropertyDescriptor(
-        name: 'mergeArray',
-        isRequired: false,
-        schema: ArrayDescriptor<String>(const StringDescriptor()),
-      ),
-      'mergeObject': PropertyDescriptor(
-        name: 'mergeObject',
-        isRequired: false,
-        schema: RefDescriptor<TestRootCoverageTriggerMergeObject>(
-          () => TestRootCoverageTriggerMergeObject.descriptor,
-        ),
-      ),
-      'mergeString': PropertyDescriptor(
-        name: 'mergeString',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'mergeNumber': PropertyDescriptor(
-        name: 'mergeNumber',
-        isRequired: false,
-        schema: const NeverDescriptor(),
-      ),
-      'mergeBoolean': PropertyDescriptor(
-        name: 'mergeBoolean',
-        isRequired: false,
-        schema: const BoolDescriptor(),
-      ),
-      'mergeNull': PropertyDescriptor(
-        name: 'mergeNull',
-        isRequired: false,
-        schema: const NullDescriptor(),
-      ),
-      'mergeAnything': PropertyDescriptor(
-        name: 'mergeAnything',
-        isRequired: false,
-        schema: const AnythingDescriptor(),
-      ),
-      'mergeNever': PropertyDescriptor(
-        name: 'mergeNever',
-        isRequired: false,
-        schema: RefDescriptor<TestRootCoverageTriggerMergeNever>(
-          () => TestRootCoverageTriggerMergeNever.descriptor,
-        ),
-      ),
-      'mergeRef': PropertyDescriptor(
-        name: 'mergeRef',
-        isRequired: false,
-        schema: RefDescriptor<MapObject1>(() => MapObject1.descriptor),
-      ),
-      'mergeEnum': PropertyDescriptor(
-        name: 'mergeEnum',
-        isRequired: false,
-        schema: TestRootCoverageTriggerMergeEnum.descriptor,
-      ),
-      'mergeUnion': PropertyDescriptor(
-        name: 'mergeUnion',
-        isRequired: false,
-        schema: RefDescriptor<TestRootCoverageTriggerMergeUnion>(
-          () => TestRootCoverageTriggerMergeUnion.descriptor,
-        ),
-      ),
-      'mergeObjectsWithNoAdditional': PropertyDescriptor(
-        name: 'mergeObjectsWithNoAdditional',
-        isRequired: false,
-        schema:
-            RefDescriptor<TestRootCoverageTriggerMergeObjectsWithNoAdditional>(
-              () => TestRootCoverageTriggerMergeObjectsWithNoAdditional
-                  .descriptor,
-            ),
-      ),
-    },
-
-    required: const [],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9200,11 +9397,6 @@ final class TestRootCoverageTrigger implements JsonModel {
 }
 
 final class TestRootCoverageTriggerMergeObject implements JsonModel {
-  final String? a;
-  final int? b;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const TestRootCoverageTriggerMergeObject({
     this.a,
     this.b,
@@ -9227,6 +9419,61 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final String? a;
+
+  final int? b;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<TestRootCoverageTriggerMergeObject> descriptor =
+      ObjectDescriptor<TestRootCoverageTriggerMergeObject>(
+        title: 'TestRootCoverageTriggerMergeObject',
+        matches: (instance) => instance is TestRootCoverageTriggerMergeObject,
+        instantiate: (fields) => TestRootCoverageTriggerMergeObject(
+          a: fields['a'] as String?,
+          b: fields['b'] as int?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as TestRootCoverageTriggerMergeObject;
+          final map = <String, dynamic>{
+            'a': typedInstance.a,
+            'b': typedInstance.b,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'a': PropertyDescriptor(
+            name: 'a',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'b': PropertyDescriptor(
+            name: 'b',
+            isRequired: false,
+            schema: const IntDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -9291,53 +9538,6 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<TestRootCoverageTriggerMergeObject> descriptor =
-      ObjectDescriptor<TestRootCoverageTriggerMergeObject>(
-        title: 'TestRootCoverageTriggerMergeObject',
-        matches: (instance) => instance is TestRootCoverageTriggerMergeObject,
-        instantiate: (fields) => TestRootCoverageTriggerMergeObject(
-          a: fields['a'] as String?,
-          b: fields['b'] as int?,
-          additionalProperties: fields.entries
-              .where((e) => !const <String>{'a', 'b'}.contains(e.key) && true)
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as TestRootCoverageTriggerMergeObject;
-          final map = <String, dynamic>{
-            'a': typedInstance.a,
-            'b': typedInstance.b,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'a': PropertyDescriptor(
-            name: 'a',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'b': PropertyDescriptor(
-            name: 'b',
-            isRequired: false,
-            schema: const IntDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9363,8 +9563,6 @@ final class TestRootCoverageTriggerMergeObject implements JsonModel {
 }
 
 final class TestRootCoverageTriggerMergeNever implements JsonModel {
-  final Set<String>? _$explicitKeys;
-
   const TestRootCoverageTriggerMergeNever({Set<String>? explicitKeys})
     : _$explicitKeys = explicitKeys;
 
@@ -9383,6 +9581,32 @@ final class TestRootCoverageTriggerMergeNever implements JsonModel {
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<TestRootCoverageTriggerMergeNever> descriptor =
+      ObjectDescriptor<TestRootCoverageTriggerMergeNever>(
+        title: 'TestRootCoverageTriggerMergeNever',
+        matches: (instance) => instance is TestRootCoverageTriggerMergeNever,
+        instantiate: (fields) => TestRootCoverageTriggerMergeNever(
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as TestRootCoverageTriggerMergeNever;
+          final map = <String, dynamic>{};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties: const NeverDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -9422,30 +9646,6 @@ final class TestRootCoverageTriggerMergeNever implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<TestRootCoverageTriggerMergeNever> descriptor =
-      ObjectDescriptor<TestRootCoverageTriggerMergeNever>(
-        title: 'TestRootCoverageTriggerMergeNever',
-        matches: (instance) => instance is TestRootCoverageTriggerMergeNever,
-        instantiate: (fields) => TestRootCoverageTriggerMergeNever(
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as TestRootCoverageTriggerMergeNever;
-          final map = <String, dynamic>{};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties: const NeverDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9461,10 +9661,6 @@ final class TestRootCoverageTriggerMergeNever implements JsonModel {
 }
 
 final class MapObject1 implements JsonModel {
-  final String? name;
-  final Map<String, String> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const MapObject1({
     this.name,
     this.additionalProperties = const {},
@@ -9479,6 +9675,52 @@ final class MapObject1 implements JsonModel {
     Map<String, dynamic> map, {
     bool validate = true,
   }) => MapObject1.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? name;
+
+  final Map<String, String> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<MapObject1> descriptor =
+      ObjectDescriptor<MapObject1>(
+        title: 'MapObject1',
+        matches: (instance) => instance is MapObject1,
+        instantiate: (fields) => MapObject1(
+          name: fields['name'] as String?,
+          additionalProperties: fields.entries
+              .where((e) => !const <String>{'name'}.contains(e.key) && true)
+              .fold<Map<String, String>>(
+                {},
+                (m, e) => m..[e.key] = e.value as String,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as MapObject1;
+          final map = <String, dynamic>{
+            'name': typedInstance.name,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'name': PropertyDescriptor(
+            name: 'name',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const StringDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -9548,46 +9790,6 @@ final class MapObject1 implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<MapObject1> descriptor =
-      ObjectDescriptor<MapObject1>(
-        title: 'MapObject1',
-        matches: (instance) => instance is MapObject1,
-        instantiate: (fields) => MapObject1(
-          name: fields['name'] as String?,
-          additionalProperties: fields.entries
-              .where((e) => !const <String>{'name'}.contains(e.key) && true)
-              .fold<Map<String, String>>(
-                {},
-                (m, e) => m..[e.key] = e.value as String,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as MapObject1;
-          final map = <String, dynamic>{
-            'name': typedInstance.name,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'name': PropertyDescriptor(
-            name: 'name',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const StringDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9614,10 +9816,10 @@ enum TestRootCoverageTriggerMergeEnum {
   a('a'),
   b('b');
 
-  final String value;
   const TestRootCoverageTriggerMergeEnum(this.value);
-  static TestRootCoverageTriggerMergeEnum fromValue(String val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final String value;
+
   static final EnumDescriptor<TestRootCoverageTriggerMergeEnum> descriptor =
       EnumDescriptor<TestRootCoverageTriggerMergeEnum>(
         values: values,
@@ -9625,6 +9827,9 @@ enum TestRootCoverageTriggerMergeEnum {
         toValue: (e) => (e as TestRootCoverageTriggerMergeEnum).value,
         base: const StringDescriptor(),
       );
+
+  static TestRootCoverageTriggerMergeEnum fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 sealed class TestRootCoverageTriggerMergeUnion implements JsonModel {
@@ -9646,6 +9851,22 @@ sealed class TestRootCoverageTriggerMergeUnion implements JsonModel {
     validate: validate,
   );
 
+  static final UnionDescriptor<TestRootCoverageTriggerMergeUnion> descriptor =
+      UnionDescriptor<TestRootCoverageTriggerMergeUnion>(
+        title: 'TestRootCoverageTriggerMergeUnion',
+
+        activeOptions: [
+          UnionOptionDescriptor<TestRootCoverageTriggerMergeUnion, String>(
+            const StringDescriptor(),
+            (val) => TestRootCoverageTriggerMergeUnionOption0(val as String),
+          ),
+          UnionOptionDescriptor<TestRootCoverageTriggerMergeUnion, int>(
+            const IntDescriptor(),
+            (val) => TestRootCoverageTriggerMergeUnionOption1(val as int),
+          ),
+        ],
+      );
+
   @override
   void writeJson(JsonSink target) =>
       writeWithDescriptor(target, this, descriptor);
@@ -9666,7 +9887,6 @@ sealed class TestRootCoverageTriggerMergeUnion implements JsonModel {
 
   @override
   List<ValidationError> collectErrors();
-
   @override
   void validate() {
     final errors = collectErrors();
@@ -9674,28 +9894,13 @@ sealed class TestRootCoverageTriggerMergeUnion implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final UnionDescriptor<TestRootCoverageTriggerMergeUnion> descriptor =
-      UnionDescriptor<TestRootCoverageTriggerMergeUnion>(
-        title: 'TestRootCoverageTriggerMergeUnion',
-
-        activeOptions: [
-          UnionOptionDescriptor<TestRootCoverageTriggerMergeUnion, String>(
-            const StringDescriptor(),
-            (val) => TestRootCoverageTriggerMergeUnionOption0(val as String),
-          ),
-          UnionOptionDescriptor<TestRootCoverageTriggerMergeUnion, int>(
-            const IntDescriptor(),
-            (val) => TestRootCoverageTriggerMergeUnionOption1(val as int),
-          ),
-        ],
-      );
 }
 
 final class TestRootCoverageTriggerMergeUnionOption0
     extends TestRootCoverageTriggerMergeUnion {
-  final String value;
   const TestRootCoverageTriggerMergeUnionOption0(this.value);
+
+  final String value;
 
   @override
   void writeJson(JsonSink target) {
@@ -9724,8 +9929,9 @@ final class TestRootCoverageTriggerMergeUnionOption0
 
 final class TestRootCoverageTriggerMergeUnionOption1
     extends TestRootCoverageTriggerMergeUnion {
-  final int value;
   const TestRootCoverageTriggerMergeUnionOption1(this.value);
+
+  final int value;
 
   @override
   void writeJson(JsonSink target) {
@@ -9754,8 +9960,6 @@ final class TestRootCoverageTriggerMergeUnionOption1
 
 final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
     implements JsonModel {
-  final Set<String>? _$explicitKeys;
-
   const TestRootCoverageTriggerMergeObjectsWithNoAdditional({
     Set<String>? explicitKeys,
   }) : _$explicitKeys = explicitKeys;
@@ -9775,6 +9979,38 @@ final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<
+    TestRootCoverageTriggerMergeObjectsWithNoAdditional
+  >
+  descriptor =
+      ObjectDescriptor<TestRootCoverageTriggerMergeObjectsWithNoAdditional>(
+        title: 'TestRootCoverageTriggerMergeObjectsWithNoAdditional',
+        matches: (instance) =>
+            instance is TestRootCoverageTriggerMergeObjectsWithNoAdditional,
+        instantiate: (fields) =>
+            TestRootCoverageTriggerMergeObjectsWithNoAdditional(
+              explicitKeys: fields.keys.toSet(),
+            ),
+        getFields: (instance) {
+          final typedInstance =
+              instance as TestRootCoverageTriggerMergeObjectsWithNoAdditional;
+          final map = <String, dynamic>{};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties: const NeverDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -9816,36 +10052,6 @@ final class TestRootCoverageTriggerMergeObjectsWithNoAdditional
     }
   }
 
-  static final ObjectDescriptor<
-    TestRootCoverageTriggerMergeObjectsWithNoAdditional
-  >
-  descriptor =
-      ObjectDescriptor<TestRootCoverageTriggerMergeObjectsWithNoAdditional>(
-        title: 'TestRootCoverageTriggerMergeObjectsWithNoAdditional',
-        matches: (instance) =>
-            instance is TestRootCoverageTriggerMergeObjectsWithNoAdditional,
-        instantiate: (fields) =>
-            TestRootCoverageTriggerMergeObjectsWithNoAdditional(
-              explicitKeys: fields.keys.toSet(),
-            ),
-        getFields: (instance) {
-          final typedInstance =
-              instance as TestRootCoverageTriggerMergeObjectsWithNoAdditional;
-          final map = <String, dynamic>{};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties: const NeverDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9870,10 +10076,10 @@ enum CollidingEnum {
   a1(const {'a': 1}),
   a1_1(const {'a': '1'});
 
-  final dynamic value;
   const CollidingEnum(this.value);
-  static CollidingEnum fromValue(dynamic val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final dynamic value;
+
   static final EnumDescriptor<CollidingEnum> descriptor =
       EnumDescriptor<CollidingEnum>(
         values: values,
@@ -9881,17 +10087,12 @@ enum CollidingEnum {
         toValue: (e) => (e as CollidingEnum).value,
         base: const AnythingDescriptor(),
       );
+
+  static CollidingEnum fromValue(dynamic val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 final class CollidingObject implements JsonModel {
-  final String? foo;
-  final String? foo_1;
-  final String? bar;
-  final String? bar1;
-  final String? validate_;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CollidingObject({
     this.foo,
     this.foo_1,
@@ -9912,6 +10113,98 @@ final class CollidingObject implements JsonModel {
     bool validate = true,
   }) =>
       CollidingObject.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String? foo;
+
+  final String? foo_1;
+
+  final String? bar;
+
+  final String? bar1;
+
+  final String? validate_;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<CollidingObject> descriptor =
+      ObjectDescriptor<CollidingObject>(
+        title: 'CollidingObject',
+        matches: (instance) => instance is CollidingObject,
+        instantiate: (fields) => CollidingObject(
+          foo: fields['foo'] as String?,
+          foo_1: fields['@foo'] as String?,
+          bar: fields['bar'] as String?,
+          bar1: fields['bar_1'] as String?,
+          validate_: fields['validate'] as String?,
+          additionalProperties: fields.entries
+              .where(
+                (e) =>
+                    !const <String>{
+                      'foo',
+                      '@foo',
+                      'bar',
+                      'bar_1',
+                      'validate',
+                    }.contains(e.key) &&
+                    true,
+              )
+              .fold<Map<String, Object?>>(
+                {},
+                (m, e) => m..[e.key] = e.value as Object?,
+              ),
+          explicitKeys: fields.keys.toSet(),
+        ),
+        getFields: (instance) {
+          final typedInstance = instance as CollidingObject;
+          final map = <String, dynamic>{
+            'foo': typedInstance.foo,
+            '@foo': typedInstance.foo_1,
+            'bar': typedInstance.bar,
+            'bar_1': typedInstance.bar1,
+            'validate': typedInstance.validate_,
+            ...typedInstance.additionalProperties,
+          };
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {
+          'foo': PropertyDescriptor(
+            name: 'foo',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          '@foo': PropertyDescriptor(
+            name: '@foo',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'bar': PropertyDescriptor(
+            name: 'bar',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'bar_1': PropertyDescriptor(
+            name: 'bar_1',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+          'validate': PropertyDescriptor(
+            name: 'validate',
+            isRequired: false,
+            schema: const StringDescriptor(),
+          ),
+        },
+
+        required: const [],
+        additionalProperties: const AnythingDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -9993,84 +10286,6 @@ final class CollidingObject implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final ObjectDescriptor<CollidingObject> descriptor =
-      ObjectDescriptor<CollidingObject>(
-        title: 'CollidingObject',
-        matches: (instance) => instance is CollidingObject,
-        instantiate: (fields) => CollidingObject(
-          foo: fields['foo'] as String?,
-          foo_1: fields['@foo'] as String?,
-          bar: fields['bar'] as String?,
-          bar1: fields['bar_1'] as String?,
-          validate_: fields['validate'] as String?,
-          additionalProperties: fields.entries
-              .where(
-                (e) =>
-                    !const <String>{
-                      'foo',
-                      '@foo',
-                      'bar',
-                      'bar_1',
-                      'validate',
-                    }.contains(e.key) &&
-                    true,
-              )
-              .fold<Map<String, Object?>>(
-                {},
-                (m, e) => m..[e.key] = e.value as Object?,
-              ),
-          explicitKeys: fields.keys.toSet(),
-        ),
-        getFields: (instance) {
-          final typedInstance = instance as CollidingObject;
-          final map = <String, dynamic>{
-            'foo': typedInstance.foo,
-            '@foo': typedInstance.foo_1,
-            'bar': typedInstance.bar,
-            'bar_1': typedInstance.bar1,
-            'validate': typedInstance.validate_,
-            ...typedInstance.additionalProperties,
-          };
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {
-          'foo': PropertyDescriptor(
-            name: 'foo',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          '@foo': PropertyDescriptor(
-            name: '@foo',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'bar': PropertyDescriptor(
-            name: 'bar',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'bar_1': PropertyDescriptor(
-            name: 'bar_1',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-          'validate': PropertyDescriptor(
-            name: 'validate',
-            isRequired: false,
-            schema: const StringDescriptor(),
-          ),
-        },
-
-        required: const [],
-        additionalProperties: const AnythingDescriptor(),
-      );
 
   @override
   bool operator ==(Object other) =>

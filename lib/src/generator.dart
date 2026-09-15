@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:code_builder/code_builder.dart';
 import 'package:path/path.dart' as p;
 import 'schema.dart';
 
@@ -164,6 +165,23 @@ String escapeStringContents(String value) {
 String dartStringLiteral(String value) => "'${escapeStringContents(value)}'";
 
 /// Renders schema-derived [text] as a `///` doc comment, indented by [indent].
+/// Renders schema-derived [text] as a list of `///` doc comment lines.
+List<String> dartDocCommentLines(String text) {
+  final sanitized = text.replaceAll('[', r'\[').replaceAll(']', r'\]');
+  final lines = sanitized.split(RegExp(r'\r\n|\r|\n'));
+  final result = <String>[];
+  for (final line in lines) {
+    // Strip any remaining control characters; they cannot appear in source.
+    final clean = line.replaceAll(
+      RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]'),
+      '',
+    );
+    result.add(clean.isEmpty ? '///' : '/// $clean');
+  }
+  return result;
+}
+
+/// Renders schema-derived [text] as a `///` doc comment, indented by [indent].
 ///
 /// A `///` comment is terminated by a line break, so any schema text written
 /// into one must have its line breaks re-prefixed — otherwise a `$comment`
@@ -172,16 +190,10 @@ String dartStringLiteral(String value) => "'${escapeStringContents(value)}'";
 /// for the same reason, and `[` is escaped so that text like `[Foo]` is not
 /// resolved as a dartdoc reference to a type that does not exist.
 String dartDocComment(String text, {String indent = '  '}) {
-  final sanitized = text.replaceAll('[', r'\[').replaceAll(']', r'\]');
-  final lines = sanitized.split(RegExp(r'\r\n|\r|\n'));
+  final lines = dartDocCommentLines(text);
   final buffer = StringBuffer();
   for (final line in lines) {
-    // Strip any remaining control characters; they cannot appear in source.
-    final clean = line.replaceAll(
-      RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]'),
-      '',
-    );
-    buffer.writeln(clean.isEmpty ? '$indent///' : '$indent/// $clean');
+    buffer.writeln('$indent$line');
   }
   return buffer.toString();
 }
@@ -365,6 +377,7 @@ final class _GeneratorContext {
   final Map<Schema, String> classNames;
   final Map<Schema, Map<dynamic, String>> enumConstantNames = {};
   final Map<Schema, Map<String, String>> objectFieldNames = {};
+  bool needsDartCollection = false;
 
   _GeneratorContext(this.classNames);
 
@@ -651,43 +664,43 @@ String generateCode(
     }
   });
 
-  // Generate the class bodies first so the import list can be tailored to
-  // what the output actually references.
-  final body = StringBuffer();
+  final specs = <Spec>[];
   for (final schema in localClasses) {
     final name = classNames[schema]!;
     if (schema.enumValues != null) {
-      body.writeln(_generateEnumClass(schema, name, context));
+      specs.add(_generateEnumClass(schema, name, context));
     } else if (schema.isUnion) {
-      body.writeln(_generateUnionClass(schema, name, context));
+      specs.addAll(_generateUnionClass(schema, name, context));
     } else if (schema.isObject) {
-      body.writeln(_generateObjectClass(schema, name, context));
+      specs.add(_generateObjectClass(schema, name, context));
     }
   }
-  final bodyCode = body.toString();
 
-  final buffer = StringBuffer();
-  buffer.writeln('''
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison
-// ignore_for_file: prefer_is_empty, unnecessary_string_interpolations, avoid_init_to_null, unnecessary_const
-// ignore_for_file: unnecessary_question_mark, unnecessary_cast
-''');
-  if (bodyCode.contains('LinkedHashSet')) {
-    buffer.writeln("import 'dart:collection';");
-  }
-  buffer.writeln('''import 'package:collection/collection.dart';
-import 'package:json_schema_gen/json_schema.dart';
-import 'package:jsontool/jsontool.dart';''');
+  final library = Library(
+    (b) => b
+      ..comments.addAll([
+        'GENERATED CODE - DO NOT MODIFY BY HAND',
+        'ignore_for_file: unused_local_variable, unnecessary_type_check, dead_code, non_constant_identifier_names, unnecessary_brace_in_string_interps, annotate_overrides, unnecessary_null_comparison',
+        'ignore_for_file: prefer_is_empty, unnecessary_string_interpolations, avoid_init_to_null, unnecessary_const',
+        'ignore_for_file: unnecessary_question_mark, unnecessary_cast',
+      ])
+      ..directives.addAll([
+        if (context.needsDartCollection) Directive.import('dart:collection'),
+        Directive.import('package:collection/collection.dart'),
+        Directive.import('package:json_schema_gen/json_schema.dart'),
+        Directive.import('package:jsontool/jsontool.dart'),
+        for (final entry in importPrefixes.entries)
+          Directive.import(entry.key, as: entry.value),
+      ])
+      ..body.addAll(specs),
+  );
 
-  for (final entry in importPrefixes.entries) {
-    buffer.writeln("import '${entry.key}' as ${entry.value};");
-  }
-
-  buffer.writeln();
-  buffer.write(bodyCode);
-
-  return buffer.toString();
+  final emitter = DartEmitter(
+    allocator: Allocator.none,
+    orderDirectives: true,
+    useNullSafetySyntax: true,
+  );
+  return library.accept(emitter).toString();
 }
 
 String _toEnumConstantName(Object? val) {
@@ -706,50 +719,90 @@ String _enumBackingType(Schema schema) {
 }
 
 /// Generates a Dart enum class representation for an EnumSchema.
-String _generateEnumClass(
+Enum _generateEnumClass(
   Schema schema,
   String className,
   _GeneratorContext context,
 ) {
-  final buffer = StringBuffer();
-
   final backingType = _enumBackingType(schema);
   final isString = backingType == 'String';
   final isInt = backingType == 'int';
 
-  if (schema.isDeprecated) {
-    if (schema.deprecatedMessage != null) {
-      buffer.writeln(
-        '@Deprecated(${dartStringLiteral(schema.deprecatedMessage!)})',
-      );
-    } else {
-      buffer.writeln("@Deprecated('deprecated')");
-    }
-  }
-  buffer.writeln('enum $className {');
-  for (final val in schema.enumValues!) {
-    final enumName = context.toEnumConstantName(val, schema);
-    final formattedValue = _toBasicDartLiteral(val);
-    buffer.writeln("  $enumName($formattedValue),");
-  }
-  buffer.writeln(';');
-  buffer.writeln('  final $backingType value;');
-  buffer.writeln('  const $className(this.value);');
-  buffer.writeln('  static $className fromValue($backingType val) =>');
-  buffer.writeln('      values.firstWhere((e) => e.value == val);');
   final baseDescriptor = isString
       ? 'const StringDescriptor()'
       : (isInt ? 'const IntDescriptor()' : 'const AnythingDescriptor()');
-  buffer.writeln(
-    '  static final EnumDescriptor<$className> descriptor = EnumDescriptor<$className>(',
-  );
-  buffer.writeln('    values: values,');
-  buffer.writeln('    fromValue: (val) => fromValue(val as $backingType),');
-  buffer.writeln('    toValue: (e) => (e as $className).value,');
-  buffer.writeln('    base: $baseDescriptor,');
-  buffer.writeln('  );');
-  buffer.writeln('}');
-  return buffer.toString();
+
+  return Enum((b) {
+    if (schema.isDeprecated) {
+      final msg = schema.deprecatedMessage ?? 'deprecated';
+      b.annotations.add(refer('Deprecated').call([literalString(msg)]));
+    }
+    b.name = className;
+    for (final val in schema.enumValues!) {
+      final enumName = context.toEnumConstantName(val, schema);
+      final formattedValue = _toBasicDartLiteral(val);
+      b.values.add(
+        EnumValue(
+          (vb) => vb
+            ..name = enumName
+            ..arguments.add(CodeExpression(Code(formattedValue))),
+        ),
+      );
+    }
+    b.constructors.add(
+      Constructor(
+        (cb) => cb
+          ..constant = true
+          ..requiredParameters.add(
+            Parameter(
+              (pb) => pb
+                ..toThis = true
+                ..name = 'value',
+            ),
+          ),
+      ),
+    );
+    b.fields.add(
+      Field(
+        (fb) => fb
+          ..name = 'value'
+          ..modifier = FieldModifier.final$
+          ..type = refer(backingType),
+      ),
+    );
+    b.methods.add(
+      Method(
+        (mb) => mb
+          ..name = 'fromValue'
+          ..static = true
+          ..returns = refer(className)
+          ..requiredParameters.add(
+            Parameter(
+              (pb) => pb
+                ..name = 'val'
+                ..type = refer(backingType),
+            ),
+          )
+          ..lambda = true
+          ..body = const Code('values.firstWhere((e) => e.value == val)'),
+      ),
+    );
+    b.fields.add(
+      Field(
+        (fb) => fb
+          ..name = 'descriptor'
+          ..static = true
+          ..modifier = FieldModifier.final$
+          ..type = refer('EnumDescriptor<$className>')
+          ..assignment = Code('''EnumDescriptor<$className>(
+    values: values,
+    fromValue: (val) => fromValue(val as $backingType),
+    toValue: (e) => (e as $className).value,
+    base: $baseDescriptor,
+  )'''),
+      ),
+    );
+  });
 }
 
 /// Checks if a string is a reserved Dart keyword.
@@ -961,19 +1014,20 @@ String? _toDartLiteral(
   return null;
 }
 
-String _generateObjectClass(
+Class _generateObjectClass(
   Schema schema,
   String className,
   _GeneratorContext context,
 ) {
   final classNames = context.classNames;
   final fieldNames = context.fieldNamesFor(schema);
-  final fields = StringBuffer();
-  final constructorParams = StringBuffer();
+
+  final classFields = <Field>[];
+  final constructorParams = <Parameter>[];
   final equalityProps = <String>[];
   final hashExprs = <String>[];
   final toStringProps = <String>[];
-  final copyWithParams = StringBuffer();
+  final copyWithParams = <Parameter>[];
   final copyWithArgs = StringBuffer();
   final copyWithKeys = StringBuffer();
 
@@ -994,36 +1048,75 @@ String _generateObjectClass(
 
     final fieldType = _fieldType(propSchema, isRequired, context);
 
+    final fieldDocs = <String>[];
     if (propSchema.comment != null) {
-      fields.write(dartDocComment('Comment: ${propSchema.comment}'));
+      fieldDocs.addAll(dartDocCommentLines('Comment: ${propSchema.comment}'));
     }
     if (propSchema.readOnly) {
-      fields.writeln('  /// Read-only.');
+      fieldDocs.add('/// Read-only.');
     }
     if (propSchema.writeOnly) {
-      fields.writeln('  /// Write-only.');
+      fieldDocs.add('/// Write-only.');
     }
 
+    final fieldAnnotations = <Expression>[];
     if (propSchema.isDeprecated) {
-      if (propSchema.deprecatedMessage != null) {
-        fields.writeln(
-          '  @Deprecated(${dartStringLiteral(propSchema.deprecatedMessage!)})',
-        );
-      } else {
-        fields.writeln("  @Deprecated('deprecated')");
-      }
+      final msg = propSchema.deprecatedMessage ?? 'deprecated';
+      fieldAnnotations.add(refer('Deprecated').call([literalString(msg)]));
     }
-    fields.writeln('  final $fieldType $fieldName;');
+
+    classFields.add(
+      Field(
+        (b) => b
+          ..docs.addAll(fieldDocs)
+          ..annotations.addAll(fieldAnnotations)
+          ..modifier = FieldModifier.final$
+          ..type = refer(fieldType)
+          ..name = fieldName,
+      ),
+    );
+
     if (isRequired) {
-      constructorParams.writeln('    required this.$fieldName,');
+      constructorParams.add(
+        Parameter(
+          (b) => b
+            ..toThis = true
+            ..name = fieldName
+            ..named = true
+            ..required = true,
+        ),
+      );
     } else if (defaultLiteral != null) {
-      constructorParams.writeln('    this.$fieldName = $defaultLiteral,');
+      final nonNullDefault = defaultLiteral;
+      constructorParams.add(
+        Parameter(
+          (b) => b
+            ..toThis = true
+            ..name = fieldName
+            ..named = true
+            ..defaultTo = Code(nonNullDefault),
+        ),
+      );
     } else {
-      constructorParams.writeln('    this.$fieldName,');
+      constructorParams.add(
+        Parameter(
+          (b) => b
+            ..toThis = true
+            ..name = fieldName
+            ..named = true,
+        ),
+      );
     }
 
     final copyType = fieldType.endsWith('?') ? fieldType : '$fieldType?';
-    copyWithParams.writeln('    $copyType $fieldName,');
+    copyWithParams.add(
+      Parameter(
+        (b) => b
+          ..name = fieldName
+          ..named = true
+          ..type = refer(copyType),
+      ),
+    );
     copyWithArgs.writeln('      $fieldName: $fieldName ?? this.$fieldName,');
     copyWithKeys.writeln('    if ($fieldName != null) {');
     copyWithKeys.writeln(
@@ -1058,14 +1151,41 @@ String _generateObjectClass(
   if (hasPatternProps) {
     for (var i = 0; i < patterns.length; i++) {
       final pattern = patterns[i];
-      fields.writeln(
-        '  static final _patternRegex$i = '
-        'RegExp(${dartStringLiteral(pattern.pattern)});',
+      classFields.add(
+        Field(
+          (b) => b
+            ..name = '_patternRegex$i'
+            ..static = true
+            ..modifier = FieldModifier.final$
+            ..assignment = Code('RegExp(${dartStringLiteral(pattern.pattern)})'),
+        ),
       );
     }
-    fields.writeln('  final Map<String, dynamic> patternProperties;');
-    constructorParams.writeln('    this.patternProperties = const {},');
-    copyWithParams.writeln('    Map<String, dynamic>? patternProperties,');
+    classFields.add(
+      Field(
+        (b) => b
+          ..name = 'patternProperties'
+          ..modifier = FieldModifier.final$
+          ..type = refer('Map<String, dynamic>'),
+      ),
+    );
+    constructorParams.add(
+      Parameter(
+        (b) => b
+          ..toThis = true
+          ..name = 'patternProperties'
+          ..named = true
+          ..defaultTo = const Code('const {}'),
+      ),
+    );
+    copyWithParams.add(
+      Parameter(
+        (b) => b
+          ..name = 'patternProperties'
+          ..named = true
+          ..type = refer('Map<String, dynamic>?'),
+      ),
+    );
     copyWithKeys.writeln('    if (patternProperties != null) {');
     copyWithKeys.writeln("      nextKeys?.add('patternProperties');");
     copyWithKeys.writeln('    }');
@@ -1084,10 +1204,30 @@ String _generateObjectClass(
       schema.additionalProperties ?? Schema.anything,
       classNames,
     );
-    fields.writeln('  final Map<String, $addPropsType> additionalProperties;');
-    constructorParams.writeln('    this.additionalProperties = const {},');
-    copyWithParams.writeln(
-      '    Map<String, $addPropsType>? additionalProperties,',
+    classFields.add(
+      Field(
+        (b) => b
+          ..name = 'additionalProperties'
+          ..modifier = FieldModifier.final$
+          ..type = refer('Map<String, $addPropsType>'),
+      ),
+    );
+    constructorParams.add(
+      Parameter(
+        (b) => b
+          ..toThis = true
+          ..name = 'additionalProperties'
+          ..named = true
+          ..defaultTo = const Code('const {}'),
+      ),
+    );
+    copyWithParams.add(
+      Parameter(
+        (b) => b
+          ..name = 'additionalProperties'
+          ..named = true
+          ..type = refer('Map<String, $addPropsType>?'),
+      ),
     );
     copyWithKeys.writeln('    if (additionalProperties != null) {');
     copyWithKeys.writeln("      nextKeys?.add('additionalProperties');");
@@ -1102,11 +1242,20 @@ String _generateObjectClass(
     toStringProps.add('additionalProperties: \${additionalProperties}');
   }
 
+  classFields.add(
+    Field(
+      (b) => b
+        ..name = r'_$explicitKeys'
+        ..modifier = FieldModifier.final$
+        ..type = refer('Set<String>?'),
+    ),
+  );
+
   final equalityExpr = equalityProps.isEmpty
       ? 'true'
       : equalityProps.join(' && ');
 
-  final validationMethod = _generateValidationMethod(
+  final validationMethods = _generateValidationMethods(
     schema,
     className,
     context,
@@ -1206,8 +1355,7 @@ String _generateObjectClass(
       : 'patternProperties: {${patternPropsExprs.join(', ')}},';
 
   final descriptorString =
-      '''
-  static final ObjectDescriptor<$className> descriptor = ObjectDescriptor<$className>(
+      '''ObjectDescriptor<$className>(
     title: '$className',
     matches: (instance) => instance is $className,
     instantiate: (fields) => $className(
@@ -1230,89 +1378,206 @@ $propDescriptors    },
     $patternPropsExpr
     required: const [${(schema.required ?? const <String>{}).map(dartStringLiteral).join(', ')}],
     additionalProperties: $addPropsExpr,
-  );''';
+  )''';
 
-  fields.writeln('  final Set<String>? _\$explicitKeys;');
-  final deprecatedAttr = schema.isDeprecated
-      ? (schema.deprecatedMessage != null
-            ? '@Deprecated(${dartStringLiteral(schema.deprecatedMessage!)})\n'
-            : "@Deprecated('deprecated')\n")
-      : '';
+  classFields.add(
+    Field(
+      (b) => b
+        ..name = 'descriptor'
+        ..static = true
+        ..modifier = FieldModifier.final$
+        ..type = refer('ObjectDescriptor<$className>')
+        ..assignment = Code(descriptorString),
+    ),
+  );
 
-  final constructorStr = constructorParams.isEmpty
-      ? '  const $className({Set<String>? explicitKeys}) : _\$explicitKeys = explicitKeys;'
-      : '''
-  const $className({
-$constructorParams    Set<String>? explicitKeys,
-  }) : _\$explicitKeys = explicitKeys;''';
+  final primaryConstructor = Constructor(
+    (b) => b
+      ..constant = true
+      ..optionalParameters.addAll([
+        ...constructorParams,
+        Parameter(
+          (pb) => pb
+            ..name = 'explicitKeys'
+            ..named = true
+            ..type = refer('Set<String>?'),
+        ),
+      ])
+      ..initializers.add(const Code(r'_$explicitKeys = explicitKeys')),
+  );
 
-  final copyWithStr = copyWithParams.isEmpty
-      ? '  $className copyWith() => $className(explicitKeys: _\$explicitKeys);'
-      : '''
-  $className copyWith({
-$copyWithParams  }) {
-    final nextKeys = _\$explicitKeys != null ? Set<String>.from(_\$explicitKeys) : null;
+  final fromJsonCtor = Constructor(
+    (b) => b
+      ..factory = true
+      ..name = 'fromJson'
+      ..requiredParameters.add(
+        Parameter((pb) => pb..name = 'reader'..type = refer('JsonReader')),
+      )
+      ..optionalParameters.add(
+        Parameter(
+          (pb) => pb
+            ..name = 'validate'
+            ..named = true
+            ..type = refer('bool')
+            ..defaultTo = const Code('true'),
+        ),
+      )
+      ..lambda = true
+      ..body = Code(
+        'parseWithDescriptor(reader, descriptor, validate: validate) as $className',
+      ),
+  );
+
+  final fromMapCtor = Constructor(
+    (b) => b
+      ..factory = true
+      ..name = 'fromMap'
+      ..docs.add('/// Creates an instance of [$className] from a JSON Map.')
+      ..requiredParameters.add(
+        Parameter(
+          (pb) => pb
+            ..name = 'map'
+            ..type = refer('Map<String, dynamic>'),
+        ),
+      )
+      ..optionalParameters.add(
+        Parameter(
+          (pb) => pb
+            ..name = 'validate'
+            ..named = true
+            ..type = refer('bool')
+            ..defaultTo = const Code('true'),
+        ),
+      )
+      ..lambda = true
+      ..body = Code(
+        '$className.fromJson(JsonReader.fromObject(map), validate: validate)',
+      ),
+  );
+
+  final writeJsonMethod = Method(
+    (b) => b
+      ..annotations.add(refer('override'))
+      ..name = 'writeJson'
+      ..returns = refer('void')
+      ..requiredParameters.add(
+        Parameter((pb) => pb..name = 'target'..type = refer('JsonSink')),
+      )
+      ..lambda = true
+      ..body = const Code('writeWithDescriptor(target, this, descriptor)'),
+  );
+
+  final toJsonMethod = Method(
+    (b) => b
+      ..name = 'toJson'
+      ..returns = refer('String')
+      ..body = Block.of([
+        Code('''final buffer = StringBuffer();
+writeJson(jsonStringWriter(buffer));
+return buffer.toString();'''),
+      ]),
+  );
+
+  final toJsonValueMethod = Method(
+    (b) => b
+      ..annotations.add(refer('override'))
+      ..name = 'toJsonValue'
+      ..returns = refer('Object?')
+      ..body = Block.of([
+        Code('''Object? result;
+final sink = jsonObjectWriter((obj) => result = obj);
+writeJson(sink);
+return result;'''),
+      ]),
+  );
+
+  final toMapMethod = Method(
+    (b) => b
+      ..docs.add('/// Converts this instance to a JSON Map.')
+      ..name = 'toMap'
+      ..returns = refer('Map<String, dynamic>')
+      ..lambda = true
+      ..body = const Code('toJsonValue() as Map<String, dynamic>'),
+  );
+
+  final copyWithMethod = copyWithParams.isEmpty
+      ? Method(
+          (b) => b
+            ..name = 'copyWith'
+            ..returns = refer(className)
+            ..lambda = true
+            ..body = Code('$className(explicitKeys: _\$explicitKeys)'),
+        )
+      : Method(
+          (b) => b
+            ..name = 'copyWith'
+            ..returns = refer(className)
+            ..optionalParameters.addAll(copyWithParams)
+            ..body = Block.of([
+              Code('''final nextKeys = _\$explicitKeys != null ? Set<String>.from(_\$explicitKeys) : null;
 $copyWithKeys
-    return $className(
+return $className(
 $copyWithArgs      explicitKeys: nextKeys,
-    );
-  }''';
+);'''),
+            ]),
+        );
 
-  return '''
-${deprecatedAttr}final class $className implements JsonModel {
-$fields
-$constructorStr
+  final equalsMethod = Method(
+    (b) => b
+      ..annotations.add(refer('override'))
+      ..name = 'operator =='
+      ..returns = refer('bool')
+      ..requiredParameters.add(
+        Parameter((pb) => pb..name = 'other'..type = refer('Object')),
+      )
+      ..lambda = true
+      ..body = Code('''identical(this, other) ||
+other is $className &&
+    runtimeType == other.runtimeType &&
+    $equalityExpr'''),
+  );
 
-  factory $className.fromJson(JsonReader reader, {bool validate = true}) =>
-      parseWithDescriptor(reader, descriptor, validate: validate) as $className;
+  final hashCodeMethod = Method(
+    (b) => b
+      ..annotations.add(refer('override'))
+      ..type = MethodType.getter
+      ..name = 'hashCode'
+      ..returns = refer('int')
+      ..lambda = true
+      ..body = Code('Object.hashAll([\n        ${hashExprs.join(',\n        ')}\n      ])'),
+  );
 
-  /// Creates an instance of [$className] from a JSON Map.
-  factory $className.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
-      $className.fromJson(JsonReader.fromObject(map), validate: validate);
+  final toStringMethod = Method(
+    (b) => b
+      ..annotations.add(refer('override'))
+      ..name = 'toString'
+      ..returns = refer('String')
+      ..lambda = true
+      ..body = Code("'$className(${toStringProps.join(', ')})'"),
+  );
 
-  @override
-  void writeJson(JsonSink target) =>
-      writeWithDescriptor(target, this, descriptor);
-
-  String toJson() {
-    final buffer = StringBuffer();
-    writeJson(jsonStringWriter(buffer));
-    return buffer.toString();
-  }
-
-  @override
-  Object? toJsonValue() {
-    Object? result;
-    final sink = jsonObjectWriter((obj) => result = obj);
-    writeJson(sink);
-    return result;
-  }
-
-  /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
-
-$copyWithStr
-
-$validationMethod
-
-$descriptorString
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is $className &&
-          runtimeType == other.runtimeType &&
-          $equalityExpr;
-
-  @override
-  int get hashCode => Object.hashAll([
-        ${hashExprs.join(',\n        ')}
-      ]);
-
-  @override
-  String toString() => '$className(${toStringProps.join(', ')})';
-}
-''';
+  return Class((b) {
+    if (schema.isDeprecated) {
+      final msg = schema.deprecatedMessage ?? 'deprecated';
+      b.annotations.add(refer('Deprecated').call([literalString(msg)]));
+    }
+    b.modifier = ClassModifier.final$;
+    b.name = className;
+    b.implements.add(refer('JsonModel'));
+    b.fields.addAll(classFields);
+    b.constructors.addAll([primaryConstructor, fromJsonCtor, fromMapCtor]);
+    b.methods.addAll([
+      writeJsonMethod,
+      toJsonMethod,
+      toJsonValueMethod,
+      toMapMethod,
+      copyWithMethod,
+      ...validationMethods,
+      equalsMethod,
+      hashCodeMethod,
+      toStringMethod,
+    ]);
+  });
 }
 
 String _generateMatchBlock(
@@ -1513,7 +1778,7 @@ bool _hasItemValidation(Schema schema) {
 ///    by calling [_generateSchemaValidations]. If a property is nullable, these checks are wrapped in an `if (field != null)` block.
 /// 4. **Pattern Properties**: Generates code to iterate over `patternProperties` Map and validate keys/values against matching RegExp schemas.
 /// 5. **Additional Properties**: Generates validation for any properties not explicitly defined, using `_generateArrayItemValidation` or inline validations.
-String _generateValidationMethod(
+List<Method> _generateValidationMethods(
   Schema schema,
   String className,
   _GeneratorContext context,
@@ -1521,8 +1786,6 @@ String _generateValidationMethod(
 ) {
   final classNames = context.classNames;
   final buffer = StringBuffer();
-  buffer.writeln('  @override');
-  buffer.writeln('  List<ValidationError> collectErrors() {');
   buffer.writeln('    final errors = <ValidationError>[];');
   if (schema.minProperties != null || schema.maxProperties != null) {
     buffer.writeln('    var count = 0;');
@@ -1746,16 +2009,28 @@ String _generateValidationMethod(
   }
 
   buffer.writeln('    return errors;');
-  buffer.writeln('  }');
-  buffer.writeln();
-  buffer.writeln('  @override');
-  buffer.writeln('  void validate() {');
-  buffer.writeln('    final errors = collectErrors();');
-  buffer.writeln('    if (errors.isNotEmpty) {');
-  buffer.writeln('      throw JsonValidationException(errors);');
-  buffer.writeln('    }');
-  buffer.writeln('  }');
-  return buffer.toString();
+
+  return [
+    Method(
+      (b) => b
+        ..annotations.add(refer('override'))
+        ..name = 'collectErrors'
+        ..returns = refer('List<ValidationError>')
+        ..body = Block.of([Code(buffer.toString())]),
+    ),
+    Method(
+      (b) => b
+        ..annotations.add(refer('override'))
+        ..name = 'validate'
+        ..returns = refer('void')
+        ..body = Block.of([
+          Code('''final errors = collectErrors();
+if (errors.isNotEmpty) {
+  throw JsonValidationException(errors);
+}'''),
+        ]),
+    ),
+  ];
 }
 
 /// Generates recursive validation code for array items, supporting nested arrays.
@@ -2034,6 +2309,7 @@ void _generateSchemaValidations(
       validations.writeln('      }');
     }
     if (real.uniqueItems == true) {
+      context.needsDartCollection = true;
       validations.writeln(
         '      if ($valueVar.length != (LinkedHashSet<dynamic>(equals: const DeepCollectionEquality().equals, hashCode: const DeepCollectionEquality().hash)..addAll($valueVar)).length) {',
       );
@@ -2319,129 +2595,14 @@ void _generateFormatValidation(
   validations.writeln('      }');
 }
 
-String _generateUnionClass(
+List<Spec> _generateUnionClass(
   Schema schema,
   String className,
   _GeneratorContext context,
 ) {
   final classNames = context.classNames;
   final analysis = UnionAnalysis.analyze(schema);
-  final subclasses = StringBuffer();
-
-  int index = 0;
-  for (final sub in analysis.activeSchemas) {
-    final optionType = dartType(sub, classNames);
-    final subClassName = '${className}Option$index';
-
-    final hasNestedValidation =
-        sub.realSchema.isObject || sub.realSchema.isUnion;
-    final validationBody = StringBuffer();
-    if (hasNestedValidation) {
-      validationBody.writeln('  @override');
-      if (optionType.endsWith('?')) {
-        validationBody.writeln(
-          '  List<ValidationError> collectErrors() => value?.collectErrors() ?? const [];',
-        );
-      } else {
-        validationBody.writeln(
-          '  List<ValidationError> collectErrors() => value.collectErrors();',
-        );
-      }
-    } else if (sub.realSchema.isArray) {
-      final itemReal = sub.realSchema.items?.realSchema ?? Schema.anything;
-      final hasItemValidation =
-          itemReal.isObject || itemReal.isUnion || itemReal.isArray;
-      validationBody.writeln('  @override');
-      validationBody.writeln('  List<ValidationError> collectErrors() {');
-      if (hasItemValidation) {
-        validationBody.writeln('''
-    final errors = <ValidationError>[];
-    for (var i = 0; i < value.length; i++) {
-      errors.addAll((value[i] as JsonModel).collectErrors().map((e) => ValidationError(
-        message: e.message,
-        path: ['[\$i]', ...e.path],
-        keyword: e.keyword,
-        schema: e.schema,
-        value: e.value,
-        nestedErrors: e.nestedErrors,
-      )));
-    }
-    return errors;''');
-      } else {
-        validationBody.writeln('    return const [];');
-      }
-      validationBody.writeln('  }');
-    } else {
-      final validations = StringBuffer();
-      _generateSchemaValidations(
-        validations,
-        sub,
-        'value',
-        'value',
-        context,
-        includeNot: false,
-      );
-      validationBody.writeln('  @override');
-      validationBody.writeln('  List<ValidationError> collectErrors() {');
-      if (validations.isNotEmpty) {
-        validationBody.writeln('    final errors = <ValidationError>[];');
-        validationBody.write(validations.toString());
-        validationBody.writeln('    return errors;');
-      } else {
-        validationBody.writeln('    return const [];');
-      }
-      validationBody.writeln('  }');
-    }
-
-    final descExpr = _descriptorExpr(sub, classNames);
-
-    final optDeprecatedAttr = sub.isDeprecated
-        ? (sub.deprecatedMessage != null
-              ? '@Deprecated(${dartStringLiteral(sub.deprecatedMessage!)})\n'
-              : "@Deprecated('deprecated')\n")
-        : '';
-
-    final isColl =
-        optionType.startsWith('List') ||
-        optionType.startsWith('Map') ||
-        optionType == 'dynamic' ||
-        optionType == 'Object?';
-    final equalityExpr = isColl
-        ? 'const DeepCollectionEquality().equals(value, other.value)'
-        : 'value == other.value';
-    final hashExpr = isColl
-        ? 'const DeepCollectionEquality().hash(value)'
-        : 'value.hashCode';
-
-    subclasses.writeln('''
-${optDeprecatedAttr}final class $subClassName extends $className {
-  final $optionType value;
-  const $subClassName(this.value);
-
-  @override
-  void writeJson(JsonSink target) {
-    writeWithDescriptor(target, value, $descExpr);
-  }
-
-$validationBody
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is $subClassName &&
-          runtimeType == other.runtimeType &&
-          $equalityExpr;
-
-  @override
-  int get hashCode => $hashExpr;
-
-  @override
-  String toString() => '$subClassName(value: \$value)';
-}
-''');
-
-    index++;
-  }
+  final specs = <Spec>[];
 
   final disc = schema.discriminator;
   final useDiscriminator =
@@ -2490,65 +2651,322 @@ $validationBody
   }
 
   final descriptorString =
-      '''
-  static final UnionDescriptor<$className> descriptor = UnionDescriptor<$className>(
+      '''UnionDescriptor<$className>(
     title: '$className',
     ${useDiscriminator ? 'discriminatorProperty: ${dartStringLiteral(disc.propertyName)},' : ''}
     ${useDiscriminator ? 'discriminatorMapping: {\n$mappingEntries    },' : ''}
     activeOptions: [
 $optionDescriptors    ],
-  );''';
+  )''';
 
-  final deprecatedAttr = schema.isDeprecated
-      ? (schema.deprecatedMessage != null
-            ? '@Deprecated(${dartStringLiteral(schema.deprecatedMessage!)})\n'
-            : "@Deprecated('deprecated')\n")
-      : '';
-  return '''
-${deprecatedAttr}sealed class $className implements JsonModel {
-  const $className();
-
-  factory $className.fromJson(JsonReader reader, {bool validate = true}) =>
-      parseWithDescriptor(reader, descriptor, validate: validate) as $className;
-
-  /// Creates an instance of [$className] from a JSON-compatible Dart value.
-  factory $className.fromJsonValue(Object? value, {bool validate = true}) =>
-      $className.fromJson(JsonReader.fromObject(value), validate: validate);
-
-  @override
-  void writeJson(JsonSink target) =>
-      writeWithDescriptor(target, this, descriptor);
-
-  String toJson() {
-    final buffer = StringBuffer();
-    writeJson(jsonStringWriter(buffer));
-    return buffer.toString();
-  }
-
-  @override
-  Object? toJsonValue() {
-    Object? result;
-    final sink = jsonObjectWriter((obj) => result = obj);
-    writeJson(sink);
-    return result;
-  }
-
-  @override
-  List<ValidationError> collectErrors();
-
-  @override
-  void validate() {
-    final errors = collectErrors();
-    if (errors.isNotEmpty) {
-      throw JsonValidationException(errors);
+  final baseClass = Class((b) {
+    if (schema.isDeprecated) {
+      final msg = schema.deprecatedMessage ?? 'deprecated';
+      b.annotations.add(refer('Deprecated').call([literalString(msg)]));
     }
+    b.sealed = true;
+    b.name = className;
+    b.implements.add(refer('JsonModel'));
+    b.constructors.add(Constructor((cb) => cb..constant = true));
+    b.constructors.add(
+      Constructor(
+        (cb) => cb
+          ..factory = true
+          ..name = 'fromJson'
+          ..requiredParameters.add(
+            Parameter((pb) => pb..name = 'reader'..type = refer('JsonReader')),
+          )
+          ..optionalParameters.add(
+            Parameter(
+              (pb) => pb
+                ..name = 'validate'
+                ..named = true
+                ..type = refer('bool')
+                ..defaultTo = const Code('true'),
+            ),
+          )
+          ..lambda = true
+          ..body = Code(
+            'parseWithDescriptor(reader, descriptor, validate: validate) as $className',
+          ),
+      ),
+    );
+    b.constructors.add(
+      Constructor(
+        (cb) => cb
+          ..factory = true
+          ..name = 'fromJsonValue'
+          ..docs.add(
+            '/// Creates an instance of [$className] from a JSON-compatible Dart value.',
+          )
+          ..requiredParameters.add(
+            Parameter((pb) => pb..name = 'value'..type = refer('Object?')),
+          )
+          ..optionalParameters.add(
+            Parameter(
+              (pb) => pb
+                ..name = 'validate'
+                ..named = true
+                ..type = refer('bool')
+                ..defaultTo = const Code('true'),
+            ),
+          )
+          ..lambda = true
+          ..body = Code(
+            '$className.fromJson(JsonReader.fromObject(value), validate: validate)',
+          ),
+      ),
+    );
+    b.methods.add(
+      Method(
+        (mb) => mb
+          ..annotations.add(refer('override'))
+          ..name = 'writeJson'
+          ..returns = refer('void')
+          ..requiredParameters.add(
+            Parameter((pb) => pb..name = 'target'..type = refer('JsonSink')),
+          )
+          ..lambda = true
+          ..body = const Code('writeWithDescriptor(target, this, descriptor)'),
+      ),
+    );
+    b.methods.add(
+      Method(
+        (mb) => mb
+          ..name = 'toJson'
+          ..returns = refer('String')
+          ..body = Block.of([
+            Code('''final buffer = StringBuffer();
+writeJson(jsonStringWriter(buffer));
+return buffer.toString();'''),
+          ]),
+      ),
+    );
+    b.methods.add(
+      Method(
+        (mb) => mb
+          ..annotations.add(refer('override'))
+          ..name = 'toJsonValue'
+          ..returns = refer('Object?')
+          ..body = Block.of([
+            Code('''Object? result;
+final sink = jsonObjectWriter((obj) => result = obj);
+writeJson(sink);
+return result;'''),
+          ]),
+      ),
+    );
+    b.methods.add(
+      Method(
+        (mb) => mb
+          ..annotations.add(refer('override'))
+          ..name = 'collectErrors'
+          ..returns = refer('List<ValidationError>'),
+      ),
+    );
+    b.methods.add(
+      Method(
+        (mb) => mb
+          ..annotations.add(refer('override'))
+          ..name = 'validate'
+          ..returns = refer('void')
+          ..body = Block.of([
+            Code('''final errors = collectErrors();
+if (errors.isNotEmpty) {
+  throw JsonValidationException(errors);
+}'''),
+          ]),
+      ),
+    );
+    b.fields.add(
+      Field(
+        (fb) => fb
+          ..name = 'descriptor'
+          ..static = true
+          ..modifier = FieldModifier.final$
+          ..type = refer('UnionDescriptor<$className>')
+          ..assignment = Code(descriptorString),
+      ),
+    );
+  });
+
+  specs.add(baseClass);
+
+  int index = 0;
+  for (final sub in analysis.activeSchemas) {
+    final optionType = dartType(sub, classNames);
+    final subClassName = '${className}Option$index';
+
+    final hasNestedValidation =
+        sub.realSchema.isObject || sub.realSchema.isUnion;
+
+    final Method collectErrorsMethod;
+    if (hasNestedValidation) {
+      collectErrorsMethod = Method(
+        (mb) => mb
+          ..annotations.add(refer('override'))
+          ..name = 'collectErrors'
+          ..returns = refer('List<ValidationError>')
+          ..lambda = true
+          ..body = Code(
+            optionType.endsWith('?')
+                ? 'value?.collectErrors() ?? const []'
+                : 'value.collectErrors()',
+          ),
+      );
+    } else if (sub.realSchema.isArray) {
+      final itemReal = sub.realSchema.items?.realSchema ?? Schema.anything;
+      final hasItemValidation =
+          itemReal.isObject || itemReal.isUnion || itemReal.isArray;
+      collectErrorsMethod = Method(
+        (mb) => mb
+          ..annotations.add(refer('override'))
+          ..name = 'collectErrors'
+          ..returns = refer('List<ValidationError>')
+          ..body = Block.of([
+            Code(
+              hasItemValidation
+                  ? '''final errors = <ValidationError>[];
+for (var i = 0; i < value.length; i++) {
+  errors.addAll((value[i] as JsonModel).collectErrors().map((e) => ValidationError(
+    message: e.message,
+    path: ['[\$i]', ...e.path],
+    keyword: e.keyword,
+    schema: e.schema,
+    value: e.value,
+    nestedErrors: e.nestedErrors,
+  )));
+}
+return errors;'''
+                  : 'return const [];',
+            ),
+          ]),
+      );
+    } else {
+      final validations = StringBuffer();
+      _generateSchemaValidations(
+        validations,
+        sub,
+        'value',
+        'value',
+        context,
+        includeNot: false,
+      );
+      collectErrorsMethod = Method(
+        (mb) => mb
+          ..annotations.add(refer('override'))
+          ..name = 'collectErrors'
+          ..returns = refer('List<ValidationError>')
+          ..body = Block.of([
+            Code(
+              validations.isNotEmpty
+                  ? '''final errors = <ValidationError>[];
+${validations.toString()}
+return errors;'''
+                  : 'return const [];',
+            ),
+          ]),
+      );
+    }
+
+    final descExpr = _descriptorExpr(sub, classNames);
+
+    final isColl =
+        optionType.startsWith('List') ||
+        optionType.startsWith('Map') ||
+        optionType == 'dynamic' ||
+        optionType == 'Object?';
+    final equalityExpr = isColl
+        ? 'const DeepCollectionEquality().equals(value, other.value)'
+        : 'value == other.value';
+    final hashExpr = isColl
+        ? 'const DeepCollectionEquality().hash(value)'
+        : 'value.hashCode';
+
+    final optClass = Class((b) {
+      if (sub.isDeprecated) {
+        final msg = sub.deprecatedMessage ?? 'deprecated';
+        b.annotations.add(refer('Deprecated').call([literalString(msg)]));
+      }
+      b.modifier = ClassModifier.final$;
+      b.name = subClassName;
+      b.extend = refer(className);
+      b.fields.add(
+        Field(
+          (fb) => fb
+            ..name = 'value'
+            ..modifier = FieldModifier.final$
+            ..type = refer(optionType),
+        ),
+      );
+      b.constructors.add(
+        Constructor(
+          (cb) => cb
+            ..constant = true
+            ..requiredParameters.add(
+              Parameter((pb) => pb..toThis = true..name = 'value'),
+            ),
+        ),
+      );
+      b.methods.add(
+        Method(
+          (mb) => mb
+            ..annotations.add(refer('override'))
+            ..name = 'writeJson'
+            ..returns = refer('void')
+            ..requiredParameters.add(
+              Parameter((pb) => pb..name = 'target'..type = refer('JsonSink')),
+            )
+            ..body = Block.of([
+              Code('writeWithDescriptor(target, value, $descExpr);'),
+            ]),
+        ),
+      );
+      b.methods.add(collectErrorsMethod);
+      b.methods.add(
+        Method(
+          (mb) => mb
+            ..annotations.add(refer('override'))
+            ..name = 'operator =='
+            ..returns = refer('bool')
+            ..requiredParameters.add(
+              Parameter((pb) => pb..name = 'other'..type = refer('Object')),
+            )
+            ..lambda = true
+            ..body = Code('''identical(this, other) ||
+other is $subClassName &&
+    runtimeType == other.runtimeType &&
+    $equalityExpr'''),
+        ),
+      );
+      b.methods.add(
+        Method(
+          (mb) => mb
+            ..annotations.add(refer('override'))
+            ..type = MethodType.getter
+            ..name = 'hashCode'
+            ..returns = refer('int')
+            ..lambda = true
+            ..body = Code(hashExpr),
+        ),
+      );
+      b.methods.add(
+        Method(
+          (mb) => mb
+            ..annotations.add(refer('override'))
+            ..name = 'toString'
+            ..returns = refer('String')
+            ..lambda = true
+            ..body = Code("'$subClassName(value: \$value)'"),
+        ),
+      );
+    });
+
+    specs.add(optClass);
+    index++;
   }
 
-$descriptorString
-}
-
-$subclasses
-''';
+  return specs;
 }
 
 /// Resolves `$dynamicRef` references to their corresponding `$dynamicAnchor` definitions for code generation.

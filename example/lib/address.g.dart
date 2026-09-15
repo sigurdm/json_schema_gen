@@ -8,12 +8,6 @@ import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
 
 final class Address implements JsonModel {
-  final String street;
-  final String city;
-  final String zipCode;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const Address({
     required this.street,
     required this.city,
@@ -28,6 +22,73 @@ final class Address implements JsonModel {
   /// Creates an instance of [Address] from a JSON Map.
   factory Address.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       Address.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String street;
+
+  final String city;
+
+  final String zipCode;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<Address> descriptor = ObjectDescriptor<Address>(
+    title: 'Address',
+    matches: (instance) => instance is Address,
+    instantiate: (fields) => Address(
+      street: fields['street'] as String,
+      city: fields['city'] as String,
+      zipCode: fields['zipCode'] as String,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{'street', 'city', 'zipCode'}.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as Address;
+      final map = <String, dynamic>{
+        'street': typedInstance.street,
+        'city': typedInstance.city,
+        'zipCode': typedInstance.zipCode,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'street': PropertyDescriptor(
+        name: 'street',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'city': PropertyDescriptor(
+        name: 'city',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'zipCode': PropertyDescriptor(
+        name: 'zipCode',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const ['street', 'city', 'zipCode'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -103,63 +164,6 @@ final class Address implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final ObjectDescriptor<Address> descriptor = ObjectDescriptor<Address>(
-    title: 'Address',
-    matches: (instance) => instance is Address,
-    instantiate: (fields) => Address(
-      street: fields['street'] as String,
-      city: fields['city'] as String,
-      zipCode: fields['zipCode'] as String,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{'street', 'city', 'zipCode'}.contains(e.key) &&
-                true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as Address;
-      final map = <String, dynamic>{
-        'street': typedInstance.street,
-        'city': typedInstance.city,
-        'zipCode': typedInstance.zipCode,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'street': PropertyDescriptor(
-        name: 'street',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'city': PropertyDescriptor(
-        name: 'city',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'zipCode': PropertyDescriptor(
-        name: 'zipCode',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-    },
-
-    required: const ['street', 'city', 'zipCode'],
-    additionalProperties: const AnythingDescriptor(),
-  );
 
   @override
   bool operator ==(Object other) =>

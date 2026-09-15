@@ -821,28 +821,32 @@ void main() {
 
         expect(
           code,
-          contains("@Deprecated('deprecated')\nfinal class DeprecationsModel"),
-        );
-        expect(
-          code,
-          contains(
-            "@Deprecated('Use replacementField')\n  final String? withMsg;",
+          matches(
+            r"@Deprecated\('deprecated'\)\s+final class DeprecationsModel",
           ),
         );
         expect(
           code,
-          contains("@Deprecated('deprecated')\n  final String? withoutMsg;"),
-        );
-        expect(
-          code,
-          contains(
-            "@Deprecated('Enum is deprecated')\nenum DeprecationsModelDepEnum",
+          matches(
+            r"@Deprecated\('Use replacementField'\)\s+final String\? withMsg;",
           ),
         );
         expect(
           code,
-          contains(
-            "@Deprecated('deprecated')\nenum DeprecationsModelDepEnumNoMsg",
+          matches(
+            r"@Deprecated\('deprecated'\)\s+final String\? withoutMsg;",
+          ),
+        );
+        expect(
+          code,
+          matches(
+            r"@Deprecated\('Enum is deprecated'\)\s+enum DeprecationsModelDepEnum",
+          ),
+        );
+        expect(
+          code,
+          matches(
+            r"@Deprecated\('deprecated'\)\s+enum DeprecationsModelDepEnumNoMsg",
           ),
         );
       },

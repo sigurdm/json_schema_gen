@@ -6,16 +6,10 @@
 import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
+
 import 'address.g.dart' as i1;
 
 final class Order implements JsonModel {
-  final String orderId;
-  final num total;
-  final i1.Address shippingAddress;
-  final i1.Address? billingAddress;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const Order({
     required this.orderId,
     required this.total,
@@ -31,6 +25,87 @@ final class Order implements JsonModel {
   /// Creates an instance of [Order] from a JSON Map.
   factory Order.fromMap(Map<String, dynamic> map, {bool validate = true}) =>
       Order.fromJson(JsonReader.fromObject(map), validate: validate);
+
+  final String orderId;
+
+  final num total;
+
+  final i1.Address shippingAddress;
+
+  final i1.Address? billingAddress;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<Order> descriptor = ObjectDescriptor<Order>(
+    title: 'Order',
+    matches: (instance) => instance is Order,
+    instantiate: (fields) => Order(
+      orderId: fields['orderId'] as String,
+      total: fields['total'] as num,
+      shippingAddress: fields['shippingAddress'] as i1.Address,
+      billingAddress: fields['billingAddress'] as i1.Address?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{
+                  'orderId',
+                  'total',
+                  'shippingAddress',
+                  'billingAddress',
+                }.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance = instance as Order;
+      final map = <String, dynamic>{
+        'orderId': typedInstance.orderId,
+        'total': typedInstance.total,
+        'shippingAddress': typedInstance.shippingAddress,
+        'billingAddress': typedInstance.billingAddress,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      'orderId': PropertyDescriptor(
+        name: 'orderId',
+        isRequired: true,
+        schema: const StringDescriptor(),
+      ),
+      'total': PropertyDescriptor(
+        name: 'total',
+        isRequired: true,
+        schema: const NumDescriptor(),
+      ),
+      'shippingAddress': PropertyDescriptor(
+        name: 'shippingAddress',
+        isRequired: true,
+        schema: RefDescriptor<i1.Address>(() => i1.Address.descriptor),
+      ),
+      'billingAddress': PropertyDescriptor(
+        name: 'billingAddress',
+        isRequired: false,
+        schema: RefDescriptor<i1.Address>(() => i1.Address.descriptor),
+      ),
+    },
+
+    required: const ['orderId', 'total', 'shippingAddress'],
+    additionalProperties: const AnythingDescriptor(),
+  );
 
   @override
   void writeJson(JsonSink target) =>
@@ -138,75 +213,6 @@ final class Order implements JsonModel {
       throw JsonValidationException(errors);
     }
   }
-
-  static final ObjectDescriptor<Order> descriptor = ObjectDescriptor<Order>(
-    title: 'Order',
-    matches: (instance) => instance is Order,
-    instantiate: (fields) => Order(
-      orderId: fields['orderId'] as String,
-      total: fields['total'] as num,
-      shippingAddress: fields['shippingAddress'] as i1.Address,
-      billingAddress: fields['billingAddress'] as i1.Address?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{
-                  'orderId',
-                  'total',
-                  'shippingAddress',
-                  'billingAddress',
-                }.contains(e.key) &&
-                true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as Order;
-      final map = <String, dynamic>{
-        'orderId': typedInstance.orderId,
-        'total': typedInstance.total,
-        'shippingAddress': typedInstance.shippingAddress,
-        'billingAddress': typedInstance.billingAddress,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      'orderId': PropertyDescriptor(
-        name: 'orderId',
-        isRequired: true,
-        schema: const StringDescriptor(),
-      ),
-      'total': PropertyDescriptor(
-        name: 'total',
-        isRequired: true,
-        schema: const NumDescriptor(),
-      ),
-      'shippingAddress': PropertyDescriptor(
-        name: 'shippingAddress',
-        isRequired: true,
-        schema: RefDescriptor<i1.Address>(() => i1.Address.descriptor),
-      ),
-      'billingAddress': PropertyDescriptor(
-        name: 'billingAddress',
-        isRequired: false,
-        schema: RefDescriptor<i1.Address>(() => i1.Address.descriptor),
-      ),
-    },
-
-    required: const ['orderId', 'total', 'shippingAddress'],
-    additionalProperties: const AnythingDescriptor(),
-  );
 
   @override
   bool operator ==(Object other) =>
