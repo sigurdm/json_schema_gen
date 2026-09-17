@@ -2,7 +2,9 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart' as p;
+import 'package:pub_semver/pub_semver.dart';
 import 'package:json_schema_gen/json_schema.dart';
 
 /// Directory holding a checked-in copy of the Draft 2020-12 metaschema.
@@ -42,8 +44,17 @@ void main() async {
     rootSchema,
     'CoreAndValidationSpecificationsMetaSchema',
   );
+
+  // `generateCode` returns unformatted emitter output, so format it here.
+  // Without this the checked-in metaschema would be written as a single
+  // near-unreadable blob, and CI's `git diff --exit-code` check would trip on
+  // whatever the last person to run this tool happened to produce.
+  final formattedCode = DartFormatter(
+    languageVersion: Version(3, 10, 0),
+  ).format(generatedCode);
+
   final outputFile = File('lib/src/generated/schema_202012.g.dart');
   outputFile.parent.createSync(recursive: true);
-  outputFile.writeAsStringSync(generatedCode);
+  outputFile.writeAsStringSync(formattedCode);
   print('Wrote to lib/src/generated/schema_202012.g.dart');
 }

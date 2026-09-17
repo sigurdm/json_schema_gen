@@ -22,7 +22,7 @@ import 'package:json_schema_gen/json_schema.dart';
 // public API, but it is the single chokepoint for escaping so it is worth
 // testing directly.
 import 'package:json_schema_gen/src/generator.dart'
-    show dartDocComment, dartStringLiteral;
+    show dartDocCommentLines, dartStringLiteral;
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 
@@ -362,6 +362,99 @@ void main() {
     });
   });
 
+  group('generator placeholders never reach the output', () {
+    // A raw string in the generator once emitted the literal text
+    // `$className(explicitKeys: _$explicitKeys)` into generated source. Only
+    // the zero-property object class takes that `copyWith` branch, and nothing
+    // generated one, so the suite caught it only as an unrelated load failure.
+    test('object schema with no properties compiles', () async {
+      await expectGeneratesValidDart(
+        {
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'NoProperties',
+          'type': 'object',
+          'additionalProperties': false,
+        },
+        'NoProperties',
+        workDir: workDir,
+      );
+    });
+
+    test(
+      'zero-property class gets a real copyWith, not a placeholder',
+      () async {
+        final parser = SchemaParser({
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'NoProps',
+          'type': 'object',
+          'additionalProperties': false,
+        }, baseUri: 'test.schema.json');
+        final code = generateCode(await parser.parse(), 'NoProps');
+
+        expect(code, contains('NoProps copyWith()'));
+        expect(code, isNot(contains(r'$className')));
+      },
+    );
+
+    test(
+      'no generator-side identifier leaks into any generated output',
+      () async {
+        // Guards the whole family: any `$name` that is a generator-local
+        // variable rather than a runtime expression is a bug.
+        final schemas = <String, Map<String, dynamic>>{
+          // `additionalProperties: false` is what makes this a *zero-parameter*
+          // class; without it the generated class still has an
+          // `additionalProperties` field and copyWith takes arguments.
+          'Empty': {
+            'title': 'Empty',
+            'type': 'object',
+            'additionalProperties': false,
+          },
+          'WithProps': {
+            'title': 'WithProps',
+            'type': 'object',
+            'properties': {
+              'a': {'type': 'string'},
+            },
+          },
+          'AnEnum': {
+            'title': 'AnEnum',
+            'enum': ['x', 'y'],
+          },
+          'AUnion': {
+            'title': 'AUnion',
+            'oneOf': [
+              {'type': 'string'},
+              {'type': 'integer'},
+            ],
+          },
+        };
+
+        for (final entry in schemas.entries) {
+          final parser = SchemaParser(entry.value, baseUri: 'test.schema.json');
+          final code = generateCode(await parser.parse(), entry.key);
+          for (final leaked in [
+            r'$className',
+            r'$subClassName',
+            r'$optionType',
+            r'$fieldName',
+            r'$descExpr',
+            r'$valueVar',
+            r'$errorsVar',
+          ]) {
+            expect(
+              code,
+              isNot(contains(leaked)),
+              reason:
+                  'Generator placeholder "$leaked" leaked into generated code '
+                  'for schema "${entry.key}".',
+            );
+          }
+        }
+      },
+    );
+  });
+
   group('dartStringLiteral', () {
     test('escapes the characters that are significant in a Dart literal', () {
       expect(dartStringLiteral('plain'), "'plain'");
@@ -378,26 +471,29 @@ void main() {
     });
   });
 
-  group('dartDocComment', () {
+  group('dartDocCommentLines', () {
     test('prefixes every line so text cannot escape the comment', () {
-      expect(dartDocComment('one\ntwo'), '  /// one\n  /// two\n');
-      expect(dartDocComment('a\r\nb\rc'), '  /// a\n  /// b\n  /// c\n');
+      expect(dartDocCommentLines('one\ntwo'), ['/// one', '/// two']);
+      expect(dartDocCommentLines('a\r\nb\rc'), ['/// a', '/// b', '/// c']);
     });
 
     test('escapes brackets so they are not dartdoc references', () {
-      expect(
-        dartDocComment('see [NotAType]'),
-        r'  /// see \[NotAType\]'
-        '\n',
-      );
+      expect(dartDocCommentLines('see [NotAType]'), [r'/// see \[NotAType\]']);
     });
 
     test('strips control characters', () {
-      expect(dartDocComment('a\u0000b'), '  /// ab\n');
+      expect(dartDocCommentLines('a\u0000b'), ['/// ab']);
     });
 
     test('keeps blank lines as bare ///', () {
-      expect(dartDocComment('a\n\nb'), '  /// a\n  ///\n  /// b\n');
+      expect(dartDocCommentLines('a\n\nb'), ['/// a', '///', '/// b']);
+    });
+
+    test('a newline in a schema comment cannot inject code', () {
+      // Regression guard: the emitted lines must each stay inside the comment.
+      final lines = dartDocCommentLines('oops\n}  void evil() {}');
+      expect(lines, ['/// oops', '/// }  void evil() {}']);
+      expect(lines.every((l) => l.startsWith('///')), isTrue);
     });
   });
 }

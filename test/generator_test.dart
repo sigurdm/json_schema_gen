@@ -833,9 +833,7 @@ void main() {
         );
         expect(
           code,
-          matches(
-            r"@Deprecated\('deprecated'\)\s+final String\? withoutMsg;",
-          ),
+          matches(r"@Deprecated\('deprecated'\)\s+final String\? withoutMsg;"),
         );
         expect(
           code,

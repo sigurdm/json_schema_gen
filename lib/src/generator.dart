@@ -164,8 +164,17 @@ String escapeStringContents(String value) {
 /// See [escapeStringContents] for the escaping rules.
 String dartStringLiteral(String value) => "'${escapeStringContents(value)}'";
 
-/// Renders schema-derived [text] as a `///` doc comment, indented by [indent].
 /// Renders schema-derived [text] as a list of `///` doc comment lines.
+///
+/// A `///` comment is terminated by a line break, so any schema text written
+/// into one must have its line breaks re-prefixed — otherwise a `$comment`
+/// such as `"oops\n}  void evil() {}"` escapes the comment and injects
+/// arbitrary Dart. Carriage returns and other control characters are stripped
+/// for the same reason, and `[` is escaped so that text like `[Foo]` is not
+/// resolved as a dartdoc reference to a type that does not exist.
+///
+/// Each returned element is a complete line including its `///` prefix, ready
+/// to hand to `code_builder`'s `docs` builders.
 List<String> dartDocCommentLines(String text) {
   final sanitized = text.replaceAll('[', r'\[').replaceAll(']', r'\]');
   final lines = sanitized.split(RegExp(r'\r\n|\r|\n'));
@@ -179,23 +188,6 @@ List<String> dartDocCommentLines(String text) {
     result.add(clean.isEmpty ? '///' : '/// $clean');
   }
   return result;
-}
-
-/// Renders schema-derived [text] as a `///` doc comment, indented by [indent].
-///
-/// A `///` comment is terminated by a line break, so any schema text written
-/// into one must have its line breaks re-prefixed — otherwise a `$comment`
-/// such as `"oops\n}  void evil() {}"` escapes the comment and injects
-/// arbitrary Dart. Carriage returns and other control characters are stripped
-/// for the same reason, and `[` is escaped so that text like `[Foo]` is not
-/// resolved as a dartdoc reference to a type that does not exist.
-String dartDocComment(String text, {String indent = '  '}) {
-  final lines = dartDocCommentLines(text);
-  final buffer = StringBuffer();
-  for (final line in lines) {
-    buffer.writeln('$indent$line');
-  }
-  return buffer.toString();
 }
 
 /// Type names that a generated class must never shadow.
@@ -436,6 +428,15 @@ Map<String, String> _calculateFieldNames(Schema schema) {
 
 /// Entry point to generate code for a parsed JSON Schema.
 ///
+/// Returns valid but **unformatted** Dart source: the output comes straight
+/// from `code_builder`'s [DartEmitter], which puts most declarations on a
+/// single line. Callers that write the result anywhere a human will read it
+/// are expected to run it through `package:dart_style` first, the way
+/// `JsonSchemaBuilder` and the `json_schema_gen` CLI both do. Formatting is
+/// left to the caller so that a formatter failure — which always means this
+/// generator emitted source that does not parse — surfaces as a build error
+/// at the call site instead of being swallowed here.
+///
 /// Preconditions:
 /// - [rootSchema] must not be null.
 /// - [rootName] must not be empty.
@@ -657,7 +658,11 @@ String generateCode(
 
   final context = _GeneratorContext(classNames);
   classNames.forEach((schema, name) {
-    if (schema.enumValues != null) {
+    // These guards must stay in lockstep with the `enumValues` check in
+    // `discoverClasses` above. An `enum: []` schema is not emitted as a Dart
+    // enum (an enum needs at least one constant), so if discovery classified
+    // it as an object, emission has to classify it the same way.
+    if (schema.enumValues != null && schema.enumValues!.isNotEmpty) {
       context.enumConstantNames[schema] = _calculateEnumConstantNames(schema);
     } else if (schema.isObject) {
       context.objectFieldNames[schema] = _calculateFieldNames(schema);
@@ -667,7 +672,7 @@ String generateCode(
   final specs = <Spec>[];
   for (final schema in localClasses) {
     final name = classNames[schema]!;
-    if (schema.enumValues != null) {
+    if (schema.enumValues != null && schema.enumValues!.isNotEmpty) {
       specs.add(_generateEnumClass(schema, name, context));
     } else if (schema.isUnion) {
       specs.addAll(_generateUnionClass(schema, name, context));
@@ -1157,7 +1162,9 @@ Class _generateObjectClass(
             ..name = '_patternRegex$i'
             ..static = true
             ..modifier = FieldModifier.final$
-            ..assignment = Code('RegExp(${dartStringLiteral(pattern.pattern)})'),
+            ..assignment = Code(
+              'RegExp(${dartStringLiteral(pattern.pattern)})',
+            ),
         ),
       );
     }
@@ -1411,7 +1418,11 @@ $propDescriptors    },
       ..factory = true
       ..name = 'fromJson'
       ..requiredParameters.add(
-        Parameter((pb) => pb..name = 'reader'..type = refer('JsonReader')),
+        Parameter(
+          (pb) => pb
+            ..name = 'reader'
+            ..type = refer('JsonReader'),
+        ),
       )
       ..optionalParameters.add(
         Parameter(
@@ -1461,7 +1472,11 @@ $propDescriptors    },
       ..name = 'writeJson'
       ..returns = refer('void')
       ..requiredParameters.add(
-        Parameter((pb) => pb..name = 'target'..type = refer('JsonSink')),
+        Parameter(
+          (pb) => pb
+            ..name = 'target'
+            ..type = refer('JsonSink'),
+        ),
       )
       ..lambda = true
       ..body = const Code('writeWithDescriptor(target, this, descriptor)'),
@@ -1514,11 +1529,13 @@ return result;'''),
             ..returns = refer(className)
             ..optionalParameters.addAll(copyWithParams)
             ..body = Block.of([
-              Code('''final nextKeys = _\$explicitKeys != null ? Set<String>.from(_\$explicitKeys) : null;
+              Code(
+                '''final nextKeys = _\$explicitKeys != null ? Set<String>.from(_\$explicitKeys) : null;
 $copyWithKeys
 return $className(
 $copyWithArgs      explicitKeys: nextKeys,
-);'''),
+);''',
+              ),
             ]),
         );
 
@@ -1528,7 +1545,11 @@ $copyWithArgs      explicitKeys: nextKeys,
       ..name = 'operator =='
       ..returns = refer('bool')
       ..requiredParameters.add(
-        Parameter((pb) => pb..name = 'other'..type = refer('Object')),
+        Parameter(
+          (pb) => pb
+            ..name = 'other'
+            ..type = refer('Object'),
+        ),
       )
       ..lambda = true
       ..body = Code('''identical(this, other) ||
@@ -1544,7 +1565,9 @@ other is $className &&
       ..name = 'hashCode'
       ..returns = refer('int')
       ..lambda = true
-      ..body = Code('Object.hashAll([\n        ${hashExprs.join(',\n        ')}\n      ])'),
+      ..body = Code(
+        'Object.hashAll([\n        ${hashExprs.join(',\n        ')}\n      ])',
+      ),
   );
 
   final toStringMethod = Method(
@@ -2674,7 +2697,11 @@ $optionDescriptors    ],
           ..factory = true
           ..name = 'fromJson'
           ..requiredParameters.add(
-            Parameter((pb) => pb..name = 'reader'..type = refer('JsonReader')),
+            Parameter(
+              (pb) => pb
+                ..name = 'reader'
+                ..type = refer('JsonReader'),
+            ),
           )
           ..optionalParameters.add(
             Parameter(
@@ -2700,7 +2727,11 @@ $optionDescriptors    ],
             '/// Creates an instance of [$className] from a JSON-compatible Dart value.',
           )
           ..requiredParameters.add(
-            Parameter((pb) => pb..name = 'value'..type = refer('Object?')),
+            Parameter(
+              (pb) => pb
+                ..name = 'value'
+                ..type = refer('Object?'),
+            ),
           )
           ..optionalParameters.add(
             Parameter(
@@ -2724,7 +2755,11 @@ $optionDescriptors    ],
           ..name = 'writeJson'
           ..returns = refer('void')
           ..requiredParameters.add(
-            Parameter((pb) => pb..name = 'target'..type = refer('JsonSink')),
+            Parameter(
+              (pb) => pb
+                ..name = 'target'
+                ..type = refer('JsonSink'),
+            ),
           )
           ..lambda = true
           ..body = const Code('writeWithDescriptor(target, this, descriptor)'),
@@ -2904,7 +2939,11 @@ return errors;'''
           (cb) => cb
             ..constant = true
             ..requiredParameters.add(
-              Parameter((pb) => pb..toThis = true..name = 'value'),
+              Parameter(
+                (pb) => pb
+                  ..toThis = true
+                  ..name = 'value',
+              ),
             ),
         ),
       );
@@ -2915,7 +2954,11 @@ return errors;'''
             ..name = 'writeJson'
             ..returns = refer('void')
             ..requiredParameters.add(
-              Parameter((pb) => pb..name = 'target'..type = refer('JsonSink')),
+              Parameter(
+                (pb) => pb
+                  ..name = 'target'
+                  ..type = refer('JsonSink'),
+              ),
             )
             ..body = Block.of([
               Code('writeWithDescriptor(target, value, $descExpr);'),
@@ -2930,7 +2973,11 @@ return errors;'''
             ..name = 'operator =='
             ..returns = refer('bool')
             ..requiredParameters.add(
-              Parameter((pb) => pb..name = 'other'..type = refer('Object')),
+              Parameter(
+                (pb) => pb
+                  ..name = 'other'
+                  ..type = refer('Object'),
+              ),
             )
             ..lambda = true
             ..body = Code('''identical(this, other) ||

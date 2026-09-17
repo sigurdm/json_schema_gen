@@ -4,6 +4,7 @@
 // ignore_for_file: unnecessary_question_mark, unnecessary_cast
 
 import 'dart:collection';
+
 import 'package:collection/collection.dart';
 import 'package:json_schema_gen/json_schema.dart';
 import 'package:jsontool/jsontool.dart';
@@ -27,35 +28,6 @@ sealed class CoreAndValidationSpecificationsMetaSchema implements JsonModel {
     validate: validate,
   );
 
-  @override
-  void writeJson(JsonSink target) =>
-      writeWithDescriptor(target, this, descriptor);
-
-  String toJson() {
-    final buffer = StringBuffer();
-    writeJson(jsonStringWriter(buffer));
-    return buffer.toString();
-  }
-
-  @override
-  Object? toJsonValue() {
-    Object? result;
-    final sink = jsonObjectWriter((obj) => result = obj);
-    writeJson(sink);
-    return result;
-  }
-
-  @override
-  List<ValidationError> collectErrors();
-
-  @override
-  void validate() {
-    final errors = collectErrors();
-    if (errors.isNotEmpty) {
-      throw JsonValidationException(errors);
-    }
-  }
-
   static final UnionDescriptor<CoreAndValidationSpecificationsMetaSchema>
   descriptor = UnionDescriptor<CoreAndValidationSpecificationsMetaSchema>(
     title: 'CoreAndValidationSpecificationsMetaSchema',
@@ -78,12 +50,41 @@ sealed class CoreAndValidationSpecificationsMetaSchema implements JsonModel {
       ),
     ],
   );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  @override
+  List<ValidationError> collectErrors();
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 }
 
 final class CoreAndValidationSpecificationsMetaSchemaOption0
     extends CoreAndValidationSpecificationsMetaSchema {
-  final CoreAndValidationSpecificationsMetaSchema1 value;
   const CoreAndValidationSpecificationsMetaSchemaOption0(this.value);
+
+  final CoreAndValidationSpecificationsMetaSchema1 value;
 
   @override
   void writeJson(JsonSink target) {
@@ -116,8 +117,9 @@ final class CoreAndValidationSpecificationsMetaSchemaOption0
 
 final class CoreAndValidationSpecificationsMetaSchemaOption1
     extends CoreAndValidationSpecificationsMetaSchema {
-  final bool value;
   const CoreAndValidationSpecificationsMetaSchemaOption1(this.value);
+
+  final bool value;
 
   @override
   void writeJson(JsonSink target) {
@@ -145,86 +147,6 @@ final class CoreAndValidationSpecificationsMetaSchemaOption1
 }
 
 final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
-  /// Comment: Non-empty fragments not allowed.
-  final String? id;
-  final String? schema;
-  final String? ref;
-  final String? anchor;
-  final String? dynamicRef;
-  final String? dynamicAnchor;
-  final CoreAndValidationSpecificationsMetaSchema1Vocabulary? vocabulary;
-  final String? comment;
-  final CoreAndValidationSpecificationsMetaSchema1Defs? defs;
-  final List<CoreAndValidationSpecificationsMetaSchema>? prefixItems;
-  final CoreAndValidationSpecificationsMetaSchema? items;
-  final CoreAndValidationSpecificationsMetaSchema? contains;
-  final CoreAndValidationSpecificationsMetaSchema? additionalProperties_;
-  final CoreAndValidationSpecificationsMetaSchema1Properties properties;
-  final CoreAndValidationSpecificationsMetaSchema1PatternProperties
-  patternProperties_;
-  final CoreAndValidationSpecificationsMetaSchema1DependentSchemas
-  dependentSchemas;
-  final CoreAndValidationSpecificationsMetaSchema? propertyNames;
-  final CoreAndValidationSpecificationsMetaSchema? if_;
-  final CoreAndValidationSpecificationsMetaSchema? then;
-  final CoreAndValidationSpecificationsMetaSchema? else_;
-  final List<CoreAndValidationSpecificationsMetaSchema>? allOf;
-  final List<CoreAndValidationSpecificationsMetaSchema>? anyOf;
-  final List<CoreAndValidationSpecificationsMetaSchema>? oneOf;
-  final CoreAndValidationSpecificationsMetaSchema? not;
-  final CoreAndValidationSpecificationsMetaSchema? unevaluatedItems;
-  final CoreAndValidationSpecificationsMetaSchema? unevaluatedProperties;
-  final CoreAndValidationSpecificationsMetaSchema1Type? type_;
-  final Object? const_;
-  final List<Object?>? enum_;
-  final num? multipleOf;
-  final num? maximum;
-  final num? exclusiveMaximum;
-  final num? minimum;
-  final num? exclusiveMinimum;
-  final int? maxLength;
-  final int? minLength;
-  final String? pattern;
-  final int? maxItems;
-  final int? minItems;
-  final bool uniqueItems;
-  final int? maxContains;
-  final int minContains;
-  final int? maxProperties;
-  final int? minProperties;
-  final List<String>? required_;
-  final CoreAndValidationSpecificationsMetaSchema1DependentRequired?
-  dependentRequired;
-  final String? title;
-  final String? description;
-  final Object? default_;
-  final bool deprecated;
-  final bool readOnly;
-  final bool writeOnly;
-  final List<Object?>? examples;
-  final String? format;
-  final String? contentEncoding;
-  final String? contentMediaType;
-  final CoreAndValidationSpecificationsMetaSchema? contentSchema;
-
-  /// Comment: "definitions" has been replaced by "$defs".
-  @Deprecated('deprecated')
-  final CoreAndValidationSpecificationsMetaSchema1Definitions definitions;
-
-  /// Comment: "dependencies" has been split and replaced by "dependentSchemas" and "dependentRequired" in order to serve their differing semantics.
-  @Deprecated('deprecated')
-  final CoreAndValidationSpecificationsMetaSchema1Dependencies dependencies;
-
-  /// Comment: "$recursiveAnchor" has been replaced by "$dynamicAnchor".
-  @Deprecated('deprecated')
-  final String? recursiveAnchor;
-
-  /// Comment: "$recursiveRef" has been replaced by "$dynamicRef".
-  @Deprecated('deprecated')
-  final String? recursiveRef;
-  final Map<String, Object?> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1({
     this.id,
     this.schema,
@@ -310,6 +232,795 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
   }) => CoreAndValidationSpecificationsMetaSchema1.fromJson(
     JsonReader.fromObject(map),
     validate: validate,
+  );
+
+  /// Comment: Non-empty fragments not allowed.
+  final String? id;
+
+  final String? schema;
+
+  final String? ref;
+
+  final String? anchor;
+
+  final String? dynamicRef;
+
+  final String? dynamicAnchor;
+
+  final CoreAndValidationSpecificationsMetaSchema1Vocabulary? vocabulary;
+
+  final String? comment;
+
+  final CoreAndValidationSpecificationsMetaSchema1Defs? defs;
+
+  final List<CoreAndValidationSpecificationsMetaSchema>? prefixItems;
+
+  final CoreAndValidationSpecificationsMetaSchema? items;
+
+  final CoreAndValidationSpecificationsMetaSchema? contains;
+
+  final CoreAndValidationSpecificationsMetaSchema? additionalProperties_;
+
+  final CoreAndValidationSpecificationsMetaSchema1Properties properties;
+
+  final CoreAndValidationSpecificationsMetaSchema1PatternProperties
+  patternProperties_;
+
+  final CoreAndValidationSpecificationsMetaSchema1DependentSchemas
+  dependentSchemas;
+
+  final CoreAndValidationSpecificationsMetaSchema? propertyNames;
+
+  final CoreAndValidationSpecificationsMetaSchema? if_;
+
+  final CoreAndValidationSpecificationsMetaSchema? then;
+
+  final CoreAndValidationSpecificationsMetaSchema? else_;
+
+  final List<CoreAndValidationSpecificationsMetaSchema>? allOf;
+
+  final List<CoreAndValidationSpecificationsMetaSchema>? anyOf;
+
+  final List<CoreAndValidationSpecificationsMetaSchema>? oneOf;
+
+  final CoreAndValidationSpecificationsMetaSchema? not;
+
+  final CoreAndValidationSpecificationsMetaSchema? unevaluatedItems;
+
+  final CoreAndValidationSpecificationsMetaSchema? unevaluatedProperties;
+
+  final CoreAndValidationSpecificationsMetaSchema1Type? type_;
+
+  final Object? const_;
+
+  final List<Object?>? enum_;
+
+  final num? multipleOf;
+
+  final num? maximum;
+
+  final num? exclusiveMaximum;
+
+  final num? minimum;
+
+  final num? exclusiveMinimum;
+
+  final int? maxLength;
+
+  final int? minLength;
+
+  final String? pattern;
+
+  final int? maxItems;
+
+  final int? minItems;
+
+  final bool uniqueItems;
+
+  final int? maxContains;
+
+  final int minContains;
+
+  final int? maxProperties;
+
+  final int? minProperties;
+
+  final List<String>? required_;
+
+  final CoreAndValidationSpecificationsMetaSchema1DependentRequired?
+  dependentRequired;
+
+  final String? title;
+
+  final String? description;
+
+  final Object? default_;
+
+  final bool deprecated;
+
+  final bool readOnly;
+
+  final bool writeOnly;
+
+  final List<Object?>? examples;
+
+  final String? format;
+
+  final String? contentEncoding;
+
+  final String? contentMediaType;
+
+  final CoreAndValidationSpecificationsMetaSchema? contentSchema;
+
+  /// Comment: "definitions" has been replaced by "$defs".
+  @Deprecated('deprecated')
+  final CoreAndValidationSpecificationsMetaSchema1Definitions definitions;
+
+  /// Comment: "dependencies" has been split and replaced by "dependentSchemas" and "dependentRequired" in order to serve their differing semantics.
+  @Deprecated('deprecated')
+  final CoreAndValidationSpecificationsMetaSchema1Dependencies dependencies;
+
+  /// Comment: "$recursiveAnchor" has been replaced by "$dynamicAnchor".
+  @Deprecated('deprecated')
+  final String? recursiveAnchor;
+
+  /// Comment: "$recursiveRef" has been replaced by "$dynamicRef".
+  @Deprecated('deprecated')
+  final String? recursiveRef;
+
+  final Map<String, Object?> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1>
+  descriptor = ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1>(
+    title: 'CoreAndValidationSpecificationsMetaSchema1',
+    matches: (instance) =>
+        instance is CoreAndValidationSpecificationsMetaSchema1,
+    instantiate: (fields) => CoreAndValidationSpecificationsMetaSchema1(
+      id: fields['\$id'] as String?,
+      schema: fields['\$schema'] as String?,
+      ref: fields['\$ref'] as String?,
+      anchor: fields['\$anchor'] as String?,
+      dynamicRef: fields['\$dynamicRef'] as String?,
+      dynamicAnchor: fields['\$dynamicAnchor'] as String?,
+      vocabulary:
+          fields['\$vocabulary']
+              as CoreAndValidationSpecificationsMetaSchema1Vocabulary?,
+      comment: fields['\$comment'] as String?,
+      defs: fields['\$defs'] as CoreAndValidationSpecificationsMetaSchema1Defs?,
+      prefixItems:
+          fields['prefixItems']
+              as List<CoreAndValidationSpecificationsMetaSchema>?,
+      items: fields['items'] as CoreAndValidationSpecificationsMetaSchema?,
+      contains:
+          fields['contains'] as CoreAndValidationSpecificationsMetaSchema?,
+      additionalProperties_:
+          fields['additionalProperties']
+              as CoreAndValidationSpecificationsMetaSchema?,
+      properties: fields.containsKey('properties')
+          ? fields['properties']
+                as CoreAndValidationSpecificationsMetaSchema1Properties
+          : const CoreAndValidationSpecificationsMetaSchema1Properties(),
+      patternProperties_: fields.containsKey('patternProperties')
+          ? fields['patternProperties']
+                as CoreAndValidationSpecificationsMetaSchema1PatternProperties
+          : const CoreAndValidationSpecificationsMetaSchema1PatternProperties(),
+      dependentSchemas: fields.containsKey('dependentSchemas')
+          ? fields['dependentSchemas']
+                as CoreAndValidationSpecificationsMetaSchema1DependentSchemas
+          : const CoreAndValidationSpecificationsMetaSchema1DependentSchemas(),
+      propertyNames:
+          fields['propertyNames'] as CoreAndValidationSpecificationsMetaSchema?,
+      if_: fields['if'] as CoreAndValidationSpecificationsMetaSchema?,
+      then: fields['then'] as CoreAndValidationSpecificationsMetaSchema?,
+      else_: fields['else'] as CoreAndValidationSpecificationsMetaSchema?,
+      allOf:
+          fields['allOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
+      anyOf:
+          fields['anyOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
+      oneOf:
+          fields['oneOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
+      not: fields['not'] as CoreAndValidationSpecificationsMetaSchema?,
+      unevaluatedItems:
+          fields['unevaluatedItems']
+              as CoreAndValidationSpecificationsMetaSchema?,
+      unevaluatedProperties:
+          fields['unevaluatedProperties']
+              as CoreAndValidationSpecificationsMetaSchema?,
+      type_: fields['type'] as CoreAndValidationSpecificationsMetaSchema1Type?,
+      const_: fields['const'] as Object?,
+      enum_: fields['enum'] as List<Object?>?,
+      multipleOf: fields['multipleOf'] as num?,
+      maximum: fields['maximum'] as num?,
+      exclusiveMaximum: fields['exclusiveMaximum'] as num?,
+      minimum: fields['minimum'] as num?,
+      exclusiveMinimum: fields['exclusiveMinimum'] as num?,
+      maxLength: fields['maxLength'] as int?,
+      minLength: fields['minLength'] as int?,
+      pattern: fields['pattern'] as String?,
+      maxItems: fields['maxItems'] as int?,
+      minItems: fields['minItems'] as int?,
+      uniqueItems: fields.containsKey('uniqueItems')
+          ? fields['uniqueItems'] as bool
+          : false,
+      maxContains: fields['maxContains'] as int?,
+      minContains: fields.containsKey('minContains')
+          ? fields['minContains'] as int
+          : 1,
+      maxProperties: fields['maxProperties'] as int?,
+      minProperties: fields['minProperties'] as int?,
+      required_: fields['required'] as List<String>?,
+      dependentRequired:
+          fields['dependentRequired']
+              as CoreAndValidationSpecificationsMetaSchema1DependentRequired?,
+      title: fields['title'] as String?,
+      description: fields['description'] as String?,
+      default_: fields['default'] as Object?,
+      deprecated: fields.containsKey('deprecated')
+          ? fields['deprecated'] as bool
+          : false,
+      readOnly: fields.containsKey('readOnly')
+          ? fields['readOnly'] as bool
+          : false,
+      writeOnly: fields.containsKey('writeOnly')
+          ? fields['writeOnly'] as bool
+          : false,
+      examples: fields['examples'] as List<Object?>?,
+      format: fields['format'] as String?,
+      contentEncoding: fields['contentEncoding'] as String?,
+      contentMediaType: fields['contentMediaType'] as String?,
+      contentSchema:
+          fields['contentSchema'] as CoreAndValidationSpecificationsMetaSchema?,
+      definitions: fields.containsKey('definitions')
+          ? fields['definitions']
+                as CoreAndValidationSpecificationsMetaSchema1Definitions
+          : const CoreAndValidationSpecificationsMetaSchema1Definitions(),
+      dependencies: fields.containsKey('dependencies')
+          ? fields['dependencies']
+                as CoreAndValidationSpecificationsMetaSchema1Dependencies
+          : const CoreAndValidationSpecificationsMetaSchema1Dependencies(),
+      recursiveAnchor: fields['\$recursiveAnchor'] as String?,
+      recursiveRef: fields['\$recursiveRef'] as String?,
+      additionalProperties: fields.entries
+          .where(
+            (e) =>
+                !const <String>{
+                  '\$id',
+                  '\$schema',
+                  '\$ref',
+                  '\$anchor',
+                  '\$dynamicRef',
+                  '\$dynamicAnchor',
+                  '\$vocabulary',
+                  '\$comment',
+                  '\$defs',
+                  'prefixItems',
+                  'items',
+                  'contains',
+                  'additionalProperties',
+                  'properties',
+                  'patternProperties',
+                  'dependentSchemas',
+                  'propertyNames',
+                  'if',
+                  'then',
+                  'else',
+                  'allOf',
+                  'anyOf',
+                  'oneOf',
+                  'not',
+                  'unevaluatedItems',
+                  'unevaluatedProperties',
+                  'type',
+                  'const',
+                  'enum',
+                  'multipleOf',
+                  'maximum',
+                  'exclusiveMaximum',
+                  'minimum',
+                  'exclusiveMinimum',
+                  'maxLength',
+                  'minLength',
+                  'pattern',
+                  'maxItems',
+                  'minItems',
+                  'uniqueItems',
+                  'maxContains',
+                  'minContains',
+                  'maxProperties',
+                  'minProperties',
+                  'required',
+                  'dependentRequired',
+                  'title',
+                  'description',
+                  'default',
+                  'deprecated',
+                  'readOnly',
+                  'writeOnly',
+                  'examples',
+                  'format',
+                  'contentEncoding',
+                  'contentMediaType',
+                  'contentSchema',
+                  'definitions',
+                  'dependencies',
+                  '\$recursiveAnchor',
+                  '\$recursiveRef',
+                }.contains(e.key) &&
+                true,
+          )
+          .fold<Map<String, Object?>>(
+            {},
+            (m, e) => m..[e.key] = e.value as Object?,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance =
+          instance as CoreAndValidationSpecificationsMetaSchema1;
+      final map = <String, dynamic>{
+        '\$id': typedInstance.id,
+        '\$schema': typedInstance.schema,
+        '\$ref': typedInstance.ref,
+        '\$anchor': typedInstance.anchor,
+        '\$dynamicRef': typedInstance.dynamicRef,
+        '\$dynamicAnchor': typedInstance.dynamicAnchor,
+        '\$vocabulary': typedInstance.vocabulary,
+        '\$comment': typedInstance.comment,
+        '\$defs': typedInstance.defs,
+        'prefixItems': typedInstance.prefixItems,
+        'items': typedInstance.items,
+        'contains': typedInstance.contains,
+        'additionalProperties': typedInstance.additionalProperties_,
+        'properties': typedInstance.properties,
+        'patternProperties': typedInstance.patternProperties_,
+        'dependentSchemas': typedInstance.dependentSchemas,
+        'propertyNames': typedInstance.propertyNames,
+        'if': typedInstance.if_,
+        'then': typedInstance.then,
+        'else': typedInstance.else_,
+        'allOf': typedInstance.allOf,
+        'anyOf': typedInstance.anyOf,
+        'oneOf': typedInstance.oneOf,
+        'not': typedInstance.not,
+        'unevaluatedItems': typedInstance.unevaluatedItems,
+        'unevaluatedProperties': typedInstance.unevaluatedProperties,
+        'type': typedInstance.type_,
+        'const': typedInstance.const_,
+        'enum': typedInstance.enum_,
+        'multipleOf': typedInstance.multipleOf,
+        'maximum': typedInstance.maximum,
+        'exclusiveMaximum': typedInstance.exclusiveMaximum,
+        'minimum': typedInstance.minimum,
+        'exclusiveMinimum': typedInstance.exclusiveMinimum,
+        'maxLength': typedInstance.maxLength,
+        'minLength': typedInstance.minLength,
+        'pattern': typedInstance.pattern,
+        'maxItems': typedInstance.maxItems,
+        'minItems': typedInstance.minItems,
+        'uniqueItems': typedInstance.uniqueItems,
+        'maxContains': typedInstance.maxContains,
+        'minContains': typedInstance.minContains,
+        'maxProperties': typedInstance.maxProperties,
+        'minProperties': typedInstance.minProperties,
+        'required': typedInstance.required_,
+        'dependentRequired': typedInstance.dependentRequired,
+        'title': typedInstance.title,
+        'description': typedInstance.description,
+        'default': typedInstance.default_,
+        'deprecated': typedInstance.deprecated,
+        'readOnly': typedInstance.readOnly,
+        'writeOnly': typedInstance.writeOnly,
+        'examples': typedInstance.examples,
+        'format': typedInstance.format,
+        'contentEncoding': typedInstance.contentEncoding,
+        'contentMediaType': typedInstance.contentMediaType,
+        'contentSchema': typedInstance.contentSchema,
+        'definitions': typedInstance.definitions,
+        'dependencies': typedInstance.dependencies,
+        '\$recursiveAnchor': typedInstance.recursiveAnchor,
+        '\$recursiveRef': typedInstance.recursiveRef,
+        ...typedInstance.additionalProperties,
+      };
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {
+      '\$id': PropertyDescriptor(
+        name: '\$id',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$schema': PropertyDescriptor(
+        name: '\$schema',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$ref': PropertyDescriptor(
+        name: '\$ref',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$anchor': PropertyDescriptor(
+        name: '\$anchor',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$dynamicRef': PropertyDescriptor(
+        name: '\$dynamicRef',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$dynamicAnchor': PropertyDescriptor(
+        name: '\$dynamicAnchor',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$vocabulary': PropertyDescriptor(
+        name: '\$vocabulary',
+        isRequired: false,
+        schema:
+            RefDescriptor<CoreAndValidationSpecificationsMetaSchema1Vocabulary>(
+              () => CoreAndValidationSpecificationsMetaSchema1Vocabulary
+                  .descriptor,
+            ),
+      ),
+      '\$comment': PropertyDescriptor(
+        name: '\$comment',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$defs': PropertyDescriptor(
+        name: '\$defs',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema1Defs>(
+          () => CoreAndValidationSpecificationsMetaSchema1Defs.descriptor,
+        ),
+      ),
+      'prefixItems': PropertyDescriptor(
+        name: 'prefixItems',
+        isRequired: false,
+        schema: ArrayDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+            () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+          ),
+        ),
+      ),
+      'items': PropertyDescriptor(
+        name: 'items',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'contains': PropertyDescriptor(
+        name: 'contains',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'additionalProperties': PropertyDescriptor(
+        name: 'additionalProperties',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'properties': PropertyDescriptor(
+        name: 'properties',
+        isRequired: false,
+        schema:
+            RefDescriptor<CoreAndValidationSpecificationsMetaSchema1Properties>(
+              () => CoreAndValidationSpecificationsMetaSchema1Properties
+                  .descriptor,
+            ),
+      ),
+      'patternProperties': PropertyDescriptor(
+        name: 'patternProperties',
+        isRequired: false,
+        schema:
+            RefDescriptor<
+              CoreAndValidationSpecificationsMetaSchema1PatternProperties
+            >(
+              () => CoreAndValidationSpecificationsMetaSchema1PatternProperties
+                  .descriptor,
+            ),
+      ),
+      'dependentSchemas': PropertyDescriptor(
+        name: 'dependentSchemas',
+        isRequired: false,
+        schema:
+            RefDescriptor<
+              CoreAndValidationSpecificationsMetaSchema1DependentSchemas
+            >(
+              () => CoreAndValidationSpecificationsMetaSchema1DependentSchemas
+                  .descriptor,
+            ),
+      ),
+      'propertyNames': PropertyDescriptor(
+        name: 'propertyNames',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'if': PropertyDescriptor(
+        name: 'if',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'then': PropertyDescriptor(
+        name: 'then',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'else': PropertyDescriptor(
+        name: 'else',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'allOf': PropertyDescriptor(
+        name: 'allOf',
+        isRequired: false,
+        schema: ArrayDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+            () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+          ),
+        ),
+      ),
+      'anyOf': PropertyDescriptor(
+        name: 'anyOf',
+        isRequired: false,
+        schema: ArrayDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+            () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+          ),
+        ),
+      ),
+      'oneOf': PropertyDescriptor(
+        name: 'oneOf',
+        isRequired: false,
+        schema: ArrayDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+            () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+          ),
+        ),
+      ),
+      'not': PropertyDescriptor(
+        name: 'not',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'unevaluatedItems': PropertyDescriptor(
+        name: 'unevaluatedItems',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'unevaluatedProperties': PropertyDescriptor(
+        name: 'unevaluatedProperties',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'type': PropertyDescriptor(
+        name: 'type',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema1Type>(
+          () => CoreAndValidationSpecificationsMetaSchema1Type.descriptor,
+        ),
+      ),
+      'const': PropertyDescriptor(
+        name: 'const',
+        isRequired: false,
+        schema: const AnythingDescriptor(),
+      ),
+      'enum': PropertyDescriptor(
+        name: 'enum',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'multipleOf': PropertyDescriptor(
+        name: 'multipleOf',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+      'maximum': PropertyDescriptor(
+        name: 'maximum',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+      'exclusiveMaximum': PropertyDescriptor(
+        name: 'exclusiveMaximum',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+      'minimum': PropertyDescriptor(
+        name: 'minimum',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+      'exclusiveMinimum': PropertyDescriptor(
+        name: 'exclusiveMinimum',
+        isRequired: false,
+        schema: const NumDescriptor(),
+      ),
+      'maxLength': PropertyDescriptor(
+        name: 'maxLength',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'minLength': PropertyDescriptor(
+        name: 'minLength',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'pattern': PropertyDescriptor(
+        name: 'pattern',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'maxItems': PropertyDescriptor(
+        name: 'maxItems',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'minItems': PropertyDescriptor(
+        name: 'minItems',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'uniqueItems': PropertyDescriptor(
+        name: 'uniqueItems',
+        isRequired: false,
+        schema: const BoolDescriptor(),
+      ),
+      'maxContains': PropertyDescriptor(
+        name: 'maxContains',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'minContains': PropertyDescriptor(
+        name: 'minContains',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'maxProperties': PropertyDescriptor(
+        name: 'maxProperties',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'minProperties': PropertyDescriptor(
+        name: 'minProperties',
+        isRequired: false,
+        schema: const IntDescriptor(),
+      ),
+      'required': PropertyDescriptor(
+        name: 'required',
+        isRequired: false,
+        schema: ArrayDescriptor<String>(const StringDescriptor()),
+      ),
+      'dependentRequired': PropertyDescriptor(
+        name: 'dependentRequired',
+        isRequired: false,
+        schema:
+            RefDescriptor<
+              CoreAndValidationSpecificationsMetaSchema1DependentRequired
+            >(
+              () => CoreAndValidationSpecificationsMetaSchema1DependentRequired
+                  .descriptor,
+            ),
+      ),
+      'title': PropertyDescriptor(
+        name: 'title',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'description': PropertyDescriptor(
+        name: 'description',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'default': PropertyDescriptor(
+        name: 'default',
+        isRequired: false,
+        schema: const AnythingDescriptor(),
+      ),
+      'deprecated': PropertyDescriptor(
+        name: 'deprecated',
+        isRequired: false,
+        schema: const BoolDescriptor(),
+      ),
+      'readOnly': PropertyDescriptor(
+        name: 'readOnly',
+        isRequired: false,
+        schema: const BoolDescriptor(),
+      ),
+      'writeOnly': PropertyDescriptor(
+        name: 'writeOnly',
+        isRequired: false,
+        schema: const BoolDescriptor(),
+      ),
+      'examples': PropertyDescriptor(
+        name: 'examples',
+        isRequired: false,
+        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
+      ),
+      'format': PropertyDescriptor(
+        name: 'format',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'contentEncoding': PropertyDescriptor(
+        name: 'contentEncoding',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'contentMediaType': PropertyDescriptor(
+        name: 'contentMediaType',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      'contentSchema': PropertyDescriptor(
+        name: 'contentSchema',
+        isRequired: false,
+        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
+      ),
+      'definitions': PropertyDescriptor(
+        name: 'definitions',
+        isRequired: false,
+        schema:
+            RefDescriptor<
+              CoreAndValidationSpecificationsMetaSchema1Definitions
+            >(
+              () => CoreAndValidationSpecificationsMetaSchema1Definitions
+                  .descriptor,
+            ),
+      ),
+      'dependencies': PropertyDescriptor(
+        name: 'dependencies',
+        isRequired: false,
+        schema:
+            RefDescriptor<
+              CoreAndValidationSpecificationsMetaSchema1Dependencies
+            >(
+              () => CoreAndValidationSpecificationsMetaSchema1Dependencies
+                  .descriptor,
+            ),
+      ),
+      '\$recursiveAnchor': PropertyDescriptor(
+        name: '\$recursiveAnchor',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+      '\$recursiveRef': PropertyDescriptor(
+        name: '\$recursiveRef',
+        isRequired: false,
+        schema: const StringDescriptor(),
+      ),
+    },
+
+    required: const [],
+    additionalProperties: const AnythingDescriptor(),
   );
 
   @override
@@ -1299,657 +2010,6 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     }
   }
 
-  static final ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1>
-  descriptor = ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1>(
-    title: 'CoreAndValidationSpecificationsMetaSchema1',
-    matches: (instance) =>
-        instance is CoreAndValidationSpecificationsMetaSchema1,
-    instantiate: (fields) => CoreAndValidationSpecificationsMetaSchema1(
-      id: fields['\$id'] as String?,
-      schema: fields['\$schema'] as String?,
-      ref: fields['\$ref'] as String?,
-      anchor: fields['\$anchor'] as String?,
-      dynamicRef: fields['\$dynamicRef'] as String?,
-      dynamicAnchor: fields['\$dynamicAnchor'] as String?,
-      vocabulary:
-          fields['\$vocabulary']
-              as CoreAndValidationSpecificationsMetaSchema1Vocabulary?,
-      comment: fields['\$comment'] as String?,
-      defs: fields['\$defs'] as CoreAndValidationSpecificationsMetaSchema1Defs?,
-      prefixItems:
-          fields['prefixItems']
-              as List<CoreAndValidationSpecificationsMetaSchema>?,
-      items: fields['items'] as CoreAndValidationSpecificationsMetaSchema?,
-      contains:
-          fields['contains'] as CoreAndValidationSpecificationsMetaSchema?,
-      additionalProperties_:
-          fields['additionalProperties']
-              as CoreAndValidationSpecificationsMetaSchema?,
-      properties: fields.containsKey('properties')
-          ? fields['properties']
-                as CoreAndValidationSpecificationsMetaSchema1Properties
-          : const CoreAndValidationSpecificationsMetaSchema1Properties(),
-      patternProperties_: fields.containsKey('patternProperties')
-          ? fields['patternProperties']
-                as CoreAndValidationSpecificationsMetaSchema1PatternProperties
-          : const CoreAndValidationSpecificationsMetaSchema1PatternProperties(),
-      dependentSchemas: fields.containsKey('dependentSchemas')
-          ? fields['dependentSchemas']
-                as CoreAndValidationSpecificationsMetaSchema1DependentSchemas
-          : const CoreAndValidationSpecificationsMetaSchema1DependentSchemas(),
-      propertyNames:
-          fields['propertyNames'] as CoreAndValidationSpecificationsMetaSchema?,
-      if_: fields['if'] as CoreAndValidationSpecificationsMetaSchema?,
-      then: fields['then'] as CoreAndValidationSpecificationsMetaSchema?,
-      else_: fields['else'] as CoreAndValidationSpecificationsMetaSchema?,
-      allOf:
-          fields['allOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
-      anyOf:
-          fields['anyOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
-      oneOf:
-          fields['oneOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
-      not: fields['not'] as CoreAndValidationSpecificationsMetaSchema?,
-      unevaluatedItems:
-          fields['unevaluatedItems']
-              as CoreAndValidationSpecificationsMetaSchema?,
-      unevaluatedProperties:
-          fields['unevaluatedProperties']
-              as CoreAndValidationSpecificationsMetaSchema?,
-      type_: fields['type'] as CoreAndValidationSpecificationsMetaSchema1Type?,
-      const_: fields['const'] as Object?,
-      enum_: fields['enum'] as List<Object?>?,
-      multipleOf: fields['multipleOf'] as num?,
-      maximum: fields['maximum'] as num?,
-      exclusiveMaximum: fields['exclusiveMaximum'] as num?,
-      minimum: fields['minimum'] as num?,
-      exclusiveMinimum: fields['exclusiveMinimum'] as num?,
-      maxLength: fields['maxLength'] as int?,
-      minLength: fields['minLength'] as int?,
-      pattern: fields['pattern'] as String?,
-      maxItems: fields['maxItems'] as int?,
-      minItems: fields['minItems'] as int?,
-      uniqueItems: fields.containsKey('uniqueItems')
-          ? fields['uniqueItems'] as bool
-          : false,
-      maxContains: fields['maxContains'] as int?,
-      minContains: fields.containsKey('minContains')
-          ? fields['minContains'] as int
-          : 1,
-      maxProperties: fields['maxProperties'] as int?,
-      minProperties: fields['minProperties'] as int?,
-      required_: fields['required'] as List<String>?,
-      dependentRequired:
-          fields['dependentRequired']
-              as CoreAndValidationSpecificationsMetaSchema1DependentRequired?,
-      title: fields['title'] as String?,
-      description: fields['description'] as String?,
-      default_: fields['default'] as Object?,
-      deprecated: fields.containsKey('deprecated')
-          ? fields['deprecated'] as bool
-          : false,
-      readOnly: fields.containsKey('readOnly')
-          ? fields['readOnly'] as bool
-          : false,
-      writeOnly: fields.containsKey('writeOnly')
-          ? fields['writeOnly'] as bool
-          : false,
-      examples: fields['examples'] as List<Object?>?,
-      format: fields['format'] as String?,
-      contentEncoding: fields['contentEncoding'] as String?,
-      contentMediaType: fields['contentMediaType'] as String?,
-      contentSchema:
-          fields['contentSchema'] as CoreAndValidationSpecificationsMetaSchema?,
-      definitions: fields.containsKey('definitions')
-          ? fields['definitions']
-                as CoreAndValidationSpecificationsMetaSchema1Definitions
-          : const CoreAndValidationSpecificationsMetaSchema1Definitions(),
-      dependencies: fields.containsKey('dependencies')
-          ? fields['dependencies']
-                as CoreAndValidationSpecificationsMetaSchema1Dependencies
-          : const CoreAndValidationSpecificationsMetaSchema1Dependencies(),
-      recursiveAnchor: fields['\$recursiveAnchor'] as String?,
-      recursiveRef: fields['\$recursiveRef'] as String?,
-      additionalProperties: fields.entries
-          .where(
-            (e) =>
-                !const <String>{
-                  '\$id',
-                  '\$schema',
-                  '\$ref',
-                  '\$anchor',
-                  '\$dynamicRef',
-                  '\$dynamicAnchor',
-                  '\$vocabulary',
-                  '\$comment',
-                  '\$defs',
-                  'prefixItems',
-                  'items',
-                  'contains',
-                  'additionalProperties',
-                  'properties',
-                  'patternProperties',
-                  'dependentSchemas',
-                  'propertyNames',
-                  'if',
-                  'then',
-                  'else',
-                  'allOf',
-                  'anyOf',
-                  'oneOf',
-                  'not',
-                  'unevaluatedItems',
-                  'unevaluatedProperties',
-                  'type',
-                  'const',
-                  'enum',
-                  'multipleOf',
-                  'maximum',
-                  'exclusiveMaximum',
-                  'minimum',
-                  'exclusiveMinimum',
-                  'maxLength',
-                  'minLength',
-                  'pattern',
-                  'maxItems',
-                  'minItems',
-                  'uniqueItems',
-                  'maxContains',
-                  'minContains',
-                  'maxProperties',
-                  'minProperties',
-                  'required',
-                  'dependentRequired',
-                  'title',
-                  'description',
-                  'default',
-                  'deprecated',
-                  'readOnly',
-                  'writeOnly',
-                  'examples',
-                  'format',
-                  'contentEncoding',
-                  'contentMediaType',
-                  'contentSchema',
-                  'definitions',
-                  'dependencies',
-                  '\$recursiveAnchor',
-                  '\$recursiveRef',
-                }.contains(e.key) &&
-                true,
-          )
-          .fold<Map<String, Object?>>(
-            {},
-            (m, e) => m..[e.key] = e.value as Object?,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance =
-          instance as CoreAndValidationSpecificationsMetaSchema1;
-      final map = <String, dynamic>{
-        '\$id': typedInstance.id,
-        '\$schema': typedInstance.schema,
-        '\$ref': typedInstance.ref,
-        '\$anchor': typedInstance.anchor,
-        '\$dynamicRef': typedInstance.dynamicRef,
-        '\$dynamicAnchor': typedInstance.dynamicAnchor,
-        '\$vocabulary': typedInstance.vocabulary,
-        '\$comment': typedInstance.comment,
-        '\$defs': typedInstance.defs,
-        'prefixItems': typedInstance.prefixItems,
-        'items': typedInstance.items,
-        'contains': typedInstance.contains,
-        'additionalProperties': typedInstance.additionalProperties_,
-        'properties': typedInstance.properties,
-        'patternProperties': typedInstance.patternProperties_,
-        'dependentSchemas': typedInstance.dependentSchemas,
-        'propertyNames': typedInstance.propertyNames,
-        'if': typedInstance.if_,
-        'then': typedInstance.then,
-        'else': typedInstance.else_,
-        'allOf': typedInstance.allOf,
-        'anyOf': typedInstance.anyOf,
-        'oneOf': typedInstance.oneOf,
-        'not': typedInstance.not,
-        'unevaluatedItems': typedInstance.unevaluatedItems,
-        'unevaluatedProperties': typedInstance.unevaluatedProperties,
-        'type': typedInstance.type_,
-        'const': typedInstance.const_,
-        'enum': typedInstance.enum_,
-        'multipleOf': typedInstance.multipleOf,
-        'maximum': typedInstance.maximum,
-        'exclusiveMaximum': typedInstance.exclusiveMaximum,
-        'minimum': typedInstance.minimum,
-        'exclusiveMinimum': typedInstance.exclusiveMinimum,
-        'maxLength': typedInstance.maxLength,
-        'minLength': typedInstance.minLength,
-        'pattern': typedInstance.pattern,
-        'maxItems': typedInstance.maxItems,
-        'minItems': typedInstance.minItems,
-        'uniqueItems': typedInstance.uniqueItems,
-        'maxContains': typedInstance.maxContains,
-        'minContains': typedInstance.minContains,
-        'maxProperties': typedInstance.maxProperties,
-        'minProperties': typedInstance.minProperties,
-        'required': typedInstance.required_,
-        'dependentRequired': typedInstance.dependentRequired,
-        'title': typedInstance.title,
-        'description': typedInstance.description,
-        'default': typedInstance.default_,
-        'deprecated': typedInstance.deprecated,
-        'readOnly': typedInstance.readOnly,
-        'writeOnly': typedInstance.writeOnly,
-        'examples': typedInstance.examples,
-        'format': typedInstance.format,
-        'contentEncoding': typedInstance.contentEncoding,
-        'contentMediaType': typedInstance.contentMediaType,
-        'contentSchema': typedInstance.contentSchema,
-        'definitions': typedInstance.definitions,
-        'dependencies': typedInstance.dependencies,
-        '\$recursiveAnchor': typedInstance.recursiveAnchor,
-        '\$recursiveRef': typedInstance.recursiveRef,
-        ...typedInstance.additionalProperties,
-      };
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {
-      '\$id': PropertyDescriptor(
-        name: '\$id',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$schema': PropertyDescriptor(
-        name: '\$schema',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$ref': PropertyDescriptor(
-        name: '\$ref',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$anchor': PropertyDescriptor(
-        name: '\$anchor',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$dynamicRef': PropertyDescriptor(
-        name: '\$dynamicRef',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$dynamicAnchor': PropertyDescriptor(
-        name: '\$dynamicAnchor',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$vocabulary': PropertyDescriptor(
-        name: '\$vocabulary',
-        isRequired: false,
-        schema:
-            RefDescriptor<CoreAndValidationSpecificationsMetaSchema1Vocabulary>(
-              () => CoreAndValidationSpecificationsMetaSchema1Vocabulary
-                  .descriptor,
-            ),
-      ),
-      '\$comment': PropertyDescriptor(
-        name: '\$comment',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$defs': PropertyDescriptor(
-        name: '\$defs',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema1Defs>(
-          () => CoreAndValidationSpecificationsMetaSchema1Defs.descriptor,
-        ),
-      ),
-      'prefixItems': PropertyDescriptor(
-        name: 'prefixItems',
-        isRequired: false,
-        schema: ArrayDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-            () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-          ),
-        ),
-      ),
-      'items': PropertyDescriptor(
-        name: 'items',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'contains': PropertyDescriptor(
-        name: 'contains',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'additionalProperties': PropertyDescriptor(
-        name: 'additionalProperties',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'properties': PropertyDescriptor(
-        name: 'properties',
-        isRequired: false,
-        schema:
-            RefDescriptor<CoreAndValidationSpecificationsMetaSchema1Properties>(
-              () => CoreAndValidationSpecificationsMetaSchema1Properties
-                  .descriptor,
-            ),
-      ),
-      'patternProperties': PropertyDescriptor(
-        name: 'patternProperties',
-        isRequired: false,
-        schema:
-            RefDescriptor<
-              CoreAndValidationSpecificationsMetaSchema1PatternProperties
-            >(
-              () => CoreAndValidationSpecificationsMetaSchema1PatternProperties
-                  .descriptor,
-            ),
-      ),
-      'dependentSchemas': PropertyDescriptor(
-        name: 'dependentSchemas',
-        isRequired: false,
-        schema:
-            RefDescriptor<
-              CoreAndValidationSpecificationsMetaSchema1DependentSchemas
-            >(
-              () => CoreAndValidationSpecificationsMetaSchema1DependentSchemas
-                  .descriptor,
-            ),
-      ),
-      'propertyNames': PropertyDescriptor(
-        name: 'propertyNames',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'if': PropertyDescriptor(
-        name: 'if',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'then': PropertyDescriptor(
-        name: 'then',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'else': PropertyDescriptor(
-        name: 'else',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'allOf': PropertyDescriptor(
-        name: 'allOf',
-        isRequired: false,
-        schema: ArrayDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-            () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-          ),
-        ),
-      ),
-      'anyOf': PropertyDescriptor(
-        name: 'anyOf',
-        isRequired: false,
-        schema: ArrayDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-            () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-          ),
-        ),
-      ),
-      'oneOf': PropertyDescriptor(
-        name: 'oneOf',
-        isRequired: false,
-        schema: ArrayDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-            () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-          ),
-        ),
-      ),
-      'not': PropertyDescriptor(
-        name: 'not',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'unevaluatedItems': PropertyDescriptor(
-        name: 'unevaluatedItems',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'unevaluatedProperties': PropertyDescriptor(
-        name: 'unevaluatedProperties',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'type': PropertyDescriptor(
-        name: 'type',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema1Type>(
-          () => CoreAndValidationSpecificationsMetaSchema1Type.descriptor,
-        ),
-      ),
-      'const': PropertyDescriptor(
-        name: 'const',
-        isRequired: false,
-        schema: const AnythingDescriptor(),
-      ),
-      'enum': PropertyDescriptor(
-        name: 'enum',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'multipleOf': PropertyDescriptor(
-        name: 'multipleOf',
-        isRequired: false,
-        schema: const NumDescriptor(),
-      ),
-      'maximum': PropertyDescriptor(
-        name: 'maximum',
-        isRequired: false,
-        schema: const NumDescriptor(),
-      ),
-      'exclusiveMaximum': PropertyDescriptor(
-        name: 'exclusiveMaximum',
-        isRequired: false,
-        schema: const NumDescriptor(),
-      ),
-      'minimum': PropertyDescriptor(
-        name: 'minimum',
-        isRequired: false,
-        schema: const NumDescriptor(),
-      ),
-      'exclusiveMinimum': PropertyDescriptor(
-        name: 'exclusiveMinimum',
-        isRequired: false,
-        schema: const NumDescriptor(),
-      ),
-      'maxLength': PropertyDescriptor(
-        name: 'maxLength',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'minLength': PropertyDescriptor(
-        name: 'minLength',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'pattern': PropertyDescriptor(
-        name: 'pattern',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'maxItems': PropertyDescriptor(
-        name: 'maxItems',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'minItems': PropertyDescriptor(
-        name: 'minItems',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'uniqueItems': PropertyDescriptor(
-        name: 'uniqueItems',
-        isRequired: false,
-        schema: const BoolDescriptor(),
-      ),
-      'maxContains': PropertyDescriptor(
-        name: 'maxContains',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'minContains': PropertyDescriptor(
-        name: 'minContains',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'maxProperties': PropertyDescriptor(
-        name: 'maxProperties',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'minProperties': PropertyDescriptor(
-        name: 'minProperties',
-        isRequired: false,
-        schema: const IntDescriptor(),
-      ),
-      'required': PropertyDescriptor(
-        name: 'required',
-        isRequired: false,
-        schema: ArrayDescriptor<String>(const StringDescriptor()),
-      ),
-      'dependentRequired': PropertyDescriptor(
-        name: 'dependentRequired',
-        isRequired: false,
-        schema:
-            RefDescriptor<
-              CoreAndValidationSpecificationsMetaSchema1DependentRequired
-            >(
-              () => CoreAndValidationSpecificationsMetaSchema1DependentRequired
-                  .descriptor,
-            ),
-      ),
-      'title': PropertyDescriptor(
-        name: 'title',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'description': PropertyDescriptor(
-        name: 'description',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'default': PropertyDescriptor(
-        name: 'default',
-        isRequired: false,
-        schema: const AnythingDescriptor(),
-      ),
-      'deprecated': PropertyDescriptor(
-        name: 'deprecated',
-        isRequired: false,
-        schema: const BoolDescriptor(),
-      ),
-      'readOnly': PropertyDescriptor(
-        name: 'readOnly',
-        isRequired: false,
-        schema: const BoolDescriptor(),
-      ),
-      'writeOnly': PropertyDescriptor(
-        name: 'writeOnly',
-        isRequired: false,
-        schema: const BoolDescriptor(),
-      ),
-      'examples': PropertyDescriptor(
-        name: 'examples',
-        isRequired: false,
-        schema: ArrayDescriptor<Object?>(const AnythingDescriptor()),
-      ),
-      'format': PropertyDescriptor(
-        name: 'format',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'contentEncoding': PropertyDescriptor(
-        name: 'contentEncoding',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'contentMediaType': PropertyDescriptor(
-        name: 'contentMediaType',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      'contentSchema': PropertyDescriptor(
-        name: 'contentSchema',
-        isRequired: false,
-        schema: RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-      ),
-      'definitions': PropertyDescriptor(
-        name: 'definitions',
-        isRequired: false,
-        schema:
-            RefDescriptor<
-              CoreAndValidationSpecificationsMetaSchema1Definitions
-            >(
-              () => CoreAndValidationSpecificationsMetaSchema1Definitions
-                  .descriptor,
-            ),
-      ),
-      'dependencies': PropertyDescriptor(
-        name: 'dependencies',
-        isRequired: false,
-        schema:
-            RefDescriptor<
-              CoreAndValidationSpecificationsMetaSchema1Dependencies
-            >(
-              () => CoreAndValidationSpecificationsMetaSchema1Dependencies
-                  .descriptor,
-            ),
-      ),
-      '\$recursiveAnchor': PropertyDescriptor(
-        name: '\$recursiveAnchor',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-      '\$recursiveRef': PropertyDescriptor(
-        name: '\$recursiveRef',
-        isRequired: false,
-        schema: const StringDescriptor(),
-      ),
-    },
-
-    required: const [],
-    additionalProperties: const AnythingDescriptor(),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2097,9 +2157,6 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
 
 final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
     implements JsonModel {
-  final Map<String, bool> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1Vocabulary({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -2120,6 +2177,46 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final Map<String, bool> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<
+    CoreAndValidationSpecificationsMetaSchema1Vocabulary
+  >
+  descriptor =
+      ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Vocabulary>(
+        title: 'CoreAndValidationSpecificationsMetaSchema1Vocabulary',
+        matches: (instance) =>
+            instance is CoreAndValidationSpecificationsMetaSchema1Vocabulary,
+        instantiate: (fields) =>
+            CoreAndValidationSpecificationsMetaSchema1Vocabulary(
+              additionalProperties: fields.entries
+                  .where((e) => !const <String>{}.contains(e.key) && true)
+                  .fold<Map<String, bool>>(
+                    {},
+                    (m, e) => m..[e.key] = e.value as bool,
+                  ),
+              explicitKeys: fields.keys.toSet(),
+            ),
+        getFields: (instance) {
+          final typedInstance =
+              instance as CoreAndValidationSpecificationsMetaSchema1Vocabulary;
+          final map = <String, dynamic>{...typedInstance.additionalProperties};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties: const BoolDescriptor(),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -2183,42 +2280,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
     }
   }
 
-  static final ObjectDescriptor<
-    CoreAndValidationSpecificationsMetaSchema1Vocabulary
-  >
-  descriptor =
-      ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Vocabulary>(
-        title: 'CoreAndValidationSpecificationsMetaSchema1Vocabulary',
-        matches: (instance) =>
-            instance is CoreAndValidationSpecificationsMetaSchema1Vocabulary,
-        instantiate: (fields) =>
-            CoreAndValidationSpecificationsMetaSchema1Vocabulary(
-              additionalProperties: fields.entries
-                  .where((e) => !const <String>{}.contains(e.key) && true)
-                  .fold<Map<String, bool>>(
-                    {},
-                    (m, e) => m..[e.key] = e.value as bool,
-                  ),
-              explicitKeys: fields.keys.toSet(),
-            ),
-        getFields: (instance) {
-          final typedInstance =
-              instance as CoreAndValidationSpecificationsMetaSchema1Vocabulary;
-          final map = <String, dynamic>{...typedInstance.additionalProperties};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties: const BoolDescriptor(),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2241,10 +2302,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
 
 final class CoreAndValidationSpecificationsMetaSchema1Defs
     implements JsonModel {
-  final Map<String, CoreAndValidationSpecificationsMetaSchema>
-  additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1Defs({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -2264,6 +2321,47 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
   }) => CoreAndValidationSpecificationsMetaSchema1Defs.fromJson(
     JsonReader.fromObject(map),
     validate: validate,
+  );
+
+  final Map<String, CoreAndValidationSpecificationsMetaSchema>
+  additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Defs>
+  descriptor = ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Defs>(
+    title: 'CoreAndValidationSpecificationsMetaSchema1Defs',
+    matches: (instance) =>
+        instance is CoreAndValidationSpecificationsMetaSchema1Defs,
+    instantiate: (fields) => CoreAndValidationSpecificationsMetaSchema1Defs(
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{}.contains(e.key) && true)
+          .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
+            {},
+            (m, e) => m
+              ..[e.key] = e.value as CoreAndValidationSpecificationsMetaSchema,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance =
+          instance as CoreAndValidationSpecificationsMetaSchema1Defs;
+      final map = <String, dynamic>{...typedInstance.additionalProperties};
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {},
+
+    required: const [],
+    additionalProperties:
+        RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+        ),
   );
 
   @override
@@ -2332,42 +2430,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
     }
   }
 
-  static final ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Defs>
-  descriptor = ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Defs>(
-    title: 'CoreAndValidationSpecificationsMetaSchema1Defs',
-    matches: (instance) =>
-        instance is CoreAndValidationSpecificationsMetaSchema1Defs,
-    instantiate: (fields) => CoreAndValidationSpecificationsMetaSchema1Defs(
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{}.contains(e.key) && true)
-          .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
-            {},
-            (m, e) => m
-              ..[e.key] = e.value as CoreAndValidationSpecificationsMetaSchema,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance =
-          instance as CoreAndValidationSpecificationsMetaSchema1Defs;
-      final map = <String, dynamic>{...typedInstance.additionalProperties};
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {},
-
-    required: const [],
-    additionalProperties:
-        RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-          () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-        ),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2390,10 +2452,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
 
 final class CoreAndValidationSpecificationsMetaSchema1Properties
     implements JsonModel {
-  final Map<String, CoreAndValidationSpecificationsMetaSchema>
-  additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1Properties({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -2414,6 +2472,52 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final Map<String, CoreAndValidationSpecificationsMetaSchema>
+  additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<
+    CoreAndValidationSpecificationsMetaSchema1Properties
+  >
+  descriptor =
+      ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Properties>(
+        title: 'CoreAndValidationSpecificationsMetaSchema1Properties',
+        matches: (instance) =>
+            instance is CoreAndValidationSpecificationsMetaSchema1Properties,
+        instantiate: (fields) =>
+            CoreAndValidationSpecificationsMetaSchema1Properties(
+              additionalProperties: fields.entries
+                  .where((e) => !const <String>{}.contains(e.key) && true)
+                  .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
+                    {},
+                    (m, e) => m
+                      ..[e.key] =
+                          e.value as CoreAndValidationSpecificationsMetaSchema,
+                  ),
+              explicitKeys: fields.keys.toSet(),
+            ),
+        getFields: (instance) {
+          final typedInstance =
+              instance as CoreAndValidationSpecificationsMetaSchema1Properties;
+          final map = <String, dynamic>{...typedInstance.additionalProperties};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties:
+            RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+              () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+            ),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -2481,47 +2585,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
     }
   }
 
-  static final ObjectDescriptor<
-    CoreAndValidationSpecificationsMetaSchema1Properties
-  >
-  descriptor =
-      ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Properties>(
-        title: 'CoreAndValidationSpecificationsMetaSchema1Properties',
-        matches: (instance) =>
-            instance is CoreAndValidationSpecificationsMetaSchema1Properties,
-        instantiate: (fields) =>
-            CoreAndValidationSpecificationsMetaSchema1Properties(
-              additionalProperties: fields.entries
-                  .where((e) => !const <String>{}.contains(e.key) && true)
-                  .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
-                    {},
-                    (m, e) => m
-                      ..[e.key] =
-                          e.value as CoreAndValidationSpecificationsMetaSchema,
-                  ),
-              explicitKeys: fields.keys.toSet(),
-            ),
-        getFields: (instance) {
-          final typedInstance =
-              instance as CoreAndValidationSpecificationsMetaSchema1Properties;
-          final map = <String, dynamic>{...typedInstance.additionalProperties};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties:
-            RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-              () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-            ),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2544,10 +2607,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
 
 final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
     implements JsonModel {
-  final Map<String, CoreAndValidationSpecificationsMetaSchema>
-  additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1PatternProperties({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -2568,6 +2627,56 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final Map<String, CoreAndValidationSpecificationsMetaSchema>
+  additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<
+    CoreAndValidationSpecificationsMetaSchema1PatternProperties
+  >
+  descriptor =
+      ObjectDescriptor<
+        CoreAndValidationSpecificationsMetaSchema1PatternProperties
+      >(
+        title: 'CoreAndValidationSpecificationsMetaSchema1PatternProperties',
+        matches: (instance) =>
+            instance
+                is CoreAndValidationSpecificationsMetaSchema1PatternProperties,
+        instantiate: (fields) =>
+            CoreAndValidationSpecificationsMetaSchema1PatternProperties(
+              additionalProperties: fields.entries
+                  .where((e) => !const <String>{}.contains(e.key) && true)
+                  .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
+                    {},
+                    (m, e) => m
+                      ..[e.key] =
+                          e.value as CoreAndValidationSpecificationsMetaSchema,
+                  ),
+              explicitKeys: fields.keys.toSet(),
+            ),
+        getFields: (instance) {
+          final typedInstance =
+              instance
+                  as CoreAndValidationSpecificationsMetaSchema1PatternProperties;
+          final map = <String, dynamic>{...typedInstance.additionalProperties};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties:
+            RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+              () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+            ),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -2635,51 +2744,6 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
     }
   }
 
-  static final ObjectDescriptor<
-    CoreAndValidationSpecificationsMetaSchema1PatternProperties
-  >
-  descriptor =
-      ObjectDescriptor<
-        CoreAndValidationSpecificationsMetaSchema1PatternProperties
-      >(
-        title: 'CoreAndValidationSpecificationsMetaSchema1PatternProperties',
-        matches: (instance) =>
-            instance
-                is CoreAndValidationSpecificationsMetaSchema1PatternProperties,
-        instantiate: (fields) =>
-            CoreAndValidationSpecificationsMetaSchema1PatternProperties(
-              additionalProperties: fields.entries
-                  .where((e) => !const <String>{}.contains(e.key) && true)
-                  .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
-                    {},
-                    (m, e) => m
-                      ..[e.key] =
-                          e.value as CoreAndValidationSpecificationsMetaSchema,
-                  ),
-              explicitKeys: fields.keys.toSet(),
-            ),
-        getFields: (instance) {
-          final typedInstance =
-              instance
-                  as CoreAndValidationSpecificationsMetaSchema1PatternProperties;
-          final map = <String, dynamic>{...typedInstance.additionalProperties};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties:
-            RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-              () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-            ),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2702,10 +2766,6 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
 
 final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
     implements JsonModel {
-  final Map<String, CoreAndValidationSpecificationsMetaSchema>
-  additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1DependentSchemas({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -2726,6 +2786,56 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final Map<String, CoreAndValidationSpecificationsMetaSchema>
+  additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<
+    CoreAndValidationSpecificationsMetaSchema1DependentSchemas
+  >
+  descriptor =
+      ObjectDescriptor<
+        CoreAndValidationSpecificationsMetaSchema1DependentSchemas
+      >(
+        title: 'CoreAndValidationSpecificationsMetaSchema1DependentSchemas',
+        matches: (instance) =>
+            instance
+                is CoreAndValidationSpecificationsMetaSchema1DependentSchemas,
+        instantiate: (fields) =>
+            CoreAndValidationSpecificationsMetaSchema1DependentSchemas(
+              additionalProperties: fields.entries
+                  .where((e) => !const <String>{}.contains(e.key) && true)
+                  .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
+                    {},
+                    (m, e) => m
+                      ..[e.key] =
+                          e.value as CoreAndValidationSpecificationsMetaSchema,
+                  ),
+              explicitKeys: fields.keys.toSet(),
+            ),
+        getFields: (instance) {
+          final typedInstance =
+              instance
+                  as CoreAndValidationSpecificationsMetaSchema1DependentSchemas;
+          final map = <String, dynamic>{...typedInstance.additionalProperties};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties:
+            RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+              () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+            ),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -2793,51 +2903,6 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
     }
   }
 
-  static final ObjectDescriptor<
-    CoreAndValidationSpecificationsMetaSchema1DependentSchemas
-  >
-  descriptor =
-      ObjectDescriptor<
-        CoreAndValidationSpecificationsMetaSchema1DependentSchemas
-      >(
-        title: 'CoreAndValidationSpecificationsMetaSchema1DependentSchemas',
-        matches: (instance) =>
-            instance
-                is CoreAndValidationSpecificationsMetaSchema1DependentSchemas,
-        instantiate: (fields) =>
-            CoreAndValidationSpecificationsMetaSchema1DependentSchemas(
-              additionalProperties: fields.entries
-                  .where((e) => !const <String>{}.contains(e.key) && true)
-                  .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
-                    {},
-                    (m, e) => m
-                      ..[e.key] =
-                          e.value as CoreAndValidationSpecificationsMetaSchema,
-                  ),
-              explicitKeys: fields.keys.toSet(),
-            ),
-        getFields: (instance) {
-          final typedInstance =
-              instance
-                  as CoreAndValidationSpecificationsMetaSchema1DependentSchemas;
-          final map = <String, dynamic>{...typedInstance.additionalProperties};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties:
-            RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-              () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-            ),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2878,35 +2943,6 @@ sealed class CoreAndValidationSpecificationsMetaSchema1Type
     validate: validate,
   );
 
-  @override
-  void writeJson(JsonSink target) =>
-      writeWithDescriptor(target, this, descriptor);
-
-  String toJson() {
-    final buffer = StringBuffer();
-    writeJson(jsonStringWriter(buffer));
-    return buffer.toString();
-  }
-
-  @override
-  Object? toJsonValue() {
-    Object? result;
-    final sink = jsonObjectWriter((obj) => result = obj);
-    writeJson(sink);
-    return result;
-  }
-
-  @override
-  List<ValidationError> collectErrors();
-
-  @override
-  void validate() {
-    final errors = collectErrors();
-    if (errors.isNotEmpty) {
-      throw JsonValidationException(errors);
-    }
-  }
-
   static final UnionDescriptor<CoreAndValidationSpecificationsMetaSchema1Type>
   descriptor = UnionDescriptor<CoreAndValidationSpecificationsMetaSchema1Type>(
     title: 'CoreAndValidationSpecificationsMetaSchema1Type',
@@ -2932,12 +2968,41 @@ sealed class CoreAndValidationSpecificationsMetaSchema1Type
       ),
     ],
   );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  @override
+  List<ValidationError> collectErrors();
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 }
 
 final class CoreAndValidationSpecificationsMetaSchema1TypeOption0
     extends CoreAndValidationSpecificationsMetaSchema1Type {
-  final SimpleTypes value;
   const CoreAndValidationSpecificationsMetaSchema1TypeOption0(this.value);
+
+  final SimpleTypes value;
 
   @override
   void writeJson(JsonSink target) {
@@ -2970,6 +3035,7 @@ final class CoreAndValidationSpecificationsMetaSchema1TypeOption0
         ),
       );
     }
+
     return errors;
   }
 
@@ -2990,8 +3056,9 @@ final class CoreAndValidationSpecificationsMetaSchema1TypeOption0
 
 final class CoreAndValidationSpecificationsMetaSchema1TypeOption1
     extends CoreAndValidationSpecificationsMetaSchema1Type {
-  final List<SimpleTypes> value;
   const CoreAndValidationSpecificationsMetaSchema1TypeOption1(this.value);
+
+  final List<SimpleTypes> value;
 
   @override
   void writeJson(JsonSink target) {
@@ -3031,10 +3098,10 @@ enum SimpleTypes {
   object('object'),
   string('string');
 
-  final String value;
   const SimpleTypes(this.value);
-  static SimpleTypes fromValue(String val) =>
-      values.firstWhere((e) => e.value == val);
+
+  final String value;
+
   static final EnumDescriptor<SimpleTypes> descriptor =
       EnumDescriptor<SimpleTypes>(
         values: values,
@@ -3042,13 +3109,13 @@ enum SimpleTypes {
         toValue: (e) => (e as SimpleTypes).value,
         base: const StringDescriptor(),
       );
+
+  static SimpleTypes fromValue(String val) =>
+      values.firstWhere((e) => e.value == val);
 }
 
 final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
     implements JsonModel {
-  final Map<String, List<String>> additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1DependentRequired({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -3069,6 +3136,50 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final Map<String, List<String>> additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<
+    CoreAndValidationSpecificationsMetaSchema1DependentRequired
+  >
+  descriptor =
+      ObjectDescriptor<
+        CoreAndValidationSpecificationsMetaSchema1DependentRequired
+      >(
+        title: 'CoreAndValidationSpecificationsMetaSchema1DependentRequired',
+        matches: (instance) =>
+            instance
+                is CoreAndValidationSpecificationsMetaSchema1DependentRequired,
+        instantiate: (fields) =>
+            CoreAndValidationSpecificationsMetaSchema1DependentRequired(
+              additionalProperties: fields.entries
+                  .where((e) => !const <String>{}.contains(e.key) && true)
+                  .fold<Map<String, List<String>>>(
+                    {},
+                    (m, e) => m..[e.key] = e.value as List<String>,
+                  ),
+              explicitKeys: fields.keys.toSet(),
+            ),
+        getFields: (instance) {
+          final typedInstance =
+              instance
+                  as CoreAndValidationSpecificationsMetaSchema1DependentRequired;
+          final map = <String, dynamic>{...typedInstance.additionalProperties};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties: ArrayDescriptor<String>(const StringDescriptor()),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -3146,46 +3257,6 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
     }
   }
 
-  static final ObjectDescriptor<
-    CoreAndValidationSpecificationsMetaSchema1DependentRequired
-  >
-  descriptor =
-      ObjectDescriptor<
-        CoreAndValidationSpecificationsMetaSchema1DependentRequired
-      >(
-        title: 'CoreAndValidationSpecificationsMetaSchema1DependentRequired',
-        matches: (instance) =>
-            instance
-                is CoreAndValidationSpecificationsMetaSchema1DependentRequired,
-        instantiate: (fields) =>
-            CoreAndValidationSpecificationsMetaSchema1DependentRequired(
-              additionalProperties: fields.entries
-                  .where((e) => !const <String>{}.contains(e.key) && true)
-                  .fold<Map<String, List<String>>>(
-                    {},
-                    (m, e) => m..[e.key] = e.value as List<String>,
-                  ),
-              explicitKeys: fields.keys.toSet(),
-            ),
-        getFields: (instance) {
-          final typedInstance =
-              instance
-                  as CoreAndValidationSpecificationsMetaSchema1DependentRequired;
-          final map = <String, dynamic>{...typedInstance.additionalProperties};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties: ArrayDescriptor<String>(const StringDescriptor()),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3209,10 +3280,6 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
 @Deprecated('deprecated')
 final class CoreAndValidationSpecificationsMetaSchema1Definitions
     implements JsonModel {
-  final Map<String, CoreAndValidationSpecificationsMetaSchema>
-  additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1Definitions({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -3233,6 +3300,52 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
     JsonReader.fromObject(map),
     validate: validate,
   );
+
+  final Map<String, CoreAndValidationSpecificationsMetaSchema>
+  additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<
+    CoreAndValidationSpecificationsMetaSchema1Definitions
+  >
+  descriptor =
+      ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Definitions>(
+        title: 'CoreAndValidationSpecificationsMetaSchema1Definitions',
+        matches: (instance) =>
+            instance is CoreAndValidationSpecificationsMetaSchema1Definitions,
+        instantiate: (fields) =>
+            CoreAndValidationSpecificationsMetaSchema1Definitions(
+              additionalProperties: fields.entries
+                  .where((e) => !const <String>{}.contains(e.key) && true)
+                  .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
+                    {},
+                    (m, e) => m
+                      ..[e.key] =
+                          e.value as CoreAndValidationSpecificationsMetaSchema,
+                  ),
+              explicitKeys: fields.keys.toSet(),
+            ),
+        getFields: (instance) {
+          final typedInstance =
+              instance as CoreAndValidationSpecificationsMetaSchema1Definitions;
+          final map = <String, dynamic>{...typedInstance.additionalProperties};
+          final explicit = typedInstance._$explicitKeys;
+          if (explicit != null) {
+            return map.entries
+                .where((e) => e.value != null || explicit.contains(e.key))
+                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+          }
+          return map..removeWhere((k, v) => v == null);
+        },
+        properties: {},
+
+        required: const [],
+        additionalProperties:
+            RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
+              () => CoreAndValidationSpecificationsMetaSchema.descriptor,
+            ),
+      );
 
   @override
   void writeJson(JsonSink target) =>
@@ -3300,47 +3413,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
     }
   }
 
-  static final ObjectDescriptor<
-    CoreAndValidationSpecificationsMetaSchema1Definitions
-  >
-  descriptor =
-      ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Definitions>(
-        title: 'CoreAndValidationSpecificationsMetaSchema1Definitions',
-        matches: (instance) =>
-            instance is CoreAndValidationSpecificationsMetaSchema1Definitions,
-        instantiate: (fields) =>
-            CoreAndValidationSpecificationsMetaSchema1Definitions(
-              additionalProperties: fields.entries
-                  .where((e) => !const <String>{}.contains(e.key) && true)
-                  .fold<Map<String, CoreAndValidationSpecificationsMetaSchema>>(
-                    {},
-                    (m, e) => m
-                      ..[e.key] =
-                          e.value as CoreAndValidationSpecificationsMetaSchema,
-                  ),
-              explicitKeys: fields.keys.toSet(),
-            ),
-        getFields: (instance) {
-          final typedInstance =
-              instance as CoreAndValidationSpecificationsMetaSchema1Definitions;
-          final map = <String, dynamic>{...typedInstance.additionalProperties};
-          final explicit = typedInstance._$explicitKeys;
-          if (explicit != null) {
-            return map.entries
-                .where((e) => e.value != null || explicit.contains(e.key))
-                .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-          }
-          return map..removeWhere((k, v) => v == null);
-        },
-        properties: {},
-
-        required: const [],
-        additionalProperties:
-            RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
-              () => CoreAndValidationSpecificationsMetaSchema.descriptor,
-            ),
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3364,13 +3436,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
 @Deprecated('deprecated')
 final class CoreAndValidationSpecificationsMetaSchema1Dependencies
     implements JsonModel {
-  final Map<
-    String,
-    CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
-  >
-  additionalProperties;
-  final Set<String>? _$explicitKeys;
-
   const CoreAndValidationSpecificationsMetaSchema1Dependencies({
     this.additionalProperties = const {},
     Set<String>? explicitKeys,
@@ -3390,6 +3455,63 @@ final class CoreAndValidationSpecificationsMetaSchema1Dependencies
   }) => CoreAndValidationSpecificationsMetaSchema1Dependencies.fromJson(
     JsonReader.fromObject(map),
     validate: validate,
+  );
+
+  final Map<
+    String,
+    CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
+  >
+  additionalProperties;
+
+  final Set<String>? _$explicitKeys;
+
+  static final ObjectDescriptor<
+    CoreAndValidationSpecificationsMetaSchema1Dependencies
+  >
+  descriptor = ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Dependencies>(
+    title: 'CoreAndValidationSpecificationsMetaSchema1Dependencies',
+    matches: (instance) =>
+        instance is CoreAndValidationSpecificationsMetaSchema1Dependencies,
+    instantiate: (fields) => CoreAndValidationSpecificationsMetaSchema1Dependencies(
+      additionalProperties: fields.entries
+          .where((e) => !const <String>{}.contains(e.key) && true)
+          .fold<
+            Map<
+              String,
+              CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
+            >
+          >(
+            {},
+            (m, e) => m
+              ..[e.key] =
+                  e.value
+                      as CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty,
+          ),
+      explicitKeys: fields.keys.toSet(),
+    ),
+    getFields: (instance) {
+      final typedInstance =
+          instance as CoreAndValidationSpecificationsMetaSchema1Dependencies;
+      final map = <String, dynamic>{...typedInstance.additionalProperties};
+      final explicit = typedInstance._$explicitKeys;
+      if (explicit != null) {
+        return map.entries
+            .where((e) => e.value != null || explicit.contains(e.key))
+            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+      }
+      return map..removeWhere((k, v) => v == null);
+    },
+    properties: {},
+
+    required: const [],
+    additionalProperties:
+        RefDescriptor<
+          CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
+        >(
+          () =>
+              CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
+                  .descriptor,
+        ),
   );
 
   @override
@@ -3461,55 +3583,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Dependencies
     }
   }
 
-  static final ObjectDescriptor<
-    CoreAndValidationSpecificationsMetaSchema1Dependencies
-  >
-  descriptor = ObjectDescriptor<CoreAndValidationSpecificationsMetaSchema1Dependencies>(
-    title: 'CoreAndValidationSpecificationsMetaSchema1Dependencies',
-    matches: (instance) =>
-        instance is CoreAndValidationSpecificationsMetaSchema1Dependencies,
-    instantiate: (fields) => CoreAndValidationSpecificationsMetaSchema1Dependencies(
-      additionalProperties: fields.entries
-          .where((e) => !const <String>{}.contains(e.key) && true)
-          .fold<
-            Map<
-              String,
-              CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
-            >
-          >(
-            {},
-            (m, e) => m
-              ..[e.key] =
-                  e.value
-                      as CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty,
-          ),
-      explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance =
-          instance as CoreAndValidationSpecificationsMetaSchema1Dependencies;
-      final map = <String, dynamic>{...typedInstance.additionalProperties};
-      final explicit = typedInstance._$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
-    },
-    properties: {},
-
-    required: const [],
-    additionalProperties:
-        RefDescriptor<
-          CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
-        >(
-          () =>
-              CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
-                  .descriptor,
-        ),
-  );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3551,35 +3624,6 @@ sealed class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPro
         validate: validate,
       );
 
-  @override
-  void writeJson(JsonSink target) =>
-      writeWithDescriptor(target, this, descriptor);
-
-  String toJson() {
-    final buffer = StringBuffer();
-    writeJson(jsonStringWriter(buffer));
-    return buffer.toString();
-  }
-
-  @override
-  Object? toJsonValue() {
-    Object? result;
-    final sink = jsonObjectWriter((obj) => result = obj);
-    writeJson(sink);
-    return result;
-  }
-
-  @override
-  List<ValidationError> collectErrors();
-
-  @override
-  void validate() {
-    final errors = collectErrors();
-    if (errors.isNotEmpty) {
-      throw JsonValidationException(errors);
-    }
-  }
-
   static final UnionDescriptor<
     CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty
   >
@@ -3615,15 +3659,44 @@ sealed class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPro
           ),
         ],
       );
+
+  @override
+  void writeJson(JsonSink target) =>
+      writeWithDescriptor(target, this, descriptor);
+
+  String toJson() {
+    final buffer = StringBuffer();
+    writeJson(jsonStringWriter(buffer));
+    return buffer.toString();
+  }
+
+  @override
+  Object? toJsonValue() {
+    Object? result;
+    final sink = jsonObjectWriter((obj) => result = obj);
+    writeJson(sink);
+    return result;
+  }
+
+  @override
+  List<ValidationError> collectErrors();
+  @override
+  void validate() {
+    final errors = collectErrors();
+    if (errors.isNotEmpty) {
+      throw JsonValidationException(errors);
+    }
+  }
 }
 
 final class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPropertyOption0
     extends
         CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty {
-  final CoreAndValidationSpecificationsMetaSchema value;
   const CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPropertyOption0(
     this.value,
   );
+
+  final CoreAndValidationSpecificationsMetaSchema value;
 
   @override
   void writeJson(JsonSink target) {
@@ -3658,10 +3731,11 @@ final class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProp
 final class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPropertyOption1
     extends
         CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty {
-  final List<String> value;
   const CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPropertyOption1(
     this.value,
   );
+
+  final List<String> value;
 
   @override
   void writeJson(JsonSink target) {
