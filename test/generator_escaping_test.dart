@@ -455,6 +455,202 @@ void main() {
     );
   });
 
+  group('empty enum', () {
+    // `enum: []` accepts no value, so it is equivalent to a `false` schema.
+    // `dartType` already mapped it to `Never`, but the two other places that
+    // have to agree did not: `discoverClasses` registered a class for it and
+    // `_descriptorExpr` looked that class up.
+
+    test(
+      'a property with an empty enum does not crash the generator',
+      () async {
+        // `_descriptorExpr` did `classNames[real]!` for any schema with a
+        // non-null `enumValues`. No class is registered for an empty enum, so
+        // this threw "Null check operator used on a null value".
+        final parser = SchemaParser({
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'HasEmptyEnumProperty',
+          'type': 'object',
+          'properties': {
+            'nothing': {'enum': <Object?>[]},
+            'something': {'type': 'string'},
+          },
+        }, baseUri: 'test.schema.json');
+        final schema = await parser.parse();
+
+        expect(
+          () => generateCode(schema, 'HasEmptyEnumProperty'),
+          returnsNormally,
+        );
+      },
+    );
+
+    test('a property with an empty enum compiles', () async {
+      await expectGeneratesValidDart(
+        {
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'EmptyEnumProperty',
+          'type': 'object',
+          'properties': {
+            'nothing': {'enum': <Object?>[]},
+            'something': {'type': 'string'},
+          },
+        },
+        'EmptyEnumProperty',
+        workDir: workDir,
+      );
+    });
+
+    test('an object-ish empty enum compiles', () async {
+      // A schema with both `type: object` and `enum: []` used to reach the
+      // enum emitter, which wrote a constant-less
+      // `enum X { const X(this.value); ... }`. A Dart enum must declare at
+      // least one constant, so only the analyzer reliably catches this — a
+      // substring assertion is too easy to write so that it matches nothing.
+      await expectGeneratesValidDart(
+        {
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'ObjectishEmptyEnum',
+          'type': 'object',
+          'properties': {
+            'a': {'type': 'string'},
+          },
+          'enum': <Object?>[],
+        },
+        'ObjectishEmptyEnum',
+        workDir: workDir,
+      );
+    });
+  });
+
+  group('validation paths for map-like properties', () {
+    // `escapeName: false` opts a validation out of *name* escaping, but the
+    // path is a separate argument. Without `pathExprs` the path fell back to
+    // escaping the name, emitting the literal text `\$key` rather than an
+    // interpolation of the matched key.
+
+    test(
+      'patternProperties errors carry the matched key, not the text',
+      () async {
+        final parser = SchemaParser({
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'PatternPaths',
+          'type': 'object',
+          'patternProperties': {
+            '^x_': {'type': 'string', 'minLength': 3},
+          },
+        }, baseUri: 'test.schema.json');
+        final code = generateCode(await parser.parse(), 'PatternPaths');
+
+        expect(code, contains(r"path: ['$key']"));
+        expect(
+          code,
+          isNot(contains(r"path: ['\$key']")),
+          reason: 'The path must interpolate the key, not spell out "\$key".',
+        );
+      },
+    );
+
+    test(
+      'additionalProperties errors carry the matched key, not the text',
+      () async {
+        final parser = SchemaParser({
+          r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+          'title': 'AdditionalPaths',
+          'type': 'object',
+          'additionalProperties': {'type': 'string', 'minLength': 3},
+        }, baseUri: 'test.schema.json');
+        final code = generateCode(await parser.parse(), 'AdditionalPaths');
+
+        expect(code, contains(r"path: ['$key']"));
+        expect(
+          code,
+          isNot(contains(r"path: ['\$key']")),
+          reason: 'The path must interpolate the key, not spell out "\$key".',
+        );
+      },
+    );
+  });
+
+  group('union option class names', () {
+    /// Every `class X` declared in [code], in order.
+    ///
+    /// `generateCode` returns unformatted source, so this deliberately does not
+    /// anchor at the start of a line.
+    List<String> classNamesIn(String code) => RegExp(
+      r'\bclass (\w+)\b',
+    ).allMatches(code).map((m) => m.group(1)!).toList();
+
+    /// A schema where a `$defs` class already claims `<Union>Option0`.
+    ///
+    /// Discovery order is what makes this bite: the decoy is reached through
+    /// the *first* property, so it takes `MyUnionOption0` before the union
+    /// reserves its option names. The reservation then silently no-ops, and
+    /// emission still recomputed `<Union>Option0`, declaring the name twice.
+    /// Reversing the two properties hides the bug — the union reserves first
+    /// and the decoy is renamed — so the order here is load-bearing.
+    Map<String, dynamic> collidingSchema(String title) => {
+      r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+      'title': title,
+      'type': 'object',
+      r'$defs': {
+        'MyUnionOption0': {
+          'type': 'object',
+          'title': 'MyUnionOption0',
+          'properties': {
+            'taken': {'type': 'string'},
+          },
+        },
+      },
+      'properties': {
+        'first': {r'$ref': r'#/$defs/MyUnionOption0'},
+        'myUnion': {
+          'title': 'MyUnion',
+          'oneOf': [
+            {
+              'type': 'object',
+              'properties': {
+                'a': {'type': 'string'},
+              },
+            },
+            {
+              'type': 'object',
+              'properties': {
+                'b': {'type': 'integer'},
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    test('do not collide with a schema that already claims the name', () async {
+      final parser = SchemaParser(
+        collidingSchema('Holder'),
+        baseUri: 'test.schema.json',
+      );
+      final code = generateCode(await parser.parse(), 'Holder');
+
+      final names = classNamesIn(code);
+      final duplicates = names
+          .where((n) => names.where((o) => o == n).length > 1)
+          .toSet();
+      expect(
+        duplicates,
+        isEmpty,
+        reason: 'Duplicate class declarations: $duplicates\n\n$code',
+      );
+    });
+
+    test('a union colliding with a decoy class still compiles', () async {
+      await expectGeneratesValidDart(
+        collidingSchema('CollidingRoot'),
+        'CollidingRoot',
+        workDir: workDir,
+      );
+    });
+  });
+
   group('dartStringLiteral', () {
     test('escapes the characters that are significant in a Dart literal', () {
       expect(dartStringLiteral('plain'), "'plain'");

@@ -2263,7 +2263,7 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
         errors.add(
           ValidationError(
             message: 'Property "$key" must be a boolean',
-            path: ['\$key'],
+            path: ['$key'],
             keyword: 'type',
           ),
         );
@@ -3226,7 +3226,7 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
         errors.add(
           ValidationError(
             message: 'Property "$key" must be an array',
-            path: ['\$key'],
+            path: ['$key'],
             keyword: 'type',
           ),
         );
@@ -3239,7 +3239,7 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
           errors.add(
             ValidationError(
               message: 'Property "$key" items must be unique',
-              path: ['\$key'],
+              path: ['$key'],
               keyword: 'uniqueItems',
             ),
           );

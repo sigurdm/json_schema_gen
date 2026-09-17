@@ -2610,6 +2610,28 @@ void main() {
         },
       );
 
+      test('Validation - pattern property error path is the matched key', () {
+        // The generated path used to be the literal text `$key` for every
+        // key, so an error could not be traced back to the offending
+        // property.
+        final model = PatternPropertiesObject(
+          name: 'RegularName',
+          patternProperties: {'O_address': 'not-an-address-object'},
+        );
+        expect(
+          () => model.validate(),
+          throwsA(
+            isA<JsonValidationException>()
+                .having((e) => e.errors.single.path, 'path', ['O_address'])
+                .having(
+                  (e) => e.errors.single.path,
+                  'path',
+                  isNot(contains(r'$key')),
+                ),
+          ),
+        );
+      });
+
       test('Validation - nested validation in object pattern property', () {
         final invalidMap = {
           'name': 'RegularName',

@@ -5667,7 +5667,7 @@ final class MapObject implements JsonModel {
         errors.add(
           ValidationError(
             message: 'Property "$key" must be a string',
-            path: ['\$key'],
+            path: ['$key'],
             keyword: 'type',
           ),
         );
@@ -6832,7 +6832,7 @@ final class ComplexMergedObject implements JsonModel {
         errors.add(
           ValidationError(
             message: 'Property "$key" must be a string',
-            path: ['\$key'],
+            path: ['$key'],
             keyword: 'type',
           ),
         );
@@ -6841,7 +6841,7 @@ final class ComplexMergedObject implements JsonModel {
           errors.add(
             ValidationError(
               message: 'Property "$key" length must be >= 3',
-              path: ['\$key'],
+              path: ['$key'],
               keyword: 'minLength',
             ),
           );
@@ -8123,7 +8123,7 @@ final class PatternPropertiesObject implements JsonModel {
           errors.add(
             ValidationError(
               message: 'Property "$key" must be a string',
-              path: ['\$key'],
+              path: ['$key'],
               keyword: 'type',
             ),
           );
@@ -8134,7 +8134,7 @@ final class PatternPropertiesObject implements JsonModel {
           errors.add(
             ValidationError(
               message: 'Property "$key" must be an integer',
-              path: ['\$key'],
+              path: ['$key'],
               keyword: 'type',
             ),
           );
@@ -8143,7 +8143,7 @@ final class PatternPropertiesObject implements JsonModel {
             errors.add(
               ValidationError(
                 message: 'Property "$key" must be >= 0',
-                path: ['\$key'],
+                path: ['$key'],
                 keyword: 'minimum',
               ),
             );
@@ -8155,7 +8155,7 @@ final class PatternPropertiesObject implements JsonModel {
           errors.add(
             ValidationError(
               message: 'Property "$key" must be a Address',
-              path: ['\$key'],
+              path: ['$key'],
               keyword: 'type',
             ),
           );
@@ -8164,7 +8164,7 @@ final class PatternPropertiesObject implements JsonModel {
             (value as JsonModel).collectErrors().map(
               (ValidationError e) => ValidationError(
                 message: e.message,
-                path: ['\$key', ...e.path],
+                path: ['$key', ...e.path],
                 keyword: e.keyword,
                 schema: e.schema,
                 value: e.value,
@@ -9773,7 +9773,7 @@ final class MapObject1 implements JsonModel {
         errors.add(
           ValidationError(
             message: 'Property "$key" must be a string',
-            path: ['\$key'],
+            path: ['$key'],
             keyword: 'type',
           ),
         );

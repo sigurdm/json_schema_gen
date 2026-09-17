@@ -898,7 +898,7 @@ final class UserPreferences implements JsonModel {
         errors.add(
           ValidationError(
             message: 'Property "$key" must be a string',
-            path: ['\$key'],
+            path: ['$key'],
             keyword: 'type',
           ),
         );

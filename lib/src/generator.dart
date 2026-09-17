@@ -369,9 +369,27 @@ final class _GeneratorContext {
   final Map<Schema, String> classNames;
   final Map<Schema, Map<dynamic, String>> enumConstantNames = {};
   final Map<Schema, Map<String, String>> objectFieldNames = {};
+
+  /// Subclass name per union option, in `UnionAnalysis.activeSchemas` order.
+  ///
+  /// Assigned during class discovery so the names go through the same
+  /// collision resolution as every other generated class. Emission must read
+  /// them from here rather than recomputing `<Union>Option<i>`, which would
+  /// silently collide with a schema that already claimed that name.
+  final Map<Schema, List<String>> unionOptionNames;
+
   bool needsDartCollection = false;
 
-  _GeneratorContext(this.classNames);
+  _GeneratorContext(this.classNames, this.unionOptionNames);
+
+  /// Subclass name for option [index] of union [schema].
+  String unionOptionName(Schema schema, String className, int index) {
+    final names = unionOptionNames[schema];
+    if (names != null && index < names.length) return names[index];
+    // Unions reached without going through discovery (external refs) keep the
+    // historical name.
+    return '${className}Option$index';
+  }
 
   String toEnumConstantName(Object? val, [Schema? schema]) {
     if (schema != null) {
@@ -462,6 +480,9 @@ String generateCode(
   final usedNames = <String>{..._reservedTypeNames};
   final localClasses = <Schema>{};
   final importPrefixes = <String, String>{};
+  // Filled in by `discoverClasses`; read back during emission so option
+  // subclasses use the collision-resolved names reserved here.
+  final unionOptionNames = Map<Schema, List<String>>.identity();
 
   bool tryHandleExternalRef(Schema schema) {
     if (dartImportResolver == null) return false;
@@ -539,6 +560,14 @@ String generateCode(
       return;
     }
 
+    // `enum: []` accepts no value, so it is equivalent to a `false` schema and
+    // gets no class: `dartType` maps it to `Never` and `_descriptorExpr` to
+    // `NeverDescriptor`. Without this, a schema that also looked like an object
+    // would be registered here and then emitted as an enum with no constants.
+    if (real.enumValues != null && real.enumValues!.isEmpty) {
+      return;
+    }
+
     if (real.enumValues != null && real.enumValues!.isNotEmpty) {
       final name =
           real.dartName ?? real.title ?? real.definitionKey ?? preferredName;
@@ -578,12 +607,27 @@ String generateCode(
       classNames[real] = candidate;
       localClasses.add(real);
 
+      // Option subclass names are reserved here, before recursing, so a nested
+      // schema cannot claim one. They go through the same collision loop as
+      // every other class: a schema may already be named `<Union>Option0`.
+      final optionNames = <String>[];
       int index = 0;
       for (final sub in analysis.activeSchemas) {
-        usedNames.add('${candidate}Option$index');
+        final optionBase = '${candidate}Option$index';
+        var optionCandidate = optionBase;
+        int optionCounter = 1;
+        while (usedNames.contains(optionCandidate) ||
+            _dartKeywords.contains(optionCandidate) ||
+            _dartKeywords.contains(optionCandidate.toLowerCase())) {
+          optionCandidate = '$optionBase$optionCounter';
+          optionCounter++;
+        }
+        usedNames.add(optionCandidate);
+        optionNames.add(optionCandidate);
         discoverClasses(sub, '${candidate}_OptionType$index');
         index++;
       }
+      unionOptionNames[real] = optionNames;
     } else if (real.isObject) {
       final name =
           real.dartName ?? real.title ?? real.definitionKey ?? preferredName;
@@ -656,7 +700,7 @@ String generateCode(
     discoverDefs(rootSchema);
   }
 
-  final context = _GeneratorContext(classNames);
+  final context = _GeneratorContext(classNames, unionOptionNames);
   classNames.forEach((schema, name) {
     // These guards must stay in lockstep with the `enumValues` check in
     // `discoverClasses` above. An `enum: []` schema is not emitted as a Dart
@@ -830,6 +874,10 @@ String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
     }
     return baseDesc;
   } else if (real.enumValues != null) {
+    // `enum: []` accepts no value at all, so it behaves like a `false` schema
+    // and no enum class is generated for it. Matching `dartType`, which maps
+    // this case to `Never`.
+    if (real.enumValues!.isEmpty) return 'const NeverDescriptor()';
     final name = classNames[real]!;
     return '$name.descriptor';
   } else if (real.isString) {
@@ -1983,6 +2031,9 @@ List<Method> _generateValidationMethods(
         context,
         checkType: true,
         includeNot: true,
+        // Without this the path falls back to `dartStringLiteral(r'$key')`,
+        // which emits the literal text `\$key` rather than the matched key.
+        pathExprs: [r"'$key'"],
         escapeName: false,
       );
       buffer.write(validations.toString());
@@ -2021,6 +2072,9 @@ List<Method> _generateValidationMethods(
         context,
         checkType: true,
         includeNot: false,
+        // Matches the `_generateArrayItemValidation` branch above; without it
+        // the path is the literal text `\$key` instead of the actual key.
+        pathExprs: [r"'$key'"],
         escapeName: false,
       );
       if (validations.isNotEmpty) {
@@ -2636,7 +2690,7 @@ List<Spec> _generateUnionClass(
   final mappingEntries = StringBuffer();
   int i = 0;
   for (final sub in analysis.activeSchemas) {
-    final subClassName = '${className}Option$i';
+    final subClassName = context.unionOptionName(schema, className, i);
     final descExpr = _descriptorExpr(sub, classNames);
     final optionType = dartType(sub, classNames);
     optionDescriptors.writeln(
@@ -2649,7 +2703,7 @@ List<Spec> _generateUnionClass(
     int i = 0;
     for (final sub in analysis.activeSchemas) {
       final optionType = dartType(sub, classNames);
-      final subClassName = '${className}Option$i';
+      final subClassName = context.unionOptionName(schema, className, i);
       final caseLabels = <String>[];
       if (disc.mapping != null) {
         disc.mapping!.forEach((discVal, targetSchema) {
@@ -2830,7 +2884,7 @@ if (errors.isNotEmpty) {
   int index = 0;
   for (final sub in analysis.activeSchemas) {
     final optionType = dartType(sub, classNames);
-    final subClassName = '${className}Option$index';
+    final subClassName = context.unionOptionName(schema, className, index);
 
     final hasNestedValidation =
         sub.realSchema.isObject || sub.realSchema.isUnion;
