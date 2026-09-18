@@ -44,8 +44,8 @@ final class UndefinedVsNullModel implements JsonModel {
         title: 'UndefinedVsNullModel',
         matches: (instance) => instance is UndefinedVsNullModel,
         instantiate: (fields) => UndefinedVsNullModel(
-          foo: fields['foo'] as String?,
-          bar: fields['bar'] as int?,
+          foo: (fields['foo'] as String?),
+          bar: (fields['bar'] as int?),
           additionalProperties: fields.entries
               .where(
                 (e) => !const <String>{'foo', 'bar'}.contains(e.key) && true,
@@ -57,7 +57,7 @@ final class UndefinedVsNullModel implements JsonModel {
           explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
-          final typedInstance = instance as UndefinedVsNullModel;
+          final typedInstance = (instance as UndefinedVsNullModel);
           final map = <String, dynamic>{
             'foo': typedInstance.foo,
             'bar': typedInstance.bar,
@@ -83,7 +83,6 @@ final class UndefinedVsNullModel implements JsonModel {
             schema: NullableDescriptor(const IntDescriptor()),
           ),
         },
-
         required: const [],
         additionalProperties: const AnythingDescriptor(),
       );
@@ -107,7 +106,7 @@ final class UndefinedVsNullModel implements JsonModel {
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   UndefinedVsNullModel copyWith({
     String? foo,
@@ -126,7 +125,6 @@ final class UndefinedVsNullModel implements JsonModel {
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return UndefinedVsNullModel(
       foo: foo ?? this.foo,
       bar: bar ?? this.bar,

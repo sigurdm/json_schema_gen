@@ -60,18 +60,18 @@ final class User implements JsonModel {
     title: 'User',
     matches: (instance) => instance is User,
     instantiate: (fields) => User(
-      id: fields['id'] as int,
-      name: fields['name'] as String,
-      email: fields['email'] as String,
-      age: fields['age'] as int?,
+      id: (fields['id'] as int),
+      name: (fields['name'] as String),
+      email: (fields['email'] as String),
+      age: (fields['age'] as int?),
       role: fields.containsKey('role')
-          ? fields['role'] as UserRole
+          ? (fields['role'] as UserRole)
           : UserRole.user,
-      profile: fields['profile'] as UserProfile?,
-      address: fields['address'] as Address?,
-      tags: fields['tags'] as List<String>?,
-      preferences: fields['preferences'] as UserPreferences?,
-      createdAt: fields['createdAt'] as String?,
+      profile: (fields['profile'] as UserProfile?),
+      address: (fields['address'] as Address?),
+      tags: (fields['tags'] as List<String>?),
+      preferences: (fields['preferences'] as UserPreferences?),
+      createdAt: (fields['createdAt'] as String?),
       additionalProperties: fields.entries
           .where(
             (e) =>
@@ -96,7 +96,7 @@ final class User implements JsonModel {
       explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
-      final typedInstance = instance as User;
+      final typedInstance = (instance as User);
       final map = <String, dynamic>{
         'id': typedInstance.id,
         'name': typedInstance.name,
@@ -172,7 +172,6 @@ final class User implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
-
     required: const ['id', 'name', 'email'],
     additionalProperties: const AnythingDescriptor(),
   );
@@ -196,7 +195,7 @@ final class User implements JsonModel {
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   User copyWith({
     int? id,
@@ -247,7 +246,6 @@ final class User implements JsonModel {
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return User(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -433,7 +431,7 @@ enum UserRole {
 
   static final EnumDescriptor<UserRole> descriptor = EnumDescriptor<UserRole>(
     values: values,
-    fromValue: (val) => fromValue(val as String),
+    fromValue: (val) => fromValue((val as String)),
     toValue: (e) => (e as UserRole).value,
     base: const StringDescriptor(),
   );
@@ -473,8 +471,8 @@ final class UserProfile implements JsonModel {
         title: 'UserProfile',
         matches: (instance) => instance is UserProfile,
         instantiate: (fields) => UserProfile(
-          avatarUrl: fields['avatarUrl'] as String?,
-          bio: fields['bio'] as String?,
+          avatarUrl: (fields['avatarUrl'] as String?),
+          bio: (fields['bio'] as String?),
           additionalProperties: fields.entries
               .where(
                 (e) =>
@@ -487,7 +485,7 @@ final class UserProfile implements JsonModel {
           explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
-          final typedInstance = instance as UserProfile;
+          final typedInstance = (instance as UserProfile);
           final map = <String, dynamic>{
             'avatarUrl': typedInstance.avatarUrl,
             'bio': typedInstance.bio,
@@ -513,7 +511,6 @@ final class UserProfile implements JsonModel {
             schema: const StringDescriptor(),
           ),
         },
-
         required: const [],
         additionalProperties: const AnythingDescriptor(),
       );
@@ -537,7 +534,7 @@ final class UserProfile implements JsonModel {
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   UserProfile copyWith({
     String? avatarUrl,
@@ -556,7 +553,6 @@ final class UserProfile implements JsonModel {
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return UserProfile(
       avatarUrl: avatarUrl ?? this.avatarUrl,
       bio: bio ?? this.bio,
@@ -646,9 +642,9 @@ final class Address implements JsonModel {
     title: 'Address',
     matches: (instance) => instance is Address,
     instantiate: (fields) => Address(
-      street: fields['street'] as String?,
-      city: fields['city'] as String,
-      zipCode: fields['zipCode'] as String?,
+      street: (fields['street'] as String?),
+      city: (fields['city'] as String),
+      zipCode: (fields['zipCode'] as String?),
       additionalProperties: fields.entries
           .where(
             (e) =>
@@ -662,7 +658,7 @@ final class Address implements JsonModel {
       explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
-      final typedInstance = instance as Address;
+      final typedInstance = (instance as Address);
       final map = <String, dynamic>{
         'street': typedInstance.street,
         'city': typedInstance.city,
@@ -694,7 +690,6 @@ final class Address implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
-
     required: const ['city'],
     additionalProperties: const AnythingDescriptor(),
   );
@@ -718,7 +713,7 @@ final class Address implements JsonModel {
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   Address copyWith({
     String? street,
@@ -741,7 +736,6 @@ final class Address implements JsonModel {
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return Address(
       street: street ?? this.street,
       city: city ?? this.city,
@@ -839,7 +833,7 @@ final class UserPreferences implements JsonModel {
           explicitKeys: fields.keys.toSet(),
         ),
         getFields: (instance) {
-          final typedInstance = instance as UserPreferences;
+          final typedInstance = (instance as UserPreferences);
           final map = <String, dynamic>{...typedInstance.additionalProperties};
           final explicit = typedInstance._$explicitKeys;
           if (explicit != null) {
@@ -850,7 +844,6 @@ final class UserPreferences implements JsonModel {
           return map..removeWhere((k, v) => v == null);
         },
         properties: {},
-
         required: const [],
         additionalProperties: const StringDescriptor(),
       );
@@ -874,7 +867,7 @@ final class UserPreferences implements JsonModel {
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   UserPreferences copyWith({Map<String, String>? additionalProperties}) {
     final nextKeys = _$explicitKeys != null
@@ -883,7 +876,6 @@ final class UserPreferences implements JsonModel {
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return UserPreferences(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,

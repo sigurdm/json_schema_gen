@@ -42,10 +42,10 @@ final class Order implements JsonModel {
     title: 'Order',
     matches: (instance) => instance is Order,
     instantiate: (fields) => Order(
-      orderId: fields['orderId'] as String,
-      total: fields['total'] as num,
-      shippingAddress: fields['shippingAddress'] as i1.Address,
-      billingAddress: fields['billingAddress'] as i1.Address?,
+      orderId: (fields['orderId'] as String),
+      total: (fields['total'] as num),
+      shippingAddress: (fields['shippingAddress'] as i1.Address),
+      billingAddress: (fields['billingAddress'] as i1.Address?),
       additionalProperties: fields.entries
           .where(
             (e) =>
@@ -64,7 +64,7 @@ final class Order implements JsonModel {
       explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
-      final typedInstance = instance as Order;
+      final typedInstance = (instance as Order);
       final map = <String, dynamic>{
         'orderId': typedInstance.orderId,
         'total': typedInstance.total,
@@ -102,7 +102,6 @@ final class Order implements JsonModel {
         schema: RefDescriptor<i1.Address>(() => i1.Address.descriptor),
       ),
     },
-
     required: const ['orderId', 'total', 'shippingAddress'],
     additionalProperties: const AnythingDescriptor(),
   );
@@ -126,7 +125,7 @@ final class Order implements JsonModel {
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   Order copyWith({
     String? orderId,
@@ -153,7 +152,6 @@ final class Order implements JsonModel {
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return Order(
       orderId: orderId ?? this.orderId,
       total: total ?? this.total,

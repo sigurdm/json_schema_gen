@@ -31,7 +31,6 @@ sealed class CoreAndValidationSpecificationsMetaSchema implements JsonModel {
   static final UnionDescriptor<CoreAndValidationSpecificationsMetaSchema>
   descriptor = UnionDescriptor<CoreAndValidationSpecificationsMetaSchema>(
     title: 'CoreAndValidationSpecificationsMetaSchema',
-
     activeOptions: [
       UnionOptionDescriptor<
         CoreAndValidationSpecificationsMetaSchema,
@@ -41,12 +40,13 @@ sealed class CoreAndValidationSpecificationsMetaSchema implements JsonModel {
           () => CoreAndValidationSpecificationsMetaSchema1.descriptor,
         ),
         (val) => CoreAndValidationSpecificationsMetaSchemaOption0(
-          val as CoreAndValidationSpecificationsMetaSchema1,
+          (val as CoreAndValidationSpecificationsMetaSchema1),
         ),
       ),
       UnionOptionDescriptor<CoreAndValidationSpecificationsMetaSchema, bool>(
         const BoolDescriptor(),
-        (val) => CoreAndValidationSpecificationsMetaSchemaOption1(val as bool),
+        (val) =>
+            CoreAndValidationSpecificationsMetaSchemaOption1((val as bool)),
       ),
     ],
   );
@@ -378,110 +378,114 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     matches: (instance) =>
         instance is CoreAndValidationSpecificationsMetaSchema1,
     instantiate: (fields) => CoreAndValidationSpecificationsMetaSchema1(
-      id: fields['\$id'] as String?,
-      schema: fields['\$schema'] as String?,
-      ref: fields['\$ref'] as String?,
-      anchor: fields['\$anchor'] as String?,
-      dynamicRef: fields['\$dynamicRef'] as String?,
-      dynamicAnchor: fields['\$dynamicAnchor'] as String?,
+      id: (fields['\$id'] as String?),
+      schema: (fields['\$schema'] as String?),
+      ref: (fields['\$ref'] as String?),
+      anchor: (fields['\$anchor'] as String?),
+      dynamicRef: (fields['\$dynamicRef'] as String?),
+      dynamicAnchor: (fields['\$dynamicAnchor'] as String?),
       vocabulary:
-          fields['\$vocabulary']
-              as CoreAndValidationSpecificationsMetaSchema1Vocabulary?,
-      comment: fields['\$comment'] as String?,
-      defs: fields['\$defs'] as CoreAndValidationSpecificationsMetaSchema1Defs?,
+          (fields['\$vocabulary']
+              as CoreAndValidationSpecificationsMetaSchema1Vocabulary?),
+      comment: (fields['\$comment'] as String?),
+      defs:
+          (fields['\$defs'] as CoreAndValidationSpecificationsMetaSchema1Defs?),
       prefixItems:
-          fields['prefixItems']
-              as List<CoreAndValidationSpecificationsMetaSchema>?,
-      items: fields['items'] as CoreAndValidationSpecificationsMetaSchema?,
+          (fields['prefixItems']
+              as List<CoreAndValidationSpecificationsMetaSchema>?),
+      items: (fields['items'] as CoreAndValidationSpecificationsMetaSchema?),
       contains:
-          fields['contains'] as CoreAndValidationSpecificationsMetaSchema?,
+          (fields['contains'] as CoreAndValidationSpecificationsMetaSchema?),
       additionalProperties_:
-          fields['additionalProperties']
-              as CoreAndValidationSpecificationsMetaSchema?,
+          (fields['additionalProperties']
+              as CoreAndValidationSpecificationsMetaSchema?),
       properties: fields.containsKey('properties')
-          ? fields['properties']
-                as CoreAndValidationSpecificationsMetaSchema1Properties
+          ? (fields['properties']
+                as CoreAndValidationSpecificationsMetaSchema1Properties)
           : const CoreAndValidationSpecificationsMetaSchema1Properties(),
       patternProperties_: fields.containsKey('patternProperties')
-          ? fields['patternProperties']
-                as CoreAndValidationSpecificationsMetaSchema1PatternProperties
+          ? (fields['patternProperties']
+                as CoreAndValidationSpecificationsMetaSchema1PatternProperties)
           : const CoreAndValidationSpecificationsMetaSchema1PatternProperties(),
       dependentSchemas: fields.containsKey('dependentSchemas')
-          ? fields['dependentSchemas']
-                as CoreAndValidationSpecificationsMetaSchema1DependentSchemas
+          ? (fields['dependentSchemas']
+                as CoreAndValidationSpecificationsMetaSchema1DependentSchemas)
           : const CoreAndValidationSpecificationsMetaSchema1DependentSchemas(),
       propertyNames:
-          fields['propertyNames'] as CoreAndValidationSpecificationsMetaSchema?,
-      if_: fields['if'] as CoreAndValidationSpecificationsMetaSchema?,
-      then: fields['then'] as CoreAndValidationSpecificationsMetaSchema?,
-      else_: fields['else'] as CoreAndValidationSpecificationsMetaSchema?,
+          (fields['propertyNames']
+              as CoreAndValidationSpecificationsMetaSchema?),
+      if_: (fields['if'] as CoreAndValidationSpecificationsMetaSchema?),
+      then: (fields['then'] as CoreAndValidationSpecificationsMetaSchema?),
+      else_: (fields['else'] as CoreAndValidationSpecificationsMetaSchema?),
       allOf:
-          fields['allOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
+          (fields['allOf'] as List<CoreAndValidationSpecificationsMetaSchema>?),
       anyOf:
-          fields['anyOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
+          (fields['anyOf'] as List<CoreAndValidationSpecificationsMetaSchema>?),
       oneOf:
-          fields['oneOf'] as List<CoreAndValidationSpecificationsMetaSchema>?,
-      not: fields['not'] as CoreAndValidationSpecificationsMetaSchema?,
+          (fields['oneOf'] as List<CoreAndValidationSpecificationsMetaSchema>?),
+      not: (fields['not'] as CoreAndValidationSpecificationsMetaSchema?),
       unevaluatedItems:
-          fields['unevaluatedItems']
-              as CoreAndValidationSpecificationsMetaSchema?,
+          (fields['unevaluatedItems']
+              as CoreAndValidationSpecificationsMetaSchema?),
       unevaluatedProperties:
-          fields['unevaluatedProperties']
-              as CoreAndValidationSpecificationsMetaSchema?,
-      type_: fields['type'] as CoreAndValidationSpecificationsMetaSchema1Type?,
-      const_: fields['const'] as Object?,
-      enum_: fields['enum'] as List<Object?>?,
-      multipleOf: fields['multipleOf'] as num?,
-      maximum: fields['maximum'] as num?,
-      exclusiveMaximum: fields['exclusiveMaximum'] as num?,
-      minimum: fields['minimum'] as num?,
-      exclusiveMinimum: fields['exclusiveMinimum'] as num?,
-      maxLength: fields['maxLength'] as int?,
-      minLength: fields['minLength'] as int?,
-      pattern: fields['pattern'] as String?,
-      maxItems: fields['maxItems'] as int?,
-      minItems: fields['minItems'] as int?,
+          (fields['unevaluatedProperties']
+              as CoreAndValidationSpecificationsMetaSchema?),
+      type_:
+          (fields['type'] as CoreAndValidationSpecificationsMetaSchema1Type?),
+      const_: (fields['const'] as Object?),
+      enum_: (fields['enum'] as List<Object?>?),
+      multipleOf: (fields['multipleOf'] as num?),
+      maximum: (fields['maximum'] as num?),
+      exclusiveMaximum: (fields['exclusiveMaximum'] as num?),
+      minimum: (fields['minimum'] as num?),
+      exclusiveMinimum: (fields['exclusiveMinimum'] as num?),
+      maxLength: (fields['maxLength'] as int?),
+      minLength: (fields['minLength'] as int?),
+      pattern: (fields['pattern'] as String?),
+      maxItems: (fields['maxItems'] as int?),
+      minItems: (fields['minItems'] as int?),
       uniqueItems: fields.containsKey('uniqueItems')
-          ? fields['uniqueItems'] as bool
+          ? (fields['uniqueItems'] as bool)
           : false,
-      maxContains: fields['maxContains'] as int?,
+      maxContains: (fields['maxContains'] as int?),
       minContains: fields.containsKey('minContains')
-          ? fields['minContains'] as int
+          ? (fields['minContains'] as int)
           : 1,
-      maxProperties: fields['maxProperties'] as int?,
-      minProperties: fields['minProperties'] as int?,
-      required_: fields['required'] as List<String>?,
+      maxProperties: (fields['maxProperties'] as int?),
+      minProperties: (fields['minProperties'] as int?),
+      required_: (fields['required'] as List<String>?),
       dependentRequired:
-          fields['dependentRequired']
-              as CoreAndValidationSpecificationsMetaSchema1DependentRequired?,
-      title: fields['title'] as String?,
-      description: fields['description'] as String?,
-      default_: fields['default'] as Object?,
+          (fields['dependentRequired']
+              as CoreAndValidationSpecificationsMetaSchema1DependentRequired?),
+      title: (fields['title'] as String?),
+      description: (fields['description'] as String?),
+      default_: (fields['default'] as Object?),
       deprecated: fields.containsKey('deprecated')
-          ? fields['deprecated'] as bool
+          ? (fields['deprecated'] as bool)
           : false,
       readOnly: fields.containsKey('readOnly')
-          ? fields['readOnly'] as bool
+          ? (fields['readOnly'] as bool)
           : false,
       writeOnly: fields.containsKey('writeOnly')
-          ? fields['writeOnly'] as bool
+          ? (fields['writeOnly'] as bool)
           : false,
-      examples: fields['examples'] as List<Object?>?,
-      format: fields['format'] as String?,
-      contentEncoding: fields['contentEncoding'] as String?,
-      contentMediaType: fields['contentMediaType'] as String?,
+      examples: (fields['examples'] as List<Object?>?),
+      format: (fields['format'] as String?),
+      contentEncoding: (fields['contentEncoding'] as String?),
+      contentMediaType: (fields['contentMediaType'] as String?),
       contentSchema:
-          fields['contentSchema'] as CoreAndValidationSpecificationsMetaSchema?,
+          (fields['contentSchema']
+              as CoreAndValidationSpecificationsMetaSchema?),
       definitions: fields.containsKey('definitions')
-          ? fields['definitions']
-                as CoreAndValidationSpecificationsMetaSchema1Definitions
+          ? (fields['definitions']
+                as CoreAndValidationSpecificationsMetaSchema1Definitions)
           : const CoreAndValidationSpecificationsMetaSchema1Definitions(),
       dependencies: fields.containsKey('dependencies')
-          ? fields['dependencies']
-                as CoreAndValidationSpecificationsMetaSchema1Dependencies
+          ? (fields['dependencies']
+                as CoreAndValidationSpecificationsMetaSchema1Dependencies)
           : const CoreAndValidationSpecificationsMetaSchema1Dependencies(),
-      recursiveAnchor: fields['\$recursiveAnchor'] as String?,
-      recursiveRef: fields['\$recursiveRef'] as String?,
+      recursiveAnchor: (fields['\$recursiveAnchor'] as String?),
+      recursiveRef: (fields['\$recursiveRef'] as String?),
       additionalProperties: fields.entries
           .where(
             (e) =>
@@ -558,7 +562,7 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     ),
     getFields: (instance) {
       final typedInstance =
-          instance as CoreAndValidationSpecificationsMetaSchema1;
+          (instance as CoreAndValidationSpecificationsMetaSchema1);
       final map = <String, dynamic>{
         '\$id': typedInstance.id,
         '\$schema': typedInstance.schema,
@@ -1018,7 +1022,6 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
-
     required: const [],
     additionalProperties: const AnythingDescriptor(),
   );
@@ -1042,7 +1045,7 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1 copyWith({
     String? id,
@@ -1300,7 +1303,6 @@ final class CoreAndValidationSpecificationsMetaSchema1 implements JsonModel {
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1(
       id: id ?? this.id,
       schema: schema ?? this.schema,
@@ -2202,7 +2204,8 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
             ),
         getFields: (instance) {
           final typedInstance =
-              instance as CoreAndValidationSpecificationsMetaSchema1Vocabulary;
+              (instance
+                  as CoreAndValidationSpecificationsMetaSchema1Vocabulary);
           final map = <String, dynamic>{...typedInstance.additionalProperties};
           final explicit = typedInstance._$explicitKeys;
           if (explicit != null) {
@@ -2213,7 +2216,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
           return map..removeWhere((k, v) => v == null);
         },
         properties: {},
-
         required: const [],
         additionalProperties: const BoolDescriptor(),
       );
@@ -2237,7 +2239,7 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1Vocabulary copyWith({
     Map<String, bool>? additionalProperties,
@@ -2248,7 +2250,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Vocabulary
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1Vocabulary(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
@@ -2345,7 +2346,7 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
     ),
     getFields: (instance) {
       final typedInstance =
-          instance as CoreAndValidationSpecificationsMetaSchema1Defs;
+          (instance as CoreAndValidationSpecificationsMetaSchema1Defs);
       final map = <String, dynamic>{...typedInstance.additionalProperties};
       final explicit = typedInstance._$explicitKeys;
       if (explicit != null) {
@@ -2356,7 +2357,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
       return map..removeWhere((k, v) => v == null);
     },
     properties: {},
-
     required: const [],
     additionalProperties:
         RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
@@ -2383,7 +2383,7 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1Defs copyWith({
     Map<String, CoreAndValidationSpecificationsMetaSchema>?
@@ -2395,7 +2395,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Defs
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1Defs(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
@@ -2500,7 +2499,8 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
             ),
         getFields: (instance) {
           final typedInstance =
-              instance as CoreAndValidationSpecificationsMetaSchema1Properties;
+              (instance
+                  as CoreAndValidationSpecificationsMetaSchema1Properties);
           final map = <String, dynamic>{...typedInstance.additionalProperties};
           final explicit = typedInstance._$explicitKeys;
           if (explicit != null) {
@@ -2511,7 +2511,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
           return map..removeWhere((k, v) => v == null);
         },
         properties: {},
-
         required: const [],
         additionalProperties:
             RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
@@ -2538,7 +2537,7 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1Properties copyWith({
     Map<String, CoreAndValidationSpecificationsMetaSchema>?
@@ -2550,7 +2549,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Properties
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1Properties(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
@@ -2658,8 +2656,8 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
             ),
         getFields: (instance) {
           final typedInstance =
-              instance
-                  as CoreAndValidationSpecificationsMetaSchema1PatternProperties;
+              (instance
+                  as CoreAndValidationSpecificationsMetaSchema1PatternProperties);
           final map = <String, dynamic>{...typedInstance.additionalProperties};
           final explicit = typedInstance._$explicitKeys;
           if (explicit != null) {
@@ -2670,7 +2668,6 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
           return map..removeWhere((k, v) => v == null);
         },
         properties: {},
-
         required: const [],
         additionalProperties:
             RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
@@ -2697,7 +2694,7 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1PatternProperties copyWith({
     Map<String, CoreAndValidationSpecificationsMetaSchema>?
@@ -2709,7 +2706,6 @@ final class CoreAndValidationSpecificationsMetaSchema1PatternProperties
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1PatternProperties(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
@@ -2817,8 +2813,8 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
             ),
         getFields: (instance) {
           final typedInstance =
-              instance
-                  as CoreAndValidationSpecificationsMetaSchema1DependentSchemas;
+              (instance
+                  as CoreAndValidationSpecificationsMetaSchema1DependentSchemas);
           final map = <String, dynamic>{...typedInstance.additionalProperties};
           final explicit = typedInstance._$explicitKeys;
           if (explicit != null) {
@@ -2829,7 +2825,6 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
           return map..removeWhere((k, v) => v == null);
         },
         properties: {},
-
         required: const [],
         additionalProperties:
             RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
@@ -2856,7 +2851,7 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1DependentSchemas copyWith({
     Map<String, CoreAndValidationSpecificationsMetaSchema>?
@@ -2868,7 +2863,6 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentSchemas
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1DependentSchemas(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
@@ -2946,7 +2940,6 @@ sealed class CoreAndValidationSpecificationsMetaSchema1Type
   static final UnionDescriptor<CoreAndValidationSpecificationsMetaSchema1Type>
   descriptor = UnionDescriptor<CoreAndValidationSpecificationsMetaSchema1Type>(
     title: 'CoreAndValidationSpecificationsMetaSchema1Type',
-
     activeOptions: [
       UnionOptionDescriptor<
         CoreAndValidationSpecificationsMetaSchema1Type,
@@ -2954,7 +2947,7 @@ sealed class CoreAndValidationSpecificationsMetaSchema1Type
       >(
         SimpleTypes.descriptor,
         (val) => CoreAndValidationSpecificationsMetaSchema1TypeOption0(
-          val as SimpleTypes,
+          (val as SimpleTypes),
         ),
       ),
       UnionOptionDescriptor<
@@ -2963,7 +2956,7 @@ sealed class CoreAndValidationSpecificationsMetaSchema1Type
       >(
         ArrayDescriptor<SimpleTypes>(SimpleTypes.descriptor),
         (val) => CoreAndValidationSpecificationsMetaSchema1TypeOption1(
-          val as List<SimpleTypes>,
+          (val as List<SimpleTypes>),
         ),
       ),
     ],
@@ -3105,7 +3098,7 @@ enum SimpleTypes {
   static final EnumDescriptor<SimpleTypes> descriptor =
       EnumDescriptor<SimpleTypes>(
         values: values,
-        fromValue: (val) => fromValue(val as String),
+        fromValue: (val) => fromValue((val as String)),
         toValue: (e) => (e as SimpleTypes).value,
         base: const StringDescriptor(),
       );
@@ -3164,8 +3157,8 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
             ),
         getFields: (instance) {
           final typedInstance =
-              instance
-                  as CoreAndValidationSpecificationsMetaSchema1DependentRequired;
+              (instance
+                  as CoreAndValidationSpecificationsMetaSchema1DependentRequired);
           final map = <String, dynamic>{...typedInstance.additionalProperties};
           final explicit = typedInstance._$explicitKeys;
           if (explicit != null) {
@@ -3176,7 +3169,6 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
           return map..removeWhere((k, v) => v == null);
         },
         properties: {},
-
         required: const [],
         additionalProperties: ArrayDescriptor<String>(const StringDescriptor()),
       );
@@ -3200,7 +3192,7 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1DependentRequired copyWith({
     Map<String, List<String>>? additionalProperties,
@@ -3211,7 +3203,6 @@ final class CoreAndValidationSpecificationsMetaSchema1DependentRequired
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1DependentRequired(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
@@ -3328,7 +3319,8 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
             ),
         getFields: (instance) {
           final typedInstance =
-              instance as CoreAndValidationSpecificationsMetaSchema1Definitions;
+              (instance
+                  as CoreAndValidationSpecificationsMetaSchema1Definitions);
           final map = <String, dynamic>{...typedInstance.additionalProperties};
           final explicit = typedInstance._$explicitKeys;
           if (explicit != null) {
@@ -3339,7 +3331,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
           return map..removeWhere((k, v) => v == null);
         },
         properties: {},
-
         required: const [],
         additionalProperties:
             RefDescriptor<CoreAndValidationSpecificationsMetaSchema>(
@@ -3366,7 +3357,7 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1Definitions copyWith({
     Map<String, CoreAndValidationSpecificationsMetaSchema>?
@@ -3378,7 +3369,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Definitions
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1Definitions(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
@@ -3491,7 +3481,7 @@ final class CoreAndValidationSpecificationsMetaSchema1Dependencies
     ),
     getFields: (instance) {
       final typedInstance =
-          instance as CoreAndValidationSpecificationsMetaSchema1Dependencies;
+          (instance as CoreAndValidationSpecificationsMetaSchema1Dependencies);
       final map = <String, dynamic>{...typedInstance.additionalProperties};
       final explicit = typedInstance._$explicitKeys;
       if (explicit != null) {
@@ -3502,7 +3492,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Dependencies
       return map..removeWhere((k, v) => v == null);
     },
     properties: {},
-
     required: const [],
     additionalProperties:
         RefDescriptor<
@@ -3533,7 +3522,7 @@ final class CoreAndValidationSpecificationsMetaSchema1Dependencies
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   CoreAndValidationSpecificationsMetaSchema1Dependencies copyWith({
     Map<
@@ -3548,7 +3537,6 @@ final class CoreAndValidationSpecificationsMetaSchema1Dependencies
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return CoreAndValidationSpecificationsMetaSchema1Dependencies(
       additionalProperties: additionalProperties ?? this.additionalProperties,
       explicitKeys: nextKeys,
@@ -3633,7 +3621,6 @@ sealed class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPro
       >(
         title:
             'CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty',
-
         activeOptions: [
           UnionOptionDescriptor<
             CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalProperty,
@@ -3644,7 +3631,7 @@ sealed class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPro
             ),
             (val) =>
                 CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPropertyOption0(
-                  val as CoreAndValidationSpecificationsMetaSchema,
+                  (val as CoreAndValidationSpecificationsMetaSchema),
                 ),
           ),
           UnionOptionDescriptor<
@@ -3654,7 +3641,7 @@ sealed class CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPro
             ArrayDescriptor<String>(const StringDescriptor()),
             (val) =>
                 CoreAndValidationSpecificationsMetaSchema1DependenciesAdditionalPropertyOption1(
-                  val as List<String>,
+                  (val as List<String>),
                 ),
           ),
         ],

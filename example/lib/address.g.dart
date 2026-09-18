@@ -37,9 +37,9 @@ final class Address implements JsonModel {
     title: 'Address',
     matches: (instance) => instance is Address,
     instantiate: (fields) => Address(
-      street: fields['street'] as String,
-      city: fields['city'] as String,
-      zipCode: fields['zipCode'] as String,
+      street: (fields['street'] as String),
+      city: (fields['city'] as String),
+      zipCode: (fields['zipCode'] as String),
       additionalProperties: fields.entries
           .where(
             (e) =>
@@ -53,7 +53,7 @@ final class Address implements JsonModel {
       explicitKeys: fields.keys.toSet(),
     ),
     getFields: (instance) {
-      final typedInstance = instance as Address;
+      final typedInstance = (instance as Address);
       final map = <String, dynamic>{
         'street': typedInstance.street,
         'city': typedInstance.city,
@@ -85,7 +85,6 @@ final class Address implements JsonModel {
         schema: const StringDescriptor(),
       ),
     },
-
     required: const ['street', 'city', 'zipCode'],
     additionalProperties: const AnythingDescriptor(),
   );
@@ -109,7 +108,7 @@ final class Address implements JsonModel {
   }
 
   /// Converts this instance to a JSON Map.
-  Map<String, dynamic> toMap() => toJsonValue() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() => (toJsonValue() as Map<String, dynamic>);
 
   Address copyWith({
     String? street,
@@ -132,7 +131,6 @@ final class Address implements JsonModel {
     if (additionalProperties != null) {
       nextKeys?.add('additionalProperties');
     }
-
     return Address(
       street: street ?? this.street,
       city: city ?? this.city,

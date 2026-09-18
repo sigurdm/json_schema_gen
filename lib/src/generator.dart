@@ -164,6 +164,11 @@ String escapeStringContents(String value) {
 /// See [escapeStringContents] for the escaping rules.
 String dartStringLiteral(String value) => "'${escapeStringContents(value)}'";
 
+/// Renders [value] as a [CodeExpression] wrapping [dartStringLiteral], ensuring
+/// that characters like `$` are properly escaped and not treated as interpolation.
+Expression _dartString(String value) =>
+    CodeExpression(Code(dartStringLiteral(value)));
+
 /// Renders schema-derived [text] as a list of `///` doc comment lines.
 ///
 /// A `///` comment is terminated by a line break, so any schema text written
@@ -778,8 +783,10 @@ Enum _generateEnumClass(
   final isInt = backingType == 'int';
 
   final baseDescriptor = isString
-      ? 'const StringDescriptor()'
-      : (isInt ? 'const IntDescriptor()' : 'const AnythingDescriptor()');
+      ? refer('StringDescriptor').constInstance([])
+      : (isInt
+            ? refer('IntDescriptor').constInstance([])
+            : refer('AnythingDescriptor').constInstance([]));
 
   return Enum((b) {
     if (schema.isDeprecated) {
@@ -836,6 +843,30 @@ Enum _generateEnumClass(
           ..body = const Code('values.firstWhere((e) => e.value == val)'),
       ),
     );
+    final enumDescriptorExpr = refer('EnumDescriptor').newInstanceNamed(
+      '',
+      [],
+      {
+        'values': refer('values'),
+        'fromValue': Method(
+          (mb) => mb
+            ..lambda = true
+            ..requiredParameters.add(Parameter((pb) => pb..name = 'val'))
+            ..body = refer(
+              'fromValue',
+            ).call([refer('val').asA(refer(backingType))]).code,
+        ).closure,
+        'toValue': Method(
+          (mb) => mb
+            ..lambda = true
+            ..requiredParameters.add(Parameter((pb) => pb..name = 'e'))
+            ..body = refer('e').asA(refer(className)).property('value').code,
+        ).closure,
+        'base': baseDescriptor,
+      },
+      [refer(className)],
+    );
+
     b.fields.add(
       Field(
         (fb) => fb
@@ -843,15 +874,23 @@ Enum _generateEnumClass(
           ..static = true
           ..modifier = FieldModifier.final$
           ..type = refer('EnumDescriptor<$className>')
-          ..assignment = Code('''EnumDescriptor<$className>(
-    values: values,
-    fromValue: (val) => fromValue(val as $backingType),
-    toValue: (e) => (e as $className).value,
-    base: $baseDescriptor,
-  )'''),
+          ..assignment = enumDescriptorExpr.code,
       ),
     );
   });
+}
+
+/// Helper converting an [Expression] to Dart code using [DartEmitter].
+String _expressionToDart(Expression expr) {
+  return expr
+      .accept(
+        DartEmitter(
+          allocator: Allocator.none,
+          orderDirectives: true,
+          useNullSafetySyntax: true,
+        ),
+      )
+      .toString();
 }
 
 /// Checks if a string is a reserved Dart keyword.
@@ -862,51 +901,85 @@ bool isKeyword(String s) {
   return _dartKeywords.contains(s);
 }
 
-String _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
+Expression _descriptorExpr(Schema schema, Map<Schema, String> classNames) {
   final real = schema.realSchema;
   if (real.isUnion) {
     final analysis = UnionAnalysis.analyze(real);
     final baseDesc = analysis.nonNullSchema != null
         ? _descriptorExpr(analysis.nonNullSchema!, classNames)
-        : 'RefDescriptor<${classNames[real]!}>(() => ${classNames[real]!}.descriptor)';
+        : refer('RefDescriptor').newInstanceNamed(
+            '',
+            [
+              Method(
+                (m) => m
+                  ..lambda = true
+                  ..body = refer(classNames[real]!).property('descriptor').code,
+              ).closure,
+            ],
+            {},
+            [refer(classNames[real]!)],
+          );
     if (analysis.isNullable) {
-      return 'NullableDescriptor($baseDesc)';
+      return refer('NullableDescriptor').newInstance([baseDesc]);
     }
     return baseDesc;
   } else if (real.enumValues != null) {
     // `enum: []` accepts no value at all, so it behaves like a `false` schema
     // and no enum class is generated for it. Matching `dartType`, which maps
     // this case to `Never`.
-    if (real.enumValues!.isEmpty) return 'const NeverDescriptor()';
+    if (real.enumValues!.isEmpty) {
+      return refer('NeverDescriptor').constInstance([]);
+    }
     final name = classNames[real]!;
-    return '$name.descriptor';
+    return refer(name).property('descriptor');
   } else if (real.isString) {
-    return 'const StringDescriptor()';
+    return refer('StringDescriptor').constInstance([]);
   } else if (real.isNumber) {
-    return real.isInteger ? 'const IntDescriptor()' : 'const NumDescriptor()';
+    return refer(
+      real.isInteger ? 'IntDescriptor' : 'NumDescriptor',
+    ).constInstance([]);
   } else if (real.isBoolean) {
-    return 'const BoolDescriptor()';
+    return refer('BoolDescriptor').constInstance([]);
   } else if (real.isNull) {
-    return 'const NullDescriptor()';
+    return refer('NullDescriptor').constInstance([]);
   } else if (real.isAnything) {
-    return 'const AnythingDescriptor()';
+    return refer('AnythingDescriptor').constInstance([]);
   } else if (real.isNever) {
-    return 'const NeverDescriptor()';
+    return refer('NeverDescriptor').constInstance([]);
   } else if (real.isArray) {
     final elementType = _arrayElementType(real, classNames);
+    final itemDesc = _descriptorExpr(real.items ?? Schema.anything, classNames);
     if (real.prefixItems == null || real.prefixItems!.isEmpty) {
-      return 'ArrayDescriptor<$elementType>(${_descriptorExpr(real.items ?? Schema.anything, classNames)})';
+      return refer(
+        'ArrayDescriptor',
+      ).newInstanceNamed('', [itemDesc], {}, [refer(elementType)]);
     } else {
       final prefixExprs = real.prefixItems!
           .map((s) => _descriptorExpr(s, classNames))
-          .join(', ');
-      return 'ArrayDescriptor<$elementType>(${_descriptorExpr(real.items ?? Schema.anything, classNames)}, prefixItems: [$prefixExprs])';
+          .toList();
+      return refer('ArrayDescriptor').newInstanceNamed(
+        '',
+        [itemDesc],
+        {'prefixItems': literalList(prefixExprs)},
+        [refer(elementType)],
+      );
     }
   } else if (real.isObject) {
     final name = classNames[real]!;
-    return 'RefDescriptor<$name>(() => $name.descriptor)';
+    return refer('RefDescriptor').newInstanceNamed(
+      '',
+      [
+        Method(
+          (m) => m
+            ..lambda = true
+            ..body = refer(name).property('descriptor').code,
+        ).closure,
+      ],
+      {},
+      [refer(name)],
+    );
   }
-  return 'const AnythingDescriptor()';
+  return refer('AnythingDescriptor').constInstance([]);
 }
 
 String _fieldType(
@@ -1077,12 +1150,12 @@ Class _generateObjectClass(
 
   final classFields = <Field>[];
   final constructorParams = <Parameter>[];
-  final equalityProps = <String>[];
-  final hashExprs = <String>[];
+  final equalityProps = <Expression>[];
+  final hashExprs = <Expression>[];
   final toStringProps = <String>[];
   final copyWithParams = <Parameter>[];
-  final copyWithArgs = StringBuffer();
-  final copyWithKeys = StringBuffer();
+  final copyWithNamedArgs = <String, Expression>{};
+  final copyWithKeyBranches = <Code>[];
 
   schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
@@ -1170,12 +1243,25 @@ Class _generateObjectClass(
           ..type = refer(copyType),
       ),
     );
-    copyWithArgs.writeln('      $fieldName: $fieldName ?? this.$fieldName,');
-    copyWithKeys.writeln('    if ($fieldName != null) {');
-    copyWithKeys.writeln(
-      "      nextKeys?.add('${escapeStringContents(name)}');",
+    copyWithNamedArgs[fieldName] = refer(
+      fieldName,
+    ).ifNullThen(refer('this').property(fieldName));
+    copyWithKeyBranches.add(
+      Conditional(
+        (cb) => cb
+          ..branches.add(
+            Branch(
+              (bb) => bb
+                ..condition = Condition.expression(
+                  refer(fieldName).notEqualTo(literalNull),
+                )
+                ..body = refer(
+                  'nextKeys',
+                ).nullSafeProperty('add').call([_dartString(name)]).statement,
+            ),
+          ),
+      ),
     );
-    copyWithKeys.writeln('    }');
 
     final isColl =
         baseType.startsWith('List') ||
@@ -1184,12 +1270,21 @@ Class _generateObjectClass(
         baseType == 'Object?';
     if (isColl) {
       equalityProps.add(
-        'const DeepCollectionEquality().equals($fieldName, other.$fieldName)',
+        refer('DeepCollectionEquality')
+            .constInstance([])
+            .property('equals')
+            .call([refer(fieldName), refer('other').property(fieldName)]),
       );
-      hashExprs.add('const DeepCollectionEquality().hash($fieldName)');
+      hashExprs.add(
+        refer(
+          'DeepCollectionEquality',
+        ).constInstance([]).property('hash').call([refer(fieldName)]),
+      );
     } else {
-      equalityProps.add('$fieldName == other.$fieldName');
-      hashExprs.add(fieldName);
+      equalityProps.add(
+        refer(fieldName).equalTo(refer('other').property(fieldName)),
+      );
+      hashExprs.add(refer(fieldName));
     }
     toStringProps.add('$fieldName: \${$fieldName}');
   });
@@ -1241,16 +1336,22 @@ Class _generateObjectClass(
           ..type = refer('Map<String, dynamic>?'),
       ),
     );
-    copyWithKeys.writeln('    if (patternProperties != null) {');
-    copyWithKeys.writeln("      nextKeys?.add('patternProperties');");
-    copyWithKeys.writeln('    }');
-    copyWithArgs.writeln(
-      '      patternProperties: patternProperties ?? this.patternProperties,',
-    );
+    copyWithNamedArgs['patternProperties'] = refer(
+      'patternProperties',
+    ).ifNullThen(refer('this').property('patternProperties'));
     equalityProps.add(
-      'const DeepCollectionEquality().equals(patternProperties, other.patternProperties)',
+      refer('DeepCollectionEquality').constInstance([]).property('equals').call(
+        [
+          refer('patternProperties'),
+          refer('other').property('patternProperties'),
+        ],
+      ),
     );
-    hashExprs.add('const DeepCollectionEquality().hash(patternProperties)');
+    hashExprs.add(
+      refer(
+        'DeepCollectionEquality',
+      ).constInstance([]).property('hash').call([refer('patternProperties')]),
+    );
     toStringProps.add('patternProperties: \${patternProperties}');
   }
 
@@ -1284,16 +1385,38 @@ Class _generateObjectClass(
           ..type = refer('Map<String, $addPropsType>?'),
       ),
     );
-    copyWithKeys.writeln('    if (additionalProperties != null) {');
-    copyWithKeys.writeln("      nextKeys?.add('additionalProperties');");
-    copyWithKeys.writeln('    }');
-    copyWithArgs.writeln(
-      '      additionalProperties: additionalProperties ?? this.additionalProperties,',
+    copyWithNamedArgs['additionalProperties'] = refer(
+      'additionalProperties',
+    ).ifNullThen(refer('this').property('additionalProperties'));
+    copyWithKeyBranches.add(
+      Conditional(
+        (cb) => cb
+          ..branches.add(
+            Branch(
+              (bb) => bb
+                ..condition = Condition.expression(
+                  refer('additionalProperties').notEqualTo(literalNull),
+                )
+                ..body = refer('nextKeys').nullSafeProperty('add').call([
+                  literalString('additionalProperties'),
+                ]).statement,
+            ),
+          ),
+      ),
     );
     equalityProps.add(
-      'const DeepCollectionEquality().equals(additionalProperties, other.additionalProperties)',
+      refer(
+        'DeepCollectionEquality',
+      ).constInstance([]).property('equals').call([
+        refer('additionalProperties'),
+        refer('other').property('additionalProperties'),
+      ]),
     );
-    hashExprs.add('const DeepCollectionEquality().hash(additionalProperties)');
+    hashExprs.add(
+      refer('DeepCollectionEquality').constInstance([]).property('hash').call([
+        refer('additionalProperties'),
+      ]),
+    );
     toStringProps.add('additionalProperties: \${additionalProperties}');
   }
 
@@ -1306,10 +1429,6 @@ Class _generateObjectClass(
     ),
   );
 
-  final equalityExpr = equalityProps.isEmpty
-      ? 'true'
-      : equalityProps.join(' && ');
-
   final validationMethods = _generateValidationMethods(
     schema,
     className,
@@ -1317,20 +1436,24 @@ Class _generateObjectClass(
     fieldNames,
   );
 
-  final propDescriptors = StringBuffer();
-  final getFieldsMap = StringBuffer();
-  final instantiateArgs = StringBuffer();
+  final propDescriptors = <Object, Expression>{};
+  final getFieldsEntries = <Object, Object>{};
+  final instantiateNamedArgs = <String, Expression>{};
 
   schema.properties?.forEach((name, propSchema) {
     final fieldName = fieldNames[name]!;
-    final nameEscaped = escapeStringContents(name);
     final isRequired = schema.required?.contains(name) == true;
     final descExpr = _descriptorExpr(propSchema, classNames);
 
-    propDescriptors.writeln(
-      "      '$nameEscaped': PropertyDescriptor(name: '$nameEscaped', isRequired: $isRequired, schema: $descExpr),",
-    );
-    getFieldsMap.writeln("      '$nameEscaped': typedInstance.$fieldName,");
+    propDescriptors[_dartString(name)] = refer('PropertyDescriptor')
+        .newInstanceNamed('', [], {
+          'name': _dartString(name),
+          'isRequired': literalBool(isRequired),
+          'schema': descExpr,
+        });
+    getFieldsEntries[_dartString(name)] = refer(
+      'typedInstance',
+    ).property(fieldName);
 
     final baseType = dartType(propSchema, classNames);
     final hasDefault = propSchema.hasDefault;
@@ -1344,19 +1467,19 @@ Class _generateObjectClass(
     }
 
     final fieldType = _fieldType(propSchema, isRequired, context);
+    final fieldAccess = refer(
+      'fields',
+    ).index(_dartString(name)).asA(refer(isRequired ? baseType : fieldType));
 
     if (isRequired) {
-      instantiateArgs.writeln(
-        "        $fieldName: fields['$nameEscaped'] as $baseType,",
-      );
+      instantiateNamedArgs[fieldName] = fieldAccess;
     } else if (defaultLiteral != null) {
-      instantiateArgs.writeln(
-        "        $fieldName: fields.containsKey('$nameEscaped') ? fields['$nameEscaped'] as $fieldType : $defaultLiteral,",
-      );
+      instantiateNamedArgs[fieldName] = refer('fields')
+          .property('containsKey')
+          .call([_dartString(name)])
+          .conditional(fieldAccess, CodeExpression(Code(defaultLiteral)));
     } else {
-      instantiateArgs.writeln(
-        "        $fieldName: fields['$nameEscaped'] as $fieldType,",
-      );
+      instantiateNamedArgs[fieldName] = fieldAccess;
     }
   });
 
@@ -1373,67 +1496,101 @@ Class _generateObjectClass(
   }
 
   if (hasPatternProps) {
-    getFieldsMap.writeln("      ...typedInstance.patternProperties,");
-    instantiateArgs.writeln('''
-        patternProperties: fields.entries.where((e) {
+    getFieldsEntries[literalSpread()] = refer(
+      'typedInstance',
+    ).property('patternProperties');
+    instantiateNamedArgs['patternProperties'] = CodeExpression(
+      Code('''fields.entries.where((e) {
           if (const $propKeysLiteral.contains(e.key)) return false;
           return $patternMatchExpr;
-        }).fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value),''');
+        }).fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value)'''),
+    );
   }
 
   if (hasAdditionalProps) {
-    getFieldsMap.writeln("      ...typedInstance.additionalProperties,");
+    getFieldsEntries[literalSpread()] = refer(
+      'typedInstance',
+    ).property('additionalProperties');
     final addPropsType = dartType(
       schema.additionalProperties ?? Schema.anything,
       classNames,
     );
     final condExpr = hasPatternProps ? '!($patternMatchExpr)' : 'true';
-    instantiateArgs.writeln(
-      "        additionalProperties: fields.entries.where((e) => !const $propKeysLiteral.contains(e.key) && $condExpr).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType),",
+    instantiateNamedArgs['additionalProperties'] = CodeExpression(
+      Code(
+        "fields.entries.where((e) => !const $propKeysLiteral.contains(e.key) && $condExpr).fold<Map<String, $addPropsType>>({}, (m, e) => m..[e.key] = e.value as $addPropsType)",
+      ),
     );
   }
+
+  instantiateNamedArgs['explicitKeys'] = refer(
+    'fields',
+  ).property('keys').property('toSet').call([]);
 
   final addPropsExpr = _descriptorExpr(
     schema.additionalProperties ?? Schema.anything,
     classNames,
   );
 
-  final patternPropsExprs = <String>[];
+  final patternPropsMap = <Object, Expression>{};
   var i = 0;
   schema.patternProperties?.forEach((pattern, patternSchema) {
     final descExpr = _descriptorExpr(patternSchema, classNames);
-    patternPropsExprs.add('_patternRegex$i: $descExpr');
+    patternPropsMap[refer('_patternRegex$i')] = descExpr;
     i++;
   });
-  final patternPropsExpr = patternPropsExprs.isEmpty
-      ? ''
-      : 'patternProperties: {${patternPropsExprs.join(', ')}},';
 
-  final descriptorString =
-      '''ObjectDescriptor<$className>(
-    title: '$className',
-    matches: (instance) => instance is $className,
-    instantiate: (fields) => $className(
-$instantiateArgs        explicitKeys: fields.keys.toSet(),
-    ),
-    getFields: (instance) {
-      final typedInstance = instance as $className;
-      final map = <String, dynamic>{
-$getFieldsMap      };
-      final explicit = typedInstance._\$explicitKeys;
-      if (explicit != null) {
-        return map.entries
-            .where((e) => e.value != null || explicit.contains(e.key))
-            .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
-      }
-      return map..removeWhere((k, v) => v == null);
+  final descriptorExpr = refer('ObjectDescriptor').newInstanceNamed(
+    '',
+    [],
+    {
+      'title': _dartString(className),
+      'matches': Method(
+        (m) => m
+          ..lambda = true
+          ..requiredParameters.add(Parameter((p) => p..name = 'instance'))
+          ..body = refer('instance').isA(refer(className)).code,
+      ).closure,
+      'instantiate': Method(
+        (m) => m
+          ..lambda = true
+          ..requiredParameters.add(Parameter((p) => p..name = 'fields'))
+          ..body = refer(className).call([], instantiateNamedArgs).code,
+      ).closure,
+      'getFields': Method(
+        (m) => m
+          ..requiredParameters.add(Parameter((p) => p..name = 'instance'))
+          ..body = Block.of([
+            declareFinal(
+              'typedInstance',
+            ).assign(refer('instance').asA(refer(className))).statement,
+            declareFinal('map')
+                .assign(
+                  literalMap(
+                    getFieldsEntries,
+                    refer('String'),
+                    refer('dynamic'),
+                  ),
+                )
+                .statement,
+            Code(r'''final explicit = typedInstance._$explicitKeys;
+if (explicit != null) {
+  return map.entries
+      .where((e) => e.value != null || explicit.contains(e.key))
+      .fold<Map<String, dynamic>>({}, (m, e) => m..[e.key] = e.value);
+}
+return map..removeWhere((k, v) => v == null);'''),
+          ]),
+      ).closure,
+      'properties': literalMap(propDescriptors),
+      if (hasPatternProps) 'patternProperties': literalMap(patternPropsMap),
+      'required': literalConstList(
+        (schema.required ?? const <String>{}).map(_dartString).toList(),
+      ),
+      'additionalProperties': addPropsExpr,
     },
-    properties: {
-$propDescriptors    },
-    $patternPropsExpr
-    required: const [${(schema.required ?? const <String>{}).map(dartStringLiteral).join(', ')}],
-    additionalProperties: $addPropsExpr,
-  )''';
+    [refer(className)],
+  );
 
   classFields.add(
     Field(
@@ -1442,7 +1599,7 @@ $propDescriptors    },
         ..static = true
         ..modifier = FieldModifier.final$
         ..type = refer('ObjectDescriptor<$className>')
-        ..assignment = Code(descriptorString),
+        ..assignment = descriptorExpr.code,
     ),
   );
 
@@ -1527,7 +1684,9 @@ $propDescriptors    },
         ),
       )
       ..lambda = true
-      ..body = const Code('writeWithDescriptor(target, this, descriptor)'),
+      ..body = refer(
+        'writeWithDescriptor',
+      ).call([refer('target'), refer('this'), refer('descriptor')]).code,
   );
 
   final toJsonMethod = Method(
@@ -1535,9 +1694,13 @@ $propDescriptors    },
       ..name = 'toJson'
       ..returns = refer('String')
       ..body = Block.of([
-        Code('''final buffer = StringBuffer();
-writeJson(jsonStringWriter(buffer));
-return buffer.toString();'''),
+        declareFinal(
+          'buffer',
+        ).assign(refer('StringBuffer').newInstance([])).statement,
+        refer('writeJson').call([
+          refer('jsonStringWriter').call([refer('buffer')]),
+        ]).statement,
+        refer('buffer').property('toString').call([]).returned.statement,
       ]),
   );
 
@@ -1547,10 +1710,23 @@ return buffer.toString();'''),
       ..name = 'toJsonValue'
       ..returns = refer('Object?')
       ..body = Block.of([
-        Code('''Object? result;
-final sink = jsonObjectWriter((obj) => result = obj);
-writeJson(sink);
-return result;'''),
+        declareVar('result', type: refer('Object?')).statement,
+        declareFinal('sink')
+            .assign(
+              refer('jsonObjectWriter').call([
+                Method(
+                  (mb) => mb
+                    ..lambda = true
+                    ..requiredParameters.add(
+                      Parameter((pb) => pb..name = 'obj'),
+                    )
+                    ..body = refer('result').assign(refer('obj')).code,
+                ).closure,
+              ]),
+            )
+            .statement,
+        refer('writeJson').call([refer('sink')]).statement,
+        refer('result').returned.statement,
       ]),
   );
 
@@ -1560,7 +1736,9 @@ return result;'''),
       ..name = 'toMap'
       ..returns = refer('Map<String, dynamic>')
       ..lambda = true
-      ..body = const Code('toJsonValue() as Map<String, dynamic>'),
+      ..body = refer(
+        'toJsonValue',
+      ).call([]).asA(refer('Map<String, dynamic>')).code,
   );
 
   final copyWithMethod = copyWithParams.isEmpty
@@ -1569,7 +1747,9 @@ return result;'''),
             ..name = 'copyWith'
             ..returns = refer(className)
             ..lambda = true
-            ..body = Code('$className(explicitKeys: _\$explicitKeys)'),
+            ..body = refer(
+              className,
+            ).call([], {'explicitKeys': refer(r'_$explicitKeys')}).code,
         )
       : Method(
           (b) => b
@@ -1577,15 +1757,40 @@ return result;'''),
             ..returns = refer(className)
             ..optionalParameters.addAll(copyWithParams)
             ..body = Block.of([
-              Code(
-                '''final nextKeys = _\$explicitKeys != null ? Set<String>.from(_\$explicitKeys) : null;
-$copyWithKeys
-return $className(
-$copyWithArgs      explicitKeys: nextKeys,
-);''',
-              ),
+              declareFinal('nextKeys')
+                  .assign(
+                    refer(r'_$explicitKeys')
+                        .notEqualTo(literalNull)
+                        .conditional(
+                          refer(
+                            'Set<String>',
+                          ).property('from').call([refer(r'_$explicitKeys')]),
+                          literalNull,
+                        ),
+                  )
+                  .statement,
+              ...copyWithKeyBranches,
+              refer(className)
+                  .call([], {
+                    ...copyWithNamedArgs,
+                    'explicitKeys': refer('nextKeys'),
+                  })
+                  .returned
+                  .statement,
             ]),
         );
+
+  var equalityConditions = refer('other')
+      .isA(refer(className))
+      .and(
+        refer('runtimeType').equalTo(refer('other').property('runtimeType')),
+      );
+  for (final prop in equalityProps) {
+    equalityConditions = equalityConditions.and(prop);
+  }
+  final equalsBody = refer(
+    'identical',
+  ).call([refer('this'), refer('other')]).or(equalityConditions);
 
   final equalsMethod = Method(
     (b) => b
@@ -1600,10 +1805,7 @@ $copyWithArgs      explicitKeys: nextKeys,
         ),
       )
       ..lambda = true
-      ..body = Code('''identical(this, other) ||
-other is $className &&
-    runtimeType == other.runtimeType &&
-    $equalityExpr'''),
+      ..body = equalsBody.code,
   );
 
   final hashCodeMethod = Method(
@@ -1613,9 +1815,9 @@ other is $className &&
       ..name = 'hashCode'
       ..returns = refer('int')
       ..lambda = true
-      ..body = Code(
-        'Object.hashAll([\n        ${hashExprs.join(',\n        ')}\n      ])',
-      ),
+      ..body = refer(
+        'Object',
+      ).property('hashAll').call([literalList(hashExprs)]).code,
   );
 
   final toStringMethod = Method(
@@ -1993,7 +2195,9 @@ List<Method> _generateValidationMethods(
         }
       } else {
         final escapedName = escapeStringContents(name);
-        final descExpr = _descriptorExpr(propSchema.not!, classNames);
+        final descExpr = _expressionToDart(
+          _descriptorExpr(propSchema.not!, classNames),
+        );
         buffer.writeln('    bool notMatches_$fieldName = true;');
         buffer.writeln('    try {');
         buffer.writeln(
@@ -2101,10 +2305,23 @@ List<Method> _generateValidationMethods(
         ..name = 'validate'
         ..returns = refer('void')
         ..body = Block.of([
-          Code('''final errors = collectErrors();
-if (errors.isNotEmpty) {
-  throw JsonValidationException(errors);
-}'''),
+          declareFinal(
+            'errors',
+          ).assign(refer('collectErrors').call([])).statement,
+          Conditional(
+            (cb) => cb
+              ..branches.add(
+                Branch(
+                  (bb) => bb
+                    ..condition = Condition.expression(
+                      refer('errors').property('isNotEmpty'),
+                    )
+                    ..body = refer(
+                      'JsonValidationException',
+                    ).newInstance([refer('errors')]).thrown.statement,
+                ),
+              ),
+          ),
         ]),
     ),
   ];
@@ -2540,7 +2757,9 @@ void _generateSchemaValidations(
         validations.writeln('      }');
       }
     } else {
-      final descExpr = _descriptorExpr(schema.not!, classNames);
+      final descExpr = _expressionToDart(
+        _descriptorExpr(schema.not!, classNames),
+      );
       validations.writeln('      bool notMatches = true;');
       validations.writeln('      try {');
       validations.writeln(
@@ -2686,19 +2905,34 @@ List<Spec> _generateUnionClass(
       disc != null &&
       analysis.activeSchemas.every((s) => s.realSchema.isObject);
 
-  final optionDescriptors = StringBuffer();
-  final mappingEntries = StringBuffer();
+  final activeOptions = <Expression>[];
   int i = 0;
   for (final sub in analysis.activeSchemas) {
     final subClassName = context.unionOptionName(schema, className, i);
     final descExpr = _descriptorExpr(sub, classNames);
     final optionType = dartType(sub, classNames);
-    optionDescriptors.writeln(
-      "      UnionOptionDescriptor<$className, $optionType>($descExpr, (val) => $subClassName(val as $optionType)),",
+    activeOptions.add(
+      refer('UnionOptionDescriptor').newInstanceNamed(
+        '',
+        [
+          descExpr,
+          Method(
+            (mb) => mb
+              ..lambda = true
+              ..requiredParameters.add(Parameter((pb) => pb..name = 'val'))
+              ..body = refer(
+                subClassName,
+              ).call([refer('val').asA(refer(optionType))]).code,
+          ).closure,
+        ],
+        {},
+        [refer(className), refer(optionType)],
+      ),
     );
     i++;
   }
 
+  final discriminatorMappingEntries = <Object, Expression>{};
   if (useDiscriminator) {
     int i = 0;
     for (final sub in analysis.activeSchemas) {
@@ -2718,23 +2952,43 @@ List<Spec> _generateUnionClass(
         caseLabels.add(sub.realSchema.title!);
       }
 
+      final optionDescExpr = refer('UnionOptionDescriptor').newInstanceNamed(
+        '',
+        [
+          _descriptorExpr(sub, classNames),
+          Method(
+            (mb) => mb
+              ..lambda = true
+              ..requiredParameters.add(Parameter((pb) => pb..name = 'val'))
+              ..body = refer(
+                subClassName,
+              ).call([refer('val').asA(refer(optionType))]).code,
+          ).closure,
+        ],
+        {},
+        [refer(className), refer(optionType)],
+      );
+
       for (final label in caseLabels.toSet()) {
-        mappingEntries.writeln(
-          "      ${dartStringLiteral(label)}: UnionOptionDescriptor<$className, $optionType>(${_descriptorExpr(sub, classNames)}, (val) => $subClassName(val as $optionType)),",
-        );
+        discriminatorMappingEntries[_dartString(label)] = optionDescExpr;
       }
       i++;
     }
   }
 
-  final descriptorString =
-      '''UnionDescriptor<$className>(
-    title: '$className',
-    ${useDiscriminator ? 'discriminatorProperty: ${dartStringLiteral(disc.propertyName)},' : ''}
-    ${useDiscriminator ? 'discriminatorMapping: {\n$mappingEntries    },' : ''}
-    activeOptions: [
-$optionDescriptors    ],
-  )''';
+  final unionDescriptorExpr = refer('UnionDescriptor').newInstanceNamed(
+    '',
+    [],
+    {
+      'title': _dartString(className),
+      if (useDiscriminator)
+        'discriminatorProperty': _dartString(disc.propertyName),
+      if (useDiscriminator)
+        'discriminatorMapping': literalMap(discriminatorMappingEntries),
+      'activeOptions': literalList(activeOptions),
+    },
+    [refer(className)],
+  );
 
   final baseClass = Class((b) {
     if (schema.isDeprecated) {
@@ -2816,7 +3070,9 @@ $optionDescriptors    ],
             ),
           )
           ..lambda = true
-          ..body = const Code('writeWithDescriptor(target, this, descriptor)'),
+          ..body = refer(
+            'writeWithDescriptor',
+          ).call([refer('target'), refer('this'), refer('descriptor')]).code,
       ),
     );
     b.methods.add(
@@ -2825,9 +3081,13 @@ $optionDescriptors    ],
           ..name = 'toJson'
           ..returns = refer('String')
           ..body = Block.of([
-            Code('''final buffer = StringBuffer();
-writeJson(jsonStringWriter(buffer));
-return buffer.toString();'''),
+            declareFinal(
+              'buffer',
+            ).assign(refer('StringBuffer').newInstance([])).statement,
+            refer('writeJson').call([
+              refer('jsonStringWriter').call([refer('buffer')]),
+            ]).statement,
+            refer('buffer').property('toString').call([]).returned.statement,
           ]),
       ),
     );
@@ -2838,10 +3098,23 @@ return buffer.toString();'''),
           ..name = 'toJsonValue'
           ..returns = refer('Object?')
           ..body = Block.of([
-            Code('''Object? result;
-final sink = jsonObjectWriter((obj) => result = obj);
-writeJson(sink);
-return result;'''),
+            declareVar('result', type: refer('Object?')).statement,
+            declareFinal('sink')
+                .assign(
+                  refer('jsonObjectWriter').call([
+                    Method(
+                      (mb) => mb
+                        ..lambda = true
+                        ..requiredParameters.add(
+                          Parameter((pb) => pb..name = 'obj'),
+                        )
+                        ..body = refer('result').assign(refer('obj')).code,
+                    ).closure,
+                  ]),
+                )
+                .statement,
+            refer('writeJson').call([refer('sink')]).statement,
+            refer('result').returned.statement,
           ]),
       ),
     );
@@ -2860,10 +3133,23 @@ return result;'''),
           ..name = 'validate'
           ..returns = refer('void')
           ..body = Block.of([
-            Code('''final errors = collectErrors();
-if (errors.isNotEmpty) {
-  throw JsonValidationException(errors);
-}'''),
+            declareFinal(
+              'errors',
+            ).assign(refer('collectErrors').call([])).statement,
+            Conditional(
+              (cb) => cb
+                ..branches.add(
+                  Branch(
+                    (bb) => bb
+                      ..condition = Condition.expression(
+                        refer('errors').property('isNotEmpty'),
+                      )
+                      ..body = refer(
+                        'JsonValidationException',
+                      ).newInstance([refer('errors')]).thrown.statement,
+                  ),
+                ),
+            ),
           ]),
       ),
     );
@@ -2874,7 +3160,7 @@ if (errors.isNotEmpty) {
           ..static = true
           ..modifier = FieldModifier.final$
           ..type = refer('UnionDescriptor<$className>')
-          ..assignment = Code(descriptorString),
+          ..assignment = unionDescriptorExpr.code,
       ),
     );
   });
@@ -2966,11 +3252,28 @@ return errors;'''
         optionType == 'dynamic' ||
         optionType == 'Object?';
     final equalityExpr = isColl
-        ? 'const DeepCollectionEquality().equals(value, other.value)'
-        : 'value == other.value';
+        ? refer('DeepCollectionEquality')
+              .constInstance([])
+              .property('equals')
+              .call([refer('value'), refer('other').property('value')])
+        : refer('value').equalTo(refer('other').property('value'));
     final hashExpr = isColl
-        ? 'const DeepCollectionEquality().hash(value)'
-        : 'value.hashCode';
+        ? refer(
+            'DeepCollectionEquality',
+          ).constInstance([]).property('hash').call([refer('value')])
+        : refer('value').property('hashCode');
+    final optionEqualsBody = refer('identical')
+        .call([refer('this'), refer('other')])
+        .or(
+          refer('other')
+              .isA(refer(subClassName))
+              .and(
+                refer(
+                  'runtimeType',
+                ).equalTo(refer('other').property('runtimeType')),
+              )
+              .and(equalityExpr),
+        );
 
     final optClass = Class((b) {
       if (sub.isDeprecated) {
@@ -3015,7 +3318,9 @@ return errors;'''
               ),
             )
             ..body = Block.of([
-              Code('writeWithDescriptor(target, value, $descExpr);'),
+              refer(
+                'writeWithDescriptor',
+              ).call([refer('target'), refer('value'), descExpr]).statement,
             ]),
         ),
       );
@@ -3034,10 +3339,7 @@ return errors;'''
               ),
             )
             ..lambda = true
-            ..body = Code('''identical(this, other) ||
-other is $subClassName &&
-    runtimeType == other.runtimeType &&
-    $equalityExpr'''),
+            ..body = optionEqualsBody.code,
         ),
       );
       b.methods.add(
@@ -3048,7 +3350,7 @@ other is $subClassName &&
             ..name = 'hashCode'
             ..returns = refer('int')
             ..lambda = true
-            ..body = Code(hashExpr),
+            ..body = hashExpr.code,
         ),
       );
       b.methods.add(
