@@ -2051,6 +2051,24 @@ bool _hasItemValidation(Schema schema) {
 ///    by calling [_generateSchemaValidations]. If a property is nullable, these checks are wrapped in an `if (field != null)` block.
 /// 4. **Pattern Properties**: Generates code to iterate over `patternProperties` Map and validate keys/values against matching RegExp schemas.
 /// 5. **Additional Properties**: Generates validation for any properties not explicitly defined, using `_generateArrayItemValidation` or inline validations.
+/// Emits code that creates and appends a [ValidationError] to [errorsVar].
+///
+/// [message] is a Dart expression string evaluating to the error message.
+/// If [pathExpr] is omitted or null, no `path:` argument is emitted.
+void _emitValidationError(
+  StringBuffer buffer, {
+  required String message,
+  required String keyword,
+  String? pathExpr,
+  String errorsVar = 'errors',
+  String indent = '        ',
+}) {
+  final pathArg = pathExpr != null ? ', path: $pathExpr' : '';
+  buffer.writeln(
+    '$indent$errorsVar.add(ValidationError(message: $message$pathArg, keyword: ${dartStringLiteral(keyword)}));',
+  );
+}
+
 List<Method> _generateValidationMethods(
   Schema schema,
   String className,
@@ -2080,15 +2098,21 @@ List<Method> _generateValidationMethods(
     }
     if (schema.minProperties != null) {
       buffer.writeln('    if (count < ${schema.minProperties}) {');
-      buffer.writeln(
-        "      errors.add(ValidationError(message: 'Object must have >= ${schema.minProperties} properties', keyword: 'minProperties'));",
+      _emitValidationError(
+        buffer,
+        message: "'Object must have >= ${schema.minProperties} properties'",
+        keyword: 'minProperties',
+        indent: '      ',
       );
       buffer.writeln('    }');
     }
     if (schema.maxProperties != null) {
       buffer.writeln('    if (count > ${schema.maxProperties}) {');
-      buffer.writeln(
-        "      errors.add(ValidationError(message: 'Object must have <= ${schema.maxProperties} properties', keyword: 'maxProperties'));",
+      _emitValidationError(
+        buffer,
+        message: "'Object must have <= ${schema.maxProperties} properties'",
+        keyword: 'maxProperties',
+        indent: '      ',
       );
       buffer.writeln('    }');
     }
@@ -2124,8 +2148,13 @@ List<Method> _generateValidationMethods(
         if (depPresent == 'true') continue;
         final missing = depPresent == null ? 'true' : '!($depPresent)';
         checks.writeln('      if ($missing) {');
-        checks.writeln(
-          "        errors.add(ValidationError(message: 'Property \"$escapedDep\" is required because \"$escapedKey\" is present', path: ['$escapedDep'], keyword: 'dependentRequired'));",
+        _emitValidationError(
+          checks,
+          message:
+              "'Property \"$escapedDep\" is required because \"$escapedKey\" is present'",
+          keyword: 'dependentRequired',
+          pathExpr: "['$escapedDep']",
+          indent: '        ',
         );
         checks.writeln('      }');
       }
@@ -2187,8 +2216,12 @@ List<Method> _generateValidationMethods(
           );
           buffer.write(notValBuf.toString());
           buffer.writeln('      if (notErrors_$fieldName.isEmpty) {');
-          buffer.writeln(
-            "        errors.add(ValidationError(message: 'Property \"$escapedName\" must not match the schema', path: ['$escapedName'], keyword: 'not'));",
+          _emitValidationError(
+            buffer,
+            message: "'Property \"$escapedName\" must not match the schema'",
+            keyword: 'not',
+            pathExpr: "['$escapedName']",
+            indent: '        ',
           );
           buffer.writeln('      }');
           buffer.writeln('    }');
@@ -2212,8 +2245,12 @@ List<Method> _generateValidationMethods(
         buffer.writeln('      notMatches_$fieldName = false;');
         buffer.writeln('    }');
         buffer.writeln('    if (notMatches_$fieldName) {');
-        buffer.writeln(
-          "      errors.add(ValidationError(message: 'Property \"$escapedName\" must not match the schema', path: ['$escapedName'], keyword: 'not'));",
+        _emitValidationError(
+          buffer,
+          message: "'Property \"$escapedName\" must not match the schema'",
+          keyword: 'not',
+          pathExpr: "['$escapedName']",
+          indent: '      ',
         );
         buffer.writeln('    }');
       }
@@ -2428,7 +2465,9 @@ void _generateSchemaValidations(
   // `additionalProperties.forEach`) opt out with `escapeName: false`.
   name = escapeName ? escapeStringContents(name) : name;
   final real = schema.realSchema;
-  final effectivePath = pathExprs ?? [dartStringLiteral(unescapedName)];
+  final effectivePath =
+      pathExprs ??
+      [escapeName ? dartStringLiteral(unescapedName) : "'$unescapedName'"];
   final effectivePathExpr = '[${effectivePath.join(', ')}]';
   if ((classNames.containsKey(real) && real.enumValues == null) ||
       real.isObject ||
@@ -2439,8 +2478,12 @@ void _generateSchemaValidations(
           (real.isObject ? 'Map<String, dynamic>' : 'dynamic');
       if (className != 'dynamic') {
         validations.writeln('      if ($valueVar is! $className) {');
-        validations.writeln(
-          "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a $className', path: $effectivePathExpr, keyword: 'type'));",
+        _emitValidationError(
+          validations,
+          message: "'Property \"$name\" must be a $className'",
+          keyword: 'type',
+          pathExpr: effectivePathExpr,
+          errorsVar: errorsVar,
         );
         if (_hasValidationMethod(real) && classNames.containsKey(real)) {
           validations.writeln('      } else {');
@@ -2470,8 +2513,12 @@ void _generateSchemaValidations(
   } else if (real.isString) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! String) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a string', path: $effectivePathExpr, keyword: 'type'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be a string'",
+        keyword: 'type',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      } else {');
     }
@@ -2479,8 +2526,12 @@ void _generateSchemaValidations(
       validations.writeln(
         '      if ($valueVar.runes.length < ${real.minLength}) {',
       );
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" length must be >= ${real.minLength}', path: $effectivePathExpr, keyword: 'minLength'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" length must be >= ${real.minLength}'",
+        keyword: 'minLength',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
@@ -2488,18 +2539,29 @@ void _generateSchemaValidations(
       validations.writeln(
         '      if ($valueVar.runes.length > ${real.maxLength}) {',
       );
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" length must be <= ${real.maxLength}', path: $effectivePathExpr, keyword: 'maxLength'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" length must be <= ${real.maxLength}'",
+        keyword: 'maxLength',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
     if (real.pattern != null) {
       final patternLiteral = dartStringLiteral(real.pattern!);
       final msgPatternEscaped = escapeStringContents(real.pattern!);
-      validations.writeln('''
-      if (!RegExp($patternLiteral).hasMatch($valueVar)) {
-        $errorsVar.add(ValidationError(message: 'Property "$name" must match pattern "$msgPatternEscaped"', path: $effectivePathExpr, keyword: 'pattern'));
-      }''');
+      validations.writeln(
+        '      if (!RegExp($patternLiteral).hasMatch($valueVar)) {',
+      );
+      _emitValidationError(
+        validations,
+        message: '\'Property "$name" must match pattern "$msgPatternEscaped"\'',
+        keyword: 'pattern',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
+      );
+      validations.writeln('      }');
     }
     if (real.format != null) {
       _generateFormatValidation(
@@ -2519,44 +2581,69 @@ void _generateSchemaValidations(
       final typeCheck = real.isInteger ? 'is! int' : 'is! num';
       final typeName = real.isInteger ? 'an integer' : 'a number';
       validations.writeln('      if ($valueVar $typeCheck) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be $typeName', path: $effectivePathExpr, keyword: 'type'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be $typeName'",
+        keyword: 'type',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      } else {');
     }
     if (real.minimum != null) {
       validations.writeln('      if ($valueVar < ${real.minimum}) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be >= ${real.minimum}', path: $effectivePathExpr, keyword: 'minimum'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be >= ${real.minimum}'",
+        keyword: 'minimum',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
     if (real.maximum != null) {
       validations.writeln('      if ($valueVar > ${real.maximum}) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be <= ${real.maximum}', path: $effectivePathExpr, keyword: 'maximum'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be <= ${real.maximum}'",
+        keyword: 'maximum',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
     if (real.exclusiveMinimum != null) {
       validations.writeln('      if ($valueVar <= ${real.exclusiveMinimum}) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be > ${real.exclusiveMinimum}', path: $effectivePathExpr, keyword: 'exclusiveMinimum'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be > ${real.exclusiveMinimum}'",
+        keyword: 'exclusiveMinimum',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
     if (real.exclusiveMaximum != null) {
       validations.writeln('      if ($valueVar >= ${real.exclusiveMaximum}) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be < ${real.exclusiveMaximum}', path: $effectivePathExpr, keyword: 'exclusiveMaximum'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be < ${real.exclusiveMaximum}'",
+        keyword: 'exclusiveMaximum',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
     if (real.multipleOf != null) {
       if (real.isInteger) {
         validations.writeln('      if ($valueVar % ${real.multipleOf} != 0) {');
-        validations.writeln(
-          "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a multiple of ${real.multipleOf}', path: $effectivePathExpr, keyword: 'multipleOf'));",
+        _emitValidationError(
+          validations,
+          message:
+              "'Property \"$name\" must be a multiple of ${real.multipleOf}'",
+          keyword: 'multipleOf',
+          pathExpr: effectivePathExpr,
+          errorsVar: errorsVar,
         );
         validations.writeln('      }');
       } else {
@@ -2572,9 +2659,16 @@ void _generateSchemaValidations(
         final absError = (div - rounded).abs();
         final relError = absError / (div.abs() > 1.0 ? div.abs() : 1.0);
         return relError > 1e-14;
-      }()) {
-        $errorsVar.add(ValidationError(message: 'Property "$name" must be a multiple of ${real.multipleOf}', path: $effectivePathExpr, keyword: 'multipleOf'));
-      }''');
+      }()) {''');
+        _emitValidationError(
+          validations,
+          message:
+              '\'Property "$name" must be a multiple of ${real.multipleOf}\'',
+          keyword: 'multipleOf',
+          pathExpr: effectivePathExpr,
+          errorsVar: errorsVar,
+        );
+        validations.writeln('      }');
       }
     }
     if (checkType) {
@@ -2583,22 +2677,34 @@ void _generateSchemaValidations(
   } else if (real.isArray) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! List) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be an array', path: $effectivePathExpr, keyword: 'type'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be an array'",
+        keyword: 'type',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      } else {');
     }
     if (real.minItems != null) {
       validations.writeln('      if ($valueVar.length < ${real.minItems}) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must have >= ${real.minItems} items', path: $effectivePathExpr, keyword: 'minItems'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must have >= ${real.minItems} items'",
+        keyword: 'minItems',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
     if (real.maxItems != null) {
       validations.writeln('      if ($valueVar.length > ${real.maxItems}) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must have <= ${real.maxItems} items', path: $effectivePathExpr, keyword: 'maxItems'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must have <= ${real.maxItems} items'",
+        keyword: 'maxItems',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
@@ -2607,8 +2713,12 @@ void _generateSchemaValidations(
       validations.writeln(
         '      if ($valueVar.length != (LinkedHashSet<dynamic>(equals: const DeepCollectionEquality().equals, hashCode: const DeepCollectionEquality().hash)..addAll($valueVar)).length) {',
       );
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" items must be unique', path: $effectivePathExpr, keyword: 'uniqueItems'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" items must be unique'",
+        keyword: 'uniqueItems',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
@@ -2627,15 +2737,25 @@ void _generateSchemaValidations(
       final minContains = real.minContains ?? 1;
       if (minContains > 0) {
         validations.writeln('      if (containsCount < $minContains) {');
-        validations.writeln(
-          "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must contain at least $minContains items matching contains schema, but has \$containsCount', path: $effectivePathExpr, keyword: 'minContains'));",
+        _emitValidationError(
+          validations,
+          message:
+              "'Property \"$name\" must contain at least $minContains items matching contains schema, but has \$containsCount'",
+          keyword: 'minContains',
+          pathExpr: effectivePathExpr,
+          errorsVar: errorsVar,
         );
         validations.writeln('      }');
       }
       if (real.maxContains != null) {
         validations.writeln('      if (containsCount > ${real.maxContains}) {');
-        validations.writeln(
-          "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must contain at most ${real.maxContains} items matching contains schema, but has \$containsCount', path: $effectivePathExpr, keyword: 'maxContains'));",
+        _emitValidationError(
+          validations,
+          message:
+              "'Property \"$name\" must contain at most ${real.maxContains} items matching contains schema, but has \$containsCount'",
+          keyword: 'maxContains',
+          pathExpr: effectivePathExpr,
+          errorsVar: errorsVar,
         );
         validations.writeln('      }');
       }
@@ -2683,16 +2803,24 @@ void _generateSchemaValidations(
   } else if (real.isBoolean) {
     if (checkType) {
       validations.writeln('      if ($valueVar is! bool) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be a boolean', path: $effectivePathExpr, keyword: 'type'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be a boolean'",
+        keyword: 'type',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
   } else if (real.isNull) {
     if (checkType) {
       validations.writeln('      if ($valueVar != null) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be null', path: $effectivePathExpr, keyword: 'type'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must be null'",
+        keyword: 'type',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
@@ -2719,15 +2847,24 @@ void _generateSchemaValidations(
       '      if (!const [$valuesLiterals].any((v) => const DeepCollectionEquality().equals(v, $effectiveValue))) {',
     );
     final enumValuesText = escapeStringContents(real.enumValues.toString());
-    validations.writeln(
-      "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must be one of $enumValuesText', path: $effectivePathExpr, keyword: 'enum'));",
+    _emitValidationError(
+      validations,
+      message: "'Property \"$name\" must be one of $enumValuesText'",
+      keyword: 'enum',
+      pathExpr: effectivePathExpr,
+      errorsVar: errorsVar,
     );
     validations.writeln('      }');
   } else if (real.isAnything) {
     // Always succeeds, so do nothing.
   } else if (real.isNever) {
-    validations.writeln(
-      "      $errorsVar.add(ValidationError(message: 'Property \"$name\" matches nothing', path: $effectivePathExpr, keyword: 'false'));",
+    _emitValidationError(
+      validations,
+      message: "'Property \"$name\" matches nothing'",
+      keyword: 'false',
+      pathExpr: effectivePathExpr,
+      errorsVar: errorsVar,
+      indent: '      ',
     );
   }
 
@@ -2750,8 +2887,13 @@ void _generateSchemaValidations(
         validations.writeln('        final notErrors = <ValidationError>[];');
         validations.write(notValBuf.toString());
         validations.writeln('        if (notErrors.isEmpty) {');
-        validations.writeln(
-          "          $errorsVar.add(ValidationError(message: 'Property \"$name\" must not match the schema', path: $effectivePathExpr, keyword: 'not'));",
+        _emitValidationError(
+          validations,
+          message: "'Property \"$name\" must not match the schema'",
+          keyword: 'not',
+          pathExpr: effectivePathExpr,
+          errorsVar: errorsVar,
+          indent: '          ',
         );
         validations.writeln('        }');
         validations.writeln('      }');
@@ -2774,8 +2916,12 @@ void _generateSchemaValidations(
       validations.writeln('        notMatches = false;');
       validations.writeln('      }');
       validations.writeln('      if (notMatches) {');
-      validations.writeln(
-        "        $errorsVar.add(ValidationError(message: 'Property \"$name\" must not match the schema', path: $effectivePathExpr, keyword: 'not'));",
+      _emitValidationError(
+        validations,
+        message: "'Property \"$name\" must not match the schema'",
+        keyword: 'not',
+        pathExpr: effectivePathExpr,
+        errorsVar: errorsVar,
       );
       validations.writeln('      }');
     }
@@ -2885,8 +3031,12 @@ void _generateFormatValidation(
   // the caller; escaping again here would double up the backslashes.
   final effectivePathExpr = pathExpr ?? "['$name']";
   validations.writeln('      if ($cond) {');
-  validations.writeln(
-    "        $errorsVar.add(ValidationError(message: '$msg', path: $effectivePathExpr, keyword: 'format'));",
+  _emitValidationError(
+    validations,
+    message: "'$msg'",
+    keyword: 'format',
+    pathExpr: effectivePathExpr,
+    errorsVar: errorsVar,
   );
   validations.writeln('      }');
 }
